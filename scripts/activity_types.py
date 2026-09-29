@@ -164,8 +164,8 @@ RULES = [
                             r"mindful", r"first aid", r"cpr",
                             r"defibrillator", r"carer", r"aged care",
                             r"my aged care", r"health check", r"blood pressure",
-                            r"diabetes", r"arthritis", r"falls prevention",
-                            r"fall prevention", r"fall prevention program"]),
+                             r"diabetes", r"arthritis", r"falls prevention",
+                             r"fall prevention program"]),
     # Late, so a child-specific program with a real subject of its own keeps
     # it: "Calm and Confident Kids" is Health & Wellbeing, not just for kids.
     # Deliberately no \bfamil(y|ies)\b: that is Social & Community's, and the

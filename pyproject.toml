@@ -1,0 +1,16 @@
+[project]
+name = "eventscal"
+version = "1.0.0"
+description = "Community events aggregator for Melbourne's southeastern suburbs"
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4==4.15.0",
+    "pyyaml==6.0.2",
+    "rapidfuzz==3.14.6",
+    "curl-cffi==0.16.3",
+    "pypdf==6.19.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends._legacy:_Backend"

@@ -92,7 +92,7 @@ def _venue_hit(location, address):
     # Unambiguous commercial words win outright, so a venue named
     # "Parkview Tavern" is not rescued by the allowlist's \bpark\b.
     for rx in HARD_VENUE_RE:
-        if rx.search(blob_wo_public if rx is PUB_VENUE_RE else blob):
+        if rx.search(blob_wo_public if rx.pattern == r"\bpub\b" else blob):
             return True
     # Ambiguous words may be exempted by a clearly community venue string.
     if not ALLOWLIST_RE.search(blob) or RSL_RE.search(blob):

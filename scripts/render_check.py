@@ -94,7 +94,8 @@ def describe_js_error(browser, profile):
 
     Only called after a failure, so the passing path stays fast.
     """
-    src = open(INDEX, encoding="utf-8").read()
+    with open(INDEX, encoding="utf-8") as f:
+        src = f.read()
     handler = ("<script>window.__errs=[];"
                "window.onerror=function(m,s,l,c){window.__errs.push(m+' (line '+l+')');"
                "return false;};</script>")
@@ -159,7 +160,8 @@ def main():
         # events, so the table is always smaller than the dataset.
         try:
             import json
-            total = len(json.load(open(EVENTS, encoding="utf-8"))["rows"])
+            with open(EVENTS, encoding="utf-8") as jf:
+                total = len(json.load(jf)["rows"])
             header = re.search(r"(\d+)\s*events", dom)
             if header and int(header.group(1)) != total:
                 print("NOTE: page header claims %s events but data/events.json "

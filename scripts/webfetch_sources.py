@@ -15,6 +15,7 @@ Usage:
 import argparse
 import sys
 from datetime import datetime
+from pathlib import Path
 
 import yaml
 
@@ -26,7 +27,8 @@ from webfetch_granicus import fetch_granicus
 from webfetch_http import PartialFetch, make_session, parse_day_month_year
 from webfetch_seniors import fetch_kingston_seniors
 
-SNAP_DIR = "scripts/webfetch_snapshots"
+ROOT = Path(__file__).resolve().parent.parent
+SNAP_DIR = str(ROOT / "scripts" / "webfetch_snapshots")
 
 
 FETCHERS = {"bayside": fetch_bayside, "granicus": fetch_granicus,
@@ -74,7 +76,7 @@ def main():
     ap.add_argument("--detail-cap", type=int, default=None)
     args = ap.parse_args()
 
-    with open("scripts/sources.yaml", encoding="utf-8") as f:
+    with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
     session = make_session()

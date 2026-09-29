@@ -3,7 +3,7 @@ import re
 import time
 from datetime import datetime
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
 from webfetch_http import PartialFetch, get
 
@@ -95,7 +95,6 @@ def _ccc_section_span(start_el, next_el, max_elements=4000):
     so next_elements would otherwise run on through <script> and the footer,
     pulling unrelated text into the description.
     """
-    from bs4 import NavigableString
     parts, links, seen_links = [], [], set()
     for count, el in enumerate(start_el.next_elements):
         if count >= max_elements:

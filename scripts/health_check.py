@@ -17,11 +17,14 @@ import re
 import sys
 from collections import Counter
 from datetime import date
+from pathlib import Path
 
 import yaml
 
-from dedupe import PRUNE_DAYS, _venue_head, name_head
-from recurrence import _weekday_slots
+from dedupe import PRUNE_DAYS, name_head, venue_head
+from recurrence import weekday_slots
+
+ROOT = Path(__file__).resolve().parent.parent
 
 PLACEHOLDERS = ("__EVENTS_DATA__", "__GENERATED_AT__", "__EVENT_COUNT__",
                 "__SOURCE_COUNT__", "__TYPE_CHECKBOXES__")
@@ -45,7 +48,7 @@ def seniors_config_errors(today=None):
     """
     today = today or date.today()
     try:
-        with open("scripts/sources.yaml", encoding="utf-8") as f:
+        with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
             cfg = yaml.safe_load(f) or {}
     except FileNotFoundError:
         return ["sources.yaml missing - cannot verify the seniors config"]
@@ -65,7 +68,7 @@ def seniors_config_errors(today=None):
 
     errors = []
     try:
-        with open("scripts/seniors_festival_overrides.json",
+        with open(ROOT / "scripts" / "seniors_festival_overrides.json",
                   encoding="utf-8") as f:
             ov_year = (json.load(f) or {}).get("year")
     except (OSError, ValueError) as e:
@@ -206,7 +209,7 @@ def main():
             continue
         text = r.get("description") or ""
         stated = {start for day, start, _end
-                  in _weekday_slots(text)
+                  in weekday_slots(text)
                   if start and _weekday_of(iso) == day}
         if len(stated) == 1 and iso[11:16] not in stated:
             stale.append(f"{r.get('name')} ({iso[11:16]} vs {stated.pop()})")
@@ -223,7 +226,7 @@ def main():
     for r in rows:
         iso = str(r.get("datetime_iso") or "")
         head = name_head(r.get("name"))
-        venue = _venue_head(r.get("location"))
+        venue = venue_head(r.get("location"))
         if not head or not venue or "T" not in iso:
             continue
         key = (head, venue, iso)
@@ -245,7 +248,7 @@ def main():
     # Every source label needs a badge: CSS class + friendly-name entries,
     # or its badge renders as invisible white-on-white text.
     try:
-        with open("src/templates/index.html", encoding="utf-8") as f:
+        with open(ROOT / "src" / "templates" / "index.html", encoding="utf-8") as f:
             tpl = f.read()
         css = set(re.findall(r"\.badge-([a-z_]+)\{", tpl))
         for label in labels:
@@ -278,7 +281,7 @@ def main():
 
     # The built page is what users actually load; check the artefact too.
     try:
-        with open("index.html", encoding="utf-8") as f:
+        with open(ROOT / "index.html", encoding="utf-8") as f:
             built = f.read()
         n_doctype = built.lower().count("<!doctype")
         if n_doctype != 1:

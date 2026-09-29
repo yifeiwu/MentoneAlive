@@ -12,11 +12,14 @@ import sys
 import time
 import urllib.request
 from datetime import datetime
+from pathlib import Path
 
 import yaml
 from bs4 import BeautifulSoup
 
 from jsonio import write_json
+
+ROOT = Path(__file__).resolve().parent.parent
 
 BASE = "https://www.kingston.vic.gov.au"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -432,7 +435,7 @@ def fetch_source(cfg):
 
 
 def main():
-    with open("scripts/sources.yaml", encoding="utf-8") as f:
+    with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
     all_rows = []
@@ -470,7 +473,7 @@ def main():
         r["has_real_date"] = has_real_date
 
     print(f"\nTotal raw events: {len(all_rows)}")
-    write_json("data/raw_events.json", all_rows)
+    write_json(ROOT / "data" / "raw_events.json", all_rows)
     print("Wrote data/raw_events.json")
 
     if failures:

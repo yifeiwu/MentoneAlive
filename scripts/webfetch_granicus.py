@@ -40,6 +40,8 @@ def fetch_granicus(session, cfg, detail_cap):
         desc = desc_el.get_text(" ", strip=True) if desc_el else name
         addr_el = card.select_one(".list-item-address")
         venue = addr_el.get_text(" ", strip=True) if addr_el else ""
+        if date_text and not re.search(r"\d{4}", date_text):
+            print(f"  {cfg['id']}: date {date_text!r} has no year, appending current year")
         day = parse_day_month_year(date_text + f" {datetime.now().year}"
                                    if date_text and not re.search(r"\d{4}", date_text)
                                    else date_text)

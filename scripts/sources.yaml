@@ -46,6 +46,8 @@ webfetch:
     type: "kingston_seniors_pdf"
     pdf_url: "https://www.kingston.vic.gov.au/files/sharedassets/public/v/2/hptrim/social-development-community-development-seniors-festival/seniors-festival-magazine_fa-spreads.pdf"
     info_url: "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival"
+    # ANNUAL: must be updated when the new festival guide is published.
+    # health_check.py will fail the build if this is stale during Sept-Nov.
     year: 2026
     snapshot: "kingston_seniors.json"
 

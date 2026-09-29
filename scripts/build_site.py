@@ -4,10 +4,13 @@ import json
 import re
 from collections import Counter
 from datetime import datetime
+from pathlib import Path
 
 from activity_types import classify
 from commercial import is_commercial
 from jsonio import write_json
+
+ROOT = Path(__file__).resolve().parent.parent
 
 # Only these may be published as a link target. A javascript:/data: URL in
 # row["source"] would otherwise be inlined verbatim and reach an href, where
@@ -91,7 +94,7 @@ def _is_street(seg):
 
 
 def main():
-    with open("data/events.json", encoding="utf-8") as f:
+    with open(ROOT / "data" / "events.json", encoding="utf-8") as f:
         data = json.load(f)
 
     rows = data.get("rows", [])
@@ -109,7 +112,7 @@ def main():
     data["rows"] = rows
     data["type_counts"] = dict(Counter(r.get("type", "Other") for r in rows))
     data["commercial_count"] = sum(1 for r in rows if r.get("is_commercial"))
-    write_json("data/events.json", data)
+    write_json(ROOT / "data" / "events.json", data)
     print(f"Wrote data/events.json with types + commercial "
           f"({data['commercial_count']} commercial)")
 
@@ -117,7 +120,7 @@ def main():
     types = sorted(type_counts.keys())
     sources = sorted({r.get("source_label", "unknown") for r in rows})
 
-    template_path = "src/templates/index.html"
+    template_path = ROOT / "src" / "templates" / "index.html"
     with open(template_path, encoding="utf-8") as f:
         template = f.read()
 
@@ -140,10 +143,7 @@ def main():
         type_html += f'<label class="tcheck"><input type="checkbox" data-type="{t_esc}" checked> {html.escape(t)} ({type_counts[t]})</label>\n'
     html_out = html_out.replace("__TYPE_CHECKBOXES__", type_html)
 
-    # Legacy placeholder removed from template; tolerate old templates.
-    html_out = html_out.replace("__LOCATION_OPTIONS__", "")
-
-    with open("index.html", "w", encoding="utf-8") as f:
+    with open(ROOT / "index.html", "w", encoding="utf-8") as f:
         f.write(html_out)
 
     print(f"Wrote index.html ({len(html_out)} bytes)")

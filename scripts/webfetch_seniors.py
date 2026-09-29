@@ -1,6 +1,9 @@
 """Kingston Seniors Festival (annual PDF event guide)."""
+import io
 import re
 import time
+from bisect import bisect_right
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
@@ -201,8 +204,6 @@ def fetch_kingston_seniors(session, cfg, detail_cap):
     if not pdf_bytes:
         print(f"  seniors PDF failed: {last}")
         return []
-    import io
-    from bisect import bisect_right
     reader = PdfReader(io.BytesIO(pdf_bytes))
     full = "\n".join((p.extract_text() or "") for p in reader.pages)
     print(f"  seniors PDF: {len(reader.pages)} pages, {len(full)} chars")
@@ -347,7 +348,6 @@ def fetch_kingston_seniors(session, cfg, detail_cap):
         elif not direct and pooled:
             dateless.append((page_idx, base))
     # Map pool groups to dateless events, per page.
-    from collections import defaultdict
     pool_by_page, dateless_by_page = defaultdict(list), defaultdict(list)
     for entry in pool:
         pool_by_page[entry[0]].append(entry)

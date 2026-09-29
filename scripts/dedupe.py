@@ -21,9 +21,9 @@ import json
 import os
 import re
 import sys
-import time as _time_mod
 import unicodedata
 from datetime import date, datetime, time as dt_time, timedelta
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from rapidfuzz import fuzz
@@ -176,7 +176,7 @@ def location_matches(loc1, loc2):
     return n1 == n2
 
 
-def _venue_head(loc):
+def venue_head(loc):
     """First comma-separated segment of a location, normalised.
 
     'Kingston Arts Centre, 979 Nepean Hwy' and 'Kingston Arts Centre' are the
@@ -187,7 +187,7 @@ def _venue_head(loc):
 
 def _venue_compatible(loc1, loc2):
     """True when two location strings plausibly name the same place."""
-    a, b = _venue_head(loc1), _venue_head(loc2)
+    a, b = venue_head(loc1), venue_head(loc2)
     if not a or not b:
         return False
     if a == b:
@@ -284,13 +284,13 @@ def drop_untimed_twins(rows):
         iso = str(r.get("datetime_iso") or "")
         if len(iso) >= 16 and iso[11:16] != "00:00":
             timed.add((name_head(r.get("name")),
-                       _venue_head(r.get("location"))))
+                       venue_head(r.get("location"))))
     kept, dropped = [], 0
     for r in rows:
         iso = str(r.get("datetime_iso") or "")
         if len(iso) >= 16 and iso[11:16] == "00:00":
             if (name_head(r.get("name")),
-                    _venue_head(r.get("location"))) in timed:
+                    venue_head(r.get("location"))) in timed:
                 dropped += 1
                 continue
         kept.append(r)
@@ -340,11 +340,20 @@ def _local(value):
 def deduplicate(new_events, existing_events):
     merged = list(existing_events)
     index = {}
+    name_loc_index = {}
+    date_index = {}
     for e in merged:
         # slot_hash, not content_hash: it keeps the start time, so two sessions
         # of one class at a venue on the same day ("Cert II in EAL" 9am and
         # 12:30pm) do not collapse into a single event.
         index.setdefault(slot_hash(e), e)
+        n = normalize_name(e.get("name", ""))
+        l = normalize_location(e.get("location", ""))
+        if n and l:
+            name_loc_index.setdefault((n, l), []).append(e)
+        dp = date_part(e.get("datetime_iso"))
+        if dp:
+            date_index.setdefault(dp, []).append(e)
 
     new_count = 0
     for candidate in new_events:
@@ -367,50 +376,47 @@ def deduplicate(new_events, existing_events):
         if cand_name and cand_loc:
             cand_dp = date_part(candidate.get("datetime_iso"))
             if cand_dp:
-                for existing in merged:
-                    if normalize_name(existing.get("name", "")) != cand_name:
-                        continue
-                    if normalize_location(existing.get("location", "")) != cand_loc:
-                        continue
+                for existing in name_loc_index.get((cand_name, cand_loc), []):
                     exist_dp = date_part(existing.get("datetime_iso"))
                     if not exist_dp:
-                        # Existing is dateless - never merge in Pass 2
                         continue
                     if cand_dp != exist_dp:
                         continue
-                    # Same day is not enough: two different sessions of the
-                    # same class at one venue are distinct events.
                     if not _same_time_of_day(candidate, existing):
                         continue
                     _merge_sources(existing, candidate)
-                    # Index the alternate date hash too so future identical
-                    # dateless/dated variants hit Pass 1.
                     index.setdefault(cand_hash, existing)
                     found = True
                     break
 
         # Pass 3: fuzzy (same day, close time, strict location)
         if not found and candidate.get("datetime_iso"):
-            for existing in merged:
-                if not existing.get("datetime_iso"):
-                    continue
-                if name_similarity(existing.get("name", ""),
-                                   candidate.get("name", "")) < 0.75:
-                    continue
-                if not location_matches(existing.get("location", ""),
-                                        candidate.get("location", "")):
-                    continue
-                if not time_matches(existing.get("datetime_iso", ""),
-                                    candidate.get("datetime_iso", "")):
-                    continue
-                _merge_sources(existing, candidate)
-                found = True
-                break
+            cand_dp = date_part(candidate.get("datetime_iso"))
+            if cand_dp:
+                for existing in date_index.get(cand_dp, []):
+                    if not existing.get("datetime_iso"):
+                        continue
+                    if name_similarity(existing.get("name", ""),
+                                       candidate.get("name", "")) < 0.75:
+                        continue
+                    if not location_matches(existing.get("location", ""),
+                                            candidate.get("location", "")):
+                        continue
+                    if not time_matches(existing.get("datetime_iso", ""),
+                                        candidate.get("datetime_iso", "")):
+                        continue
+                    _merge_sources(existing, candidate)
+                    found = True
+                    break
 
         if not found:
             candidate["sources"] = [candidate.get("source", "")]
             merged.append(candidate)
             index.setdefault(cand_hash, candidate)
+            if cand_name and cand_loc:
+                name_loc_index.setdefault((cand_name, cand_loc), []).append(candidate)
+            if cand_dp:
+                date_index.setdefault(cand_dp, []).append(candidate)
             new_count += 1
 
     return merged, new_count
@@ -505,7 +511,7 @@ def drop_dateless(rows):
 
 
 def main():
-    raw = read_json("data/raw_events.json")
+    raw = read_json(ROOT / "data" / "raw_events.json")
     if raw is None:
         print("FAIL: data/raw_events.json missing - run fetch_events.py first")
         sys.exit(1)
@@ -514,7 +520,7 @@ def main():
         sys.exit(1)
 
     try:
-        existing = read_json("data/events.json", default={}).get("rows", [])
+        existing = read_json(ROOT / "data" / "events.json", default={}).get("rows", [])
     except json.JSONDecodeError as e:
         # A truncated events.json wedges every later run; say so explicitly
         # rather than surfacing a stack trace deep in the merge.
@@ -522,7 +528,7 @@ def main():
               f"Restore it from git and re-run.")
         sys.exit(1)
 
-    archived = read_json("scripts/archived_events.json", default=[])
+    archived = read_json(ROOT / "scripts" / "archived_events.json", default=[])
     if isinstance(archived, list):
         print(f"Archived events: {len(archived)}")
         raw.extend(archived)
@@ -531,7 +537,7 @@ def main():
 
     snap_count = 0
     snapshot_failures = []
-    for path in sorted(glob.glob("scripts/webfetch_snapshots/*.json")):
+    for path in sorted(glob.glob(str(ROOT / "scripts" / "webfetch_snapshots" / "*.json"))):
         try:
             snap = read_json(path)
             if isinstance(snap, dict):
@@ -609,7 +615,7 @@ def main():
         "rows": merged,
     }
 
-    write_json("data/events.json", output)
+    write_json(ROOT / "data" / "events.json", output)
     print("Wrote data/events.json")
 
 

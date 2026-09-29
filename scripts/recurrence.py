@@ -15,7 +15,7 @@ import os
 import re
 from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time as dt_time, timedelta
 
 MAX_OCCURRENCES = 12
 WEEKLY_HORIZON_DAYS = 126
@@ -220,7 +220,7 @@ def _weekday_tokens(text):
     return tokens
 
 
-def _weekday_slots(text):
+def weekday_slots(text):
     """Pair weekday mentions with the times that follow them.
 
     Weekdays seen since the last time range all share that time range, so
@@ -425,7 +425,7 @@ def _parse_text(text, today, allow_loose_single=False):
     # A recurring pattern wins over a bare date: "Fortnightly chess on
     # Tuesdays from 15 July 2026" carries a real start date *and* a weekly
     # pattern, and must not collapse to a single occurrence.
-    slots = _weekday_slots(text)
+    slots = weekday_slots(text)
     if slots:
         span = _extract_date_range(text, today)
         if _is_stale(span):
@@ -592,8 +592,7 @@ def _row_with_date(row, day, start, label):
     # aliasing the input's mutable `sources` list, so a later merge writing
     # to one occurrence would write to all 12 and to the caller's row.
     out = deepcopy(row)
-    stamp = _at(day, start) if start else datetime.combine(
-        day, datetime.min.time())
+    stamp = _at(day, start) if start else datetime.combine(day, dt_time.min)
     out["datetime_iso"] = stamp.isoformat(timespec="seconds")
     out["datetime_text"] = label
     out["datetime_display"] = stamp.strftime("%a %d %b %Y, %I:%M %p").replace(" 0", " ")
@@ -650,7 +649,7 @@ def refresh_inferred(rows, today=None, max_occurrences=MAX_OCCURRENCES):
         # Only timed slots count: a weekday can appear both untimed and timed
         # ("...an afternoon... 1st Wednesday at 1:15pm") and the untimed
         # mention is not a competing time.
-        slots = [(d, s) for d, s, _e in _weekday_slots(text) if s]
+        slots = [(d, s) for d, s, _e in weekday_slots(text) if s]
         try:
             weekday = date.fromisoformat(iso[:10]).weekday()
         except ValueError:
