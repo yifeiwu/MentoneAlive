@@ -11,16 +11,11 @@ body{font-family:Arial,Helvetica,sans-serif;margin:0;color:var(--fg);background:
 header{background:var(--primary);color:#fff;padding:16px 20px}
 header h1{margin:0 0 4px;font-size:1.35em}
 header p{margin:2px 0;font-size:.85em}
-.sourcestatus{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 20px;background:#f8f9fa;border-bottom:1px solid var(--border);font-size:.82em}
-.sourcestatus .src{display:flex;align-items:center;gap:4px}
-.sourcestatus .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-.sourcestatus .dot.ok{background:#28a745}
-.sourcestatus .dot.stale{background:#e0a800}
 .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 20px;background:var(--light);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
 .controls input[type=search]{padding:7px 10px;font-size:1em;min-width:200px;flex:1}
 .controls select,.controls button{padding:7px 10px;font-size:.95em}
 #filtertoggle.has-filters{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:bold}
-.typefilter{display:flex;flex-wrap:wrap;gap:4px 12px;padding:10px 20px;background:#eef3f8;border-bottom:1px solid var(--border);font-size:.88em;max-height:120px;overflow-y:auto}
+.typefilter{display:flex;flex-wrap:wrap;gap:4px 12px;width:100%;padding:8px 0 0;border-top:1px solid var(--border);font-size:.88em;max-height:120px;overflow-y:auto}
 .typefilter .thead{width:100%;font-weight:bold;font-size:.92em}
 .tcheck{white-space:nowrap}
 .tcheck input{margin-right:4px}
@@ -51,7 +46,7 @@ td.price,td.when{white-space:nowrap}
 .ics-btn:hover{background:var(--primary);color:#fff}
 .src-link{display:inline-block;background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:4px;padding:4px 10px;font-size:.85em;text-decoration:none;white-space:nowrap}
 .src-link:hover{background:#084a86}
-.linkcell{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.linkcell{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
 .emptyrow td{text-align:center;padding:24px 12px;font-size:1em}
 .reset-btn{background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:4px;padding:6px 14px;cursor:pointer;font-size:.9em;margin-top:8px}
 .reset-btn:hover{background:#084a86}
@@ -59,28 +54,19 @@ td.price,td.when{white-space:nowrap}
 .qf-btn{background:#fff;border:1px solid var(--border);border-radius:4px;padding:5px 12px;cursor:pointer;font-size:.85em}
 .qf-btn:hover{background:var(--light)}
 .qf-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-/* Desktop sorts by clicking a column header. The mobile layout hides thead
-   entirely, so without this there is no way to sort on a phone at all. */
-.sortctl{display:none}
-.sortctl label{font-size:.85em;font-weight:bold}
-.sortctl select{padding:7px 10px;font-size:.95em;flex:1}
-/* Focus ring for the sort headers, which are now tab stops. */
+/* Focus ring for the sort headers, which are tab stops. */
 th[data-k]:focus{outline:3px solid #ffd54f;outline-offset:-3px}
 .filterpanel{display:flex;flex-wrap:wrap;gap:12px;padding:12px 20px;background:#f8f9fa;border-bottom:1px solid var(--border)}
-.filtergroup{display:flex;flex-direction:column;gap:4px;min-width:180px}
+.filtergroup{display:flex;flex-direction:column;gap:4px;flex:1;min-width:220px}
 .filtergroup label{font-weight:bold;font-size:.85em}
 .filtergroup select{width:100%;border:1px solid var(--border);border-radius:4px;padding:4px;font-size:.85em}
-.fg-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.tgl-btn{background:#fff;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:.78em;color:var(--primary);white-space:nowrap}
-.tgl-btn:hover:not(:disabled){background:var(--light)}
-.tgl-btn:disabled{color:#999;cursor:default;border-color:#e3e8ee}
 .filterhint{width:100%;margin:0;font-size:.82em;color:#555}
-@media print{.controls,.typefilter,.filterpanel,.pagination{display:none}}
+@media print{.controls,.filterpanel,.pagination{display:none}}
 .pagination{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 20px;flex-wrap:wrap}
 .pagination button{background:var(--primary);color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:.9em;white-space:nowrap}
 .pagination button:hover:not(:disabled){background:#084a86}
 .pagination button:disabled{background:#ccc;color:#888;cursor:not-allowed}
-.pagination #page-info{font-size:.9em;color:#444;padding:0 8px}
+.pagination .pg-info{font-size:.9em;color:#444;padding:0 8px}
 .desc{color:#444;font-size:.88em;margin-top:4px}
 .recur{color:#8a6d1f;background:#fdf6e0;border:1px solid #f0e2b6;border-radius:3px;display:inline-block;margin-top:3px;padding:1px 5px;font-size:.82em;font-style:italic}
 .addr{color:#666;font-size:.82em;margin-top:2px}
@@ -89,7 +75,6 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
 @media(max-width:768px){
   .controls{flex-direction:column;align-items:stretch}
   .controls input[type=search]{min-width:100%}
-  .sortctl{display:flex;align-items:center;gap:8px}
   .typefilter{max-height:80px}
   .tablewrap{padding:0 10px 20px}
   th,td{padding:5px 6px;font-size:.82em}
@@ -112,60 +97,40 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
 <p>Kingston &middot; Bayside &middot; Greater Dandenong (Springvale/Keysborough) &middot; Frankston &middot; Chatty Cafe</p>
 <p>Generated: __GENERATED_AT__ &nbsp;|&nbsp; __EVENT_COUNT__ events &nbsp;|&nbsp; __SOURCE_COUNT__ sources</p>
 </header>
-<div class="sourcestatus" id="sourcestatus" aria-label="Per-source event counts and the newest date each has published"></div>
 <div class="controls">
 <input type="search" id="q" placeholder="Search events, descriptions, locations&hellip;" aria-label="Search events">
-<label><input type="checkbox" id="upcoming" checked> Hide past events</label>
 <label><input type="checkbox" id="freeonly"> Free only</label>
 <label><input type="checkbox" id="hidecommercial" checked> Hide commercial</label>
 <div class="quickfilters" id="quickfilters">
+  <button class="qf-btn" data-qf="upcoming" type="button" aria-pressed="false">Upcoming</button>
   <button class="qf-btn" data-qf="today" type="button" aria-pressed="false">Today</button>
-  <button class="qf-btn" data-qf="week" type="button" aria-pressed="false">This Week</button>
-  <button class="qf-btn" data-qf="month" type="button" aria-pressed="false">This Month</button>
-  <button class="qf-btn" data-qf="all" type="button" aria-pressed="false">All</button>
-</div>
-<div class="sortctl">
-  <label for="sortsel">Sort</label>
-  <select id="sortsel" aria-label="Sort events by">
-    <option value="datetime_iso:1">Date (soonest first)</option>
-    <option value="datetime_iso:-1">Date (latest first)</option>
-    <option value="name:1">Name (A&ndash;Z)</option>
-    <option value="name:-1">Name (Z&ndash;A)</option>
-    <option value="type:1">Type (A&ndash;Z)</option>
-    <option value="location:1">Location (A&ndash;Z)</option>
-    <option value="price_sort:1">Price (low to high)</option>
-  </select>
+  <button class="qf-btn" data-qf="next7" type="button" aria-pressed="false">Next 7 days</button>
+  <button class="qf-btn" data-qf="next30" type="button" aria-pressed="false">Next 30 days</button>
+  <button class="qf-btn" data-qf="all" type="button" aria-pressed="false">All time</button>
 </div>
 <button id="csv" type="button">Download CSV</button>
 <button id="filtertoggle" type="button" aria-expanded="false">Filters</button>
 </div>
 <div class="filterpanel" id="filterpanel" hidden>
 <div class="filtergroup">
-<div class="fg-head"><label for="ms-loc">Locations</label><button id="tgl-loc" type="button" class="tgl-btn" disabled>Clear</button></div>
-<select id="ms-loc" multiple size="5"></select>
-</div>
-<div class="filtergroup">
-<div class="fg-head"><label for="ms-suburb">Suburbs</label><button id="tgl-sub" type="button" class="tgl-btn" disabled>Clear</button></div>
+<label for="ms-suburb">Suburbs</label>
 <select id="ms-suburb" multiple size="5"></select>
 </div>
-<div class="filtergroup">
-<div class="fg-head"><label for="ms-type">Activity types</label><button id="tgl-type" type="button" class="tgl-btn" disabled>Clear</button></div>
-<select id="ms-type" multiple size="5"></select>
-</div>
-<p class="filterhint">Nothing selected means no filter. Pick entries to narrow the list; <b>Clear</b> shows everything again.</p>
-</div>
 <div class="typefilter" id="typefilter">
-<span class="thead">Activity type: <button id="tall" type="button">Select all</button> <button id="tnone" type="button">Clear</button></span>
+<span class="thead">Activity type: <button id="tall" type="button">All types</button></span>
 __TYPE_CHECKBOXES__
 </div>
-<div class="count" id="count"></div>
-<div class="pagination" id="pagination">
-  <button id="page-first" type="button" aria-label="First page" title="First page">&laquo;&laquo;</button>
-  <button id="page-prev" type="button" aria-label="Previous page" title="Previous page">&laquo;</button>
-  <span id="page-info">Page <span id="page-current">1</span> of <span id="page-total">1</span></span>
-  <button id="page-next" type="button" aria-label="Next page" title="Next page">&raquo;</button>
-  <button id="page-last" type="button" aria-label="Last page" title="Last page">&raquo;&raquo;</button>
+<p class="filterhint">Every activity type is included until you uncheck it, and an empty Suburbs list means no filter.
+<button id="resetall" type="button" class="reset-btn">Reset filters</button></p>
 </div>
+<div class="count" id="count"></div>
+<nav class="pagination" id="pagination-top" aria-label="Pagination">
+  <button class="pg-first" type="button" aria-label="First page" title="First page">&laquo;&laquo;</button>
+  <button class="pg-prev" type="button" aria-label="Previous page" title="Previous page">&laquo;</button>
+  <span class="pg-info">Page <span class="pg-current">1</span> of <span class="pg-total">1</span></span>
+  <button class="pg-next" type="button" aria-label="Next page" title="Next page">&raquo;</button>
+  <button class="pg-last" type="button" aria-label="Last page" title="Last page">&raquo;&raquo;</button>
+</nav>
 <div class="tablewrap">
 <table id="t">
 <thead><tr>
@@ -175,11 +140,18 @@ __TYPE_CHECKBOXES__
 <th data-k="price_sort">Price <span class="arrow"></span></th>
 <th data-k="location">Location <span class="arrow"></span></th>
 <th class="nosort">Links</th>
-<th data-k="description">Details <span class="arrow"></span></th>
+<th class="nosort">Details</th>
 </tr></thead>
 <tbody id="rows"></tbody>
 </table>
 </div>
+<nav class="pagination" id="pagination-bottom" aria-label="Pagination, end of results">
+  <button class="pg-first" type="button" aria-label="First page" title="First page">&laquo;&laquo;</button>
+  <button class="pg-prev" type="button" aria-label="Previous page" title="Previous page">&laquo;</button>
+  <span class="pg-info">Page <span class="pg-current">1</span> of <span class="pg-total">1</span></span>
+  <button class="pg-next" type="button" aria-label="Next page" title="Next page">&raquo;</button>
+  <button class="pg-last" type="button" aria-label="Last page" title="Last page">&raquo;&raquo;</button>
+</nav>
 <footer>
 Sources: Kingston Hubs (Chelsea &amp; Patterson Lakes), Kingston Council, Bayside Council, Greater Dandenong (Springvale/Keysborough), What's On Frankston, Chatty Cafe Australia.
 Activity types are inferred from event names and descriptions. Commercial pub/meal deals are hidden by default.
@@ -188,8 +160,20 @@ This file works offline (no server needed); only the Source links need internet.
 <script>
 var EVENTS = __EVENTS_DATA__;
 var PAGE_SIZE = 50;
-var state = {k:"datetime_iso", dir:1, q:"", upcoming:true, freeonly:false, hideCommercial:true, types:{}, dateFrom:null, dateTo:null, page:1};
+var state = {k:"datetime_iso", dir:1, q:"", range:"upcoming", freeonly:false, hideCommercial:true, types:{}, dateFrom:null, dateTo:null, page:1};
 var _lastList = [];
+// Cached by render(). Every state or control change routes through render(),
+// so these are always current: gotoPage() and the CSV export would otherwise
+// re-run the full 2037-row filter (with a seven-field concat per row) just to
+// recompute something render() already knows.
+var _lastAll = [];
+var _lastTotalPages = 1;
+// The chips are the only way to set a date window, so the URL needs one token
+// for the window rather than a from/to pair plus an "upcoming" flag.
+// next7/next30 are rolling windows, not calendar ones -- a "This Week" chip
+// meant Sunday-to-Saturday, so on a Wednesday it showed three days of the past
+// and four of the future, which is not what anyone means by a week of events.
+var RANGES = ["upcoming","today","next7","next30","all"];
 
 // Restore filter state from the query string so a filtered view can be shared
 // or bookmarked. Missing pieces fall back to the defaults in `state`.
@@ -197,76 +181,37 @@ function parseURLState(){
  var p=new URLSearchParams(window.location.search);
  if(p.has("q")) state.q=p.get("q");
  if(p.has("page")) {var n=parseInt(p.get("page"),10); if(n>0) state.page=n;}
- if(p.has("upcoming")) state.upcoming=p.get("upcoming")!=="0";
+ var range=p.get("range");
+ if(range&&RANGES.indexOf(range)>=0) state.range=range;
  if(p.has("free")) state.freeonly=p.get("free")==="1";
  if(p.has("hidecommercial")) state.hideCommercial=p.get("hidecommercial")!=="0";
- var from=p.get("from"), to=p.get("to");
- if(from){var f=new Date(from+"T00:00:00"); if(!isNaN(f)) state.dateFrom=f;}
- if(to){var t=new Date(to+"T00:00:00"); if(!isNaN(t)) state.dateTo=t;}
  var types=p.get("types");
  if(types){state.types={}; types.split(",").filter(Boolean).forEach(function(t){state.types[t]=false;});}
- ["loc","suburb","type"].forEach(function(key){
-  var id={loc:"ms-loc",suburb:"ms-suburb",type:"ms-type"}[key];
-  var vals=(p.get(key)||"").split(",").filter(Boolean);
-  if(vals.length){var s=document.getElementById(id);
-   if(s) for(var i=0;i<s.options.length;i++){s.options[i].selected=vals.indexOf(s.options[i].value)>=0;}}
- });
+ var subs=(p.get("suburb")||"").split(",").filter(Boolean);
+ if(subs.length){var s=document.getElementById("ms-suburb");
+  if(s) for(var i=0;i<s.options.length;i++){s.options[i].selected=subs.indexOf(s.options[i].value)>=0;}}
 }
 // Reflect the current view in the address bar (no history entry, so the Back
 // button is not spammed on every keystroke).
 function updateURL(){
  var p=new URLSearchParams();
  if(state.q) p.set("q",state.q);
- if(!state.upcoming) p.set("upcoming","0");
+ if(state.range!=="upcoming") p.set("range",state.range);
  if(state.freeonly) p.set("free","1");
  if(!state.hideCommercial) p.set("hidecommercial","0");
- if(state.dateFrom) p.set("from",ymd(state.dateFrom));
- if(state.dateTo) p.set("to",ymd(state.dateTo));
  var off=Object.keys(state.types).filter(function(t){return state.types[t]===false;});
  if(off.length) p.set("types",off.join(","));
+ // Written as well as read: parseURLState() restores this, so without the set
+ // here a shared link could open a suburb filter but selecting one produced no
+ // link to share.
+ var subs=getMulti(document.getElementById("ms-suburb"));
+ if(subs.length) p.set("suburb",subs.join(","));
  if(state.page>1) p.set("page",String(state.page));
  var q=p.toString();
  var url=window.location.pathname+(q?"?"+q:"");
  window.history.replaceState(null,"",url);
 }
-(function(){
-  var counts={},newest={};
-  EVENTS.forEach(function(r){
-    var s=r.source_label||"unknown";
-    counts[s]=(counts[s]||0)+1;
-    // datetime_iso is naive local wall-clock, so its Y-M-D prefix sorts and
-    // compares directly against today's local date.
-    var d=String(r.datetime_iso||"").slice(0,10);
-    if(d&&d>(newest[s]||""))newest[s]=d;
-  });
-  var names={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",bayside_seniors:"Bayside Seniors"};
-  var el=document.getElementById("sourcestatus");
-  var now=new Date();
-  var todayStr=now.getFullYear()+"-"+("0"+(now.getMonth()+1)).slice(-2)+"-"+("0"+now.getDate()).slice(-2);
-  var html="";
-  Object.keys(counts).sort().forEach(function(k){
-    var n=counts[k]||0, nd=newest[k]||"";
-    // The dot used to read `n>0?"ok":"down"`, where n is a count over the very
-    // events on the page -- so it was green by construction and the "down"
-    // branch was unreachable. It looked like a health indicator and could not
-    // fail. Derive it from the newest date each source actually published
-    // instead: green while that source still has something upcoming, amber
-    // once everything it contributed is in the past (stale, or out of season).
-    var live=nd&&nd>=todayStr;
-    var cls=live?"ok":"stale";
-    var label=names[k]||k;
-    var ndTxt=nd?(new Date(nd+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short"})):"";
-    var title=live?"newest "+ndTxt:("no upcoming events; newest was "+ndTxt);
-    html+='<span class="src" title="'+esc(title)+'"><span class="dot '+cls+'"></span>'+esc(label)+' ('+n+') &middot; to '+esc(ndTxt||"?")+'</span>';
-  });
-  el.innerHTML=html;
-})();
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-// Local Y-M-D, not toISOString(): these bounds are built from local midnight
-// (new Date(y,m,d)) and read back as local midnight (new Date(s+"T00:00:00")),
-// so round-tripping through UTC shifts them a day in every positive-offset
-// zone -- Melbourne included.
-function ymd(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
 function fmtDate(iso){if(!iso)return "";var d=new Date(iso);if(isNaN(d))return esc(iso);
  var days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
  var day=days[d.getDay()]+" "+d.getDate()+" "+mon[d.getMonth()]+" "+d.getFullYear();
@@ -279,7 +224,11 @@ function fmtDate(iso){if(!iso)return "";var d=new Date(iso);if(isNaN(d))return e
  var m=("0"+d.getMinutes()).slice(-2);
  return day+", "+h+":"+m+" "+ap;}
 function isFree(r){if(r.price_sort===0)return true;return /^\s*free\s*$/i.test(r.price_text||"");}
-function badge(src){var m={"kingston_hubs":"Kingston Hubs","kingston_council":"Kingston","kingston_arts":"Arts","greater_dandenong":"Dandenong","gd_libraries":"GD Libraries","bayside_live":"Bayside","bayside_archived":"Bayside (arch)","frankston_archived":"Frankston (arch)","chatty_cafe":"Chatty Cafe","ccc":"Cheltenham CC","kingston_seniors":"Kingston Seniors","bayside_seniors":"Bayside Seniors"};
+// One map for every source label, keyed unquoted so health_check.py's
+// `[,]<label>:` scan finds each name here. The keys are valid identifiers, so
+// dropping the quotes is free; keeping one map is what stops a new source from
+// needing a second list that can drift out of sync with this one.
+function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",bayside_seniors:"Bayside Seniors"};
 return '<span class="badge badge-'+(src||"unknown")+'">'+esc(m[src]||src||"unknown")+'</span>'}
 function commercialBadge(r){return r.is_commercial?'<span class="badge badge-commercial">COMMERCIAL</span>':'';}
 // 58% of published rows (1180/2037) are date_inferred: recurrence.py derived
@@ -295,19 +244,14 @@ function recurrenceNote(r){if(!r.date_inferred||!r.recurrence)return "";
 // were excluded by the search anyway and had nothing to do with the list.
 var _commercialHidden=0;
 function filtered(){
- var q=state.q.toLowerCase(), now=new Date();
- var mLocs=getMulti(document.getElementById("ms-loc"));
+ var q=state.q.toLowerCase();
  var mSubs=getMulti(document.getElementById("ms-suburb"));
- var mTypes=getMulti(document.getElementById("ms-type"));
  var out=[];
  _commercialHidden=0;
  for(var i=0;i<EVENTS.length;i++){
   var r=EVENTS[i];
-  if(state.upcoming && r.datetime_iso && new Date(r.datetime_iso)<now) continue;
   if(state.freeonly && !isFree(r)) continue;
-  if(mLocs.length && mLocs.indexOf(r.location||"")<0) continue;
   if(mSubs.length && mSubs.indexOf(r.suburb||"")<0) continue;
-  if(mTypes.length && mTypes.indexOf(r.type||"")<0) continue;
   if(r.type && state.types[r.type]===false) continue;
   if(state.dateFrom && r.datetime_iso && new Date(r.datetime_iso)<state.dateFrom) continue;
   if(state.dateTo && r.datetime_iso && new Date(r.datetime_iso)>state.dateTo) continue;
@@ -372,8 +316,10 @@ function ics(r){
 function icsDl(i){var r=_lastList[i];if(!r)return;var content=ics(r);if(!content)return;var blob=new Blob([content],{type:"text/calendar"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(r.name||"event").replace(/[^a-z0-9]+/gi,"-").toLowerCase().slice(0,50)+".ics";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);}
 function render(){
   var list=filtered().sort(cmp);
+  _lastAll=list;
   // Pagination: clamp to the available pages, then slice this page out.
   var totalPages=Math.max(1,Math.ceil(list.length/PAGE_SIZE));
+  _lastTotalPages=totalPages;
   if(state.page>totalPages){state.page=totalPages;}
   if(state.page<1){state.page=1;}
   var start=(state.page-1)*PAGE_SIZE;
@@ -404,44 +350,41 @@ function render(){
   var totalFiltered=list.length;
   var showingStart=totalFiltered>0?(state.page-1)*PAGE_SIZE+1:0;
   var showingEnd=Math.min(state.page*PAGE_SIZE,totalFiltered);
-  var pageInfo=totalPages>1?" (page "+state.page+" of "+totalPages+")":"";
   // Only mention the commercial count while commercial events are actually
   // being suppressed, and report how many the *current* filter hid.
   var commNote=(state.hideCommercial&&nComm)?(" ("+nComm+" commercial hidden)"):"";
-  document.getElementById("count").textContent="Showing "+showingStart+"-"+showingEnd+" of "+totalFiltered+" events"+pageInfo+commNote+".";
+  document.getElementById("count").textContent="Showing "+showingStart+"-"+showingEnd+" of "+totalFiltered+" events"+commNote+".";
   updatePagination(totalPages);
   updateURL();
   var nf=0;
   if(state.q)nf++;
-  ["ms-loc","ms-suburb","ms-type"].forEach(function(id){try{if(getMulti(document.getElementById(id)).length)nf++;}catch(e){}});
+  if(getMulti(document.getElementById("ms-suburb")).length)nf++;
   var anyOff=false;document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){if(!cb.checked)anyOff=true;});if(anyOff)nf++;
   if(state.freeonly)nf++;
-  if(state.dateFrom||state.dateTo)nf++;
-  if(!state.upcoming)nf++;
+  if(state.range!=="upcoming")nf++;
   var fb=document.getElementById("filtertoggle");if(fb){fb.textContent=nf?("Filters ("+nf+")"):"Filters";if(nf){fb.classList.add("has-filters");fb.setAttribute("title",nf+" filter group(s) active - click to review");}else{fb.classList.remove("has-filters");fb.removeAttribute("title");}}
   document.querySelectorAll("th[data-k]").forEach(function(th){
    var a=th.querySelector(".arrow");
    var isK=th.getAttribute("data-k")===state.k;
    a.textContent=isK?(state.dir===1?" ▲":" ▼"):"";
-   // The column header is the only sort control on a desktop, so it has to
-   // announce its state. aria-sort on a bare <th> is what a screen reader
-   // reads back, and it was previously absent entirely.
-   th.setAttribute("aria-sort",isK?(state.dir===1?"ascending":"descending"):"none");});
- // Keep the mobile sort control and the quick-filter chips in step with state.
- var ss=document.getElementById("sortsel");
- if(ss){var want=state.k+":"+state.dir;if(ss.value!==want)ss.value=want;}
- syncQuickFilters();
+    // The column header is the only sort control, so it has to announce its
+    // state. aria-sort on a bare <th> is what a screen reader reads back, and
+    // it was previously absent entirely.
+
+    th.setAttribute("aria-sort",isK?(state.dir===1?"ascending":"descending"):"none");});
+  syncQuickFilters();
 }
+
 function resetFilters(){
- state.q="";state.upcoming=true;state.freeonly=false;state.hideCommercial=true;
- state.types={};state.dateFrom=null;state.dateTo=null;
+ state.q="";state.range="upcoming";state.freeonly=false;state.hideCommercial=true;
+ state.types={};var r=qfRange("upcoming");state.dateFrom=r[0];state.dateTo=r[1];
  document.getElementById("q").value="";
- document.getElementById("upcoming").checked=true;
  document.getElementById("freeonly").checked=false;
  document.getElementById("hidecommercial").checked=true;
  document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){cb.checked=true;});
- ["ms-loc","ms-suburb","ms-type"].forEach(function(id){var s=document.getElementById(id);if(!s)return;for(var i=0;i<s.options.length;i++)s.options[i].selected=false;});
- updateToggles();render();}
+ var s=document.getElementById("ms-suburb");
+ if(s)for(var i=0;i<s.options.length;i++)s.options[i].selected=false;
+ render();}
 // The sortable headers are bare <th> elements, so they were reachable by mouse
 // only: no tab stop, no Enter/Space handling, and nothing for a screen reader
 // to announce. Make each one a real control while keeping the columnheader
@@ -455,25 +398,32 @@ document.querySelectorAll("th[data-k]").forEach(function(th){
  th.addEventListener("click",sortBy);
  th.addEventListener("keydown",function(e){
   if(e.key==="Enter"||e.key===" "||e.key==="Spacebar"){e.preventDefault();sortBy();}});});
+// Both pagers are kept in step, so the numbers are written by class rather
+// than by id: there is no single element to address any more.
 function updatePagination(totalPages){
- document.getElementById("page-current").textContent=state.page;
- document.getElementById("page-total").textContent=totalPages;
- document.getElementById("page-first").disabled=state.page<=1;
- document.getElementById("page-prev").disabled=state.page<=1;
- document.getElementById("page-next").disabled=state.page>=totalPages;
- document.getElementById("page-last").disabled=state.page>=totalPages;
+ document.querySelectorAll(".pagination").forEach(function(pg){
+  pg.querySelector(".pg-current").textContent=state.page;
+  pg.querySelector(".pg-total").textContent=totalPages;
+  pg.querySelector(".pg-first").disabled=state.page<=1;
+  pg.querySelector(".pg-prev").disabled=state.page<=1;
+  pg.querySelector(".pg-next").disabled=state.page>=totalPages;
+  pg.querySelector(".pg-last").disabled=state.page>=totalPages;});
 }
-function gotoPage(n){
- var totalPages=Math.max(1,Math.ceil(filtered().length/PAGE_SIZE));
- if(n<1||n>totalPages) return;
+// Scrolls whichever pager was clicked, not always the top one: paging from the
+// bottom controls used to yank the viewport up to the top pager, which is the
+// scrolling this pair exists to avoid.
+function gotoPage(n,from){
+ if(n<1||n>_lastTotalPages) return;
  state.page=n;
  render();
- document.getElementById("pagination").scrollIntoView({block:"nearest"});
+ if(from)from.scrollIntoView({block:"nearest"});
 }
-document.getElementById("page-first").addEventListener("click",function(){gotoPage(1);});
-document.getElementById("page-prev").addEventListener("click",function(){gotoPage(state.page-1);});
-document.getElementById("page-next").addEventListener("click",function(){gotoPage(state.page+1);});
-document.getElementById("page-last").addEventListener("click",function(){gotoPage(Math.max(1,Math.ceil(filtered().length/PAGE_SIZE)));});
+document.querySelectorAll(".pagination").forEach(function(pg){
+ pg.querySelector(".pg-first").addEventListener("click",function(){gotoPage(1,pg);});
+ pg.querySelector(".pg-prev").addEventListener("click",function(){gotoPage(state.page-1,pg);});
+ pg.querySelector(".pg-next").addEventListener("click",function(){gotoPage(state.page+1,pg);});
+ pg.querySelector(".pg-last").addEventListener("click",function(){gotoPage(_lastTotalPages,pg);});});
+
 // Typing re-ran the full filter + sort + re-render (2037 rows, seven fields
 // concatenated per row) on every keystroke. Record the value immediately so
 // the input stays responsive, but coalesce the expensive redraw.
@@ -485,68 +435,61 @@ document.getElementById("q").addEventListener("input",function(e){
 document.getElementById("filtertoggle").addEventListener("click",function(){var p=document.getElementById("filterpanel");var hidden=p.hasAttribute("hidden");if(hidden){p.removeAttribute("hidden");this.setAttribute("aria-expanded","true");}else{p.setAttribute("hidden","");this.setAttribute("aria-expanded","false");}});
 // The single source of truth for the quick-filter ranges, so the chip
 // highlight can be rebuilt from state instead of only being set on click.
+// Every range is a pair of local-midnight bounds, matching the from/to logic
+// updateURL() used to write by hand -- which is why "upcoming" can be a chip
+// like any other rather than a separate flag the "All" chip contradicted.
 function qfRange(qf){
  var now=new Date();
- if(qf==="today")return[new Date(now.getFullYear(),now.getMonth(),now.getDate()),new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)];
- if(qf==="week"){var d=now.getDay();return[new Date(now.getFullYear(),now.getMonth(),now.getDate()-d),new Date(now.getFullYear(),now.getMonth(),now.getDate()-d+7)];}
- if(qf==="month")return[new Date(now.getFullYear(),now.getMonth(),1),new Date(now.getFullYear(),now.getMonth()+1,1)];
+ var start=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ function plus(n){return new Date(start.getFullYear(),start.getMonth(),start.getDate()+n);}
+ // Starts at today's midnight, not "now": an event that began at 10am is still
+ // joinable at 2pm, and this is the same boundary the Today chip already used.
+ if(qf==="upcoming")return[start,null];
+ if(qf==="today")return[start,plus(1)];
+ if(qf==="next7")return[start,plus(7)];
+ if(qf==="next30")return[start,plus(30)];
  return[null,null];}
-// Previously the highlight was applied by the click handler only, so a shared
-// ?from=&to= link restored the date filter but showed no chip as active.
+// state.range is the chip, so the highlight is a direct read rather than the
+// timestamp comparison this used to do -- which also means a shared ?range=
+// link arrives with the right chip already lit.
 function syncQuickFilters(){
  document.querySelectorAll(".qf-btn").forEach(function(b){
-  var r=qfRange(b.getAttribute("data-qf")),f=state.dateFrom,t=state.dateTo;
-  var on=(!f&&!t)?"all":!!(f&&t&&r[0]&&f.getTime()===r[0].getTime()&&t.getTime()===r[1].getTime());
+  var on=b.getAttribute("data-qf")===state.range;
   b.classList.toggle("active",on);
   b.setAttribute("aria-pressed",on?"true":"false");});}
-var sortsel=document.getElementById("sortsel");
-if(sortsel)sortsel.addEventListener("change",function(){
- var p=this.value.split(":");state.k=p[0];state.dir=(parseInt(p[1],10)===-1)?-1:1;state.page=1;render();});
 document.querySelectorAll(".qf-btn").forEach(function(btn){
  btn.addEventListener("click",function(){
   var qf=btn.getAttribute("data-qf"),r=qfRange(qf);
-  state.dateFrom=r[0];state.dateTo=r[1];state.page=1;
+  state.range=qf;state.dateFrom=r[0];state.dateTo=r[1];state.page=1;
   render();});});
-document.getElementById("upcoming").addEventListener("change",function(e){state.upcoming=e.target.checked;state.page=1;render();});
 document.getElementById("freeonly").addEventListener("change",function(e){state.freeonly=e.target.checked;state.page=1;render();});
 document.getElementById("hidecommercial").addEventListener("change",function(e){state.hideCommercial=e.target.checked;state.page=1;render();});
+document.getElementById("resetall").addEventListener("click",resetFilters);
 document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){
  cb.addEventListener("change",function(){state.types[cb.getAttribute("data-type")]=cb.checked;state.page=1;render();});});
 document.getElementById("tall").addEventListener("click",function(){
  document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){cb.checked=true;state.types[cb.getAttribute("data-type")]=true;});render();});
-document.getElementById("tnone").addEventListener("click",function(){
- document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){cb.checked=false;state.types[cb.getAttribute("data-type")]=false;});render();});
 document.getElementById("csv").addEventListener("click",function(){
- var list=filtered().sort(cmp);
+ var list=_lastAll;
  function q(v){v=v==null?"":String(v);return '"'+v.replace(/"/g,'""')+'"';}
  var out=["Event,DateTime,Type,Price,Location,Address,Description,Source,IsCommercial,CommercialReason"];
  list.forEach(function(r){out.push([q(r.name),q(r.datetime_iso),q(r.type),q(r.price_text),q(r.location),q(r.address),q(r.description),q(r.source),q(r.is_commercial?"yes":"no"),q(r.commercial_reason||"")].join(","));});
  var blob=new Blob([out.join("\r\n")],{type:"text/csv"});
  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="community-events.csv";a.click();
  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);});
-(function(){var locs={},subs={},types={};EVENTS.forEach(function(r){if(r.location)locs[r.location]=1;if(r.suburb)subs[r.suburb]=1;if(r.type)types[r.type]=1;});function fill(id,obj){var s=document.getElementById(id);if(!s)return;Object.keys(obj).sort().forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=k;s.appendChild(o);});}fill("ms-loc",locs);fill("ms-suburb",subs);fill("ms-type",types);
+(function(){var subs={};EVENTS.forEach(function(r){if(r.suburb)subs[r.suburb]=1;});function fill(id,obj){var s=document.getElementById(id);if(!s)return;Object.keys(obj).sort().forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=k;s.appendChild(o);});}fill("ms-suburb",subs);
  // Option lists now exist, so the URL state can be applied to them.
  parseURLState();
+ // Derive the date window from the restored chip, not from the URL directly.
+ var r=qfRange(state.range);state.dateFrom=r[0];state.dateTo=r[1];
  // Reflect the restored state back into the visible controls.
  document.getElementById("q").value=state.q;
- document.getElementById("upcoming").checked=state.upcoming;
  document.getElementById("freeonly").checked=state.freeonly;
  document.getElementById("hidecommercial").checked=state.hideCommercial;
- document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){var t=cb.getAttribute("data-type");cb.checked=state.types[t]!==false;});
- updateToggles();})();
+ document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){var t=cb.getAttribute("data-type");cb.checked=state.types[t]!==false;});})();
 function getMulti(sel){if(!sel)return [];var v=[];for(var i=0;i<sel.options.length;i++){var o=sel.options[i];if(o.selected&&o.value)v.push(o.value);}return v;}
-function groupHasSelection(id){var s=document.getElementById(id);if(!s)return false;for(var i=0;i<s.options.length;i++){if(s.options[i].selected&&s.options[i].value)return true;}return false;}
-// The only meaningful action on these lists is "clear". filtered() treats an
-// empty list as "no filter", so selecting every option was already a no-op --
-// the old "Select all" button could not change the result set. A button that
-// promises to narrow and cannot is worse than no button, so it is a Clear,
-// disabled when there is nothing to clear.
-function updateToggles(){[["tgl-loc","ms-loc"],["tgl-sub","ms-suburb"],["tgl-type","ms-type"]].forEach(function(p){var b=document.getElementById(p[0]),s=document.getElementById(p[1]);if(!b||!s)return;b.disabled=!groupHasSelection(p[1]);});}
-function clearGroup(id){var s=document.getElementById(id);if(!s)return;for(var i=0;i<s.options.length;i++)s.options[i].selected=false;updateToggles();render();}
-["ms-loc","ms-suburb","ms-type"].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener("change",function(){updateToggles();render();});});
-document.getElementById("tgl-loc").addEventListener("click",function(){clearGroup("ms-loc");});
-document.getElementById("tgl-sub").addEventListener("click",function(){clearGroup("ms-suburb");});
-document.getElementById("tgl-type").addEventListener("click",function(){clearGroup("ms-type");});
+var msSuburb=document.getElementById("ms-suburb");
+if(msSuburb)msSuburb.addEventListener("change",function(){render();});
 render();
 </script>
 </body>
