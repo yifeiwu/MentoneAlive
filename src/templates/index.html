@@ -163,7 +163,7 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
   /* 44px targets, not the ~24px the 10px text produced (2.5.5). */
   .ics-btn,.src-link{min-height:44px;display:inline-flex;align-items:center;font-size:.875rem;padding:8px 12px}
   .linkcell{gap:8px}
-  #tall{min-height:44px;padding:8px 14px}
+  #tall,#tclear,#sall,#sclear{min-height:44px;padding:8px 14px}
   .qf-btn,.pagination button,.controls button{min-height:44px;padding:10px 14px}
   .tcheck{display:inline-flex;align-items:center;min-height:44px;white-space:normal}
   .tcheck input{width:20px;height:20px;margin-right:8px}
@@ -194,15 +194,14 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
 <button id="filtertoggle" type="button" aria-expanded="false" aria-controls="filterpanel">Filters</button>
 </div>
 <div class="filterpanel" id="filterpanel" hidden>
-<div class="filtergroup">
-<label for="ms-suburb">Suburbs</label>
-<select id="ms-suburb" multiple size="5"></select>
+<div class="typefilter" id="suburbfilter">
+<span class="thead">Suburbs: <button id="sall" type="button">Select all</button> <button id="sclear" type="button">Clear</button></span>
 </div>
 <div class="typefilter" id="typefilter">
-<span class="thead">Activity type: <button id="tall" type="button">All types</button></span>
+<span class="thead">Activity type: <button id="tall" type="button">Select all</button> <button id="tclear" type="button">Clear</button></span>
 __TYPE_CHECKBOXES__
 </div>
-<p class="filterhint">Every activity type is included until you uncheck it, and an empty Suburbs list means no filter. In the Suburbs list, tap each suburb you want, then tap Done.
+<p class="filterhint">Tick one or more suburbs to narrow to those suburbs; untick all suburbs (Clear) to show every suburb. Every ticked activity type is included; untick types to exclude them (Select all restores everything).
 <button id="resetall" type="button" class="reset-btn">Reset filters</button></p>
 </div>
 <div class="count" id="count" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -259,6 +258,11 @@ var _lastTotalPages = 1;
 // and four of the future, which is not what anyone means by a week of events.
 var RANGES = ["upcoming","today","next7","next30","all"];
 
+// Both filter groups are checkbox lists, so a single click toggles one
+// value -- no Ctrl-click needed. Suburbs are opt-in (nothing ticked means
+// every suburb), types are opt-out (everything ticked means every type).
+function getCheckedSuburbs(){var v=[];document.querySelectorAll("#suburbfilter input[data-suburb]").forEach(function(cb){if(cb.checked)v.push(cb.getAttribute("data-suburb"));});return v;}
+function setSuburbsChecked(all){document.querySelectorAll("#suburbfilter input[data-suburb]").forEach(function(cb){cb.checked=all;});}
 // Restore filter state from the query string so a filtered view can be shared
 // or bookmarked. Missing pieces fall back to the defaults in `state`.
 function parseURLState(){
@@ -272,8 +276,7 @@ function parseURLState(){
  var types=p.get("types");
  if(types){state.types={}; types.split(",").filter(Boolean).forEach(function(t){state.types[t]=false;});}
  var subs=(p.get("suburb")||"").split(",").filter(Boolean);
- if(subs.length){var s=document.getElementById("ms-suburb");
-  if(s) for(var i=0;i<s.options.length;i++){s.options[i].selected=subs.indexOf(s.options[i].value)>=0;}}
+ if(subs.length){document.querySelectorAll("#suburbfilter input[data-suburb]").forEach(function(cb){cb.checked=subs.indexOf(cb.getAttribute("data-suburb"))>=0;});}
 }
 // Reflect the current view in the address bar (no history entry, so the Back
 // button is not spammed on every keystroke).
@@ -288,7 +291,7 @@ function updateURL(){
  // Written as well as read: parseURLState() restores this, so without the set
  // here a shared link could open a suburb filter but selecting one produced no
  // link to share.
- var subs=getMulti(document.getElementById("ms-suburb"));
+ var subs=getCheckedSuburbs();
  if(subs.length) p.set("suburb",subs.join(","));
  if(state.page>1) p.set("page",String(state.page));
  var q=p.toString();
@@ -333,7 +336,7 @@ function recurrenceNote(r){if(!r.date_inferred||!r.recurrence)return "";
 var _commercialHidden=0;
 function filtered(){
  var q=state.q.toLowerCase();
- var mSubs=getMulti(document.getElementById("ms-suburb"));
+ var mSubs=getCheckedSuburbs();
  var out=[];
  _commercialHidden=0;
  for(var i=0;i<EVENTS.length;i++){
@@ -460,7 +463,7 @@ function render(){
   updateURL();
   var nf=0;
   if(state.q)nf++;
-  if(getMulti(document.getElementById("ms-suburb")).length)nf++;
+  if(getCheckedSuburbs().length)nf++;
   var anyOff=false;document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){if(!cb.checked)anyOff=true;});if(anyOff)nf++;
   if(state.freeonly)nf++;
   if(state.range!=="upcoming")nf++;
@@ -489,8 +492,8 @@ function resetFilters(){
  document.getElementById("freeonly").checked=false;
  document.getElementById("hidecommercial").checked=true;
  document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){cb.checked=true;});
- var s=document.getElementById("ms-suburb");
- if(s)for(var i=0;i<s.options.length;i++)s.options[i].selected=false;
+ setSuburbsChecked(false);
+ state.page=1;
  render();}
 // The sortable headers are bare <th> elements, so they were reachable by mouse
 // only: no tab stop, no Enter/Space handling, and nothing for a screen reader
@@ -597,7 +600,11 @@ document.getElementById("resetall").addEventListener("click",resetFilters);
 document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){
  cb.addEventListener("change",function(){state.types[cb.getAttribute("data-type")]=cb.checked;state.page=1;render();});});
 document.getElementById("tall").addEventListener("click",function(){
- document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){cb.checked=true;state.types[cb.getAttribute("data-type")]=true;});render();});
+ document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){cb.checked=true;state.types[cb.getAttribute("data-type")]=true;});state.page=1;render();});
+document.getElementById("tclear").addEventListener("click",function(){
+ document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){cb.checked=false;state.types[cb.getAttribute("data-type")]=false;});state.page=1;render();});
+document.getElementById("sall").addEventListener("click",function(){setSuburbsChecked(true);state.page=1;render();});
+document.getElementById("sclear").addEventListener("click",function(){setSuburbsChecked(false);state.page=1;render();});
 document.getElementById("csv").addEventListener("click",function(){
  var list=_lastAll;
  function q(v){v=v==null?"":String(v);return '"'+v.replace(/"/g,'""')+'"';}
@@ -606,8 +613,14 @@ document.getElementById("csv").addEventListener("click",function(){
  var blob=new Blob([out.join("\r\n")],{type:"text/csv"});
  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="community-events.csv";a.click();
  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);});
-(function(){var subs={};EVENTS.forEach(function(r){if(r.suburb)subs[r.suburb]=1;});function fill(id,obj){var s=document.getElementById(id);if(!s)return;Object.keys(obj).sort().forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=k;s.appendChild(o);});}fill("ms-suburb",subs);
- // Option lists now exist, so the URL state can be applied to them.
+(function(){var subs={};EVENTS.forEach(function(r){if(r.suburb)subs[r.suburb]=1;});
+ // Suburb checkboxes are built at runtime from the event data, mirroring the
+ // build-time type checkboxes above: one click toggles one suburb, so there
+ // is no Ctrl-click to discover. textContent (not innerHTML) carries the name
+ // so a suburb containing markup cannot break out of its label.
+ function fillSuburbs(obj){var s=document.getElementById("suburbfilter");if(!s)return;Object.keys(obj).sort().forEach(function(k){var lab=document.createElement("label");lab.className="tcheck";var cb=document.createElement("input");cb.type="checkbox";cb.setAttribute("data-suburb",k);lab.appendChild(cb);lab.appendChild(document.createTextNode(" "+k));s.appendChild(lab);cb.addEventListener("change",function(){state.page=1;render();});});}
+ fillSuburbs(subs);
+ // Checkbox lists now exist, so the URL state can be applied to them.
  parseURLState();
  // Derive the date window from the restored chip, not from the URL directly.
  var r=qfRange(state.range);state.dateFrom=r[0];state.dateTo=r[1];
@@ -616,9 +629,6 @@ document.getElementById("csv").addEventListener("click",function(){
  document.getElementById("freeonly").checked=state.freeonly;
  document.getElementById("hidecommercial").checked=state.hideCommercial;
  document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){var t=cb.getAttribute("data-type");cb.checked=state.types[t]!==false;});})();
-function getMulti(sel){if(!sel)return [];var v=[];for(var i=0;i<sel.options.length;i++){var o=sel.options[i];if(o.selected&&o.value)v.push(o.value);}return v;}
-var msSuburb=document.getElementById("ms-suburb");
-if(msSuburb)msSuburb.addEventListener("change",function(){render();});
 render();
 </script>
 </body>
