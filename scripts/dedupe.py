@@ -29,9 +29,10 @@ from zoneinfo import ZoneInfo
 from rapidfuzz import fuzz
 
 from jsonio import read_json, write_json
-from recurrence import refresh_inferred, resolve_dateless
+from recurrence import infer_event, refresh_inferred, resolve_dateless
 
 PRUNE_DAYS = 90
+ROOT = Path(__file__).resolve().parent.parent
 # All published times are Melbourne local. Aware source stamps are converted
 # to this zone rather than having their offset stripped.
 LOCAL_TZ = ZoneInfo("Australia/Melbourne")
@@ -324,6 +325,122 @@ def _merge_sources(existing, candidate):
             existing[k] = candidate[k]
 
 
+def _justification_keys(row, today):
+    """The (name, url, timestamp, venue) tuples `row` justifies in the store.
+
+    A source-supplied dated row stands for exactly one slot. A dateless row
+    stands for whatever recurrence.py expands it into, which is computed here
+    with the same function the pipeline uses so the two cannot drift.
+    """
+    name = normalize_name(row.get("name"))
+    url = (row.get("source") or "").rstrip("/")
+    if not name:
+        return set()
+    iso = str(row.get("datetime_iso") or "")
+    if iso and row.get("has_real_date", True):
+        return {(name, url, iso[:16], venue_head(row.get("location")))}
+    keys = set()
+    try:
+        made, _reason = infer_event(row, today)
+    except Exception:
+        return keys
+    for made_row in made:
+        keys.add((name, url, str(made_row.get("datetime_iso"))[:16],
+                  venue_head(made_row.get("location"))))
+    return keys
+
+
+def reconcile_store(rows, live_rows, today=None, report=True):
+    """Drop stored rows that this run's sources no longer justify.
+
+    The store is a cache of what the sources have published, and a cache is
+    only correct if every entry can still be re-derived from the source it
+    came from. Two things broke that, because the merge is append-only and
+    nothing ever deleted:
+
+    * **A listing's time is corrected upstream.** The Granicus listing card
+      yields a date with no time and the detail page supplies one, so the
+      same URL is fetched twice with different times. Both land in the store
+      and the earlier one is never removed.
+    * **A listing is withdrawn, or the page is edited.** A store expansion
+      of twelve inferred rows outlives the listing it came from, so the
+      calendar keeps showing an event the venue has dropped.
+
+    Both are invisible to the exact-duplicate checks, because the stale row
+    has a *different* timestamp or venue from the row that replaced it --
+    that difference is the whole point.
+
+    A row is judged only against the sources it claims (`source` plus every
+    URL merged into `sources`), so a row is kept as long as one source still
+    vouches for it. And it is only dropped when its own source_label was
+    crawled successfully this run: a source that is absent entirely (a
+    seasonal festival out of season, a fetcher that failed) must not take its
+    existing rows down with it, so those rows are left for the 90-day prune.
+    """
+    today = today or reference_today()
+    live_labels = {r.get("source_label") for r in live_rows if r.get("source_label")}
+
+    # Only expand the dateless listings the store actually references, so the
+    # cost is bounded by the store rather than by the whole crawl.
+    referenced = set()
+    for r in rows:
+        for url in [r.get("source")] + list(r.get("sources") or []):
+            if url:
+                referenced.add((normalize_name(r.get("name")),
+                                url.rstrip("/")))
+    justified = set()
+    for src in live_rows:
+        key = (normalize_name(src.get("name")),
+               (src.get("source") or "").rstrip("/"))
+        if key not in referenced:
+            continue
+        justified |= _justification_keys(src, today)
+
+    # venue compatibility, so a venue string enriched from a sibling source
+    # does not read as a contradiction.
+    by_slot = {}
+    for name, url, stamp, venue in justified:
+        by_slot.setdefault((name, url, stamp), set()).add(venue)
+
+    kept, dropped = [], []
+    for r in rows:
+        iso = str(r.get("datetime_iso") or "")
+        if not iso or r.get("source_label") not in live_labels:
+            kept.append(r)
+            continue
+        name = normalize_name(r.get("name"))
+        venue = venue_head(r.get("location"))
+        urls = [(r.get("source") or "").rstrip("/")] + \
+               [u.rstrip("/") for u in (r.get("sources") or []) if u]
+        ok = False
+        for url in urls:
+            if not url:
+                continue
+            venues = by_slot.get((name, url, iso[:16]))
+            if venues is None:
+                continue
+            if not venue or venue in venues:
+                ok = True
+                break
+            if any(_venue_compatible(v, venue) for v in venues if v):
+                ok = True
+                break
+        if ok:
+            kept.append(r)
+        else:
+            dropped.append(r)
+
+    if dropped and report:
+        print(f"  Dropped {len(dropped)} stored rows the sources no longer "
+              f"publish (corrected time, or listing withdrawn)")
+        for r in dropped[:10]:
+            print(f"    {r.get('name')!r} {str(r.get('datetime_iso'))[:16]} "
+                  f"[{r.get('source_label')}] {r.get('location')!r}")
+        if len(dropped) > 10:
+            print(f"    ... and {len(dropped) - 10} more")
+    return kept, dropped
+
+
 def _local(value):
     """Naive Melbourne-local datetime from an ISO string.
 
@@ -422,7 +539,7 @@ def deduplicate(new_events, existing_events):
     return merged, new_count
 
 
-def _normalize_raw(row):
+def _normalize_raw(row, quiet=False):
     """Backfill fields for archived/webfetch rows lacking fetch normalization."""
     row.setdefault("source_label", row.get("source_id", "unknown"))
     # Normalise first: " " and "None" are both truthy but carry no date, and
@@ -438,8 +555,9 @@ def _normalize_raw(row):
     # flag -- without a real date the row goes back to recurrence.py, which
     # re-derives it from the text or drops it.
     if row["datetime_iso"] and not row["has_real_date"]:
-        print(f"  discarding unstamped date for {row.get('name')!r} "
-              f"({row['datetime_iso']}); will re-derive from text")
+        if not quiet:
+            print(f"  discarding unstamped date for {row.get('name')!r} "
+                  f"({row['datetime_iso']}); will re-derive from text")
         row["datetime_iso"] = None
     if not isinstance(row.get("sources"), list):
         row["sources"] = [row.get("source", "")]
@@ -510,29 +628,33 @@ def drop_dateless(rows):
     return kept, dropped
 
 
-def main():
+def load_live_inputs(quiet=False):
+    """Every row the sources published this run, normalised.
+
+    raw_events.json plus the archived fixtures plus every webfetch snapshot.
+    Shared with health_check.py, which re-runs reconcile_store() over this to
+    assert the published store is still what the sources justify -- if the two
+    ever load different inputs, that check would pass while the pipeline had
+    already drifted.
+    """
     raw = read_json(ROOT / "data" / "raw_events.json")
     if raw is None:
+        if quiet:
+            return None
         print("FAIL: data/raw_events.json missing - run fetch_events.py first")
         sys.exit(1)
     if not isinstance(raw, list):
+        if quiet:
+            return None
         print("FAIL: data/raw_events.json is not a JSON array")
-        sys.exit(1)
-
-    try:
-        existing = read_json(ROOT / "data" / "events.json", default={}).get("rows", [])
-    except json.JSONDecodeError as e:
-        # A truncated events.json wedges every later run; say so explicitly
-        # rather than surfacing a stack trace deep in the merge.
-        print(f"FAIL: data/events.json is corrupt ({e}). "
-              f"Restore it from git and re-run.")
         sys.exit(1)
 
     archived = read_json(ROOT / "scripts" / "archived_events.json", default=[])
     if isinstance(archived, list):
-        print(f"Archived events: {len(archived)}")
+        if not quiet:
+            print(f"Archived events: {len(archived)}")
         raw.extend(archived)
-    else:
+    elif not quiet:
         print("No archived events file found")
 
     snap_count = 0
@@ -545,23 +667,47 @@ def main():
             if not isinstance(snap, list):
                 # list.extend() on a string would append one garbage row per
                 # character.
-                print(f"Snapshot {path}: unexpected shape "
-                      f"{type(snap).__name__}, skipped")
+                if not quiet:
+                    print(f"Snapshot {path}: unexpected shape "
+                          f"{type(snap).__name__}, skipped")
                 snapshot_failures.append(path)
                 continue
-            print(f"Snapshot {path}: {len(snap)}")
+            if not quiet:
+                print(f"Snapshot {path}: {len(snap)}")
             raw.extend(snap)
             snap_count += len(snap)
         except (json.JSONDecodeError, OSError) as e:
-            print(f"Snapshot {path}: FAILED {e}")
+            if not quiet:
+                print(f"Snapshot {path}: FAILED {e}")
             snapshot_failures.append(path)
-    print(f"Webfetch snapshots total: {snap_count}")
+    if not quiet:
+        print(f"Webfetch snapshots total: {snap_count}")
     if snapshot_failures:
+        if quiet:
+            return None
         print(f"FAIL: {len(snapshot_failures)} snapshot file(s) unreadable: "
               f"{snapshot_failures}")
         sys.exit(1)
+    return [_normalize_raw(r, quiet=quiet) for r in raw if isinstance(r, dict)]
 
-    raw = [_normalize_raw(r) for r in raw if isinstance(r, dict)]
+
+def main():
+    # Already normalised by load_live_inputs. Snapshot what the sources
+    # justify *before* the merge mutates them: _merge_sources() fills a kept
+    # row's blank location from its twin, which would change the very keys
+    # reconcile_store() compares against.
+    live = load_live_inputs()
+    raw = [dict(r) for r in live]
+
+    try:
+        existing = read_json(ROOT / "data" / "events.json", default={}).get("rows", [])
+    except json.JSONDecodeError as e:
+        # A truncated events.json wedges every later run; say so explicitly
+        # rather than surfacing a stack trace deep in the merge.
+        print(f"FAIL: data/events.json is corrupt ({e}). "
+              f"Restore it from git and re-run.")
+        sys.exit(1)
+
     # The canonical store also needs normalising: rows written by older runs
     # can carry an unstamped date, and merging would carry it straight through.
     existing = [_normalize_raw(r) for r in existing if isinstance(r, dict)]
@@ -572,12 +718,12 @@ def main():
     if collapsed:
         print(f"Collapsed {collapsed} legacy duplicates in store")
     existing = existing_clean
+    today = reference_today()
     # Dedupe within the incoming batch first (collapses fetch-time dups),
     # then merge against canonical store.
     batch_deduped, _ = deduplicate(raw, [])
     merged, new_count = deduplicate(batch_deduped, existing)
     merged = dedupe_exact(merged)
-    today = reference_today()
     # Inferred rows are stored, so a bad inference persists until refreshed.
     merged = refresh_inferred(merged, today)
     merged, inferred = resolve_dateless(merged, today)
@@ -592,11 +738,15 @@ def main():
     merged = dedupe_exact(merged)
     # A midnight row is a restatement of a timed session, not an extra event.
     merged = drop_untimed_twins(merged)
+    # Everything the sources still publish has now been merged in, so the
+    # store can be held against them: a row none of its own sources justify is
+    # a leftover from a listing that was corrected or withdrawn.
+    merged, stale_stored = reconcile_store(merged, live, today)
     merged, pruned = prune_old(merged, PRUNE_DAYS, today)
     merged, still_dateless = drop_dateless(merged)
     print(f"After dedup: {len(merged)} ({new_count} new, {pruned} pruned "
           f">{PRUNE_DAYS}d, {inferred['dropped']} undatable, "
-          f"{still_dateless} still dateless)")
+          f"{len(stale_stored)} unbacked, {still_dateless} still dateless)")
 
     output = {
         "generated_at": datetime.now(tz=LOCAL_TZ).isoformat(timespec="seconds"),
@@ -610,6 +760,7 @@ def main():
             "inferred": inferred["expanded"],
             "undatable": inferred["dropped"],
             "still_dateless": still_dateless,
+            "unbacked": len(stale_stored),
             "total": len(merged),
         },
         "rows": merged,

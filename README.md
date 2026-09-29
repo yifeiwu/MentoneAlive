@@ -34,16 +34,23 @@ pip install -r requirements.txt               # pinned versions
 python scripts/fetch_events.py                # Python-safe sources → data/raw_events.json
 python scripts/webfetch_sources.py            # browser-impersonating sources → scripts/webfetch_snapshots/*.json
 python scripts/dedupe.py                      # merge + dedupe → data/events.json
+python scripts/build_site.py                  # types/commercial/status → render index.html (repo root, GitHub Pages)
 python scripts/health_check.py                # fail loudly on bad output
-python scripts/build_site.py                  # render index.html (repo root, GitHub Pages)
+python scripts/activity_types.py              # assert the classifier rules
+python scripts/status.py                      # assert the sold-out / service rules
 python scripts/render_check.py                # prove index.html renders rows, not a blank page
 ```
+
+The order matters in one place: `build_site.py` must run **before**
+`health_check.py`, because the health check verifies the status and
+default-hidden flags that `build_site.py` writes. Running it the other way
+round fails the build, which is the intended outcome.
 
 `scripts/` layout: `fetch_events.py` (API/Drupal/venue sources),
 `webfetch_http.py` (shared session/date helpers, `PartialFetch`),
 `webfetch_{bayside,granicus,ccc,seniors}.py` (one fetcher each),
 `webfetch_sources.py` (thin orchestrator), `dedupe.py`, `recurrence.py`,
-`commercial.py`, `activity_types.py`, `jsonio.py` (atomic writes),
+`commercial.py`, `status.py`, `activity_types.py`, `jsonio.py` (atomic writes),
 `build_site.py`, `health_check.py`, `render_check.py`.
 
 ### Failure behaviour
@@ -119,6 +126,40 @@ A row carrying a date but flagged `has_real_date: false` is self-contradictory
 silently became the day the pipeline ran. The stamp is discarded and the row
 is re-derived from its text.
 
+### The store is held against its sources (`reconcile_store`)
+
+`data/events.json` is a cache, and a cache is only correct if every entry can
+still be re-derived from the source it came from. The merge is append-only —
+nothing deleted a row — so two things survived as phantoms that no
+duplicate check can see, because the stale row differs from the row that
+replaced it in *exactly* the field being compared:
+
+- **A listing's time is corrected upstream.** The Granicus listing card gives
+  a date with no time and the detail page gives the real one, so the same URL
+  is fetched twice with different times. Both landed in the store; the earlier
+  one sat beside the correction for the full 90-day prune window.
+- **A listing is withdrawn, or the page is edited.** A store expansion of
+  twelve inferred rows outlives the listing it came from. `STEADYstrength`
+  was the live case: the Cheltenham Community Centre page listed it twice,
+  and when the second copy (at a hall the page no longer mentions) went away,
+  the store kept all twelve of its rows — including six on the wrong weekday,
+  because that copy had lost the word "Thursdays" and the second session
+  inherited the first one's weekday.
+
+`reconcile_store()` runs after everything has been merged in, and drops any
+row that **none of its own recorded sources** still justify. Two boundaries
+keep it from deleting good data:
+
+- a row is kept if *any* of its `sources` still vouches for it, so a
+  cross-source merge is not undone by one of its parents moving on;
+- a row whose `source_label` is absent from this run's inputs entirely is
+  left alone. A seasonal festival out of season, or a fetcher that failed,
+  must not take its existing rows down with it — the 90-day prune still
+  bounds those.
+
+`health_check.py` re-runs the same function over the published store and fails
+if anything would be dropped, so a stale row cannot survive a green build.
+
 ### Inferred rows are refreshed, never frozen
 
 Inferred dates are written back into the store, so a row dated by an older,
@@ -136,6 +177,29 @@ This is what clears two classes of stale row:
   was recognised but a lone time was not paired with it;
 - **mis-parsed times** — `Bingo Bonanza` at 12:00 because "an **afternoon** of
   fun" matched the new `noon` token before the word boundary was added.
+
+`refresh_inferred()` only ever corrects a row's **time**. A row whose *date*
+was derived wrongly is not touched by it, which is why `reconcile_store()`
+exists as well: re-deriving from the source also re-derives the date.
+
+### A second session on one weekday is real, not a parser bug
+
+`weekday_slots()` pairs each weekday with the times that follow it, and a
+bare second time inherits the weekday before it. That looks wrong until you
+check the corpus, and 5 of the 6 sources that exercise it depend on it:
+
+| Text | Slots | Correct? |
+| --- | --- | --- |
+| `Mondays. 9am - 12pm. 12:30pm - 3:30pm` | Mon 09:00, Mon 12:30 | yes, two Monday sessions |
+| `Wednesdays. 9am - 12pm. 12:30pm - 3:30pm` | Wed 09:00, Wed 12:30 | yes |
+| `Tuesdays, Beginner: 10:00am–11:00am Social: 11:00am–12:00pm` | Tue 10:00, Tue 11:00 | yes, two levels of Pickleball |
+| `Mondays 10:30am - 11:30am \| Fridays 1pm - 2pm \| Fridays 2pm - 3pm` | Mon 10:30, Fri 13:00, Fri 14:00 | yes, two Friday sessions |
+
+The sixth was the one that looked wrong — `STEADYstrength`, whose hall copy
+had genuinely lost the word "Thursdays" — and it turned out to be a stale
+snapshot rather than a parser fault. Narrowing the carry-forward would have
+broken the four real cases, so it is left alone and the snapshot is fixed by
+`reconcile_store()` instead.
 
 ### Time formats the parser accepts
 
@@ -189,7 +253,16 @@ Details worth knowing:
   the cap with the stated session count.
 - **Explicit ranges resolve to the current year.** A window that has already
   finished is treated as stale and dropped rather than rolled forward, so
-  2023 workshop write-ups and last year's terms do not reappear.
+  2023 workshop write-ups and last year's terms do not reappear. A finished
+  range settles the listing even when it carries no year: "from 1 June to
+  31 August" read in September is a closed reading period, not next June.
+- **A year-less date does not roll forward on a technicality.** Greater
+  Dandenong states dates with no year ("28 Sep Drop-In Casual Basketball
+  Monday 28 September, 5:30pm"). A loose date already in the past used to
+  roll into the following year, so a listing read the day after it happened
+  was published twelve months out. Rolling now requires the current-year
+  reading to be more than `YEAR_ROLL_GRACE_DAYS` (14) days past; within that
+  window the listing is simply stale and is dropped.
 - **A source-supplied date always wins.** A dateless stub whose name and
   location already have a real dated sibling is dropped in favour of it.
   Previously *inferred* siblings do not count, so re-runs stay stable.
@@ -200,6 +273,11 @@ Details worth knowing:
   `dedupe.py`. This drops 24/7 helplines, open-ended enrolments, one-off
   exhibitions with no dates, and sponsor acknowledgements — none of which can
   go on a calendar.
+
+Note that the `greater_dandenong` source has no parseable date in its own
+date field: the day appears only inside the description, so **all** of its
+rows are `date_inferred`. A change to the date parser therefore moves that
+source wholesale, which is worth knowing before blaming a single row.
 
 Inferred rows are tagged `date_inferred: true` and carry a `recurrence`
 label (e.g. `Every Wednesday`, `Fourth Saturday of every month`) so a
@@ -218,6 +296,42 @@ text.
 Pub/meal-deal promos (parma/steak/happy-hour/hotel jobs) and priced-or-pub
 trivia are flagged `is_commercial` and hidden by default in the UI
 (checkbox to show). Gold-coin community trivia stays visible.
+
+## Sold out, cancelled, and services that are not events (`status.py`)
+
+Two other things stop a listing being worth a reader's time, and neither is
+answered by the listing's own fields.
+
+**Can I still go?** Venues write the status into the listing rather than a
+field of it. Granicus puts the whole status sentence where the date goes —
+`"Sold out: Wednesday, 30 September 2026 | 11:00 AM to 12:00 PM"` — so the
+time is parsed out of a sentence that also says the event is unavailable, and
+the row is published looking perfectly bookable. Greater Dandenong Libraries
+puts it in the title (`FULLY BOOKED - Card Making - Libraries After Dark`).
+`event_status()` reads the leading status phrase, then the title, then the
+blurb, and records `status` / `status_detail` / `status_label`. Sold out and
+fully booked rows stay visible but badged, because a listing you can no longer
+book is still worth knowing about; **cancelled** rows are hidden, since a
+cancelled event is worse than an absent one.
+
+**Is this an event at all?** A community centre's `Takeaway Meals` — "Take
+home delicious, nutritious meals for one. Available Tuesday to Friday,
+10am-2pm" — is a service with an opening window, not a session to attend, and
+the calendar was giving it four slots a week. `is_ongoing_service()` flags it
+as `is_service`. It is deliberately *not* `is_commercial`: the meals are
+subsidised, and calling a council service a "commercial pub/meal deal" would
+put a false fact in `events.json` and the CSV export.
+
+`build_site.py` writes `hidden_by_default = is_commercial or is_service or
+cancelled`, which is the one flag the UI filters on, so all three share the
+single existing checkbox. `health_check.py` re-derives both classifications
+from each row's own text and fails if the stored flags disagree, so a
+`status.py` regression cannot leave a sold-out workshop looking bookable.
+
+Run `python scripts/status.py` to check the 10 known cases. It **asserts**
+rather than prints, and it earned its place immediately: the first version of
+the service pattern included `\bcommunity\s*meals?\b`, which matched
+*"Community Meals Cooking Class"* and would have hidden a real class.
 
 ## Activity types (`activity_types.py`)
 
@@ -299,6 +413,18 @@ CSS and a friendly name, and that both the template and the built
 to undefined functions. Seasonal sources (seniors festivals) are warn-only
 since they legitimately decay out of season.
 
+Three further checks cover the defects described above, each of which was
+verified to fail the build when reintroduced:
+
+- **no row the sources do not back** — it re-runs `dedupe.reconcile_store()`
+  over the published rows against this run's inputs, so a stale start time or
+  a withdrawn listing cannot survive a green build;
+- **`build_site.py` actually ran** — every row carries a `hidden_by_default`
+  flag, without which the page would quietly show every sold-out workshop and
+  drop-in service;
+- **status/service flags match their own text** — re-derived, not trusted, so
+  a `status.py` regression cannot leave a sold-out row looking bookable.
+
 ### The page is rendered, not just inspected (`render_check.py`)
 
 Every other check reads Python or `events.json`. None of them execute
@@ -317,6 +443,74 @@ It takes about a second. If no Chromium-family browser is found it prints a
 `SKIP` and exits 0, so it stays usable on a machine with no browser; set
 `$BROWSER` to force a specific one. The GitHub runner has Chrome
 preinstalled, so CI always gets the real check.
+
+## Mobile accessibility is asserted, not hoped for
+
+The page is one hand-written document, so nothing in the pipeline stops a CSS
+edit from quietly breaking the phone layout. The mobile card layout below
+`768px` was the worst case: it set `display:block` on `table`/`tbody`/`tr`/`td`,
+which strips the implicit ARIA roles browsers derive from `display`, and it
+labelled each stacked cell with `td::before{content:attr(data-label)}`.
+Generated content is absent from the accessibility tree, so a card that *looks*
+right read as an unlabelled wall of values. On top of that the field labels
+chained `table .9em` → `td .82em` → `.desc .9em`, which put descriptions at
+10.6px, addresses and card buttons at 10px, and badges and field labels at
+8.9px. Both pages passed every other check.
+
+So the invariants are asserted in two places.
+
+**`health_check.py`** reads the stylesheet and the markup: explicit
+`table`/`rowgroup`/`row`/`cell`/`columnheader` roles; a `.visually-hidden`
+helper that actually clips; no `::before` content carrying a field name;
+`<main>`, `<caption>`, `role="status"`, `aria-controls` and a mobile sort
+control present; every `.badge-*` background at 4.5:1 against white (six were
+2.85–4.17:1); interactive control borders at 3:1, using `--control-border`
+rather than the decorative `--border`; `body` line-height at least 1.5; no
+form control below 16px, which is where iOS Safari zooms the viewport on focus
+and never zooms back; and a `:focus-visible` ring somewhere, since the only
+one was on the sort headers and mobile hides those.
+
+**`render_check.py`** measures the rendered DOM and the actual phone layout,
+because neither the template text nor `--dump-dom` can see these: real
+`.celllabel` text in every rendered data cell, a live region on the result
+count, calendar buttons whose `aria-label` contains their own visible text
+(2.5.3), a populated sort control, and then — with a probe injected and the
+page re-rendered at phone width — that no table cell falls below 12px, that the
+page does not scroll sideways, that the control bar is not `position:sticky`,
+and that the sort headers have left the tab order while thead is hidden.
+
+Two notes for anyone extending this. CSS comments are stripped before any
+stylesheet assertion, because they are prose *about* the selector being
+searched for and a comment mentioning `<select>` was enough to make the
+font-size check report a control that does not exist. And headless Chrome on
+Windows will not give a viewport narrower than ~477 CSS px, so the layout
+assertion is written against whatever `clientWidth` it actually gets and the
+probe prints it, rather than against 375.
+
+### Mobile-only behaviours worth knowing
+
+- **Type is expressed in `rem` under `768px`**, not in a chain of `em`, because
+  that chain is what produced the sub-10px text. Each nested element has its
+  own floor.
+- **`.controls` is `position:static` on mobile.** Sticking a ~300px column to
+  the top of a phone viewport occluded more than half the screen with the
+  results scrolling underneath it.
+- **The thead is clipped, never `display:none`, on mobile** — the latter also
+  removes the column names from the accessibility tree. Since the sort headers
+  stay `tabindex=0`, a `matchMedia` handler drops them to `-1` under the
+  breakpoint and restores them above, so a keyboard user never tabs into an
+  invisible control.
+- **`td.when` must repeat the element in the mobile override** (`td.when`, not
+  `.when`). The base `td.price,td.when{white-space:nowrap}` wins on
+  specificity, and the recurrence chip inside it then runs off the right edge
+  of the screen.
+- **Accessible names contain their visible text.** A voice-control user has to
+  be able to say what they can see, so the calendar button is
+  `aria-label="+ Calendar for <name>"`, not "Add to calendar". The outbound
+  arrow is `aria-hidden` so it is not read as "north east arrow".
+- **The inferred-date note is real text, not a `title`.** A title needs a
+  hover, so the fact that 58% of published dates were derived rather than
+  published was completely unreachable on a touch screen.
 
 ## Dependency upgrades
 
@@ -355,6 +549,17 @@ run on `JSONDecodeError` and wedge the pipeline.
   "source_label": "kingston_hubs",
   "sources": ["https://..."],
   "is_commercial": false,
-  "commercial_reason": ""
+  "commercial_reason": "",
+  "is_service": false,
+  "service_reason": "",
+  "status": "",
+  "status_label": "",
+  "status_detail": "",
+  "hidden_by_default": false
 }
 ```
+
+`is_commercial`, `is_service`, `status` and `hidden_by_default` are written by
+`build_site.py`, not by the fetchers — `dedupe.py` owns everything to the left
+of them. `hidden_by_default` is the single flag the UI filters on, and it is
+`is_commercial or is_service or (status == "cancelled")`.

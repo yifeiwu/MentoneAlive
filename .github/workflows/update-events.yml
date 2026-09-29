@@ -62,6 +62,10 @@ jobs:
         timeout-minutes: 5
         run: python scripts/activity_types.py
 
+      - name: Check status / service rules
+        timeout-minutes: 5
+        run: python scripts/status.py
+
       # Nothing above can see a JavaScript error: compileall only reads
       # Python, and the other checks only read events.json. A syntax error in
       # the template therefore builds and passes, then publishes a blank

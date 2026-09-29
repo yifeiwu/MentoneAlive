@@ -9,6 +9,7 @@ from pathlib import Path
 from activity_types import classify
 from commercial import is_commercial
 from jsonio import write_json
+from status import STATUS_LABELS, event_status, is_ongoing_service
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -106,15 +107,32 @@ def main():
         flag, reason = is_commercial(r)
         r["is_commercial"] = flag
         r["commercial_reason"] = reason
+        # Two more reasons a reader should not have to discover on arrival:
+        # the venue has stopped bookings, or the listing is a drop-in service
+        # with an opening window rather than a session to attend. They are
+        # kept as separate fields because "this is a pub promotion" and "this
+        # is the centre's meal service" are different facts, but they share
+        # one default-hidden control in the UI.
+        status, detail = event_status(r)
+        r["status"] = status
+        r["status_detail"] = detail
+        r["status_label"] = STATUS_LABELS.get(status, "")
+        service, service_reason = is_ongoing_service(r)
+        r["is_service"] = service
+        r["service_reason"] = service_reason
+        r["hidden_by_default"] = bool(flag or service or status == "cancelled")
         r["source"] = _safe_url(r.get("source"))
         r["sources"] = [u for u in (r.get("sources") or []) if _safe_url(u)]
 
     data["rows"] = rows
     data["type_counts"] = dict(Counter(r.get("type", "Other") for r in rows))
     data["commercial_count"] = sum(1 for r in rows if r.get("is_commercial"))
+    data["service_count"] = sum(1 for r in rows if r.get("is_service"))
+    data["unavailable_count"] = sum(1 for r in rows if r.get("status"))
     write_json(ROOT / "data" / "events.json", data)
     print(f"Wrote data/events.json with types + commercial "
-          f"({data['commercial_count']} commercial)")
+          f"({data['commercial_count']} commercial, {data['service_count']} "
+          f"services, {data['unavailable_count']} sold out / fully booked)")
 
     type_counts = Counter(r["type"] for r in rows)
     types = sorted(type_counts.keys())

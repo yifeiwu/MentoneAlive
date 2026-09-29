@@ -5,15 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Community Events Index</title>
 <style>
-:root{--primary:#0b5aa2;--bg:#fff;--fg:#222;--border:#cfd8e3;--light:#f2f6fa}
+:root{--primary:#0b5aa2;--bg:#fff;--fg:#222;--border:#cfd8e3;--light:#f2f6fa;--control-border:#898f96}
 *{box-sizing:border-box}
-body{font-family:Arial,Helvetica,sans-serif;margin:0;color:var(--fg);background:var(--bg);line-height:1.4}
+/* 1.4.12 Text Spacing: line height must be at least 1.5x. */
+body{font-family:Arial,Helvetica,sans-serif;margin:0;color:var(--fg);background:var(--bg);line-height:1.5}
+/* Real text for screen readers only. clip-path rather than clip alone, which
+   Firefox ignores; the whole helper is needed because the mobile card layout
+   drops the thead off screen, and the table header cells were the only
+   remaining source of each column's name. */
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+/* Bypass block: the controls and the filter panel are ~30 tab stops and the
+   results are 50 rows, so a keyboard or Switch Control user needs a way past
+   them. Hidden until focused, which is the only state it is ever seen in. */
+.skip{position:absolute;left:8px;top:-100px;z-index:20;background:var(--primary);color:#fff;padding:10px 16px;border-radius:0 0 4px 4px;text-decoration:none;font-weight:bold}
+.skip:focus{top:0}
+/* 2.4.7: one ring for every focusable thing. The only previous one was on
+   th[data-k]:focus, and th is hidden under 768px, so keyboard and Switch
+   Control users on a phone had no indicator at all. #0b5aa2 is 7:1 against
+   white and this only ever paints over a white card or --light bar. */
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+th[data-k]:focus-visible{outline:3px solid #ffd54f;outline-offset:-3px}
 header{background:var(--primary);color:#fff;padding:16px 20px}
 header h1{margin:0 0 4px;font-size:1.35em}
 header p{margin:2px 0;font-size:.85em}
 .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 20px;background:var(--light);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
 .controls input[type=search]{padding:7px 10px;font-size:1em;min-width:200px;flex:1}
-.controls select,.controls button{padding:7px 10px;font-size:.95em}
+/* 1rem, not .95em: the selector covers the sort <select> and iOS Safari
+   zooms the viewport on focus of any form control below 16px, then never
+   zooms back out. */
+.controls select,.controls button{padding:7px 10px;font-size:1rem}
 #filtertoggle.has-filters{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:bold}
 .typefilter{display:flex;flex-wrap:wrap;gap:4px 12px;width:100%;padding:8px 0 0;border-top:1px solid var(--border);font-size:.88em;max-height:120px;overflow-y:auto}
 .typefilter .thead{width:100%;font-weight:bold;font-size:.92em}
@@ -28,19 +48,30 @@ th.nosort{cursor:default}
 th .arrow{font-size:.8em}
 tr:nth-child(even) td{background:#f7fafd}
 td.price,td.when{white-space:nowrap}
+/* The field name the card layout stacks above each value. Real text, not
+   ::before content: generated content is absent from the accessibility tree,
+   so VoiceOver and TalkBack read a stacked table as an unlabelled wall of
+   values. display:none here because the desktop table has a header row. */
+.celllabel{display:none}
 .badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:.75em;font-weight:bold;color:#fff;margin-right:4px}
+/* White text on each background, so every one of these is held to 4.5:1 by
+   health_check.py. They were not: #e67e22 was 2.85:1, #27ae60 2.87:1,
+   #16a085 3.28:1, #e74c3c 3.82:1 and #d35400 4.17:1. At the 9px a badge
+   renders at on a phone the shortfall is far more visible than the number. */
 .badge-kingston_hubs{background:#0b5aa2}
 .badge-greater_dandenong{background:#8e44ad}
 .badge-gd_libraries{background:#8e44ad}
-.badge-bayside_live{background:#e67e22}
-.badge-bayside_archived{background:#e67e22}
-.badge-frankston_archived{background:#27ae60}
-.badge-chatty_cafe{background:#e74c3c}
-.badge-ccc{background:#16a085}
-.badge-kingston_seniors{background:#d35400}
-.badge-bayside_seniors{background:#e67e22}
+.badge-bayside_live{background:#ac5e1a}
+.badge-bayside_archived{background:#ac5e1a}
+.badge-frankston_archived{background:#1d8248}
+.badge-chatty_cafe{background:#cb4335}
+.badge-ccc{background:#12836d}
+.badge-kingston_seniors{background:#ba4a00}
+.badge-bayside_seniors{background:#ac5e1a}
 .badge-kingston_council{background:#0b5aa2}
 .badge-commercial{background:#6c757d}
+.badge-service{background:#5a6672}
+.badge-status{background:#8a4b00}
 .badge-kingston_arts{background:#ad1457}
 .ics-btn{background:#fff;border:1px solid var(--primary);color:var(--primary);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:.85em;white-space:nowrap}
 .ics-btn:hover{background:var(--primary);color:#fff}
@@ -51,15 +82,22 @@ td.price,td.when{white-space:nowrap}
 .reset-btn{background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:4px;padding:6px 14px;cursor:pointer;font-size:.9em;margin-top:8px}
 .reset-btn:hover{background:#084a86}
 .quickfilters{display:flex;gap:6px;flex-wrap:wrap}
-.qf-btn{background:#fff;border:1px solid var(--border);border-radius:4px;padding:5px 12px;cursor:pointer;font-size:.85em}
+/* --control-border is 3.26:1 against white. The old --border grey was 1.44:1,
+   which left the unselected chips with no visible boundary at all (1.4.11).
+   --border is kept for the table grid, where 1px rules are decoration. */
+.qf-btn{background:#fff;border:1px solid var(--control-border);border-radius:4px;padding:5px 12px;cursor:pointer;font-size:.85em}
 .qf-btn:hover{background:var(--light)}
 .qf-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-/* Focus ring for the sort headers, which are tab stops. */
-th[data-k]:focus{outline:3px solid #ffd54f;outline-offset:-3px}
+/* The mobile layout hides thead, which removed the only sort control with
+   it, so a phone could not sort at all. This is that control, shown only
+   where it is needed; its options are built from th[data-k] so the two
+   cannot drift apart. */
+.sortpick{display:none;align-items:center;gap:8px;font-size:1rem}
+.sortpick select{flex:1;min-width:0}
 .filterpanel{display:flex;flex-wrap:wrap;gap:12px;padding:12px 20px;background:#f8f9fa;border-bottom:1px solid var(--border)}
 .filtergroup{display:flex;flex-direction:column;gap:4px;flex:1;min-width:220px}
 .filtergroup label{font-weight:bold;font-size:.85em}
-.filtergroup select{width:100%;border:1px solid var(--border);border-radius:4px;padding:4px;font-size:.85em}
+.filtergroup select{width:100%;border:1px solid var(--control-border);border-radius:4px;padding:4px;font-size:1rem}
 .filterhint{width:100%;margin:0;font-size:.82em;color:#555}
 @media print{.controls,.filterpanel,.pagination{display:none}}
 .pagination{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 20px;flex-wrap:wrap}
@@ -73,34 +111,77 @@ th[data-k]:focus{outline:3px solid #ffd54f;outline-offset:-3px}
 .daydivider{background:var(--primary);color:#fff;font-weight:bold;text-align:center;padding:6px;font-size:.9em}
 footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--border)}
 @media(max-width:768px){
-  .controls{flex-direction:column;align-items:stretch}
+  /* Sticking a ~300px column to the top of a 553px iOS viewport occluded
+     more than half the screen, with the results scrolling underneath it. */
+  .controls{position:static;flex-direction:column;align-items:stretch}
   .controls input[type=search]{min-width:100%}
-  .typefilter{max-height:80px}
+  /* The panel is not sticky, so a tall panel costs nothing, and 80px showed
+     three of eighteen type checkboxes in a nested scroller. */
+  .typefilter{max-height:none;overflow:visible}
+  .sortpick{display:flex}
   .tablewrap{padding:0 10px 20px}
-  th,td{padding:5px 6px;font-size:.82em}
-  table{display:block}
-  thead{display:none}
-  tbody,tr,td{display:block;width:100%}
-  tr{margin-bottom:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-  td{border:none;border-bottom:1px solid var(--border);padding:8px 10px}
+  /* rem, not a chain of em. table .9em -> td .82em -> .desc .9em compounded
+     down to 10.6px for the description, 8.9px for the badges and the field
+     labels, and 10.0px for the buttons inside each card. The card layout
+     stacks vertically with the full width available, so shrinking the type
+     bought nothing. 1rem here, and every nested size a floor of its own. */
+  table{font-size:1rem}
+  th,td{padding:8px 10px;font-size:1rem}
+  /* display:block on the table parts strips their implicit ARIA roles, so
+     each element carries an explicit role in the markup instead. The thead
+     is clipped rather than display:none, which would take the column names
+     out of the accessibility tree as well as off the screen; the sort
+     headers are taken out of the tab order by matchMedia in the script, or
+     they would be invisible tab stops. */
+  table,tbody,tr,td{display:block;width:100%}
+  /* display:none on thead would remove the column names from the
+     accessibility tree as well as from the screen, which is the whole
+     reason the cells now carry their own .celllabel. Clipped instead, so a
+     screen reader still hears which column each value belongs to. */
+  thead{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+  tr{margin-bottom:12px;border:1px solid var(--border);border-radius:8px}
+  /* Striping moves from td to tr, so the card's rounded corners are not
+     squared off by a filled last cell, and the focus rings of the buttons
+     inside a card are no longer clipped (tr used to be overflow:hidden). */
+  tr:nth-child(even){background:#f7fafd}
+  tr:nth-child(even) td{background:transparent}
+  td{border:none;border-bottom:1px solid var(--border)}
   td:last-child{border-bottom:none}
-  td::before{content:attr(data-label);display:block;font-size:.75em;font-weight:bold;color:#666;text-transform:uppercase;margin-bottom:2px}
-  .badge{display:inline-block;margin:2px 0}
-  .desc{font-size:.9em}
-  .addr{font-size:.85em}
+  .celllabel{display:block;font-size:.75rem;font-weight:bold;color:#666;text-transform:uppercase;margin-bottom:2px}
+  /* td.price,td.when are nowrap for the desktop grid, but the recurrence chip
+     inside .when is an inline-block whose label can run to "Every Monday,
+     Tuesday, Wednesday, Thursday and Friday". Kept on one line it pushed the
+     document wider than the screen (1.4.10). The selector has to repeat the
+     element: a bare .when loses to td.when on specificity and the chip runs
+     off the right edge anyway. */
+  td.when{white-space:normal}
+  .recur{white-space:normal;max-width:100%}
+  .badge{display:inline-block;margin:2px 0;font-size:.75rem}
+  .desc{font-size:.875rem}
+  .addr{font-size:.8125rem}
+  .recur{font-size:.8125rem}
+  /* 44px targets, not the ~24px the 10px text produced (2.5.5). */
+  .ics-btn,.src-link{min-height:44px;display:inline-flex;align-items:center;font-size:.875rem;padding:8px 12px}
+  .linkcell{gap:8px}
+  #tall{min-height:44px;padding:8px 14px}
+  .qf-btn,.pagination button,.controls button{min-height:44px;padding:10px 14px}
+  .tcheck{display:inline-flex;align-items:center;min-height:44px;white-space:normal}
+  .tcheck input{width:20px;height:20px;margin-right:8px}
 }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to results</a>
 <header>
 <h1>Community Events Index</h1>
 <p>Kingston &middot; Bayside &middot; Greater Dandenong (Springvale/Keysborough) &middot; Frankston &middot; Chatty Cafe</p>
 <p>Generated: __GENERATED_AT__ &nbsp;|&nbsp; __EVENT_COUNT__ events &nbsp;|&nbsp; __SOURCE_COUNT__ sources</p>
 </header>
+<main id="main">
 <div class="controls">
-<input type="search" id="q" placeholder="Search events, descriptions, locations&hellip;" aria-label="Search events">
+<input type="search" id="q" placeholder="Search events, descriptions, locations&hellip;" aria-label="Search events" enterkeyhint="search" autocapitalize="off" autocorrect="off" spellcheck="false">
 <label><input type="checkbox" id="freeonly"> Free only</label>
-<label><input type="checkbox" id="hidecommercial" checked> Hide commercial</label>
+<label><input type="checkbox" id="hidecommercial" checked> Hide commercial, services &amp; sold out</label>
 <div class="quickfilters" id="quickfilters">
   <button class="qf-btn" data-qf="upcoming" type="button" aria-pressed="false">Upcoming</button>
   <button class="qf-btn" data-qf="today" type="button" aria-pressed="false">Today</button>
@@ -108,8 +189,9 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
   <button class="qf-btn" data-qf="next30" type="button" aria-pressed="false">Next 30 days</button>
   <button class="qf-btn" data-qf="all" type="button" aria-pressed="false">All time</button>
 </div>
+<label class="sortpick">Sort by <select id="sortpick" aria-label="Sort events by"></select></label>
 <button id="csv" type="button">Download CSV</button>
-<button id="filtertoggle" type="button" aria-expanded="false">Filters</button>
+<button id="filtertoggle" type="button" aria-expanded="false" aria-controls="filterpanel">Filters</button>
 </div>
 <div class="filterpanel" id="filterpanel" hidden>
 <div class="filtergroup">
@@ -120,10 +202,10 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
 <span class="thead">Activity type: <button id="tall" type="button">All types</button></span>
 __TYPE_CHECKBOXES__
 </div>
-<p class="filterhint">Every activity type is included until you uncheck it, and an empty Suburbs list means no filter.
+<p class="filterhint">Every activity type is included until you uncheck it, and an empty Suburbs list means no filter. In the Suburbs list, tap each suburb you want, then tap Done.
 <button id="resetall" type="button" class="reset-btn">Reset filters</button></p>
 </div>
-<div class="count" id="count"></div>
+<div class="count" id="count" role="status" aria-live="polite" aria-atomic="true"></div>
 <nav class="pagination" id="pagination-top" aria-label="Pagination">
   <button class="pg-first" type="button" aria-label="First page" title="First page">&laquo;&laquo;</button>
   <button class="pg-prev" type="button" aria-label="Previous page" title="Previous page">&laquo;</button>
@@ -132,17 +214,18 @@ __TYPE_CHECKBOXES__
   <button class="pg-last" type="button" aria-label="Last page" title="Last page">&raquo;&raquo;</button>
 </nav>
 <div class="tablewrap">
-<table id="t">
-<thead><tr>
-<th data-k="name">Event <span class="arrow"></span></th>
-<th data-k="datetime_iso">Date &amp; time <span class="arrow"></span></th>
-<th data-k="type">Type <span class="arrow"></span></th>
-<th data-k="price_sort">Price <span class="arrow"></span></th>
-<th data-k="location">Location <span class="arrow"></span></th>
-<th class="nosort">Links</th>
-<th class="nosort">Details</th>
+<table id="t" role="table">
+<caption class="visually-hidden">Community events matching the current filters</caption>
+<thead role="rowgroup"><tr role="row">
+<th data-k="name" role="columnheader" scope="col">Event <span class="arrow"></span></th>
+<th data-k="datetime_iso" role="columnheader" scope="col">Date &amp; time <span class="arrow"></span></th>
+<th data-k="type" role="columnheader" scope="col">Type <span class="arrow"></span></th>
+<th data-k="price_sort" role="columnheader" scope="col">Price <span class="arrow"></span></th>
+<th data-k="location" role="columnheader" scope="col">Location <span class="arrow"></span></th>
+<th class="nosort" role="columnheader" scope="col">Links</th>
+<th class="nosort" role="columnheader" scope="col">Details</th>
 </tr></thead>
-<tbody id="rows"></tbody>
+<tbody id="rows" role="rowgroup"></tbody>
 </table>
 </div>
 <nav class="pagination" id="pagination-bottom" aria-label="Pagination, end of results">
@@ -152,9 +235,10 @@ __TYPE_CHECKBOXES__
   <button class="pg-next" type="button" aria-label="Next page" title="Next page">&raquo;</button>
   <button class="pg-last" type="button" aria-label="Last page" title="Last page">&raquo;&raquo;</button>
 </nav>
+</main>
 <footer>
 Sources: Kingston Hubs (Chelsea &amp; Patterson Lakes), Kingston Council, Bayside Council, Greater Dandenong (Springvale/Keysborough), What's On Frankston, Chatty Cafe Australia.
-Activity types are inferred from event names and descriptions. Commercial pub/meal deals are hidden by default.
+Activity types are inferred from event names and descriptions. Commercial pub/meal deals, drop-in services (a centre's takeaway meals, say) and listings the venue has sold out of or cancelled are hidden by default.
 This file works offline (no server needed); only the Source links need internet.
 </footer>
 <script>
@@ -230,14 +314,18 @@ function isFree(r){if(r.price_sort===0)return true;return /^\s*free\s*$/i.test(r
 // needing a second list that can drift out of sync with this one.
 function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",bayside_seniors:"Bayside Seniors"};
 return '<span class="badge badge-'+(src||"unknown")+'">'+esc(m[src]||src||"unknown")+'</span>'}
-function commercialBadge(r){return r.is_commercial?'<span class="badge badge-commercial">COMMERCIAL</span>':'';}
+function commercialBadge(r){var h='';if(r.is_commercial)h+='<span class="badge badge-commercial">COMMERCIAL</span>';if(r.is_service)h+='<span class="badge badge-service">DROP-IN SERVICE</span>';if(r.status)h+='<span class="badge badge-status">'+esc(r.status_label||r.status.toUpperCase())+'</span>';return h;}
 // 58% of published rows (1180/2037) are date_inferred: recurrence.py derived
 // the date from prose because the source never published per-occurrence dates.
 // The pipeline stores a `recurrence` label for exactly this purpose, but the
 // table never showed it, so a derived date was indistinguishable from a stated
 // one. Without this the reader cannot tell a confirmed date from a guess.
 function recurrenceNote(r){if(!r.date_inferred||!r.recurrence)return "";
- return "<div class='recur' title='Date inferred from the source description, not published by it'>"+esc(r.recurrence)+"</div>";}
+ // The explanation is real screen-reader text, not a title attribute. A title
+ // needs a hover, so on a touch screen the fact that 58% of these dates were
+ // derived rather than published was completely unreachable -- which is the
+ // one thing a reader most needs to know about them.
+ return "<div class='recur'>"+esc(r.recurrence)+"<span class='visually-hidden'> (date inferred from the source description, not published by it)</span></div>";}
 // How many commercial rows the *current* filter is suppressing. Counted in
 // the same pass as the filter itself, because a global total is misleading:
 // with a search or date window active it reported commercial events that
@@ -259,7 +347,7 @@ function filtered(){
    if(hay.indexOf(q)<0) continue;}
   // Last, so a commercial row is only counted once it has cleared every
   // other filter.
-  if(state.hideCommercial && r.is_commercial){_commercialHidden++;continue;}
+  if(state.hideCommercial && r.hidden_by_default){_commercialHidden++;continue;}
   out.push(r);}
  return out;
 }
@@ -332,19 +420,33 @@ function render(){
   // every row (measured: 48 headers across a 50-row page sorted by name) and
   // buries the list it was meant to organise.
   var groupByDay=state.k==="datetime_iso";
+  // Every cell carries its own name as real text. Under the card layout the
+  // thead is off screen, and the labels used to be td::before content, which
+  // renders correctly and is absent from the accessibility tree -- so a phone
+  // screen reader read each row as an unlabelled run of values. The label is
+  // display:none on desktop, where the header row does that job.
+  // Cells also carry an explicit role: the card layout sets display:block on
+  // the table parts, and a browser takes the implicit table/row/cell roles
+  // from `display`, so without these the whole table degrades to `generic`.
+  function lbl(t){return '<span class="celllabel">'+t+'</span>';}
   for(var i=0;i<pagedList.length;i++){var r=pagedList[i];
    var d=r.datetime_iso?String(r.datetime_iso).slice(0,10):"";
-   if(groupByDay&&d&&d!==prevDate){var dt=new Date(d+"T00:00:00");var label=isNaN(dt)?esc(d):dt.toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});h+="<tr><td colspan='7' class='daydivider' data-label='Date'>"+label+"</td></tr>";prevDate=d;}
-   h+="<tr><td data-label='Event'><b>"+esc(r.name)+"</b>"+commercialBadge(r)+"</td><td data-label='Date & time' class='when'>"+fmtDate(r.datetime_iso)+recurrenceNote(r)+"</td>"
-    +"<td data-label='Type'>"+esc(r.type||"")+"</td>"
-    +"<td data-label='Price' class='price'>"+esc(r.price_text||"")+"</td>"
-    +"<td data-label='Location'>"+badge(r.source_label)+esc(r.location||"")+"<div class='addr'>"+esc(r.address||"")+"</div></td>"
-    +"<td data-label='Links'><div class='linkcell'>"
-    +(r.source?"<a class='src-link' href='"+esc(r.source)+"' target='_blank' rel='noopener'>Website &#8599;</a>":"")
-    +(r.datetime_iso?"<button class='ics-btn' onclick='icsDl("+i+")' title='Download a calendar file for this event'>+ Calendar</button>":"")
+   if(groupByDay&&d&&d!==prevDate){var dt=new Date(d+"T00:00:00");var label=isNaN(dt)?esc(d):dt.toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});h+="<tr role='row'><td role='cell' colspan='7' class='daydivider'>"+label+"</td></tr>";prevDate=d;}
+   var nm=r.name||"this event";
+   h+="<tr role='row'><td role='cell'>"+lbl("Event")+"<b>"+esc(r.name)+"</b>"+commercialBadge(r)+"</td><td role='cell' class='when'>"+lbl("Date &amp; time")+fmtDate(r.datetime_iso)+recurrenceNote(r)+"</td>"
+    +"<td role='cell'>"+lbl("Type")+esc(r.type||"")+"</td>"
+    +"<td role='cell' class='price'>"+lbl("Price")+esc(r.price_text||"")+"</td>"
+    +"<td role='cell'>"+lbl("Location")+badge(r.source_label)+esc(r.location||"")+"<div class='addr'>"+esc(r.address||"")+"</div></td>"
+    +"<td role='cell'>"+lbl("Links")+"<div class='linkcell'>"
+    // Both accessible names contain their own visible text. An aria-label
+    // that replaced "+ Calendar" with "Add ... to calendar" would leave a
+    // voice-control user unable to say what they can see (2.5.3), and 50
+    // identical bare labels named no event at all.
+    +(r.source?"<a class='src-link' href='"+esc(r.source)+"' target='_blank' rel='noopener' aria-label='Website for "+esc(nm)+" (opens in a new tab)'>Website <span aria-hidden='true'>&#8599;</span></a>":"")
+    +(r.datetime_iso?"<button class='ics-btn' onclick='icsDl("+i+")' aria-label='+ Calendar for "+esc(nm)+"'>+ Calendar</button>":"")
     +((!r.source&&!r.datetime_iso)?"&mdash;":"")
     +"</div></td>"
-    +"<td data-label='Details'><div class='desc'>"+esc(r.description||"")+"</div></td></tr>";}
+    +"<td role='cell'>"+lbl("Details")+"<div class='desc'>"+esc(r.description||"")+"</div></td></tr>";}
   tb.innerHTML=h||"<tr class='emptyrow'><td colspan='7'>No events match your filters.<br><button class='reset-btn' onclick='resetFilters()' type='button'>Reset filters</button></td></tr>";
   var nComm=_commercialHidden;
   var totalFiltered=list.length;
@@ -352,7 +454,7 @@ function render(){
   var showingEnd=Math.min(state.page*PAGE_SIZE,totalFiltered);
   // Only mention the commercial count while commercial events are actually
   // being suppressed, and report how many the *current* filter hid.
-  var commNote=(state.hideCommercial&&nComm)?(" ("+nComm+" commercial hidden)"):"";
+  var commNote=(state.hideCommercial&&nComm)?(" ("+nComm+" commercial, service or sold out hidden)"):"";
   document.getElementById("count").textContent="Showing "+showingStart+"-"+showingEnd+" of "+totalFiltered+" events"+commNote+".";
   updatePagination(totalPages);
   updateURL();
@@ -367,11 +469,16 @@ function render(){
    var a=th.querySelector(".arrow");
    var isK=th.getAttribute("data-k")===state.k;
    a.textContent=isK?(state.dir===1?" ▲":" ▼"):"";
-    // The column header is the only sort control, so it has to announce its
-    // state. aria-sort on a bare <th> is what a screen reader reads back, and
-    // it was previously absent entirely.
+    // The column header is the only sort control on a desktop, so it has to
+    // announce its state. aria-sort on a bare <th> is what a screen reader
+    // reads back, and it was previously absent entirely.
 
-    th.setAttribute("aria-sort",isK?(state.dir===1?"ascending":"descending"):"none");});
+    th.setAttribute("aria-sort",isK?(state.dir===1?"ascending":"descending"):"none");
+    // The mobile layout hides thead, so this <select> is the only way to
+    // sort on a phone. It is driven from the same state, so the two controls
+    // stay in step and a shared link arrives with the right column selected.
+    var sp=document.getElementById("sortpick");
+    if(sp)sp.value=state.k;});
   syncQuickFilters();
 }
 
@@ -389,15 +496,37 @@ function resetFilters(){
 // only: no tab stop, no Enter/Space handling, and nothing for a screen reader
 // to announce. Make each one a real control while keeping the columnheader
 // semantics that role="button" would throw away.
+var sortPick=document.getElementById("sortpick");
 document.querySelectorAll("th[data-k]").forEach(function(th){
- th.setAttribute("tabindex","0");
- th.setAttribute("title","Sort by "+esc(th.textContent.replace(/[\u25b2\u25bc]/g,"").trim()));
- function sortBy(){var k=th.getAttribute("data-k");
-  if(state.k===k){state.dir*=-1;}else{state.k=k;state.dir=1;}
+ var k=th.getAttribute("data-k");
+ var text=th.textContent.replace(/[\u25b2\u25bc]/g,"").trim();
+ th.setAttribute("title","Sort by "+esc(text));
+ // The mobile <select> is built from these same elements, so a column added
+ // to the table header cannot be missing from the phone sort control. Both
+ // write to the same state, so they can never disagree.
+ if(sortPick)sortPick.appendChild(new Option(text,k));
+ function sortBy(){if(state.k===k){state.dir*=-1;}else{state.k=k;state.dir=1;}
   render();}
  th.addEventListener("click",sortBy);
  th.addEventListener("keydown",function(e){
   if(e.key==="Enter"||e.key===" "||e.key==="Spacebar"){e.preventDefault();sortBy();}});});
+if(sortPick)sortPick.addEventListener("change",function(e){
+ var k=e.target.value;
+ if(k===state.k){state.dir*=-1;}else{state.k=k;state.dir=1;}
+ render();});
+// The sort headers are tabindex=0, and the mobile layout hides thead but must
+// not hide it from the accessibility tree. Left alone they would be focusable
+// controls with nothing on screen: a keyboard user tabs into a blank space and
+// cannot see where they are. The tabindex is therefore dropped under the
+// breakpoint and restored above it, on the media query's change event, so
+// rotating the phone or resizing the window also ends up consistent.
+var narrow=window.matchMedia("(max-width:768px)");
+function applySortTabIndex(mq){
+ document.querySelectorAll("th[data-k]").forEach(function(th){
+  th.setAttribute("tabindex",(mq.matches?"-1":"0"));});}
+if(narrow.addEventListener)narrow.addEventListener("change",function(e){applySortTabIndex(e);});
+else if(narrow.addListener)narrow.addListener(function(e){applySortTabIndex(e);});
+applySortTabIndex(narrow);
 // Both pagers are kept in step, so the numbers are written by class rather
 // than by id: there is no single element to address any more.
 function updatePagination(totalPages){
@@ -472,8 +601,8 @@ document.getElementById("tall").addEventListener("click",function(){
 document.getElementById("csv").addEventListener("click",function(){
  var list=_lastAll;
  function q(v){v=v==null?"":String(v);return '"'+v.replace(/"/g,'""')+'"';}
- var out=["Event,DateTime,Type,Price,Location,Address,Description,Source,IsCommercial,CommercialReason"];
- list.forEach(function(r){out.push([q(r.name),q(r.datetime_iso),q(r.type),q(r.price_text),q(r.location),q(r.address),q(r.description),q(r.source),q(r.is_commercial?"yes":"no"),q(r.commercial_reason||"")].join(","));});
+ var out=["Event,DateTime,Type,Price,Location,Address,Description,Source,IsCommercial,CommercialReason,IsService,Status,StatusDetail"];
+ list.forEach(function(r){out.push([q(r.name),q(r.datetime_iso),q(r.type),q(r.price_text),q(r.location),q(r.address),q(r.description),q(r.source),q(r.is_commercial?"yes":"no"),q(r.commercial_reason||""),q(r.is_service?"yes":"no"),q(r.status||""),q(r.status_detail||"")].join(","));});
  var blob=new Blob([out.join("\r\n")],{type:"text/csv"});
  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="community-events.csv";a.click();
  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);});

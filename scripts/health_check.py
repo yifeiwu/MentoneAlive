@@ -21,8 +21,10 @@ from pathlib import Path
 
 import yaml
 
-from dedupe import PRUNE_DAYS, name_head, venue_head
+from dedupe import (PRUNE_DAYS, load_live_inputs, name_head,
+                    reconcile_store, reference_today, venue_head)
 from recurrence import weekday_slots
+from status import STATUS_LABELS, event_status, is_ongoing_service
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -114,6 +116,196 @@ def _weekday_of(iso):
         return date.fromisoformat(iso[:10]).weekday()
     except ValueError:
         return None
+
+
+# --- mobile accessibility invariants -------------------------------------
+# The page is a single hand-written document, so nothing in the pipeline
+# stops a CSS edit from quietly breaking the phone layout or dropping a
+# label. These are the specific regressions this build has actually had,
+# written down so they cannot come back unnoticed.
+
+
+def _relative_luminance(hex_colour):
+    """WCAG 2.x relative luminance for a #rgb / #rrggbb string."""
+    h = (hex_colour or "").strip().lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    if len(h) != 6 or not re.fullmatch(r"[0-9a-fA-F]{6}", h):
+        raise ValueError(f"not a hex colour: {hex_colour!r}")
+    out = []
+    for i in (0, 2, 4):
+        c = int(h[i:i + 2], 16) / 255
+        out.append(c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4)
+    return 0.2126 * out[0] + 0.7152 * out[1] + 0.0722 * out[2]
+
+
+def contrast_ratio(fg, bg):
+    """WCAG contrast ratio between two hex colours, 1.0-21.0."""
+    a, b = _relative_luminance(fg), _relative_luminance(bg)
+    hi, lo = max(a, b), min(a, b)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+# WCAG 2.2 1.4.3 Contrast (Minimum) for normal-size text, and 1.4.11 for the
+# boundary of an interactive control.
+CONTRAST_TEXT = 4.5
+CONTRAST_UI = 3.0
+
+# 1.4.12 Text Spacing requires 1.5x line height.
+MIN_LINE_HEIGHT = 1.5
+
+# iOS Safari zooms the viewport on focus of any form control computed below
+# 16px and never zooms back out, stranding the reader in a magnified page
+# with the controls scrolled off-screen. 1.4.4 wants text to scale, but
+# 16px is the floor that keeps a phone from doing this.
+MIN_FORM_FONT_PX = 16.0
+DEFAULT_FONT_PX = 16.0
+
+
+def a11y_errors(source, name):
+    """Accessibility invariants for one copy of the page.
+
+    `source` is the markup, `name` how to refer to it in a message. Runs
+    against both the template and the built index.html: a fix that was
+    never rebuilt leaves the published page broken, and health_check.py
+    already checks the built artefact for unfilled placeholders for
+    exactly that reason.
+    """
+    errors = []
+
+    # CSS comments are stripped before any stylesheet assertion. They are prose
+    # about the stylesheet, not stylesheet, and they mention the very selectors
+    # being looked for -- a comment reading "the selector covers the sort
+    # <select> and iOS Safari zooms..." was enough to make the font-size check
+    # report a form control that does not exist.
+    css = re.sub(r"/\*.*?\*/", "", source, flags=re.S)
+
+    # The card layout under 768px does `table/tbody/tr/td{display:block}`.
+    # That is deliberate -- a 7-column table at 375px is worse -- but
+    # browsers derive those implicit ARIA roles from `display`, so every one
+    # of them collapses to `generic` and each cell loses its column header.
+    # Explicit roles are not derived from `display`, so they survive; these
+    # assertions are on the markup, per element, rather than a blanket ban
+    # on the layout.
+    for markup, why in (
+        (r'<table[^>]*role="table"', "the table needs an explicit role"),
+        (r'<thead[^>]*role="rowgroup"', "thead needs an explicit rolegroup"),
+        (r'<tbody[^>]*role="rowgroup"', "tbody needs an explicit rolegroup"),
+        (r'<th[^>]*role="columnheader"', "sortable headers need columnheader"),
+        (r'''role=["']row["']''',
+         "rows need an explicit role to survive display:block"),
+        (r'''role=["']cell["']''',
+         "cells need an explicit role to survive display:block"),
+    ):
+        if not re.search(markup, source):
+            errors.append(f"{name}: missing {markup} ({why})")
+
+    # The same display rewrite takes the thead out of the accessibility tree
+    # as well as off the screen, so it must be clipped, never display:none.
+    if re.search(r"thead\s*(,[^{]*)?\{[^}]*display\s*:\s*none", css):
+        errors.append(
+            f"{name}: thead is display:none, which removes the column names "
+            f"from the accessibility tree as well as the screen")
+
+    # Field names were rendered with `td::before{content:attr(data-label)}`.
+    # Generated content is not reliably present in the accessibility tree,
+    # so VoiceOver and TalkBack announced a wall of unlabelled values.
+    if re.search(r"td\s*(,[^{]*)?::(before|after)\s*\{[^}]*content\s*:\s*"
+                 r"attr\(\s*data-label", css):
+        errors.append(
+            f"{name}: td field labels come from ::before content, which screen "
+            f"readers do not announce -- emit a real element instead")
+
+    # The same hidden-text helper has to exist, because the fixes that
+    # replace the above all depend on it.
+    if "visually-hidden" not in css:
+        errors.append(f"{name}: no .visually-hidden helper for screen-reader-"
+                      f"only text")
+    elif not re.search(r"\.visually-hidden\s*\{[^}]*clip", css):
+        errors.append(f"{name}: .visually-hidden does not clip its content, so "
+                      f"it will be visible on screen")
+
+    for required, why in (
+        ("<main", "no main landmark or skip link on a 2000-row list page"),
+        ("<caption", "the table has no caption, and thead is hidden on mobile"),
+        ('role="status"', "filter results are re-rendered with no announcement"),
+        ('aria-controls="filterpanel"',
+         "the Filters toggle does not point at the panel it opens"),
+        ('aria-label="Sort events by"',
+         "sorting is unreachable on mobile, where thead is hidden"),
+    ):
+        if required not in source:
+            errors.append(f"{name}: missing {required} ({why})")
+
+    # 1.4.3: every badge paints white text on its own background. Six did
+    # not clear 4.5:1, and at 9px on a phone the shortfall is much more
+    # visible than the number suggests.
+    for label, colour in re.findall(r"\.badge-([a-z_]+)\{background:(#[0-9a-fA-F]{3,6})",
+                                    css):
+        try:
+            ratio = contrast_ratio(colour, "#ffffff")
+        except ValueError as e:
+            errors.append(f"{name}: badge {label}: {e}")
+            continue
+        if ratio < CONTRAST_TEXT:
+            errors.append(
+                f"badge {label}: white on {colour} is {ratio:.2f}:1, needs "
+                f"{CONTRAST_TEXT}:1 (WCAG 1.4.3)")
+
+    # 1.4.11: the quick-filter chips were bordered in a colour 1.44:1
+    # against white, so the control boundary was effectively invisible.
+    for colour in re.findall(r"--control-border\s*:\s*(#[0-9a-fA-F]{3,6})",
+                             css):
+        ratio = contrast_ratio(colour, "#ffffff")
+        if ratio < CONTRAST_UI:
+            errors.append(
+                f"--control-border {colour} is {ratio:.2f}:1 against white, "
+                f"needs {CONTRAST_UI}:1 for a control boundary (WCAG 1.4.11)")
+
+    # ...and a control has to actually use it. Checking the token's value
+    # alone let a rule fall back to --border, which is decorative table-grid
+    # grey at 1.44:1, and the check stayed green.
+    for selector in (r"\.qf-btn", r"\.src-link", r"\.ics-btn",
+                     r"\.filtergroup select", r"\.tcheck input"):
+        for body in re.findall(selector + r"[^{}]*\{([^}]*)\}", css):
+            if "var(--border)" in body:
+                errors.append(
+                    f"{selector} draws its boundary with var(--border), which "
+                    f"is 1.44:1 against white; interactive controls need "
+                    f"var(--control-border) (WCAG 1.4.11)")
+
+    # 1.4.12.
+    body_lh = re.search(r"body\s*\{[^}]*line-height\s*:\s*([\d.]+)", css)
+    if not body_lh:
+        errors.append(f"{name}: body has no line-height to check (1.4.12)")
+    elif float(body_lh.group(1)) < MIN_LINE_HEIGHT:
+        errors.append(
+            f"body line-height {body_lh.group(1)} is under "
+            f"{MIN_LINE_HEIGHT} (WCAG 1.4.12 Text Spacing)")
+
+    # iOS viewport zoom, for every selector that styles a form control.
+    # `em` is resolved against a 16px base here, which is the real parent
+    # chain for every rule that matches (all of them sit inside body-level
+    # containers); a deeper `em` chain only shrinks it further, so this
+    # cannot miss.
+    for selector, size, unit in re.findall(
+            r"((?:input|select|textarea)[^{}]*)\{[^}]*font-size\s*:\s*"
+            r"([\d.]+)(rem|em)", css):
+        px = float(size) * DEFAULT_FONT_PX
+        if px < MIN_FORM_FONT_PX:
+            errors.append(
+                f"{selector.strip()}: font-size {size}{unit} is {px:.1f}px -- "
+                f"iOS Safari zooms on focus below {MIN_FORM_FONT_PX:.0f}px and "
+                f"never zooms back")
+
+    # 2.4.7 Focus Visible. The one custom ring was on `th[data-k]:focus`,
+    # and `th` is hidden on mobile, so keyboard and Switch Control users on
+    # a phone had no indicator at all.
+    if not re.search(r":focus-visible\s*\{", css):
+        errors.append(f"{name}: no :focus-visible ring anywhere; the only one "
+                      f"was on the sort headers, which mobile hides")
+
+    return errors
 
 
 MIN_TOTAL = 700
@@ -245,6 +437,58 @@ def main():
         errors.append(f"{len(dateless)} dateless rows (need a date to be "
                       f"placed on a calendar): {sample}")
 
+    # The store must be exactly what the sources justify. Re-running the
+    # pipeline's own reconciliation is the check: a row that would be dropped
+    # now is a row the store is still carrying that no source backs, which is
+    # how a corrected start time or a withdrawn listing survives as a phantom
+    # the exact-duplicate checks cannot see.
+    live = load_live_inputs(quiet=True)
+    if live is None:
+        errors.append("could not load source inputs to reconcile against - "
+                      "did fetch_events.py / webfetch_sources.py run?")
+    else:
+        kept, dropped = reconcile_store(rows, live, reference_today())
+        if dropped:
+            sample = ", ".join(
+                f"{r.get('name')!r} {str(r.get('datetime_iso'))[:16]}"
+                for r in dropped[:5])
+            errors.append(
+                f"{len(dropped)} rows in events.json are not backed by any "
+                f"source (corrected time, or listing withdrawn) - "
+                f"dedupe.py must run after the fetches: {sample}")
+
+    # A listing the venue has stopped selling, or a drop-in service rather
+    # than a session, is hidden by default. If build_site.py did not run, the
+    # keys are absent and the page would quietly show them all.
+    unflagged = [r for r in rows if "hidden_by_default" not in r]
+    if unflagged:
+        errors.append(f"{len(unflagged)} rows have no hidden_by_default flag - "
+                      f"did build_site.py run?")
+    else:
+        # Re-derive rather than trust: a status.py regression must not leave
+        # a sold-out workshop sitting in the published data looking bookable.
+        stale_status, stale_service = [], []
+        for r in rows:
+            status, _detail = event_status(r)
+            if status != (r.get("status") or ""):
+                stale_status.append(r.get("name"))
+            service, _reason = is_ongoing_service(r)
+            if service != bool(r.get("is_service")):
+                stale_service.append(r.get("name"))
+        if stale_status:
+            errors.append(f"{len(stale_status)} rows whose sold-out/cancelled "
+                          f"status disagrees with their own text: "
+                          f"{', '.join(sorted(set(stale_status))[:5])}")
+        if stale_service:
+            errors.append(f"{len(stale_service)} rows whose drop-in-service "
+                          f"flag disagrees with their own text: "
+                          f"{', '.join(sorted(set(stale_service))[:5])}")
+        unknown = {r.get("status") for r in rows
+                   if r.get("status") and r["status"] not in STATUS_LABELS}
+        if unknown:
+            errors.append(f"rows carry an unknown status {sorted(unknown)} - "
+                          f"add it to STATUS_LABELS so the UI can label it")
+
     # Every source label needs a badge: CSS class + friendly-name entries,
     # or its badge renders as invisible white-on-white text.
     try:
@@ -276,6 +520,7 @@ def main():
         for fn in ("parseURLState", "updateURL", "updatePagination"):
             if not re.search(r"function\s+" + fn + r"\s*\(", tpl):
                 errors.append(f"template calls {fn}() but never defines it")
+        errors.extend(a11y_errors(tpl, "template"))
     except FileNotFoundError as e:
         errors.append(f"template missing: {e}")
 
@@ -292,6 +537,11 @@ def main():
                 errors.append(f"index.html still contains {ph}")
         if built.lower().count("</html>") != 1:
             errors.append("index.html has a duplicated/partial document")
+        # The template being accessible proves nothing about the page users
+        # actually load: an uncommitted rebuild ships the old markup. This
+        # ran the same battery against index.html and stayed green for a
+        # build that had never been made.
+        errors.extend(a11y_errors(built, "index.html"))
     except FileNotFoundError:
         errors.append("index.html missing - did build_site.py run?")
 

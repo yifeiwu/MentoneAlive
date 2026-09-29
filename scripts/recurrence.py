@@ -22,6 +22,15 @@ WEEKLY_HORIZON_DAYS = 126
 FORTNIGHTLY_HORIZON_DAYS = 252
 MONTHLY_HORIZON_MONTHS = 20
 
+# How stale a year-less date may be before it stops being "this year, just
+# gone" and starts being "next year". Greater Dandenong states dates without a
+# year ("28 Sep Drop-In Casual Basketball Monday 28 September, 5:30pm"), so a
+# listing read the day after it happened looked like next year's and was
+# published twelve months out. Two weeks is long enough to cover a genuine
+# "we are publishing next year's programme already" listing read in December,
+# and short enough that a one-day-old listing is treated as stale.
+YEAR_ROLL_GRACE_DAYS = 14
+
 DAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday",
         "sunday")
 DAY_ALT = "|".join(d.capitalize() for d in DAYS)
@@ -372,7 +381,10 @@ def _extract_single_date(text, today, require_year):
             return None
         # A year-less date could belong to this year or the next. Take the
         # first that is not already in the past, so "17 October" read in
-        # December rolls forward instead of silently vanishing.
+        # December rolls forward instead of silently vanishing -- but only
+        # when the current-year reading is *clearly* gone. Rolling on the
+        # very next day turned every just-past listing into a twelve-months-
+        # ahead phantom, which then sat in the store until it aged out.
         for year in (today.year, today.year + 1):
             try:
                 candidate = date(year, mon, day)
@@ -380,6 +392,9 @@ def _extract_single_date(text, today, require_year):
                 return None
             if candidate >= today:
                 return candidate
+            if (today - candidate).days <= YEAR_ROLL_GRACE_DAYS:
+                # Only just past: this year's occurrence, now over.
+                return None
         return None
     return None
 
@@ -442,6 +457,14 @@ def _parse_text(text, today, allow_loose_single=False):
         return Spec("once", [(0, start, end)], start_date=single,
                     end_date=single,
                     label=single.strftime("%d %b %Y")), None
+
+    # An explicit range that has finished settles the listing, even when the
+    # range carries no year. Without this the loose-single path below runs
+    # first and re-reads the range's opening day as next year: "from 1 June
+    # to 31 August" read in September became a phantom 2027 event.
+    span = _extract_date_range(text, today)
+    if _is_stale(span):
+        return None, "explicit date range has already finished"
 
     if allow_loose_single:
         single = _extract_single_date(text, today, require_year=False)

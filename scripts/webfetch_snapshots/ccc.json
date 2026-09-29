@@ -330,21 +330,6 @@
   "source_label": "ccc"
  },
  {
-  "name": "STEADYstrength",
-  "datetime_text": "Tuesdays. 10:00am – 11:15am. 11:00am – 12:15pm",
-  "datetime_iso": null,
-  "location": "Cheltenham Hall",
-  "address": "1218 Nepean Highway, Cheltenham VIC 3192",
-  "price_text": "",
-  "description": "Build strength, improve balance and stay steady to enjoy life with confidence. A more challenging strength and balance class for people who are already steady on their feet and want to stay active and independent. ================================================= CLASS DETAILS ======================. Tuesdays. 10:00am – 11:15am. 11:00am – 12:15pm",
-  "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
-  "source_id": "ccc",
-  "has_real_date": false,
-  "datetime_display": "Tuesdays. 10:00am – 11:15am. 11:00am – 12:15pm",
-  "price_sort": null,
-  "source_label": "ccc"
- },
- {
   "name": "Guided Meditation",
   "datetime_text": "Mondays. 10am - 10:40am. Term 4 - 10 weeks When: Mondays 10am - 10:40am Instructor: Jill Co",
   "datetime_iso": "2026-10-05T10:00:00",
@@ -707,7 +692,7 @@
  {
   "name": "Holiday Activities",
   "datetime_text": "daily. 8:45am-4:15pm",
-  "datetime_iso": "2026-09-29T08:45:00",
+  "datetime_iso": "2026-09-30T08:45:00",
   "location": "Cheltenham Community Centre",
   "address": "8 Chesterville Rd, Cheltenham VIC 3192, Australia",
   "price_text": "",
@@ -715,7 +700,7 @@
   "source": "https://events.humanitix.com/2026-sep-oct-holiday-program-cheltenham-community-centre",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 29 Sep 2026, 8:45 AM",
+  "datetime_display": "Wed 30 Sep 2026, 8:45 AM",
   "price_sort": null,
   "source_label": "ccc"
  },
