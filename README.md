@@ -1,0 +1,360 @@
+# Community Events Index
+
+A searchable, sortable offline index of community events across Kingston,
+Bayside, Greater Dandenong (Springvale/Keysborough), Frankston and
+neighbourhood-house venues near Chelsea/Cheltenham/Mentone/Mordialloc.
+
+## Sources
+
+| Source | Label | Method |
+|--------|-------|--------|
+| Kingston Hubs (OpenCities calendar API) | `kingston_hubs` | JSON API (`fetch_events.py`) |
+| Kingston Council upcoming events | `kingston_council` | HTML, page 1 (Granicus needs browser TLS) |
+| Kingston Arts | `kingston_arts` | HTML, page 1 (same platform) |
+| Kingston Seniors Festival (annual PDF guide) | `kingston_seniors` | PDF parse + hand-checked overrides |
+| Kingston Libraries | via Council/Hubs listings | — |
+| Bayside Council events | `bayside_live` | HTML, full `?page=` pagination |
+| Bayside Seniors Festival | `bayside_seniors` | HTML, festival page pagination |
+| Greater Dandenong (Springvale/Keysborough filter) | `greater_dandenong` | HTML (`fetch_events.py`) |
+| Greater Dandenong Libraries | `gd_libraries` | HTML (`fetch_events.py`) |
+| Chatty Cafe venue directory | `chatty_cafe` | Venue pages (`fetch_events.py`) |
+| Cheltenham Community Centre term classes | `ccc` | HTML + Humanitix dates |
+| Frankston / Bayside archived | `frankston_archived`, `bayside_archived` | Static snapshots (live pages WAF-blocked) |
+
+Plain `urllib`/`requests` gets HTTP 403 from the Granicus WAF, so the
+`kingston_*`, Bayside and CCC sources are fetched with `curl-cffi` Chrome
+TLS impersonation in `scripts/webfetch_*.py` (one module per source).
+Deeper Granicus pages (JS-postback pager) are covered by manual
+`*_manual.json` snapshots if needed.
+
+## Pipeline
+
+```bash
+pip install -r requirements.txt               # pinned versions
+python scripts/fetch_events.py                # Python-safe sources → data/raw_events.json
+python scripts/webfetch_sources.py            # browser-impersonating sources → scripts/webfetch_snapshots/*.json
+python scripts/dedupe.py                      # merge + dedupe → data/events.json
+python scripts/health_check.py                # fail loudly on bad output
+python scripts/build_site.py                  # render index.html (repo root, GitHub Pages)
+python scripts/render_check.py                # prove index.html renders rows, not a blank page
+```
+
+`scripts/` layout: `fetch_events.py` (API/Drupal/venue sources),
+`webfetch_http.py` (shared session/date helpers, `PartialFetch`),
+`webfetch_{bayside,granicus,ccc,seniors}.py` (one fetcher each),
+`webfetch_sources.py` (thin orchestrator), `dedupe.py`, `recurrence.py`,
+`commercial.py`, `activity_types.py`, `jsonio.py` (atomic writes),
+`build_site.py`, `health_check.py`, `render_check.py`.
+
+### Failure behaviour
+
+Both fetchers **exit non-zero** when a source does not fetch cleanly, so a WAF
+block or a markup change turns the Actions run red instead of quietly
+publishing a smaller calendar:
+
+- a source that raises, or returns 0 rows, is a hard failure;
+- a source that returns 0 rows never overwrites its snapshot;
+- a multi-page crawl that stops early raises `PartialFetch`, and the existing
+  snapshot is kept — a partial crawl is indistinguishable from a source with
+  genuinely no events, so it must not replace good data.
+
+## Deduplication (`dedupe.py`)
+
+1. **Exact hash** on (normalized name, *start time*, normalized location).
+   The start time is part of the key so two sessions of one class at a venue
+   in a day (`Cert II in EAL` 9am and 12:30pm) both survive.
+2. **Same name + location** across sources merges source lists, keeping the
+   dated variant — except when the two rows start at different times of day
+   (separate occurrences are never collapsed).
+3. **Fuzzy**: name similarity ≥ 0.75 AND same day within ±30 min AND strict
+   location equality.
+4. **Prune** events older than 90 days. Timestamps are converted to
+   Australia/Melbourne rather than having their UTC offset stripped, so events
+   near the 90-day boundary are not mis-pruned.
+5. **Date inference** (`recurrence.py`), then a final **exact-only** collapse
+   keyed on name + *start time* + location.
+6. **Same session, two sources** (`dedupe_by_source_url`): two independent
+   problems produced the same visible duplicate.
+
+   *Same listing page, different venue string* — `kingston_arts` +
+   `kingston_council` both hit kingstonarts.com.au, and `greater_dandenong` +
+   `gd_libraries` both hit the GD libraries site. `location_matches()` is
+   strict equality, so `Kingston Arts Centre` and
+   `Kingston Arts Centre, 979 Nepean Hwy` never matched.
+
+   *Same programme, different title* — sources style one event differently.
+   The national Chatty Cafe directory writes
+   `Chatty Cafe - Cheltenham Community Centre`, the venue's own site writes
+   `Chatty Cafe`, and a seniors listing writes
+   `Chatty Cafe - Connect over a Cuppa`. Whole-string similarity lands around
+   0.5 for these, well under the 0.75 fuzzy threshold.
+
+   What all of these share is the **base name** — the title up to its first
+   ` - `, `:` or `|`, accent-folded so `Café` matches `Cafe`. A merge requires
+   that base name plus the same date, start time and a compatible venue. The
+   venue check is what keeps genuinely distinct events apart: two
+   STEADYstrength classes at two different halls, or `Chatty Cafe - Game On!`
+   at 10:00 against the 11:00 series at the same venue.
+
+7. **Untimed twins** (`drop_untimed_twins`): a listing that states only
+   "Wednesday" yields an occurrence at 00:00. When a timed occurrence of the
+   same programme at the same venue exists, the midnight row restates that
+   session rather than adding an event — and it publishes a 12am start that
+   does not exist. Matched across the whole run, not per date, because the
+   timed and untimed listings often cover different spans.
+
+Step 5's fuzzy pass is deliberately not re-run after inference: sibling
+courses at one venue (`Cert I in EAL` vs `Cert III in EAL`, both Monday 9am)
+score above 0.75 and would fuse into a single event.
+
+Step 6 runs **after** inference, because the duplicated rows are the
+`date_inferred` ones. Neither a shared URL nor a matching description is
+required: the CCC page lists two different STEADYstrength classes, both
+Tuesdays 10:00, at two different halls — same name, same time, same URL,
+genuinely different events — so the *venue* is what separates them.
+`health_check.py` re-checks for survivors of both step 6 and step 7.
+
+A row carrying a date but flagged `has_real_date: false` is self-contradictory
+— older runs stamped such rows with the fetch time, so the published date
+silently became the day the pipeline ran. The stamp is discarded and the row
+is re-derived from its text.
+
+### Inferred rows are refreshed, never frozen
+
+Inferred dates are written back into the store, so a row dated by an older,
+buggier build keeps its old time indefinitely — nothing re-derives it.
+`refresh_inferred()` runs before `resolve_dateless()` and re-derives any
+`date_inferred` row whose stored time disagrees with the time its own text
+states **for that row's weekday**. It acts only when the weekday states
+exactly one time: `Cert III in EAL` runs twice on Mondays (09:00 and 12:30),
+so either stored value is legitimate and both are left alone.
+
+This is what clears two classes of stale row:
+
+- **midnight copies** of time-stated series — every Chatty Cafe venue whose
+  schedule says "10.30am" was also published at 00:00, because the weekday
+  was recognised but a lone time was not paired with it;
+- **mis-parsed times** — `Bingo Bonanza` at 12:00 because "an **afternoon** of
+  fun" matched the new `noon` token before the word boundary was added.
+
+### Time formats the parser accepts
+
+`am/pm` (`9am`, `5.30pm`, `11:15am`), 24-hour (`14:00`, `18.30`), `noon` and
+`midday` (`12noon`, `noon - 1pm`), and a bare hour as one end of a range
+(`12 - 1.30pm`). A bare `12` is *not* a standalone token: schedule text is full
+of bare numbers ("Monday 28 September") and matching digits alone turns
+day-of-month into an hour. Every token is `\b`-anchored so "afternoon" is never
+read as "noon".
+
+### Reproducibility
+
+Both `dedupe.py` and `recurrence.py` anchor every date calculation on "today".
+Set `SOURCE_DATE_EPOCH` (a Unix timestamp) to pin it and make a run
+reproducible:
+
+```bash
+SOURCE_DATE_EPOCH=1789948800 python scripts/dedupe.py
+```
+
+## Date inference (`recurrence.py`)
+
+An event needs a real date to be placed on a calendar, so **every published
+row carries one** — `health_check.py` fails the build otherwise. Some sources
+publish recurring programs without per-occurrence dates and state the pattern
+in prose instead ("Wednesdays. 2:00pm – 3:30pm", "on the fourth Saturday of
+every month"). Those are parsed into a recurrence spec and expanded into
+concrete dated rows.
+
+A bare weekday is **not** a pattern. `Friday 2 October, 11:00am` is one dated
+event; treating it as weekly would fabricate twelve. A weekday only becomes a
+recurring series when something marks it as ongoing — a time range
+(`Wednesdays 2:00pm - 3:30pm`) or recurring language (`every week`, `term`,
+`ongoing`).
+
+Recognised patterns, in priority order:
+
+| Pattern | Example | Expansion |
+| --- | --- | --- |
+| Nth weekday of month | `1st Wednesday of every month` | 12 months |
+| Fortnightly | `Every second Saturday` | every 2nd week |
+| Explicit range | `Term 4 (17th October - 5th December)` | that window only |
+| Full date | `Thursday, May 25th, 2023` | single occurrence |
+| Weekday(s) + times | `Mondays and Thursdays 9am - 12pm` | 12 occurrences |
+| Weekday in the title | `Friday After School STEAM session` | 12 occurrences, all-day |
+
+Details worth knowing:
+
+- **12 occurrences max** per source event, earliest first, so a weekly class
+  covers ~3 months and a monthly one ~1 year. `Term 4 (10 weeks)` overrides
+  the cap with the stated session count.
+- **Explicit ranges resolve to the current year.** A window that has already
+  finished is treated as stale and dropped rather than rolled forward, so
+  2023 workshop write-ups and last year's terms do not reappear.
+- **A source-supplied date always wins.** A dateless stub whose name and
+  location already have a real dated sibling is dropped in favour of it.
+  Previously *inferred* siblings do not count, so re-runs stay stable.
+- Times are inferred only when stated; everything else becomes an all-day
+  entry. `2.30pm` and `2:30pm` both parse, and the `15pm` typo on the CCC
+  netball page is read as 3pm.
+- Undateable listings are **removed**, with the reason printed by
+  `dedupe.py`. This drops 24/7 helplines, open-ended enrolments, one-off
+  exhibitions with no dates, and sponsor acknowledgements — none of which can
+  go on a calendar.
+
+Inferred rows are tagged `date_inferred: true` and carry a `recurrence`
+label (e.g. `Every Wednesday`, `Fourth Saturday of every month`) so a
+reader can tell a stated date from a derived one. The table renders that
+label under the timestamp, and carries it into the `.ics` export as
+`X-COMMENTS-DERIVED-DATE`, so a derived date does not silently become a
+confirmed one once it leaves the page.
+
+A midnight stamp is the pipeline's marker for "date known, time not stated",
+not a 00:00 start, so the table shows those as `all day`. Every inferred row
+that lands on `00:00` was checked: none of them state a time in their own
+text.
+
+## Commercial events (`commercial.py`)
+
+Pub/meal-deal promos (parma/steak/happy-hour/hotel jobs) and priced-or-pub
+trivia are flagged `is_commercial` and hidden by default in the UI
+(checkbox to show). Gold-coin community trivia stays visible.
+
+## Activity types (`activity_types.py`)
+
+Rule-based classifier over 17 types. It runs **two passes**: the title (plus
+any source-supplied category) first and on its own, and the free-text
+description only as a fallback when the title matches nothing. Titles are the
+authoritative signal, so a blurb word can no longer outrank them — before this,
+"Zumba" filed as Dance because the description said "dancing", and "French
+Lounge" filed as Food & Drink because the description said "a **great**
+opportunity" (`r"eat "` matched "great").
+
+Within a pass the first matching rule wins, so rule order is significant and is
+asserted. Orderings that are load-bearing:
+
+- `Social & Community` before `Food & Drink`, so the whole Chatty Cafe program
+  is not filed as dining by its own "cafe / coffee" wording.
+- A narrow `Health & Wellbeing` nutrition pre-rule before `Food & Drink`.
+  Below `Food & Drink` the health rule was entirely dead: "Eat Well, Age Well"
+  was claimed by `\beat\b` first.
+- `Nature & Environment` after `Art & Craft`, so an exhibition that merely
+  *depicts* flora or a wildlife corridor stays art, and before
+  `Social & Community`, whose `famil` would take community-garden events.
+- `Children & Families` after `Health & Wellbeing`, so "Calm and Confident
+  Kids" stays health rather than being filed as merely for children.
+
+Patterns are anchored with `\b` wherever the unanchored form also matched
+inside an unrelated word — `r"organ\b"` matched "Janis **Morg**an" and filed an
+art workshop as music, and `r"eat "` matched "great", "meat" and "beat".
+
+Run `python scripts/activity_types.py` to check the 56 known
+name/description → type cases. It **asserts** rather than prints, so a rule
+reordering that changes a classification fails loudly.
+
+## Seniors Festival overrides
+
+The Kingston guide's multi-column spreads lose column association in
+flat-text PDF extraction, so `scripts/seniors_festival_overrides.json`
+pins hand-checked sessions for those events. Values go stale each October
+with the new guide — refresh them then. The `year` is required in
+`sources.yaml`; there is no fallback to the current year, which would
+reinterpret the whole document.
+
+### Refreshing the seniors festival each October
+
+Two values must move together, and `health_check.py` fails the build if they
+disagree:
+
+| File | Key | Meaning |
+| --- | --- | --- |
+| `scripts/sources.yaml` | `kingston_seniors.year` | the guide being parsed |
+| `scripts/seniors_festival_overrides.json` | `year` | the guide the sessions were transcribed from |
+
+The override dates are **literal and never re-stamped**: the festival falls on
+different days each year, so a 2026 file cannot be shifted to 2027
+mechanically. If the two years drift apart, the next run emits last year's
+dates, `prune_old()` deletes them as over 90 days old, and the whole festival
+vanishes — which used to be a *warning*, because `kingston_seniors` is
+warn-only so that out-of-season decay is tolerated.
+
+`seniors_config_errors()` now separates those two cases. A stale `year` in
+`sources.yaml` is a hard error only during the festival months (Sept–Nov);
+outside that window a stale year is correct, since last year's festival really
+has finished. A mismatch between the two files is always an error, because no
+season makes that legitimate.
+
+
+## GitHub Actions
+
+`.github/workflows/update-events.yml` runs daily at 06:00 UTC with
+per-step timeouts: fetch → webfetch → dedupe → build → **health check**
+→ commit (`data/events.json`, `index.html`, snapshots) → Pages deploy.
+
+The health check enforces a total floor, per-source floors for year-round
+sources, zero exact duplicates, zero same-listing duplicates, zero
+same-programme duplicates, no inferred row whose stored time contradicts its
+own text, that every row has a real date, that every source label has badge
+CSS and a friendly name, and that both the template and the built
+`index.html` are a single document with no unfilled placeholders and no calls
+to undefined functions. Seasonal sources (seniors festivals) are warn-only
+since they legitimately decay out of season.
+
+### The page is rendered, not just inspected (`render_check.py`)
+
+Every other check reads Python or `events.json`. None of them execute
+JavaScript, so a syntax error in `src/templates/index.html` builds cleanly,
+passes the health check, and publishes a **blank calendar**. That is not
+hypothetical: a missing closing paren in the source-status block did exactly
+this, and a regex scan for undefined names could not see it, because a parse
+error is not an undefined name.
+
+`render_check.py` loads the real built page in a headless Chromium browser and
+asserts the results table has rows and the count line is populated. On failure
+it re-renders with an error handler attached and prints the JavaScript error
+with its line number, so the output names the fix rather than just "no rows".
+
+It takes about a second. If no Chromium-family browser is found it prints a
+`SKIP` and exits 0, so it stays usable on a machine with no browser; set
+`$BROWSER` to force a specific one. The GitHub runner has Chrome
+preinstalled, so CI always gets the real check.
+
+## Dependency upgrades
+
+`requirements.txt` is pinned to known-good versions. To upgrade:
+`pip install -U <pkg>`, run the full pipeline locally
+(`fetch` can be skipped; use `--source <id> --max-pages 2 --detail-cap 2`
+for a fast webfetch slice), confirm `health_check.py` passes, then update
+the pin.
+
+## Data files are written atomically
+
+`jsonio.write_json` stages to a temp file and renames, so an exception
+mid-serialisation can never truncate `data/events.json` or
+`data/raw_events.json`. A truncated store would abort the next `dedupe.py`
+run on `JSONDecodeError` and wedge the pipeline.
+
+## Data schema (rows in `data/events.json`)
+
+```json
+{
+  "name": "Event name",
+  "datetime_iso": "2026-10-15T10:00:00",
+  "datetime_display": "Wed 15 Oct 2026, 10:00 AM",
+  "datetime_text": "Wednesday 15 October, 10:00am - 12:00pm",
+  "has_real_date": true,
+  "date_inferred": true,
+  "recurrence": "Every Wednesday",
+  "price_text": "$5",
+  "price_sort": 5.0,
+  "location": "Chelsea Activity Hub",
+  "address": "3-5 Showers Ave, Chelsea 3196",
+  "suburb": "Chelsea",
+  "description": "Event description...",
+  "type": "Exercise & Fitness",
+  "source": "https://...",
+  "source_label": "kingston_hubs",
+  "sources": ["https://..."],
+  "is_commercial": false,
+  "commercial_reason": ""
+}
+```

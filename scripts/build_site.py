@@ -1,0 +1,153 @@
+"""Generate the offline index.html from events.json + template."""
+import html
+import json
+import re
+from collections import Counter
+from datetime import datetime
+
+from activity_types import classify
+from commercial import is_commercial
+from jsonio import write_json
+
+# Only these may be published as a link target. A javascript:/data: URL in
+# row["source"] would otherwise be inlined verbatim and reach an href, where
+# HTML-escaping does not neutralise the scheme.
+SAFE_SCHEMES = ("http://", "https://", "/", "#", "mailto:")
+
+# The state token that follows the suburb in an Australian address. The old
+# postcode fallback matched the last word before the postcode, which for
+# "..., Beaumaris, Victoria 3193" is the *state* -- so 131 rows got a suburb
+# of "Victoria". Suburbs that are also state names are not a thing in VIC, so
+# treating these as non-suburbs is safe.
+_STATE_TOKENS = {"victoria", "vic", "vics", "australia", "nsw", "new south wales",
+                 "queensland", "qld", "sa", "south australia", "tas", "tasmania",
+                 "nt", "wa", "western australia", "act"}
+
+
+def _safe_url(value):
+    """Return the URL if it uses an acceptable scheme, else an empty string."""
+    url = (value or "").strip()
+    if not url:
+        return ""
+    return url if url.startswith(SAFE_SCHEMES) else ""
+
+
+def extract_suburb(address):
+    """Extract Australian suburb from an address string.
+
+    Anchored on the postcode, which is the reliable token, and reads the
+    token(s) immediately before it. The previous version matched the last
+    word before the postcode, so a well-formed address such as
+    "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193" yielded
+    "Victoria" -- the state -- as the suburb. Reading the whole segment
+    before the state (and refusing state names outright) fixes that.
+    """
+    a = (address or "").strip()
+    if not a:
+        return ""
+
+    # "... VIC 3192" / "... Victoria 3193" -> capture everything before the
+    # state token. Non-greedy so the *last* state+postcode is used, not the
+    # first, since an address can name two suburbs ("Beaumaris, Beaumaris").
+    m = re.search(r"^(.+?)[,\s]+(?:VIC|Victoria)\.?\s+\d{4}\b", a, re.I)
+    if m:
+        head = m.group(1)
+        # Take the final comma-delimited segment: that is the suburb, while
+        # the earlier ones are the venue and street.
+        seg = re.split(r",", head)[-1].strip()
+        if seg and seg.lower() not in _STATE_TOKENS and not _is_street(seg):
+            return seg
+        return ""
+
+    # "..., Frankston, VIC" -- state present, no postcode. Same rule.
+    m = re.search(r"^(.+?)[,\s]+(?:VIC|Victoria)\s*$", a, re.I)
+    if m:
+        seg = re.split(r",", m.group(1))[-1].strip()
+        if seg and seg.lower() not in _STATE_TOKENS and not _is_street(seg):
+            return seg
+        return ""
+
+    # No state token at all. Fall back to a bare postcode when present, but
+    # only accept a short non-street segment -- "Patterson Lakes Community
+    # Centre, 2-30 Thompson Rd, Patterson Lakes 3198" ends in the postcode and
+    # its last token is a street, so guard against that.
+    m = re.search(r"^(.+?)[,\s]+(\d{4})\b", a)
+    if m:
+        seg = re.split(r",", m.group(1))[-1].strip()
+        if seg and seg.lower() not in _STATE_TOKENS and not _is_street(seg):
+            return seg
+    return ""
+
+
+_STREET_TAIL = re.compile(
+    r"\b(Road|Rd|Street|St|Avenue|Ave|Highway|Pde|Parade|Drive|Dr|Lane|Ln|Place|"
+    r"Pl|Square|Sq|Terrace|Court|Ct|Boulevard|Blvd|Walk|Crescent|Cres|Close|"
+    r"Way|Trail|Parkway|Circuit|Cct|Promenade|Prom|Esplanade)\b\.?$", re.I)
+
+
+def _is_street(seg):
+    """True when a comma-segment is a street/road name, not a suburb."""
+    return bool(_STREET_TAIL.search(seg.strip()))
+
+
+def main():
+    with open("data/events.json", encoding="utf-8") as f:
+        data = json.load(f)
+
+    rows = data.get("rows", [])
+    print(f"Building site with {len(rows)} events...")
+
+    for r in rows:
+        r["type"] = classify(r.get("name", ""), r.get("description") or "")
+        r["suburb"] = extract_suburb(r.get("address") or r.get("location") or "")
+        flag, reason = is_commercial(r)
+        r["is_commercial"] = flag
+        r["commercial_reason"] = reason
+        r["source"] = _safe_url(r.get("source"))
+        r["sources"] = [u for u in (r.get("sources") or []) if _safe_url(u)]
+
+    data["rows"] = rows
+    data["type_counts"] = dict(Counter(r.get("type", "Other") for r in rows))
+    data["commercial_count"] = sum(1 for r in rows if r.get("is_commercial"))
+    write_json("data/events.json", data)
+    print(f"Wrote data/events.json with types + commercial "
+          f"({data['commercial_count']} commercial)")
+
+    type_counts = Counter(r["type"] for r in rows)
+    types = sorted(type_counts.keys())
+    sources = sorted({r.get("source_label", "unknown") for r in rows})
+
+    template_path = "src/templates/index.html"
+    with open(template_path, encoding="utf-8") as f:
+        template = f.read()
+
+    data_json = json.dumps(rows, ensure_ascii=False)
+    # Inlined into a <script> block: "</" prevents a </script> breakout, and
+    # U+2028/U+2029 are JavaScript line terminators in string literals before
+    # ES2019, which would break the parse for the whole page.
+    data_json = (data_json.replace("</", "<\\/")
+                 .replace("\u2028", "\\u2028")
+                 .replace("\u2029", "\\u2029"))
+
+    html_out = template.replace("__EVENTS_DATA__", data_json)
+    html_out = html_out.replace("__GENERATED_AT__", datetime.now().strftime("%Y-%m-%d %H:%M"))
+    html_out = html_out.replace("__EVENT_COUNT__", str(len(rows)))
+    html_out = html_out.replace("__SOURCE_COUNT__", str(len(sources)))
+
+    type_html = ""
+    for t in types:
+        t_esc = html.escape(t, quote=True)
+        type_html += f'<label class="tcheck"><input type="checkbox" data-type="{t_esc}" checked> {html.escape(t)} ({type_counts[t]})</label>\n'
+    html_out = html_out.replace("__TYPE_CHECKBOXES__", type_html)
+
+    # Legacy placeholder removed from template; tolerate old templates.
+    html_out = html_out.replace("__LOCATION_OPTIONS__", "")
+
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html_out)
+
+    print(f"Wrote index.html ({len(html_out)} bytes)")
+
+
+if __name__ == "__main__":
+    main()

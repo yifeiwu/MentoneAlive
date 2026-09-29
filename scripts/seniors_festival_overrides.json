@@ -1,0 +1,476 @@
+{
+ "year": 2026,
+ "_year_note": "The year these sessions were transcribed from the rendered Event Guide. Every date below is literal and belongs to this year only -- the festival falls on different days each year, so nothing here is re-stamped automatically. Bump this AND sources.yaml 'year' together when the new guide lands, or health_check.py fails the build during the festival months.",
+ "overrides": [
+  {
+   "name": "Mid-Morning Yoga",
+   "venue": "longbeach",
+   "location": "Longbeach Learning and Activity Centre",
+   "address": "15 Chelsea Road, Chelsea VIC 3196",
+   "description": "Morning yoga to strengthen the body, calm the mind and boost wellbeing.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-01",
+      "2026-10-15",
+      "2026-10-29"
+     ],
+     "time": "10:45",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Zumba Gold (Mondays)",
+   "venue": "cheltenham hall",
+   "location": "Cheltenham Hall",
+   "address": "1218 Nepean Highway, Cheltenham VIC 3192",
+   "description": "Fun, low-impact dance fitness class. No experience needed.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-05",
+      "2026-10-12",
+      "2026-10-19",
+      "2026-10-26"
+     ],
+     "time": "10:30",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Chair Yoga",
+   "venue": "aspendale seniors",
+   "location": "Aspendale Seniors Club",
+   "address": "151A Station Street, Aspendale VIC 3193",
+   "description": "Chair yoga with an excellent teacher. Relax with a friendly group.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-03",
+      "2026-10-10",
+      "2026-10-17",
+      "2026-10-24",
+      "2026-10-31"
+     ],
+     "time": "09:30",
+     "cost": "$5"
+    }
+   ]
+  },
+  {
+   "name": "Tai Chi",
+   "venue": "waves",
+   "location": "Waves Leisure Centre",
+   "address": "111 Chesterville Road, Highett VIC 3190",
+   "description": "Chinese exercise with slow, smooth movements for body and mind.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-05",
+      "2026-10-12"
+     ],
+     "time": "14:00",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Newcombe Fit & Fun",
+   "venue": "cheltenham community centre",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "description": "Fun, easy-to-learn team sport similar to volleyball. All abilities.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-05",
+      "2026-10-12",
+      "2026-10-19",
+      "2026-10-26"
+     ],
+     "time": "11:00",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Yoga",
+   "venue": "mordialloc neighbourhood",
+   "location": "Mordialloc Neighbourhood House",
+   "address": "457 Main Street, Mordialloc VIC 3195",
+   "description": "Calming movement, breathing and meditation to reduce stress.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-06",
+      "2026-10-13",
+      "2026-10-20",
+      "2026-10-27"
+     ],
+     "time": "10:30",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Come & Try Qigong",
+   "venue": "cheltenham community centre",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "description": "Gentle Qigong combining flowing movement, breathing and mindfulness.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-01",
+      "2026-10-15",
+      "2026-10-29"
+     ],
+     "time": "14:00",
+     "cost": "Free (for new participants)"
+    }
+   ]
+  },
+  {
+   "name": "Line Dancing",
+   "venue": "aspendale seniors",
+   "location": "Aspendale Seniors Club",
+   "address": "151A Station Street, Aspendale VIC 3193",
+   "description": "Line dancing from absolute beginners to advanced, called out by a teacher.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28"
+     ],
+     "time": "13:00",
+     "cost": "$5"
+    }
+   ]
+  },
+  {
+   "name": "Active Seniors Yoga",
+   "venue": "waves",
+   "location": "Waves Leisure Centre",
+   "address": "111 Chesterville Road, Highett VIC 3190",
+   "description": "Gentle movement with postures, breathing and mindfulness.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14"
+     ],
+     "time": "11:30",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Free Swim on Wednesdays at Waves Leisure Centre",
+   "venue": "waves",
+   "location": "Waves Leisure Centre",
+   "address": "111 Chesterville Road, Highett VIC 3190",
+   "description": "Kingston residents 60+ swim free on Wednesdays in October.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28"
+     ],
+     "time": "06:00",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Chair Based Exercise",
+   "venue": "longbeach",
+   "location": "Longbeach Learning and Activity Centre",
+   "address": "15 Chelsea Road, Chelsea VIC 3196",
+   "description": "Gentle chair-based exercise for strength, flexibility and circulation.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-21"
+     ],
+     "time": "10:30",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Love to Live - Gentle Chair-Based Exercise",
+   "venue": "cheltenham community centre",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "description": "Gentle chair-based exercise for strength, flexibility and confidence.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28"
+     ],
+     "time": "12:00",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Gentle Exercises (Body and Balance)",
+   "venue": "aspendale seniors",
+   "location": "Aspendale Seniors Club",
+   "address": "151A Station Street, Aspendale VIC 3193",
+   "description": "Exercises to beautiful music with a much loved teacher, plus cuppa.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28"
+     ],
+     "time": "09:30",
+     "cost": "$5"
+    }
+   ]
+  },
+  {
+   "name": "Zumba Gold",
+   "venue": "waves",
+   "location": "Waves Leisure Centre",
+   "address": "111 Chesterville Road, Highett VIC 3190",
+   "description": "Low-impact dance fitness, modified Zumba at lower intensity.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-08",
+      "2026-10-15"
+     ],
+     "time": "11:30",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Active Adult",
+   "venue": "longbeach",
+   "location": "Longbeach Learning and Activity Centre",
+   "address": "15 Chelsea Road, Chelsea VIC 3196",
+   "description": "Low-impact aerobics with hand weights and chair exercises.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-14",
+      "2026-10-28"
+     ],
+     "time": "09:30",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Chatty Caf\u00e9 - Connect over a Cuppa",
+   "venue": "cheltenham community centre",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "description": "Relaxed morning of conversation and connection at the Chatty Cafe.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-05"
+     ],
+     "time": "10:30",
+     "cost": "Free"
+    },
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28"
+     ],
+     "time": "10:30",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "500 Card & Cuppa",
+   "venue": "aspendale gardens",
+   "location": "Aspendale Gardens Community Service",
+   "address": "103-105 Kearney Drive, Aspendale Gardens VIC 3195",
+   "description": "Play 500 and enjoy a chat and cuppa. All welcome.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21"
+     ],
+     "time": "13:00",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Social Table Tennis",
+   "venue": "aspendale seniors",
+   "location": "Aspendale Seniors Club",
+   "address": "151A Station Street, Aspendale VIC 3193",
+   "description": "Great game of table tennis with a friendly group.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-06",
+      "2026-10-13",
+      "2026-10-20",
+      "2026-10-27"
+     ],
+     "time": "09:15",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Seniors Social Tennis Morning",
+   "venue": "chelsea lawn",
+   "location": "Chelsea Lawn Tennis Club",
+   "address": "13 Beardsworth Avenue, Chelsea VIC 3196",
+   "description": "Non-competitive social tennis. Racquets, balls and morning tea provided.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-05"
+     ],
+     "time": "09:30",
+     "cost": "Free"
+    },
+    {
+     "dates": [
+      "2026-10-07"
+     ],
+     "time": "09:30",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Mahjong Open Day",
+   "venue": "mordialloc community centre",
+   "location": "Mordialloc Community Centre",
+   "address": "115A Warren Road, Parkdale VIC 3194",
+   "description": "Interested in learning Mahjong? Beginners welcome.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-16",
+      "2026-10-23"
+     ],
+     "time": "10:00",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Savvy Seniors",
+   "venue": "mordialloc neighbourhood",
+   "location": "Mordialloc Neighbourhood House",
+   "address": "457 Main Street, Mordialloc VIC 3195",
+   "description": "IT help program: phones, tablets, computers, email and apps.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28"
+     ],
+     "time": "13:30",
+     "cost": "$3"
+    }
+   ]
+  },
+  {
+   "name": "Aged Care Information Session",
+   "venue": "mentone",
+   "location": "City of Kingston (Mentone Office)",
+   "address": "34 Brindisi Street, Mentone VIC 3194",
+   "description": "Learn about in-home care, My Aged Care and maintaining independence.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-13",
+      "2026-10-20"
+     ],
+     "time": "11:00",
+     "cost": "Free"
+    },
+    {
+     "dates": [
+      "2026-10-15"
+     ],
+     "time": "18:00",
+     "cost": "Free"
+    }
+   ]
+  },
+  {
+   "name": "Tech Help Caf\u00e9",
+   "venue": "cheltenham community centre",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "description": "Casual one-on-one tech help over a discounted coffee.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
+   "sessions": [
+    {
+     "dates": [
+      "2026-10-07",
+      "2026-10-14",
+      "2026-10-21",
+      "2026-10-28"
+     ],
+     "time": "13:30",
+     "cost": "$3"
+    },
+    {
+     "dates": [
+      "2026-10-06",
+      "2026-10-20"
+     ],
+     "time": "13:00",
+     "cost": "Free"
+    }
+   ]
+  }
+ ]
+}
