@@ -21,6 +21,7 @@ from pathlib import Path
 
 import yaml
 
+from activity_types import TYPES
 from dedupe import (PRUNE_DAYS, load_live_inputs, name_head,
                     reconcile_store, reference_today, venue_head)
 from recurrence import weekday_slots
@@ -116,6 +117,27 @@ def _weekday_of(iso):
         return date.fromisoformat(iso[:10]).weekday()
     except ValueError:
         return None
+
+
+def _suburb_in(row, allowed):
+    """True when the row's own suburb is inside the configured catchment.
+
+    Prefers the fetcher's `suburb`, which was taken from the event detail
+    page's address; falls back to the last comma segment of the address, and
+    finally to a scan of the whole row, so a source that publishes the suburb
+    some other way is not failed spuriously.
+    """
+    suburb = (row.get("suburb") or "").strip().lower()
+    if suburb:
+        return suburb in allowed
+    from build_site import extract_suburb
+    derived = (extract_suburb(row.get("address") or row.get("location") or "")
+               or "").strip().lower()
+    if derived:
+        return derived in allowed
+    blob = " ".join(str(row.get(k) or "") for k in
+                    ("name", "location", "address", "description")).lower()
+    return any(a in blob for a in allowed)
 
 
 # --- mobile accessibility invariants -------------------------------------
@@ -308,6 +330,11 @@ def a11y_errors(source, name):
     return errors
 
 
+# Venues with no physical address. An event held online has no suburb, so it
+# cannot be inside or outside a geographic catchment and is never a violation.
+_NON_PHYSICAL_VENUES = frozenset({"", "online", "zoom", "webinar", "virtual",
+                                  "via zoom", "livestream", "tbc", "tbd"})
+
 MIN_TOTAL = 700
 # Generous floors (~25-50% of normal) for always-on sources.
 # gd_libraries is low because dedupe_by_source_url() collapses the listings
@@ -437,6 +464,75 @@ def main():
         errors.append(f"{len(dateless)} dateless rows (need a date to be "
                       f"placed on a calendar): {sample}")
 
+    # The Greater Dandenong catchment is only enforceable if the fetcher got a
+    # real venue: the listing cards carry none, so a regression that drops the
+    # detail fetch leaves every row at the generic "Greater Dandenong" location
+    # and the configured suburb_filter silently admits the whole city again.
+    gd = [r for r in rows if r.get("source_label") == "greater_dandenong"]
+    if gd:
+        generic = sum(1 for r in gd
+                      if (r.get("location") or "").strip().lower()
+                      in ("greater dandenong", "greater dandenong libraries", ""))
+        if generic > len(gd) // 2:
+            errors.append(
+                f"{generic}/{len(gd)} greater_dandenong rows have no real "
+                f"venue - the detail-page fetch has regressed and the "
+                f"suburb_filter is not filtering")
+        try:
+            with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
+                gd_cfg = next((s for s in (yaml.safe_load(f) or {})
+                               .get("sources", []) if s.get("id")
+                               == "greater_dandenong"), None) or {}
+        except (OSError, yaml.YAMLError) as e:
+            gd_cfg = {}
+            errors.append(f"sources.yaml unreadable while checking the GD "
+                          f"catchment: {e}")
+        allowed = {a.lower() for a in (gd_cfg.get("suburb_filter") or [])}
+        if allowed:
+            # An online event has no suburb to be out of, so it is not a
+            # catchment violation.
+            physical = [r for r in gd
+                        if (r.get("location") or "").strip().lower()
+                        not in _NON_PHYSICAL_VENUES]
+            outside = sorted({(r.get("location") or "").strip()
+                              for r in physical
+                              if not _suburb_in(r, allowed)})
+            if outside:
+                errors.append(
+                    f"greater_dandenong has {len(outside)} venues outside the "
+                    f"configured catchment {sorted(allowed)}: "
+                    f"{', '.join(outside[:4])}")
+
+    # Multi-tag schema: every row carries a non-empty `types` array of known
+    # tags, never the legacy single `type` string. Without this a build_site
+    # regression would silently ship unfilterable rows (the UI's OR filter
+    # reads `types` via getTypes()).
+    _valid = set(TYPES)
+    bad_shape = [r for r in rows
+                 if not isinstance(r.get("types"), list) or not r.get("types")]
+    if bad_shape:
+        sample = ", ".join(sorted({(r.get("name") or "?")[:40]
+                                   for r in bad_shape})[:5])
+        errors.append(f"{len(bad_shape)} rows with missing/empty types array: "
+                      f"{sample}")
+    else:
+        unknown_tags = sorted({t for r in rows for t in r.get("types", [])
+                               if t not in _valid})
+        if unknown_tags:
+            errors.append(f"rows carry unknown activity tags {unknown_tags} - "
+                          f"add them to TYPES so the UI can filter them")
+        legacy = [r for r in rows if "type" in r]
+        if legacy:
+            errors.append(f"{len(legacy)} rows still carry legacy single "
+                          f"`type` - did build_site.py run?")
+        other_mixed = [r for r in rows
+                       if "Other" in (r.get("types") or []) and len(r.get("types") or []) > 1]
+        if other_mixed:
+            sample = ", ".join(sorted({(r.get("name") or "?")[:40]
+                                       for r in other_mixed})[:5])
+            errors.append(f"{len(other_mixed)} rows mix 'Other' with real tags: "
+                          f"{sample}")
+
     # The store must be exactly what the sources justify. Re-running the
     # pipeline's own reconciliation is the check: a row that would be dropped
     # now is a row the store is still carrying that no source backs, which is
@@ -517,7 +613,8 @@ def main():
                               f"(want exactly 1)")
         # Top-level calls to functions that are never defined abort the whole
         # script block before render() runs.
-        for fn in ("parseURLState", "updateURL", "updatePagination"):
+        for fn in ("parseURLState", "updateURL", "updatePagination",
+                   "getTypes", "typeStr", "filtered"):
             if not re.search(r"function\s+" + fn + r"\s*\(", tpl):
                 errors.append(f"template calls {fn}() but never defines it")
         errors.extend(a11y_errors(tpl, "template"))

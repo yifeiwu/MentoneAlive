@@ -15,7 +15,7 @@ neighbourhood-house venues near Chelsea/Cheltenham/Mentone/Mordialloc.
 | Kingston Libraries | via Council/Hubs listings | — |
 | Bayside Council events | `bayside_live` | HTML, full `?page=` pagination |
 | Bayside Seniors Festival | `bayside_seniors` | HTML, festival page pagination |
-| Greater Dandenong (Springvale/Keysborough filter) | `greater_dandenong` | HTML (`fetch_events.py`) |
+| Greater Dandenong (Springvale/Keysborough filter) | `greater_dandenong` | HTML + per-event detail pages (`fetch_events.py`) |
 | Greater Dandenong Libraries | `gd_libraries` | HTML (`fetch_events.py`) |
 | Chatty Cafe venue directory | `chatty_cafe` | Venue pages (`fetch_events.py`) |
 | Cheltenham Community Centre term classes | `ccc` | HTML + Humanitix dates |
@@ -26,6 +26,67 @@ Plain `urllib`/`requests` gets HTTP 403 from the Granicus WAF, so the
 TLS impersonation in `scripts/webfetch_*.py` (one module per source).
 Deeper Granicus pages (JS-postback pager) are covered by manual
 `*_manual.json` snapshots if needed.
+
+Greater Dandenong is the odd one out: its *listing* page answers plain
+`urllib`, but every event **detail** page returns 403 to it. The suburb the
+catchment is built on is only on that detail page, so `fetch_greater_dandenong`
+runs entirely on a `curl-cffi` session. Fetching it per event costs about 50
+requests and ~40s; see below for why it has to.
+
+## The Greater Dandenong catchment
+
+`sources.yaml` configures `suburb_filter: [Springvale, Keysborough]`, and for
+a long time that filter did nothing at all. The listing card carries only a
+title, a date and a category — no venue, no address — so
+`_passes_suburb_filter()` classified every row as "names no recognisable
+suburb" and kept it. All 348 rows were admitted, 33 of them explicitly at
+Dandenong or Noble Park, and all published at the placeholder location
+`"Greater Dandenong"`.
+
+The event detail page has what the card lacks, in named fields:
+
+```html
+<div class="field__label">Location</div>
+<div class="field__item">
+  <div class="field--name-field-title-address">Noble Park Community Centre</div>
+  <div class="field--name-field-address-text">44 Memorial Drive, Noble Park</div>
+</div>
+```
+
+So the fetcher now opens each event, reads those two fields, derives the
+suburb from the address, and filters on it. Of the 51 events the council
+lists, 15 are in the catchment; the other 36 are Dandenong (17), Noble Park
+(16) and Heatherton (2), and are dropped. `suburb_filter` is the single lever
+if you want them back — add `"Dandenong"` and `"Noble Park"` to it and the
+count roughly triples. Online events (`location: "Online"`) have no suburb and
+are always kept.
+
+Two further things fell out of the same fetcher:
+
+- **`?page=N` is an offset, not a page number.** The listing has a JS "Load
+  More" control, so page 1 returns everything page 0 returned *plus* a few
+  more. Walking it without a seen-set re-parsed every earlier card on every
+  page: 348 card reads to find 45 distinct events, with the duplicates left
+  for `dedupe.py` to unpick. It now keys on the event URL and stops when a
+  page yields nothing new.
+- **`max_pages` was being ignored.** `fetch_greater_dandenong` clamped it to
+  `min(cfg["max_pages"], 8)` regardless of the configured value. The clamp
+  is gone; the "no new events" exit is what bounds the crawl.
+
+The events also now publish their **own stated date** rather than a projected
+12-occurrence series. The card's date field ("Thursday 1 October, 10:00am")
+parses cleanly, and previously that date was being thrown away: a fetch-time
+stamp marked the row `has_real_date: false`, so it was discarded and re-derived
+from the description instead. With the stamp gone the real date survives, which
+matches the rule the rest of the pipeline already follows — a source-supplied
+date always wins. The cost is that a weekly council class now shows its next
+occurrence rather than twelve.
+
+`gd_libraries` is the same CMS, so it gets the same treatment: 8 of its 20
+events now carry a real venue. Its published count fell from 36 to 3, which is
+correct — five of its events are the same events `greater_dandenong` lists,
+and `dedupe_by_source_url()` now merges them cleanly instead of leaving two
+projected series that only partly overlapped.
 
 ## Pipeline
 
@@ -335,35 +396,34 @@ the service pattern included `\bcommunity\s*meals?\b`, which matched
 
 ## Activity types (`activity_types.py`)
 
-Rule-based classifier over 17 types. It runs **two passes**: the title (plus
-any source-supplied category) first and on its own, and the free-text
-description only as a fallback when the title matches nothing. Titles are the
-authoritative signal, so a blurb word can no longer outrank them — before this,
-"Zumba" filed as Dance because the description said "dancing", and "French
-Lounge" filed as Food & Drink because the description said "a **great**
-opportunity" (`r"eat "` matched "great").
+Rule-based classifier over 17 types. Each event collects **every** matching
+tag (multi-tag): children/family is orthogonal to market/musical, so a kids
+market is both `Children & Families` and `Market & Exhibition`. The title
+(plus any source-supplied category) and the free-text description are matched
+as a union, and results are returned in `TYPES` order with `["Other"]` iff
+nothing matches (never alongside real tags).
 
-Within a pass the first matching rule wins, so rule order is significant and is
-asserted. Orderings that are load-bearing:
-
-- `Social & Community` before `Food & Drink`, so the whole Chatty Cafe program
-  is not filed as dining by its own "cafe / coffee" wording.
-- A narrow `Health & Wellbeing` nutrition pre-rule before `Food & Drink`.
-  Below `Food & Drink` the health rule was entirely dead: "Eat Well, Age Well"
-  was claimed by `\beat\b` first.
-- `Nature & Environment` after `Art & Craft`, so an exhibition that merely
-  *depicts* flora or a wildlife corridor stays art, and before
-  `Social & Community`, whose `famil` would take community-garden events.
-- `Children & Families` after `Health & Wellbeing`, so "Calm and Confident
-  Kids" stays health rather than being filed as merely for children.
+Because tags compose rather than collapsing to one winner, rule order is no
+longer load-bearing for correctness. Two orderings that used to matter are
+now just history: `Social & Community` used to sit before `Food & Drink` so
+the Chatty Cafe program was not filed as dining (now every Chatty session is
+both), and the nutrition pre-rule used to keep `Health & Wellbeing` ahead of
+the meal words (now "Eat Well, Age Well" is both food and health).
 
 Patterns are anchored with `\b` wherever the unanchored form also matched
 inside an unrelated word — `r"organ\b"` matched "Janis **Morg**an" and filed an
-art workshop as music, and `r"eat "` matched "great", "meat" and "beat".
+art workshop as music, `r"eat "` matched "great", "meat" and "beat",
+`r"tablet"` matched "table**top**" (now `\btablets?\b`), and `\barts?\b`
+matched "martial **art**" (now `(?<!martial )\barts?\b`, so an aikido
+demonstration is sport, not craft).
+
+The UI filter is OR: an event stays visible while **any** of its tags is
+ticked, and hides only once every tag it carries is unticked. Checkbox counts
+are per tag, so they sum to more than the event total.
 
 Run `python scripts/activity_types.py` to check the 56 known
-name/description → type cases. It **asserts** rather than prints, so a rule
-reordering that changes a classification fails loudly.
+name/description → tags cases. It **asserts** rather than prints, so a rule
+change that alters a classification fails loudly.
 
 ## Seniors Festival overrides
 
@@ -413,7 +473,7 @@ CSS and a friendly name, and that both the template and the built
 to undefined functions. Seasonal sources (seniors festivals) are warn-only
 since they legitimately decay out of season.
 
-Three further checks cover the defects described above, each of which was
+Five further checks cover the defects described above, each of which was
 verified to fail the build when reintroduced:
 
 - **no row the sources do not back** — it re-runs `dedupe.reconcile_store()`
@@ -423,7 +483,17 @@ verified to fail the build when reintroduced:
   flag, without which the page would quietly show every sold-out workshop and
   drop-in service;
 - **status/service flags match their own text** — re-derived, not trusted, so
-  a `status.py` regression cannot leave a sold-out row looking bookable.
+  a `status.py` regression cannot leave a sold-out row looking bookable;
+- **the Greater Dandenong detail fetch still works** — if most of its rows are
+  back at the generic `Greater Dandenong` location, the venue is unknown again
+  and the catchment is not filtering anything;
+- **no Greater Dandenong venue outside the configured catchment** — read back
+  from `sources.yaml`, so widening `suburb_filter` is the way to admit more,
+  and events held online are exempt (they have no suburb).
+
+The Greater Dandenong floor is deliberately low (8). That source is a narrow,
+genuinely filtered catchment of 15 events publishing one stated date each, so
+the check's job is to catch the scraper dying at 0 rows, not a quiet season.
 
 ### The page is rendered, not just inspected (`render_check.py`)
 
@@ -544,7 +614,7 @@ run on `JSONDecodeError` and wedge the pipeline.
   "address": "3-5 Showers Ave, Chelsea 3196",
   "suburb": "Chelsea",
   "description": "Event description...",
-  "type": "Exercise & Fitness",
+  "types": ["Exercise & Fitness", "Social & Community"],
   "source": "https://...",
   "source_label": "kingston_hubs",
   "sources": ["https://..."],
@@ -559,7 +629,10 @@ run on `JSONDecodeError` and wedge the pipeline.
 }
 ```
 
-`is_commercial`, `is_service`, `status` and `hidden_by_default` are written by
-`build_site.py`, not by the fetchers — `dedupe.py` owns everything to the left
-of them. `hidden_by_default` is the single flag the UI filters on, and it is
-`is_commercial or is_service or (status == "cancelled")`.
+`types`, `suburb`, `is_commercial`, `is_service`, `status` and
+`hidden_by_default` are written by `build_site.py`, not by the fetchers —
+`dedupe.py` owns everything to the left of them (fetchers may already supply
+`suburb` from a detail page, which `build_site.py` preserves).
+`hidden_by_default` is the single flag the UI filters on, and it is
+`is_commercial or is_service or (status == "cancelled")`. `type_counts` at
+the top level counts per tag, so its values sum to more than the row total.

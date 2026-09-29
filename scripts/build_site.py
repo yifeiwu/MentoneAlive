@@ -6,7 +6,7 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-from activity_types import classify
+from activity_types import TYPES, classify_types
 from commercial import is_commercial
 from jsonio import write_json
 from status import STATUS_LABELS, event_status, is_ongoing_service
@@ -102,8 +102,14 @@ def main():
     print(f"Building site with {len(rows)} events...")
 
     for r in rows:
-        r["type"] = classify(r.get("name", ""), r.get("description") or "")
-        r["suburb"] = extract_suburb(r.get("address") or r.get("location") or "")
+        r["types"] = classify_types(r.get("name", ""), r.get("description") or "")
+        r.pop("type", None)
+        # A fetcher that opened the event's own page already knows where it
+        # is: Greater Dandenong states the suburb on the detail page, and its
+        # addresses carry no "VIC ####" for extract_suburb to anchor on, so
+        # deriving it here would throw that away and leave the row suburb-less.
+        r["suburb"] = (r.get("suburb") or "").strip() or extract_suburb(
+            r.get("address") or r.get("location") or "")
         flag, reason = is_commercial(r)
         r["is_commercial"] = flag
         r["commercial_reason"] = reason
@@ -125,7 +131,8 @@ def main():
         r["sources"] = [u for u in (r.get("sources") or []) if _safe_url(u)]
 
     data["rows"] = rows
-    data["type_counts"] = dict(Counter(r.get("type", "Other") for r in rows))
+    data["type_counts"] = dict(Counter(
+        t for r in rows for t in (r.get("types") or ["Other"])))
     data["commercial_count"] = sum(1 for r in rows if r.get("is_commercial"))
     data["service_count"] = sum(1 for r in rows if r.get("is_service"))
     data["unavailable_count"] = sum(1 for r in rows if r.get("status"))
@@ -134,8 +141,11 @@ def main():
           f"({data['commercial_count']} commercial, {data['service_count']} "
           f"services, {data['unavailable_count']} sold out / fully booked)")
 
-    type_counts = Counter(r["type"] for r in rows)
-    types = sorted(type_counts.keys())
+    type_counts = Counter(t for r in rows for t in r.get("types", ["Other"]))
+    # Keep checkbox order stable and in TYPES order (not alphabetical), so the
+    # filter list reads as a curated taxonomy rather than reshuffling.
+    _order = {t: i for i, t in enumerate(TYPES)}
+    types = sorted(type_counts.keys(), key=lambda t: _order.get(t, 999))
     sources = sorted({r.get("source_label", "unknown") for r in rows})
 
     template_path = ROOT / "src" / "templates" / "index.html"

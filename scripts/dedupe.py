@@ -82,25 +82,6 @@ def name_head(name):
     return fold_accents(_SUBTITLE_SPLIT_RE.split(s)[0].strip())
 
 
-def same_program(name1, name2):
-    """True when two names are the same programme under different titles.
-
-    Sources style the same event differently — the national Chatty Cafe
-    directory writes "Chatty Cafe - Cheltenham Community Centre", the venue's
-    own site writes "Chatty Cafe", and a seniors festival listing writes
-    "Chatty Cafe - Connect over a Cuppa". The shared base name is a far
-    stronger signal than the whole-string similarity, which lands around 0.5
-    for these and so never cleared the fuzzy threshold.
-    """
-    h1, h2 = name_head(name1), name_head(name2)
-    if not h1 or not h2:
-        return False
-    if h1 == h2:
-        return True
-    # One head may carry the venue qualifier the other lacks.
-    return h1.startswith(h2) or h2.startswith(h1)
-
-
 def normalize_location(loc):
     return " ".join((loc or "").lower().strip().split())
 
@@ -145,19 +126,14 @@ def time_matches(dt1_str, dt2_str, tolerance_minutes=30):
         return False
 
 
-def content_hash(event):
-    key = (f"{normalize_name(event.get('name', ''))}|"
-           f"{date_part(event.get('datetime_iso'))}|"
-           f"{normalize_location(event.get('location', ''))}")
-    return hashlib.md5(key.encode()).hexdigest()
-
-
 def slot_hash(event):
-    """Like content_hash but keeps the start time.
+    """Hash of (name, start time, location) -- the dedupe key.
 
-    A venue can legitimately run the same class twice in one day
-    ('Cert II in EAL' Wednesdays 9am-12pm and 12:30pm-3:30pm), so collapsing
-    on the date alone would erase the second session.
+    The start time is part of the key, where an earlier (name, date,
+    location) hash was used: a venue can legitimately run the same class
+    twice in one day ('Cert II in EAL' Wednesdays 9am-12pm and
+    12:30pm-3:30pm), so collapsing on the date alone would erase the
+    second session.
     """
     iso = str(event.get("datetime_iso") or "").replace("Z", "")
     stamp = iso[:16] if "T" in iso else ""
@@ -196,14 +172,6 @@ def _venue_compatible(loc1, loc2):
     # One source often gives the short name, the other the organisation:
     # 'Greater Dandenong' vs 'Greater Dandenong Libraries'.
     return a.startswith(b) or b.startswith(a)
-
-
-def _descriptions_agree(a, b):
-    """Same blurb, allowing for one source truncating the other."""
-    na, nb = normalize_location(a), normalize_location(b)
-    if not na or not nb:
-        return False
-    return na == nb or na in nb or nb in na
 
 
 def dedupe_by_source_url(rows):
@@ -320,7 +288,11 @@ def _merge_sources(existing, candidate):
         existing.pop("date_inferred", None)
         existing.pop("recurrence", None)
     # Fill in fields the kept row was missing rather than the better row.
-    for k in ("location", "address", "description", "price_text"):
+    # `suburb` is in the list because build_site.py writes a derived value into
+    # the store: when an address carries no "VIC ####" for extract_suburb() to
+    # anchor on it stores "", and a source that *did* know the suburb (Greater
+    # Dandenong reads it off the event detail page) would then never win.
+    for k in ("location", "address", "suburb", "description", "price_text"):
         if not (existing.get(k) or "").strip() and (candidate.get(k) or "").strip():
             existing[k] = candidate[k]
 
@@ -460,9 +432,9 @@ def deduplicate(new_events, existing_events):
     name_loc_index = {}
     date_index = {}
     for e in merged:
-        # slot_hash, not content_hash: it keeps the start time, so two sessions
-        # of one class at a venue on the same day ("Cert II in EAL" 9am and
-        # 12:30pm) do not collapse into a single event.
+        # slot_hash keeps the start time, so two sessions of one class at a
+        # venue on the same day ("Cert II in EAL" 9am and 12:30pm) do not
+        # collapse into a single event.
         index.setdefault(slot_hash(e), e)
         n = normalize_name(e.get("name", ""))
         l = normalize_location(e.get("location", ""))

@@ -201,7 +201,7 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
 <span class="thead">Activity type: <button id="tall" type="button">Select all</button> <button id="tclear" type="button">Clear</button></span>
 __TYPE_CHECKBOXES__
 </div>
-<p class="filterhint">Tick one or more suburbs to narrow to those suburbs; untick all suburbs (Clear) to show every suburb. Every ticked activity type is included; untick types to exclude them (Select all restores everything).
+<p class="filterhint">Tick one or more suburbs to narrow to those suburbs; untick all suburbs (Clear) to show every suburb. An event shows while any of its activity tags is ticked; untick types to exclude them (Select all restores everything).
 <button id="resetall" type="button" class="reset-btn">Reset filters</button></p>
 </div>
 <div class="count" id="count" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -218,7 +218,7 @@ __TYPE_CHECKBOXES__
 <thead role="rowgroup"><tr role="row">
 <th data-k="name" role="columnheader" scope="col">Event <span class="arrow"></span></th>
 <th data-k="datetime_iso" role="columnheader" scope="col">Date &amp; time <span class="arrow"></span></th>
-<th data-k="type" role="columnheader" scope="col">Type <span class="arrow"></span></th>
+<th data-k="types" role="columnheader" scope="col">Type <span class="arrow"></span></th>
 <th data-k="price_sort" role="columnheader" scope="col">Price <span class="arrow"></span></th>
 <th data-k="location" role="columnheader" scope="col">Location <span class="arrow"></span></th>
 <th class="nosort" role="columnheader" scope="col">Links</th>
@@ -311,6 +311,10 @@ function fmtDate(iso){if(!iso)return "";var d=new Date(iso);if(isNaN(d))return e
  var m=("0"+d.getMinutes()).slice(-2);
  return day+", "+h+":"+m+" "+ap;}
 function isFree(r){if(r.price_sort===0)return true;return /^\s*free\s*$/i.test(r.price_text||"");}
+// Multi-tag types with a legacy fallback: rows built before the migration
+// carry a single `type` string, so normalise to an array. OR semantics.
+function getTypes(r){if(Array.isArray(r.types))return r.types.length?r.types:["Other"];if(r.type)return [r.type];return ["Other"];}
+function typeStr(r){return getTypes(r).join(", ");}
 // One map for every source label, keyed unquoted so health_check.py's
 // `[,]<label>:` scan finds each name here. The keys are valid identifiers, so
 // dropping the quotes is free; keeping one map is what stops a new source from
@@ -343,10 +347,14 @@ function filtered(){
   var r=EVENTS[i];
   if(state.freeonly && !isFree(r)) continue;
   if(mSubs.length && mSubs.indexOf(r.suburb||"")<0) continue;
-  if(r.type && state.types[r.type]===false) continue;
+  // OR filter: an event stays visible while ANY of its tags is still ticked.
+  // It hides only when every tag it carries has been unticked.
+  var rTypes=getTypes(r), allOff=rTypes.length>0;
+  for(var ti=0;ti<rTypes.length;ti++){if(state.types[rTypes[ti]]!==false){allOff=false;break;}}
+  if(allOff) continue;
   if(state.dateFrom && r.datetime_iso && new Date(r.datetime_iso)<state.dateFrom) continue;
   if(state.dateTo && r.datetime_iso && new Date(r.datetime_iso)>state.dateTo) continue;
-  if(q){var hay=((r.name||"")+" "+(r.description||"")+" "+(r.location||"")+" "+(r.address||"")+" "+(r.price_text||"")+" "+(r.type||"")+" "+(r.suburb||"")).toLowerCase();
+  if(q){var hay=((r.name||"")+" "+(r.description||"")+" "+(r.location||"")+" "+(r.address||"")+" "+(r.price_text||"")+" "+getTypes(r).join(" ")+" "+(r.suburb||"")).toLowerCase();
    if(hay.indexOf(q)<0) continue;}
   // Last, so a commercial row is only counted once it has cleared every
   // other filter.
@@ -356,6 +364,11 @@ function filtered(){
 }
 function cmp(a,b){
  var k=state.k, va=a[k], vb=b[k];
+ // The Type column is now a multi-tag array; sort on its display string.
+ // Also maps the legacy `type` key onto the new `types` column.
+ if(k==="type"||k==="types"){va=typeStr(a);vb=typeStr(b);}
+ if(Array.isArray(va))va=va.join(", ");
+ if(Array.isArray(vb))vb=vb.join(", ");
  if(va==null && vb==null) return 0;
  if(va==null) return 1;
  if(vb==null) return -1;
@@ -437,7 +450,7 @@ function render(){
    if(groupByDay&&d&&d!==prevDate){var dt=new Date(d+"T00:00:00");var label=isNaN(dt)?esc(d):dt.toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});h+="<tr role='row'><td role='cell' colspan='7' class='daydivider'>"+label+"</td></tr>";prevDate=d;}
    var nm=r.name||"this event";
    h+="<tr role='row'><td role='cell'>"+lbl("Event")+"<b>"+esc(r.name)+"</b>"+commercialBadge(r)+"</td><td role='cell' class='when'>"+lbl("Date &amp; time")+fmtDate(r.datetime_iso)+recurrenceNote(r)+"</td>"
-    +"<td role='cell'>"+lbl("Type")+esc(r.type||"")+"</td>"
+    +"<td role='cell'>"+lbl("Type")+esc(typeStr(r))+"</td>"
     +"<td role='cell' class='price'>"+lbl("Price")+esc(r.price_text||"")+"</td>"
     +"<td role='cell'>"+lbl("Location")+badge(r.source_label)+esc(r.location||"")+"<div class='addr'>"+esc(r.address||"")+"</div></td>"
     +"<td role='cell'>"+lbl("Links")+"<div class='linkcell'>"
@@ -609,7 +622,7 @@ document.getElementById("csv").addEventListener("click",function(){
  var list=_lastAll;
  function q(v){v=v==null?"":String(v);return '"'+v.replace(/"/g,'""')+'"';}
  var out=["Event,DateTime,Type,Price,Location,Address,Description,Source,IsCommercial,CommercialReason,IsService,Status,StatusDetail"];
- list.forEach(function(r){out.push([q(r.name),q(r.datetime_iso),q(r.type),q(r.price_text),q(r.location),q(r.address),q(r.description),q(r.source),q(r.is_commercial?"yes":"no"),q(r.commercial_reason||""),q(r.is_service?"yes":"no"),q(r.status||""),q(r.status_detail||"")].join(","));});
+ list.forEach(function(r){out.push([q(r.name),q(r.datetime_iso),q(getTypes(r).join(", ")),q(r.price_text),q(r.location),q(r.address),q(r.description),q(r.source),q(r.is_commercial?"yes":"no"),q(r.commercial_reason||""),q(r.is_service?"yes":"no"),q(r.status||""),q(r.status_detail||"")].join(","));});
  var blob=new Blob([out.join("\r\n")],{type:"text/csv"});
  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="community-events.csv";a.click();
  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);});

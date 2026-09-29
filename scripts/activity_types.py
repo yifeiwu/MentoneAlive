@@ -1,10 +1,11 @@
 """Rule-based activity-type classifier shared by all event sources.
 
-classify(name, description, category="") -> one of TYPES.
+classify_types(name, description, category="") -> list of TYPES.
 
-Within a pass the first matching rule wins, and RULES is ordered from most
-specific to most general. The passes themselves are title-first: see
-classify() for why the description is only a fallback.
+Multi-tag: children/family is orthogonal to market/musical, so an event
+collects every matching rule across both title and description (union).
+Results are ordered by TYPES for stable display. ["Other"] iff nothing
+matches, never alongside real tags.
 """
 import re
 
@@ -28,10 +29,11 @@ TYPES = [
     "Other",
 ]
 
-# (type, [regexes]) - all matched case-insensitively, see classify() for the
-# two-pass order. Patterns are anchored with \b wherever an unanchored form
-# would also match inside an unrelated word (e.g. r"eat " matched "great",
-# r"organ\b" matched "Morgan").
+# (type, [regexes]) - all matched case-insensitively. Patterns are anchored
+# with \b wherever an unanchored form would also match inside an unrelated
+# word (e.g. r"eat " matched "great", r"organ\b" matched "Morgan").
+# Rule order is no longer load-bearing for correctness (union collects all
+# matches); TYPES order determines display order.
 RULES = [
     ("Movies & Cinema", [r"movie", r"film", r"cinema", r"screening", r"pinocchio"]),
     ("Dance", [r"ballroom danc", r"belly danc", r"line danc", r"\bdanc(e|ing|ers)\b",
@@ -88,7 +90,7 @@ RULES = [
                        r"board ?game", r"bingo", r"dungeons", r"dragons",
                        r"role-?play", r"tabletop",
                        r"jigsaw", r"puzzle", r"crafty challenge"]),
-    ("Art & Craft", [r"\bpaint", r"\barts?\b", r"\bcraft", r"\bsew", r"crochet",
+    ("Art & Craft", [r"\bpaint", r"(?<!martial )\barts?\b", r"\bcraft", r"\bsew", r"crochet",
                      r"\bknit", r"\bweav", r"\bdraw", r"pottery", r"ceramics",
                      r"colouring", r"coloring", r"diamond art", r"bedazzle",
                      r"mandala", r"printmaking", r"print making", r"sculpture",
@@ -152,7 +154,7 @@ RULES = [
                       r"coffee", r"chocolate"]),
     ("Technology", [r"\btech\b", r"computer", r"cyber", r"digital", r"\bai\b",
                     r"chatgpt", r"artificial intelligence", r"smartphone",
-                    r"tablet", r"ipad", r"ebook", r"e-book", r"internet",
+                    r"\btablets?\b", r"ipad", r"ebook", r"e-book", r"internet",
                     r"online safety", r"scam", r"readytechgo", r"stem\b",
                     r"augmented reality", r"merge cube", r"virtual reality",
                     r"\brobot"]),
@@ -197,182 +199,189 @@ _BAD_TYPES = sorted({t for t, _ in RULES} - set(TYPES))
 assert not _BAD_TYPES, f"rules reference undeclared types: {_BAD_TYPES}"
 
 
-def _first_match(text):
+def _all_matches(text):
+    """Return the set of types matching text (one entry per rule hit)."""
+    found = set()
     for etype, patterns in _COMPILED:
         for pat in patterns:
             if pat.search(text):
-                return etype
-    return None
+                found.add(etype)
+                break
+    return found
+
+
+def classify_types(name, description="", category=""):
+    """Return every applicable type for one event, in TYPES order.
+
+    Union of title (+ category) and description matches, so orthogonal
+    facets compose: a kids market is both Children & Families and
+    Market & Exhibition; a musical for families is both Music and Children.
+    ["Other"] iff nothing matches.
+    """
+    title = (name or "") + "\n" + (category or "")
+    matched = _all_matches(title) | _all_matches(description or "")
+    if not matched:
+        return ["Other"]
+    order = {t: i for i, t in enumerate(TYPES)}
+    return sorted(matched, key=lambda t: order.get(t, len(order)))
 
 
 def classify(name, description="", category=""):
-    """Return the single best type for one event.
-
-    Two passes. The title (plus any source-supplied category) is the
-    authoritative signal, so it is matched first and on its own. Only if the
-    title says nothing does the free-text description get a look: a title like
-    "Zumba" is exercise even when the blurb says "dancing to music", and a
-    blurb word like "great" or "craft" should never outrank the title.
-
-    The fallback pass is what keeps a title-free row ("'Refugia' by Kerri
-    Wilson McConchie") from falling through to "Other".
-    """
-    title = (name or "") + "\n" + (category or "")
-    found = _first_match(title)
-    if found:
-        return found
-    return _first_match((description or "")) or "Other"
+    """Legacy single-type wrapper: primary (first) tag, for old callers."""
+    tags = classify_types(name, description, category)
+    return tags[0] if tags else "Other"
 
 
 if __name__ == "__main__":
-    # (name, description, category, expected type). These assert rather than
-    # print: rule ordering is subtle, and a print-only block can never fail, so
-    # a type silently collapsing into an earlier rule ships unnoticed.
+    # (name, description, category, expected tags in TYPES order). Multi-tag:
+    # orthogonal facets compose rather than collapsing to one winner, so
+    # expectations list every applicable tag. These assert rather than print.
     tests = [
         ("Mahjong", "Come along to learn the fun game of Mahjong.", "",
-         "Games & Cards"),
+         ["Games & Cards"]),
         ("Sunday Jazz at the Gallery", "Live jazz trio.", "",
-         "Music & Performance"),
+         ["Music & Performance"]),
         ("Jazz Class (Beginners)", "Learn a beginners Broadway jazz routine.", "",
-         "Dance"),
+         ["Dance"]),
         ("AI in Everyday Life Presented by ReadyTechGo", "ChatGPT basics.", "",
-         "Technology"),
+         ["Technology"]),
         ("Sing-a-long", "Community singing of 60s pop.", "",
-         "Music & Performance"),
+         ["Music & Performance"]),
         ("Basic Tech Help", "One-on-one help at Frankston Library.", "",
-         "Technology"),
+         ["Books & Reading", "Technology"]),
         ("Dungeons and Dragons", "Tabletop role playing game.", "",
-         "Games & Cards"),
+         ["Games & Cards"]),
         ("Immunisation Session 2026", "Children vaccination.", "",
-         "Health & Wellbeing"),
+         ["Children & Families", "Health & Wellbeing"]),
         ("Table Tennis and Darts", "Table tennis or darts.", "",
-         "Sport & Outdoors"),
+         ["Sport & Outdoors"]),
         ("Chatty Cafe Frankston", "Casual conversation over coffee.", "",
-         "Social & Community"),
+         ["Food & Drink", "Social & Community"]),
         ("Biketober - Ride, Rate, Win!", "Ride anywhere, rate routes.", "",
-         "Sport & Outdoors"),
+         ["Sport & Outdoors"]),
         ("Transport Information Session", "Taxi program, community bus.", "",
-         "Info Session"),
+         ["Info Session"]),
+        # Orthogonal facets compose: food + market + music + social.
         ("Sakura in Hampton", "High tea ceremony, drumming, stalls.", "",
-         "Music & Performance"),
+         ["Food & Drink", "Market & Exhibition", "Music & Performance",
+          "Social & Community"]),
         ("Artists in Residence Exhibition", "Showcases artworks created in workshops.",
-         "", "Art & Craft"),
+         "", ["Art & Craft", "Market & Exhibition"]),
         ("Mahjong Open Day", "Learn mahjong; beginners welcome.", "",
-         "Games & Cards"),
+         ["Games & Cards"]),
         ("Recording Life Stories", "Podcast workshop on capturing life stories.",
-         "", "Books & Reading"),
+         "", ["Books & Reading"]),
         ("The Thin Blue Line - Police at the Brighton Cemetery",
-         "Stories of police buried here.", "", "Books & Reading"),
+         "Stories of police buried here.", "", ["Books & Reading"]),
         ("Explore the Solar System with Merge Cube", "STEM and augmented reality.",
-         "", "Technology"),
+         "", ["Technology"]),
         ("Justice of the Peace Mondays", "Free document witnessing service.", "",
-         "Social & Community"),
+         ["Social & Community"]),
         ("Seniors Aikido Demonstration", "Gentle Japanese martial art.", "",
-         "Sport & Outdoors"),
+         ["Sport & Outdoors"]),
         ("Bus Trip", "Day trip to RAAF Museum with lunch.", "",
-         "Social & Community"),
+         ["Food & Drink", "Market & Exhibition", "Social & Community"]),
         ("Death Cafe", "Talk openly about death and dying.", "",
-         "Social & Community"),
-        ("Fashion Parade", "Latest fashion by Postie.", "", "Market & Exhibition"),
+         ["Food & Drink", "Social & Community"]),
+        ("Fashion Parade", "Latest fashion by Postie.", "", ["Market & Exhibition"]),
         ("Lyrebird Playgroup", "Parents and children play and connect.", "",
-         "Social & Community"),
+         ["Children & Families", "Social & Community"]),
         ("Calm and Confident Kids", "Confidence and self-regulation for children.",
-         "", "Health & Wellbeing"),
-        ("Stronger Me", "Stay active, feel stronger.", "", "Exercise & Fitness"),
+         "", ["Children & Families", "Health & Wellbeing"]),
+        ("Stronger Me", "Stay active, feel stronger.", "", ["Exercise & Fitness"]),
         ("PlaySpace", "Children and parents enjoy time together.", "",
-         "Social & Community"),
+         ["Children & Families", "Social & Community"]),
         ("Move and Connect", "Low impact exercise class set to music.", "",
-         "Exercise & Fitness"),
+         ["Exercise & Fitness"]),
         ("Chatty Cafe Frankston", "Casual conversation over coffee.", "",
-         "Social & Community"),
+         ["Food & Drink", "Social & Community"]),
         ("Chatty Cafe - Game On!", "Free morning tea with trivia and games.", "",
-         "Social & Community"),
+         ["Food & Drink", "Social & Community"]),
         ("Making Healthy Dumplings Masterclass",
-         "Make dumplings; community group.", "", "Food & Drink"),
+         "Make dumplings; community group.", "", ["Food & Drink"]),
         ("Centenarians Celebration", "Special luncheon honouring centenarians.",
-         "", "Social & Community"),
-        # A named program beats the cafe/coffee words in its own description
+         "", ["Food & Drink", "Social & Community"]),
+        # Chatty Cafe is both social and food (coffee/tea in description).
         ("Chatty Cafe Frankston", "Casual conversation over coffee.", "",
-         "Social & Community"),
-        # "training" must not outrank a craft title
+         ["Food & Drink", "Social & Community"]),
+        # "training" in the blurb does not add an Info tag to a craft title.
         ("Watercolour Painting Workshop", "Includes training provided.", "",
-         "Art & Craft"),
-        # Market & Exhibition owns "exhibition"/"gallery", not Art & Craft
+         ["Art & Craft"]),
         ("Gallery Opening Night", "Come along to the exhibition launch.", "",
-         "Market & Exhibition"),
+         ["Market & Exhibition"]),
         # A bare "support skills" course is not an information session
         ("Everyday Support Skills", "Practical skills for daily life.", "",
-         "Other"),
-        ("", "", "", "Other"),
+         ["Other"]),
+        ("", "", "", ["Other"]),
 
         # --- regressions: substring patterns that matched inside other words ---
         # r"eat " matched "great": a French conversation night is not a meal.
         ("French Lounge", "Francais? No pressure, just a great opportunity to "
-         "listen and meet others.", "", "Other"),
+         "listen and meet others.", "", ["Other"]),
         # r"organ\b" matched "Janis Morgan" and filed an art workshop as music.
         ("Portrait Painting with Janis Morgan",
          "Term 4 bookings with an experienced artist.", "",
-         "Art & Craft"),
-        # "Family friendly" in a blurb must not outrank the cooking class.
+         ["Art & Craft"]),
+        # Cooking class plus "whole family" boilerplate (Social via famil).
         ("Pasta Masterclass", "Learn fresh pasta. Great for the whole family.",
-         "", "Food & Drink"),
+         "", ["Food & Drink", "Social & Community"]),
         # "all welcome" is boilerplate, not a social program.
         ("Tech Help Desk", "Drop in for one-on-one help. All welcome.", "",
-         "Technology"),
-        # Netball in the title, not "balance" from a blurb line about a drill.
+         ["Technology"]),
+        # Netball (Sport) plus "balance" drill (Exercise) both apply.
         ("FunNet for 7-9 year olds - Beginner Netball Skills",
          "Practice your netball skills and balance in a circle.", "",
-         "Sport & Outdoors"),
-        # --- regressions: rules fully shadowed by an earlier rule ---
-        # Food & Drink's \beat\b used to claim this before Health & Wellbeing.
+         ["Exercise & Fitness", "Sport & Outdoors"]),
+        # Nutrition talk is both food and health.
         ("Eat Well, Age Well with Joel Feren",
          "Practising Dietitian Joel Feren on eating well as you age.", "",
-         "Health & Wellbeing"),
-        # An art title is Art & Craft even when the blurb says "dance".
+         ["Food & Drink", "Health & Wellbeing"]),
+        # Zumba is exercise set to dance/music wording.
         ("Zumba", "A fun dance class set to music.", "",
-         "Exercise & Fitness"),
-        # --- regressions: a title with no keyword still uses the description ---
+         ["Dance", "Exercise & Fitness"]),
+        # Title-free row still uses the description (art exhibition).
         ("'Refugia' by Kerri Wilson McConchie",
          "A multi-disciplinary exhibition of photographs and drawings.", "",
-         "Art & Craft"),
+         ["Art & Craft", "Market & Exhibition"]),
 
         # --- Nature & Environment ---
         ("Wild In Bayside - Shorebirds and Migration",
          "An expert guide to the birds of the bay.", "",
-         "Nature & Environment"),
+         ["Nature & Environment"]),
         ("Black gold! A composting and worm farming presentation",
-         "How to keep a worm farm happy.", "", "Nature & Environment"),
+         "How to keep a worm farm happy.", "", ["Nature & Environment"]),
         ("Community Garden Group", "Dig, plant and share the harvest.", "",
-         "Nature & Environment"),
-        # An exhibition that merely *depicts* flora is still art.
+         ["Nature & Environment"]),
+        # Art depicting flora/wildlife is both art and nature-themed.
         ("'Refugia' by Kerri Wilson McConchie",
          "Collage of indigenous flora projected onto a wildlife corridor.",
-         "", "Art & Craft"),
+         "", ["Art & Craft", "Nature & Environment"]),
         # "nursery" and "environment" are venue names / ordinary English.
         ("Chatty Cafe - Bay Road Nursery Cafe",
-         "Chatty Cafe at Bay Road Nursery Cafe.", "", "Social & Community"),
+         "Chatty Cafe at Bay Road Nursery Cafe.",
+         "", ["Food & Drink", "Social & Community"]),
         ("Everyday Conversation - Beginner, Intermediate, and Advanced classes",
-         "Speaking practice in a relaxed supportive environment.", "", "Other"),
+         "Speaking practice in a relaxed supportive environment.", "", ["Other"]),
         # "Gardens" in a venue name is not a gardening event.
         ("Cranbourne Gardens in late Spring", "Open day at the gardens.", "",
-         "Other"),
+         ["Other"]),
 
         # --- Children & Families ---
         ("Palm Plaza Playwork Free Activities", "For young children.", "",
-         "Children & Families"),
+         ["Children & Families"]),
         ("RSPCA Dog Safety Workshop - School Holiday Activities",
-         "Keeping kids and dogs safe.", "", "Children & Families"),
-        # A child-specific program with a real subject keeps that subject.
+         "Keeping kids and dogs safe.", "", ["Children & Families"]),
+        # A child-specific health program is both.
         ("Calm and Confident Kids",
          "Confidence and self-regulation for children.", "",
-         "Health & Wellbeing"),
-        # "family friendly" is pricing boilerplate, not a children's event.
+         ["Children & Families", "Health & Wellbeing"]),
+        # Dance + food (baklava/afternoon tea) + family audience (Social).
         ("Belly Dance and Baklava Afternoon tea", "Bring the whole family.", "",
-         "Dance"),
+         ["Dance", "Food & Drink", "Social & Community"]),
     ]
     failures = []
     for n, d, c, expected in tests:
-        got = classify(n, d, c)
+        got = classify_types(n, d, c)
         flag = "ok " if got == expected else "BAD"
         if got != expected:
             failures.append((n, expected, got))

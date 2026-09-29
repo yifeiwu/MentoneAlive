@@ -179,6 +179,7 @@ def fetch_kingston_hubs(cfg):
                      "3-5 Showers Ave, Chelsea 3196"),
     }
     rows = []
+    unmapped_calendars = set()
     now = datetime.now()
     for start in _month_range(now.year, now.month, 12):
         end = _add_one_month(start)
@@ -210,8 +211,13 @@ def fetch_kingston_hubs(cfg):
                     it.get("CalendarId"),
                     ("Kingston Hubs", "Chelsea 3196"))
                 if it.get("CalendarId") not in venues:
-                    print(f"  Kingston Hubs: unmapped CalendarId "
-                          f"{it.get('CalendarId')!r}, using generic venue")
+                    # Once per calendar, not once per event: this fired inside
+                    # the item loop and printed ~500 identical lines a run,
+                    # burying the real per-source summaries underneath it.
+                    if it.get("CalendarId") not in unmapped_calendars:
+                        unmapped_calendars.add(it.get("CalendarId"))
+                        print(f"  Kingston Hubs: unmapped CalendarId "
+                              f"{it.get('CalendarId')!r}, using generic venue")
                 rows.append({
                     "name": name,
                     "datetime_text": it.get("DateTime", ""),
@@ -237,12 +243,70 @@ def fetch_kingston_hubs(cfg):
 # ---------------------------------------------------------------------------
 
 # Suburbs the catchment covers. Used to decide whether a row is *out of area*
-# (drop) or merely *unclassifiable* (keep) -- the listing cards carry no
-# suburb field, so most rows name no suburb at all.
+# (drop) or merely *unclassifiable* (keep).
 GD_CATCHMENT = ("springvale", "keysborough", "dandenong", "doveton",
                 "cleveland", "noble park", "rowville", "braeside",
                 "dandenong south", "dandenong north", "notting hill",
                 "bangholme", "heatherton", "mordialloc")
+
+# The detail page states the venue under a labelled field, e.g.
+#   Location | Noble Park Community Centre
+#            | 44 Memorial Drive, Noble Park
+# The listing card has no venue at all -- only title, date and category -- so
+# this is the only place the suburb appears.
+_GD_LOCATION_LABEL = re.compile(r"^\s*Location\s*$", re.I)
+_GD_VENUE_HOSTS = ("greaterdandenong.vic.gov.au",)
+
+
+def _gd_detail_location(soup):
+    """(venue, address) from a GD detail page's labelled Location field.
+
+    Read from the two named sub-fields rather than by splitting the field's
+    text: `field-title-address` is the venue and `field-address-text` the
+    street address, and they are separate elements however the paragraph
+    happens to be wrapped.
+    """
+    side = soup.select_one(".event-columns__side") or soup
+    for field in side.select(".field"):
+        label = field.select_one(".field__label")
+        if not label or not _GD_LOCATION_LABEL.match(
+                label.get_text(" ", strip=True)):
+            continue
+        item = field.select_one(".field__item")
+        if not item:
+            return "", ""
+        venue_el = item.select_one(".field--name-field-title-address")
+        addr_el = item.select_one(".field--name-field-address-text")
+        venue = venue_el.get_text(" ", strip=True) if venue_el else ""
+        address = addr_el.get_text(" ", strip=True) if addr_el else ""
+        if venue or address:
+            return venue, address
+        # Fallback for a layout that drops the field names: the first two
+        # lines of the field are the venue and the address.
+        lines = [ln.strip() for ln in item.get_text("\n").splitlines()
+                 if ln.strip()]
+        if not lines:
+            return "", ""
+        venue = lines[0]
+        address = lines[1] if len(lines) > 1 else ""
+        if address.lower() == venue.lower():
+            address = ""
+        return venue, address
+    return "", ""
+
+
+def _suburb_from_address(address):
+    """Suburb from the tail of an Australian address line.
+
+    "44 Memorial Drive, Noble Park" -> "Noble Park"
+    "1 Smith St, Dandenong VIC 3175" -> "Dandenong"
+    """
+    segments = [s.strip() for s in (address or "").split(",") if s.strip()]
+    if not segments:
+        return ""
+    last = re.sub(r"\b(?:VIC|Victoria)\b\.?\s*\d{4}\s*$", "", segments[-1],
+                  flags=re.I).strip(" ,.")
+    return last
 
 
 def _classifiable(row, known=GD_CATCHMENT):
@@ -253,71 +317,153 @@ def _classifiable(row, known=GD_CATCHMENT):
 
 
 def _passes_suburb_filter(row, allowed):
-    """Keep a row when it is in area, or when it names no recognisable suburb.
+    """Keep a row when it is in area, or when its suburb is unknown.
 
-    A strict `any(allowed in blob)` whitelist dropped exactly the generic rows
-    the filter was meant to retain -- those whose location reads only
-    "Greater Dandenong" and never mention an allowed suburb.
+    With the detail page fetched, `suburb` is known for every event, so this
+    is now a real filter rather than a pass-everything: the listing cards
+    carried no venue, so before enrichment every row fell through to
+    "unclassifiable, keep it" and the configured catchment did nothing.
     """
     if not allowed:
         return True
+    allowed_lower = {a.lower() for a in allowed}
+    suburb = (row.get("suburb") or "").lower()
+    if suburb:
+        return suburb in allowed_lower
+    # A venue we could not place: fall back to the whole blob, then to keep.
     blob = " ".join([row.get("name", ""), row.get("location", ""),
                      row.get("address", ""), row.get("description", "")]).lower()
-    if any(a.lower() in blob for a in allowed):
+    if any(a in blob for a in allowed_lower):
         return True
-    # No recognisable suburb anywhere -> unclassifiable, keep it.
     return not _classifiable(row)
 
 
+def _gd_session():
+    """A browser-impersonating session for Greater Dandenong.
+
+    The listing page answers plain urllib, but every event *detail* page
+    returns 403 to it, so the same fetcher that worked on the card is blocked
+    on the one page the suburb is actually on. curl_cffi with Chrome TLS
+    impersonation gets through both. webfetch_http is import-safe here: it
+    does not import this module.
+    """
+    from webfetch_http import make_session
+    return make_session()
+
+
+def _gd_fetch(session, url, timeout=15):
+    r = session.get(url, timeout=timeout)
+    if r.status_code != 200 or not r.text:
+        return None
+    return r.text
+
+
 def fetch_greater_dandenong(cfg):
-    rows = []
+    session = _gd_session()
     allowed = cfg.get("suburb_filter", [])
-    max_pages = min(cfg.get("max_pages", 8), 8)
+    max_pages = cfg.get("max_pages", 8)
+    detail_cap = cfg.get("detail_cap", 150)
+    base = "https://www.greaterdandenong.vic.gov.au"
+
+    # Crawl the listing first, keyed on the event URL. `?page=N` here is an
+    # *offset* for a JS "Load More" control, not a page number: page 1 returns
+    # everything page 0 returned plus a few more. Walking it without a seen-set
+    # re-parsed every earlier card on every page -- 348 card reads to find 45
+    # distinct events -- and left the duplicates for dedupe.py to unpick.
+    cards = {}
     for page in range(max_pages):
         url = cfg["url"] if page == 0 else f"{cfg['url']}?page={page}"
         try:
-            html = _get(url, timeout=10)
+            html = _gd_fetch(session, url, timeout=12)
         except Exception as e:
             print(f"  Greater Dandenong page {page}: FAILED {e!r}")
             continue
+        if not html:
+            print(f"  Greater Dandenong page {page}: no content")
+            break
+        soup = BeautifulSoup(html, "html.parser")
+        views = soup.select(".views-col")
+        if not views:
+            break
+        fresh = 0
+        for card in views:
+            title_el = card.select_one(".title a") or card.select_one("h2 a, h3 a")
+            if not title_el:
+                continue
+            link = title_el.get("href", "")
+            if not link:
+                continue
+            if not link.startswith("http"):
+                link = base + link
+            if link in cards:
+                continue
+            date_el = card.select_one(".date")
+            loc_el = card.select_one(
+                ".location, .event-location, .views-field-field-location")
+            cards[link] = {
+                "name": title_el.get_text(strip=True),
+                "datetime_text": date_el.get_text(strip=True) if date_el else "",
+                "location": loc_el.get_text(strip=True) if loc_el else "",
+                "description": card.get_text(" ", strip=True)[:300],
+                "source": link,
+            }
+            fresh += 1
+        if page and not fresh:
+            # The listing has been exhausted; asking for more only re-sends
+            # what we already have.
+            print(f"  Greater Dandenong: no new events past page {page - 1}")
+            break
+        time.sleep(0.2)
+    print(f"  Greater Dandenong: {len(cards)} distinct events from the listing")
+
+    # Enrich with the venue, which is only on the detail page, then filter.
+    rows, placed, unplaced, dropped = [], 0, 0, 0
+    for i, link in enumerate(cards):
+        if i >= detail_cap:
+            print(f"  Greater Dandenong: detail_cap {detail_cap} reached, "
+                  f"{len(cards) - i} events left without a venue")
+            break
+        card = cards[link]
+        venue = address = ""
         try:
-            soup = BeautifulSoup(html, "html.parser")
-            # Drupal views: events are in .views-col (which also have .views-row class)
-            cards = soup.select(".views-col")
-            if not cards:
-                break
-            for card in cards:
-                # Event title is in .title a within .views-field-nothing
-                title_el = card.select_one(".title a") or card.select_one("h2 a, h3 a")
-                if not title_el:
-                    continue
-                name = title_el.get_text(strip=True)
-                link = title_el.get("href", "")
-                if link and not link.startswith("http"):
-                    link = "https://www.greaterdandenong.vic.gov.au" + link
-                # Date is in .date div
-                date_el = card.select_one(".date")
-                date_text = date_el.get_text(strip=True) if date_el else ""
-                loc_el = card.select_one(".location, .event-location, .views-field-field-location")
-                loc_text = loc_el.get_text(strip=True) if loc_el else ""
-                # No suburb info in listing cards, so rows in and out of area
-                # are told apart by the suburb they happen to name.
-                row = {
-                    "name": name,
-                    "datetime_text": date_text,
-                    "datetime_iso": "",
-                    "location": loc_text or "Greater Dandenong",
-                    "address": loc_text,
-                    "price_text": "",
-                    "description": card.get_text(" ", strip=True)[:300],
-                    "source": link or cfg["url"],
-                    "source_id": cfg["id"],
-                }
-                if not _passes_suburb_filter(row, allowed):
-                    continue
-                rows.append(row)
+            html = _gd_fetch(session, link, timeout=12)
         except Exception as e:
-            print(f"  Greater Dandenong page {page}: parse FAILED {e!r}")
+            print(f"    detail FAILED {card['name']!r}: {e!r}")
+        if html:
+            venue, address = _gd_detail_location(
+                BeautifulSoup(html, "html.parser"))
+        row = {
+            "name": card["name"],
+            "datetime_text": card["datetime_text"],
+            # Deliberately empty: this source's date lives in the description,
+            # and stamping the fetch time here produced a bogus timestamp that
+            # dedupe.py then had to discard on every single run.
+            "datetime_iso": "",
+            "location": venue or card["location"] or "Greater Dandenong",
+            "address": ", ".join(p for p in (venue, address) if p),
+            "suburb": _suburb_from_address(address),
+            "price_text": "",
+            "description": card["description"],
+            "source": link,
+            "source_id": cfg["id"],
+        }
+        if row["suburb"]:
+            placed += 1
+        else:
+            unplaced += 1
+        if _passes_suburb_filter(row, allowed):
+            rows.append(row)
+        else:
+            dropped += 1
+        time.sleep(0.15)
+
+    kept_subs = sorted({r["suburb"] for r in rows if r["suburb"]})
+    print(f"  Greater Dandenong: venue found for {placed}, "
+          f"suburb unknown for {unplaced}")
+    print(f"  Greater Dandenong: catchment {list(allowed)} keeps {len(rows)}, "
+          f"drops {dropped}")
+    if kept_subs:
+        print(f"    suburbs kept: {', '.join(kept_subs)}")
     return rows
 
 
@@ -328,10 +474,14 @@ def fetch_gd_libraries(cfg):
     # there is no pagination loop here.
     rows = []
     url = cfg["url"]
+    session = _gd_session()
     try:
-        html = _get(url, timeout=10)
+        html = _gd_fetch(session, url, timeout=12)
     except Exception as e:
         print(f"  GD Libraries: FAILED {e!r}")
+        return rows
+    if not html:
+        print("  GD Libraries: no content")
         return rows
     try:
         soup = BeautifulSoup(html, "html.parser")
@@ -360,6 +510,32 @@ def fetch_gd_libraries(cfg):
             })
     except Exception as e:
         print(f"  GD Libraries: parse FAILED {e!r}")
+        return rows
+
+    # Same platform as the council listing, so the venue is on the detail page
+    # under a labelled Location field. Without it every row read "Greater
+    # Dandenong Libraries" and no suburb could be told -- the same gap that
+    # made the council catchment filter a no-op.
+    detail_cap = cfg.get("detail_cap", 60)
+    placed = 0
+    for row in rows[:detail_cap]:
+        try:
+            detail = _gd_fetch(session, row["source"], timeout=12)
+        except Exception as e:
+            print(f"    detail FAILED {row['name']!r}: {e!r}")
+            continue
+        if not detail:
+            continue
+        venue, address = _gd_detail_location(
+            BeautifulSoup(detail, "html.parser"))
+        if venue:
+            row["location"] = venue
+            row["address"] = ", ".join(p for p in (venue, address) if p)
+            row["suburb"] = _suburb_from_address(address)
+            if row["suburb"]:
+                placed += 1
+        time.sleep(0.15)
+    print(f"  GD Libraries: {len(rows)} events, venue resolved for {placed}")
     return rows
 
 
