@@ -6,6 +6,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 from webfetch_http import combine, get, parse_day_month_year
+from venues import needs_address
 
 # ---------------------------------------------------------------------------
 # Granicus (Kingston Council + Kingston Arts, page 1; pager is JS postback)
@@ -58,7 +59,34 @@ def fetch_granicus(session, cfg, detail_cap):
         })
     print(f"  {cfg['id']} listing: {len(rows)} (page 1; JS pager needs manual snapshots for deeper pages)")
     enrich_granicus_details(session, rows, detail_cap)
-    return rows
+    return drop_venueless(rows)
+
+
+def drop_venueless(rows):
+    """Drop listings the source never gives a venue for.
+
+    Not every Granicus page is an event with a place. `biodiversity-month` is a
+    month-long campaign page whose five constituent events are at five
+    different reserves and clubs, and the page itself carries no Location block
+    at all. Publishing it as one row produced a calendar entry with no address
+    and a date range that no reader can act on -- the same reason
+    recurrence.py removes undateable listings.
+
+    It cannot be given a synthetic address either, which is the lesson from
+    fetch_kingston_hubs(): one plausible-looking address is worse than none,
+    because a wrong venue sends a reader to the wrong suburb.
+    """
+    kept, dropped = [], []
+    for r in rows:
+        if (r.get("address") or "").strip() or not needs_address(r):
+            kept.append(r)
+        else:
+            dropped.append(r)
+    if dropped:
+        print(f"  Dropped {len(dropped)} listing(s) with no venue (a campaign "
+              f"page, not an event at a place): "
+              f"{[r.get('name') for r in dropped][:5]}")
+    return kept
 
 
 def enrich_granicus_details(session, rows, cap):

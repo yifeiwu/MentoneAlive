@@ -171,15 +171,32 @@ def _add_one_month(iso):
 
 def fetch_kingston_hubs(cfg):
     cal_ids = cfg["calendars"]
-    # Explicit id -> venue map. Treating "any id that is not cal_ids[0]" as
-    # Patterson Lakes would silently attach the wrong venue *and* the wrong
-    # street address to a newly added calendar.
-    venues = cfg.get("calendar_venues") or {
-        cal_ids[0]: ("Chelsea Activity Hub",
-                     "3-5 Showers Ave, Chelsea 3196"),
-    }
+    # Explicit id -> venue map, and it must be complete. The API returns a
+    # CalendarId and nothing else useful, so this map is the only source of a
+    # venue name and a street address. An unmapped id used to fall back to a
+    # generic ("Kingston Hubs", "Chelsea 3196"), which published 300 rows of
+    # the *Patterson Lakes* calendar under a Chelsea address and a Chelsea
+    # suburb -- a wrong address, which nothing downstream can detect, unlike a
+    # missing one. So an unmapped id now fails the source.
+    venues = {}
+    for cal_id in cal_ids:
+        entry = (cfg.get("calendar_venues") or {}).get(cal_id) or {}
+        name = (entry.get("name") or "").strip()
+        address = (entry.get("address") or "").strip()
+        if not name or not address:
+            raise ValueError(
+                f"kingston_hubs: calendar {cal_id!r} has no name/address in "
+                f"calendar_venues (got name={name!r} address={address!r}). "
+                f"Every calendar in `calendars` needs both.")
+        venues[cal_id] = (name, address)
+    unmapped = set((cfg.get("calendar_venues") or {})) - set(cal_ids)
+    if unmapped:
+        # Dead entries rot into the same trap: a calendar is renamed upstream,
+        # its id changes, the new id is added to `calendars`, and the stale
+        # entry quietly stops applying.
+        print(f"  Kingston Hubs: calendar_venues has entries for calendars "
+              f"not in `calendars`: {sorted(unmapped)}")
     rows = []
-    unmapped_calendars = set()
     now = datetime.now()
     for start in _month_range(now.year, now.month, 12):
         end = _add_one_month(start)
@@ -207,17 +224,17 @@ def fetch_kingston_hubs(cfg):
                 dt = _parse_date(it.get("DateTime"))
                 if dt is None or not name:
                     continue  # skip undateable Hub items; no fake stamps
-                venue, address = venues.get(
-                    it.get("CalendarId"),
-                    ("Kingston Hubs", "Chelsea 3196"))
-                if it.get("CalendarId") not in venues:
-                    # Once per calendar, not once per event: this fired inside
-                    # the item loop and printed ~500 identical lines a run,
-                    # burying the real per-source summaries underneath it.
-                    if it.get("CalendarId") not in unmapped_calendars:
-                        unmapped_calendars.add(it.get("CalendarId"))
-                        print(f"  Kingston Hubs: unmapped CalendarId "
-                              f"{it.get('CalendarId')!r}, using generic venue")
+                # The API has been seen to return an item under a CalendarId
+                # that is not in the request. The map is complete for the ids we
+                # asked for, so anything else is unknown, and an unknown venue
+                # must not inherit another calendar's address.
+                cal_id = it.get("CalendarId")
+                if cal_id not in venues:
+                    raise ValueError(
+                        f"kingston_hubs: API returned an item under "
+                        f"CalendarId {cal_id!r}, which is not in "
+                        f"calendar_venues ({sorted(venues)})")
+                venue, address = venues[cal_id]
                 rows.append({
                     "name": name,
                     "datetime_text": it.get("DateTime", ""),
@@ -618,7 +635,17 @@ def main():
     failures = []
     for cfg in config["sources"]:
         print(f"Fetching {cfg['name']} ({cfg['id']})...")
-        rows = fetch_source(cfg)
+        try:
+            rows = fetch_source(cfg)
+        except Exception as e:
+            # A misconfigured source (e.g. a Kingston Hubs calendar with no
+            # venue/address) must not half-write raw_events.json: the previous
+            # good file is worth more than a partial one, and the run has not
+            # reached the dedupe step that would notice what is missing.
+            print(f"  FAIL: {cfg['id']}: {e}")
+            print("\nraw_events.json not written; the existing file is "
+                  "unchanged.")
+            sys.exit(1)
         print(f"  -> {len(rows)} events")
         if not rows:
             # A WAF block or a markup change looks exactly like a source that

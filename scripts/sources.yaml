@@ -79,6 +79,18 @@ sources:
     calendars:
       - "a1bc2435-21cb-4d26-9b8a-80fc0a7a74df"  # Chelsea Activity Hub
       - "74480036-6bf3-4162-a0a2-63b4b6746dee"  # Patterson Lakes Community Centre
+    # Every id in `calendars` needs a venue AND a street address here. The API
+    # returns neither, so this map is the only place they come from, and an
+    # unmapped id is a hard fetch failure rather than a guess: a wrong address
+    # is published silently, while a missing one is a red build. Addresses are
+    # taken from the council's own venue and event pages.
+    calendar_venues:
+      "a1bc2435-21cb-4d26-9b8a-80fc0a7a74df":
+        name: "Chelsea Activity Hub"
+        address: "3-5 Showers Ave, Chelsea 3196"
+      "74480036-6bf3-4162-a0a2-63b4b6746dee":
+        name: "Patterson Lakes Community Centre"
+        address: "54-70 Thompson Rd, Patterson Lakes 3197"
     base_url: "https://www.kingston.vic.gov.au"
     # Uses the OpenCities calendar API (ocapi)
     # POST /ocapi/calendars/getcalendaritems with JSON payload

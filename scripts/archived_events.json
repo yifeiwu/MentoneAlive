@@ -44,10 +44,11 @@
   "source_label": "bayside_archived"
  },
  {
-  "name": "Friday Night Reset",
-  "date_text": "Weekly",
-  "location": "Frankston, VIC",
-  "address": "",
+   "name": "Friday Night Reset",
+   "date_text": "Weekly",
+   "location": "Saint Pauls Community Hall",
+   "address": "Cnr Bay & High Street, Frankston VIC 3199",
+
   "price_text": "",
   "description": "Friday Night Reset is a weekly 5Rhythms class offering a dynamic way to move, breathe, and release the week.",
   "source": "https://whatsonfrankston.com/event/34282055-a/friday-night-reset",
@@ -55,10 +56,11 @@
   "source_label": "frankston_archived"
  },
  {
-  "name": "Trivia on Tap",
-  "date_text": "First Friday of each month",
-  "location": "Frankston, VIC",
-  "address": "",
+   "name": "Trivia on Tap",
+   "date_text": "First Friday of each month",
+   "location": "Frankston Brewhouse",
+   "address": "10 New St, Frankston VIC 3199",
+
   "price_text": "",
   "description": "Gather your mates, brush up on your knowledge, and mark your calendars for Trivia on Tap! Join us on the first Friday of each month.",
   "source": "https://whatsonfrankston.com/event/34924224-a/trivia-on-tap",
@@ -165,10 +167,11 @@
   "source_label": "frankston_archived"
  },
  {
-  "name": "Music at McClelland - 2026 Subscription tickets",
-  "date_text": "Third Sunday monthly",
-  "location": "Langwarrin, VIC",
-  "address": "",
+   "name": "Music at McClelland - 2026 Subscription tickets",
+   "date_text": "Third Sunday monthly",
+   "location": "McClelland Sculpture Park and Gallery",
+   "address": "390 McClelland Dr, Langwarrin VIC 3910",
+
   "price_text": "",
   "description": "Music at McClelland is held on the third Sunday of the month, 2.30pm to 4pm, from February to November, and features exceptional performers from across Victoria and Australia.",
   "source": "https://whatsonfrankston.com/event/33861271-a/music-at-mcclelland-2026-subscription-tickets",

@@ -26,6 +26,7 @@ from dedupe import (PRUNE_DAYS, load_live_inputs, name_head,
                     reconcile_store, reference_today, venue_head)
 from recurrence import weekday_slots
 from status import STATUS_LABELS, event_status, is_ongoing_service
+from venues import is_online, needs_address
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -330,11 +331,6 @@ def a11y_errors(source, name):
     return errors
 
 
-# Venues with no physical address. An event held online has no suburb, so it
-# cannot be inside or outside a geographic catchment and is never a violation.
-_NON_PHYSICAL_VENUES = frozenset({"", "online", "zoom", "webinar", "virtual",
-                                  "via zoom", "livestream", "tbc", "tbd"})
-
 MIN_TOTAL = 700
 # Generous floors (~25-50% of normal) for always-on sources.
 # gd_libraries is low because dedupe_by_source_url() collapses the listings
@@ -464,6 +460,28 @@ def main():
         errors.append(f"{len(dateless)} dateless rows (need a date to be "
                       f"placed on a calendar): {sample}")
 
+    # A published row has to say where to go. This is not a cosmetic check: the
+    # address is what the map link, the .ics LOCATION and the CSV export are
+    # built from, so a missing one silently ships an event a reader cannot
+    # locate. The failure this was written for was a *wrong* address rather
+    # than a missing one -- fetch_kingston_hubs() fell back to a generic
+    # ("Kingston Hubs", "Chelsea 3196") for any CalendarId it had no mapping
+    # for, and published 300 rows of the Patterson Lakes calendar under a
+    # Chelsea address and a Chelsea suburb. An empty address is at least
+    # visible, so the invariant is that every non-online row has one.
+    no_address = [r for r in rows
+                  if not (r.get("address") or "").strip()
+                  and needs_address(r)]
+    if no_address:
+        by_source = Counter(r.get("source_label", "unknown")
+                            for r in no_address)
+        sample = ", ".join(
+            f"{r.get('name')!r} @ {(r.get('location') or '').strip()!r}"
+            for r in no_address[:5])
+        errors.append(
+            f"{len(no_address)} rows have no address (only an event held "
+            f"online may omit one): {dict(by_source)} e.g. {sample}")
+
     # The Greater Dandenong catchment is only enforceable if the fetcher got a
     # real venue: the listing cards carry none, so a regression that drops the
     # detail fetch leaves every row at the generic "Greater Dandenong" location
@@ -491,9 +509,7 @@ def main():
         if allowed:
             # An online event has no suburb to be out of, so it is not a
             # catchment violation.
-            physical = [r for r in gd
-                        if (r.get("location") or "").strip().lower()
-                        not in _NON_PHYSICAL_VENUES]
+            physical = [r for r in gd if is_online(r.get("location")) is False]
             outside = sorted({(r.get("location") or "").strip()
                               for r in physical
                               if not _suburb_in(r, allowed)})

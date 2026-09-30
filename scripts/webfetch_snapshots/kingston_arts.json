@@ -1,8 +1,8 @@
 [
  {
   "name": "'Kingston Sounds' by Susannah Langley",
-  "datetime_text": "Next date: Tuesday, 29 September 2026 | 01:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-  "datetime_iso": "2026-09-29T13:00:00",
+  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+  "datetime_iso": "2026-09-30T09:00:00",
   "location": "Kingston Arts Centre",
   "address": "Kingston Arts Centre",
   "price_text": "",
@@ -10,14 +10,14 @@
   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Tue 29 Sep 2026, 1:00 PM",
+  "datetime_display": "Wed 30 Sep 2026, 9:00 AM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
  {
   "name": "'Refugia' by Kerri Wilson McConchie",
-  "datetime_text": "Next date: Tuesday, 29 September 2026 | 01:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-  "datetime_iso": "2026-09-29T13:00:00",
+  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 AM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+  "datetime_iso": "2026-09-30T09:00:00",
   "location": "Kingston City Hall",
   "address": "Kingston City Hall",
   "price_text": "",
@@ -25,7 +25,7 @@
   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Tue 29 Sep 2026, 1:00 PM",
+  "datetime_display": "Wed 30 Sep 2026, 9:00 AM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },

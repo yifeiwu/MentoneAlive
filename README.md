@@ -8,7 +8,7 @@ neighbourhood-house venues near Chelsea/Cheltenham/Mentone/Mordialloc.
 
 | Source | Label | Method |
 |--------|-------|--------|
-| Kingston Hubs (OpenCities calendar API) | `kingston_hubs` | JSON API (`fetch_events.py`) |
+| Kingston Hubs (OpenCities calendar API) | `kingston_hubs` | JSON API (`fetch_events.py`), venue per calendar id in `sources.yaml` |
 | Kingston Council upcoming events | `kingston_council` | HTML, page 1 (Granicus needs browser TLS) |
 | Kingston Arts | `kingston_arts` | HTML, page 1 (same platform) |
 | Kingston Seniors Festival (annual PDF guide) | `kingston_seniors` | PDF parse + hand-checked overrides |
@@ -88,6 +88,59 @@ correct — five of its events are the same events `greater_dandenong` lists,
 and `dedupe_by_source_url()` now merges them cleanly instead of leaving two
 projected series that only partly overlapped.
 
+## Every event has an address, unless it is online
+
+A published row has to say where to go. The address is what the map link, the
+`.ics` `LOCATION` and the CSV export are built from, so a missing one ships an
+event a reader cannot locate.
+
+That check is worth spelling out because the failure it was written for was not
+a missing address but a **wrong** one, which nothing downstream can detect.
+`fetch_kingston_hubs()` used to fall back to a generic
+`("Kingston Hubs", "Chelsea 3196")` for any `CalendarId` it had no mapping for.
+`sources.yaml` listed two calendars but never got a `calendar_venues` block, so
+every item from the *Patterson Lakes* calendar — **300 rows, 23% of the
+calendar** — published as venue "Kingston Hubs" with a Chelsea address, and
+`extract_suburb()` helpfully derived `suburb: "Chelsea"` from it. The one
+warning that noticed this printed once per run and the build stayed green.
+
+So the API supplies neither venue nor address, and `calendar_venues` in
+`sources.yaml` is the only place they come from:
+
+```yaml
+calendar_venues:
+  "a1bc2435-...": {name: "Chelsea Activity Hub",              address: "3-5 Showers Ave, Chelsea 3196"}
+  "74480036-...": {name: "Patterson Lakes Community Centre",  address: "54-70 Thompson Rd, Patterson Lakes 3197"}
+```
+
+A calendar in `calendars` with no entry there — or an entry missing either
+field — is now a **hard fetch failure**, and a misconfigured source exits before
+`raw_events.json` is written, leaving the previous good file intact. The
+alternative, publishing a row with an empty address, only moves the problem
+downstream: the run is green and the bad row is on the page.
+
+`reconcile_store()` then removes the phantom rows left behind by the old
+fallback, because the venue it justifies them by is no longer the venue the
+source names.
+
+**The other exemption is only for online events.** `scripts/venues.py` holds
+that one rule, and both the fetcher and the verifier read it from there, because
+if they disagreed the fetcher would keep publishing rows the check then
+rejects. Blank is deliberately *not* online: a missing venue is the defect, so
+treating it as an exemption would hide exactly what the check is for.
+
+Two listings needed that judgement rather than a lookup:
+
+- **`biodiversity-month`** (Kingston Council) is a month-long campaign page whose
+  five constituent events are at five different reserves and clubs, and the page
+  carries no Location block at all. There is no address to publish, so
+  `webfetch_granicus.py` drops venue-less listings rather than inventing one.
+- **Three `frankston_archived` programmes** published `location: "Frankston,
+  VIC"` / `"Langwarrin, VIC"` with an empty address — a suburb in the venue
+  field. The venues came from the listing pages and their own sites: Saint
+  Pauls Community Hall (confirmed on Frankston City Council's own event page),
+  Frankston Brewhouse, and McClelland Sculpture Park and Gallery.
+
 ## Pipeline
 
 ```bash
@@ -111,8 +164,9 @@ round fails the build, which is the intended outcome.
 `webfetch_http.py` (shared session/date helpers, `PartialFetch`),
 `webfetch_{bayside,granicus,ccc,seniors}.py` (one fetcher each),
 `webfetch_sources.py` (thin orchestrator), `dedupe.py`, `recurrence.py`,
-`commercial.py`, `status.py`, `activity_types.py`, `jsonio.py` (atomic writes),
-`build_site.py`, `health_check.py`, `render_check.py`.
+`commercial.py`, `status.py`, `activity_types.py`, `venues.py` (what counts as
+an event held online), `jsonio.py` (atomic writes), `build_site.py`,
+`health_check.py`, `render_check.py`.
 
 ### Failure behaviour
 
@@ -122,6 +176,9 @@ publishing a smaller calendar:
 
 - a source that raises, or returns 0 rows, is a hard failure;
 - a source that returns 0 rows never overwrites its snapshot;
+- a source that *raises* on a config fault (a Kingston Hubs calendar with no
+  venue/address) exits before writing anything, so the previous
+  `raw_events.json` survives rather than being replaced by a partial run;
 - a multi-page crawl that stops early raises `PartialFetch`, and the existing
   snapshot is kept — a partial crawl is indistinguishable from a source with
   genuinely no events, so it must not replace good data.
@@ -156,6 +213,19 @@ publishing a smaller calendar:
    `Chatty Cafe`, and a seniors listing writes
    `Chatty Cafe - Connect over a Cuppa`. Whole-string similarity lands around
    0.5 for these, well under the 0.75 fuzzy threshold.
+
+   The programme key holds a **list** of candidates, not one row. It used to be
+   a single slot claimed by `setdefault` and never released, so the first row to
+   arrive owned `(programme, time)` for the rest of the run — and since a merge
+   also requires a compatible venue, a row that *couldn't* merge (a session at a
+   different hall, or a stale store row naming a venue the source has since
+   corrected) left the key pointing at itself, and every later row was compared
+   against that one instead of against each other. Two genuine twins could both
+   survive that way: `Tai Chi` at Patterson Lakes from `kingston_hubs` and from
+   `kingston_council`, held apart by a stale `Kingston Hubs` row that
+   `reconcile_store()` then dropped, leaving the duplicate in a green-looking
+   store. Comparing against every compatible candidate fixes it without
+   loosening the venue check.
 
    What all of these share is the **base name** — the title up to its first
    ` - `, `:` or `|`, accent-folded so `Café` matches `Cafe`. A merge requires
@@ -467,11 +537,12 @@ per-step timeouts: fetch → webfetch → dedupe → build → **health check**
 The health check enforces a total floor, per-source floors for year-round
 sources, zero exact duplicates, zero same-listing duplicates, zero
 same-programme duplicates, no inferred row whose stored time contradicts its
-own text, that every row has a real date, that every source label has badge
-CSS and a friendly name, and that both the template and the built
-`index.html` are a single document with no unfilled placeholders and no calls
-to undefined functions. Seasonal sources (seniors festivals) are warn-only
-since they legitimately decay out of season.
+own text, that every row has a real date, that **every row that is not held
+online has an address**, that every source label has badge CSS and a friendly
+name, and that both the template and the built `index.html` are a single
+document with no unfilled placeholders and no calls to undefined functions.
+Seasonal sources (seniors festivals) are warn-only since they legitimately decay
+out of season.
 
 Five further checks cover the defects described above, each of which was
 verified to fail the build when reintroduced:

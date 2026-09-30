@@ -199,6 +199,7 @@ def dedupe_by_source_url(rows):
     halls, or "Chatty Cafe - Game On!" at 10:00 against the 11:00 series.
     """
     index = {}
+    prog_index = {}
     out, merged = [], 0
     for r in rows:
         stamp = str(r.get("datetime_iso") or "")[:16]
@@ -211,10 +212,26 @@ def dedupe_by_source_url(rows):
         url = (r.get("source") or "").rstrip("/")
         head = name_head(r.get("name"))
         by_url = index.get(("url", url, name, stamp))
-        by_prog = index.get(("prog", head, stamp))
-        hit = by_url if by_url is not None else by_prog
-        if hit is not None and _venue_compatible(hit.get("location"),
-                                                 r.get("location")):
+        # Candidates, not a single slot. The programme key used to hold one row,
+        # claimed by `setdefault` and never released, so the first row to arrive
+        # owned (programme, time) for the rest of the run. A merge still needs a
+        # compatible venue, so a row that cannot merge -- a session at a
+        # different hall, or a stale store row naming a venue the source has
+        # since corrected -- left the key pointing at itself and every *later*
+        # row was compared against that one instead of against each other. Two
+        # real twins could therefore both survive: `Tai Chi` at Patterson Lakes
+        # from kingston_hubs and from kingston_council, held apart by a stale
+        # `Kingston Hubs` row that reconcile_store() then dropped, leaving the
+        # duplicate visible in a green-looking store.
+        candidates = prog_index.setdefault((head, stamp), [])
+        hit = by_url
+        if hit is None or not _venue_compatible(hit.get("location"),
+                                                r.get("location")):
+            for cand in candidates:
+                if _venue_compatible(cand.get("location"), r.get("location")):
+                    hit = cand
+                    break
+        if hit is not None:
             # A shared base name plus the same date, start time and venue is
             # already decisive, so no description check is needed. Requiring
             # the prose to match as well would miss these: the venue site and
@@ -224,7 +241,7 @@ def dedupe_by_source_url(rows):
             merged += 1
             continue
         index.setdefault(("url", url, name, stamp), r)
-        index.setdefault(("prog", head, stamp), r)
+        candidates.append(r)
         out.append(r)
     if merged:
         print(f"  Collapsed {merged} same-event duplicates "
