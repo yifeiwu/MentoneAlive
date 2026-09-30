@@ -182,27 +182,38 @@ def _apply_granicus_detail(r, html):
     block = main.select_one(".address-block, .event-address, "
                             "#event-address, .location-block")
     text = (block or main).get_text("\n", strip=True)
-    m = GRANICUS_ADDRESS_RE.search(text)
-    if m:
-        # venue, street, suburb, postcode. The venue has its own line in
-        # this form and is not part of the address, so the street is
-        # group 2.
-        street, suburb, postcode = m.group(2), m.group(3), m.group(4)
-    else:
-        m = GRANICUS_ADDRESS_INLINE_RE.search(
-            (block or main).get_text(" ", strip=True))
-        street = m.group(1) if m else None
-        if street:
+    street = suburb = postcode = None
+    # The newline form, tried first because it says unambiguously where each
+    # segment ends. Every candidate is checked: the loose postcode pattern
+    # also matches a title followed by a year ("Stitch with Sappho,
+    # workshops during 2026") or a contact block followed by a phone prefix
+    # ("Contact, Community Connections 1300"), and a title is not a place
+    # to send anyone. Requiring a street in group 2 -- a number, or a
+    # road-type word -- plus a Victorian postcode keeps those out, and
+    # scanning every match (rather than the first) lets a false hit earlier
+    # in the page fall through to the real address below it.
+    for m in GRANICUS_ADDRESS_RE.finditer(text):
+        cand_street, cand_suburb, cand_postcode = (
+            m.group(2), m.group(3), m.group(4))
+        if _is_street_line(cand_street) and cand_postcode.startswith("3"):
+            street, suburb, postcode = cand_street, cand_suburb, cand_postcode
+            break
+    if street is None:
+        inline_text = (block or main).get_text(" ", strip=True)
+        for m in GRANICUS_ADDRESS_INLINE_RE.finditer(inline_text):
+            cand_street = m.group(1)
             # An inline match can also be a title followed by a year, and
             # the postcode pattern is loose enough to accept one: an event
             # called "Refugia 2026" was published as the address
             # "Kerri Wilson McConchie, Refugia 2026". Requiring a street
             # in group 1 -- a number, or a road-type word -- keeps a
             # person's name out of the address field.
-            if not _is_street_line(street):
-                street = None
-            else:
-                suburb, postcode = m.group(2), m.group(3)
+            if not _is_street_line(cand_street):
+                continue
+            if not m.group(3).startswith("3"):
+                continue
+            street, suburb, postcode = cand_street, m.group(2), m.group(3)
+            break
     if street:
         r["address"] = f"{street.strip()}, {suburb.strip()} " \
                        f"{postcode.strip()}"
@@ -266,6 +277,28 @@ if __name__ == "__main__":
         ("a title followed by words is not an address",
          address_of("<p>Susannah Langley, Testing Grounds Sounds</p>"),
          None),
+        # A workshop blurb followed by a year is not an address either, and
+        # the newline form had no street guard at all, so "Stitch with
+        # Sappho, workshops during 2026" published and "workshops during"
+        # appeared as a suburb.
+        ("a workshop blurb followed by a year is not an address",
+         address_of("<div>Header</div><div>Stitch with Sappho</div>"
+                    "<div>workshops during 2026</div>"),
+         None),
+        # A contact block followed by a phone prefix is not an address, and
+        # for the same missing guard "Contact, Community Connections 1300"
+        # published with "Community Connections" as the suburb.
+        ("a contact block followed by a phone prefix is not an address",
+         address_of("<div>Header</div><div>Contact</div>"
+                    "<div>Community Connections 1300</div>"),
+         None),
+        # A false hit earlier in the page must not hide the real address
+        # below it: the first candidate is skipped and the scan continues.
+        ("a false hit falls through to the real address",
+         address_of("<div>Stitch with Sappho</div><div>workshops during "
+                    "2026</div><div>Shirley Burke Theatre</div>"
+                    "<div>64 Parkers Road</div><div>Parkdale 3195</div>"),
+         "64 Parkers Road, Parkdale 3195"),
     ]
 
     failures = []

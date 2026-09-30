@@ -32,6 +32,7 @@ SUITES = (
     ("commercial", "commercial detection rules"),
     ("webfetch_granicus", "Granicus address parsing"),
     ("webfetch_http", "shared time/month/row parsing"),
+    ("build_site", "suburb extraction"),
     ("fetchers", "the fetch call convention, without a network"),
     ("failure_signals", "config validation and the do-not-publish signal"),
     ("fetcher_equivalence", "the fetchers extract the same rows they used to"),
@@ -62,7 +63,12 @@ def run_suite(name, note):
     imports cleanly and then raises should not take the runner down with it.
     """
     print(f"== {name}: {note}")
-    proc = subprocess.run([sys.executable, f"scripts/{name}.py"],
+    # build_site.py builds the page by default; its cases run under --test
+    # so the check does not rebuild (and rewrite) the site as a side effect.
+    args = [sys.executable, f"scripts/{name}.py"]
+    if name == "build_site":
+        args.append("--test")
+    proc = subprocess.run(args,
                           cwd=ROOT, capture_output=True, text=True)
     out = (proc.stdout or "").rstrip()
     shown = 0

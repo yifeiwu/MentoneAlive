@@ -57,6 +57,12 @@ def extract_suburb(address):
     "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193" yielded
     "Victoria" -- the state -- as the suburb. Reading the whole segment
     before the state (and refusing state names outright) fixes that.
+
+    The bare-postcode fallback is anchored to the end of the string and only
+    accepts a Victorian postcode (3xxx). Unanchored, any four digits --
+    a street number ("1218 Nepean Highway"), a year ("workshops during
+    2026") or a phone fragment ("Community Connections 1300") -- read as
+    a postcode and the comma-segment before it published as a suburb.
     """
     a = (address or "").strip()
     if not a:
@@ -65,13 +71,14 @@ def extract_suburb(address):
     # "... VIC 3192" / "... Victoria 3193" -> capture everything before the
     # state token. Non-greedy so the *last* state+postcode is used, not the
     # first, since an address can name two suburbs ("Beaumaris, Beaumaris").
-    m = re.search(r"^(.+?)[,\s]+(?:VIC|Victoria)\.?\s+\d{4}\b", a, re.I)
+    m = re.search(r"^(.+?)[,\s]+(?:VIC|Victoria)\.?\s+(3\d{3})\b", a, re.I)
     if m:
         head = m.group(1)
         # Take the final comma-delimited segment: that is the suburb, while
         # the earlier ones are the venue and street.
         seg = re.split(r",", head)[-1].strip()
-        if seg and seg.lower() not in _STATE_TOKENS and not _is_street(seg):
+        if (seg and seg.lower() not in _STATE_TOKENS
+                and not _is_street(seg) and not re.search(r"\d", seg)):
             return seg
         return ""
 
@@ -79,19 +86,44 @@ def extract_suburb(address):
     m = re.search(r"^(.+?)[,\s]+(?:VIC|Victoria)\s*$", a, re.I)
     if m:
         seg = re.split(r",", m.group(1))[-1].strip()
-        if seg and seg.lower() not in _STATE_TOKENS and not _is_street(seg):
+        if (seg and seg.lower() not in _STATE_TOKENS
+                and not _is_street(seg) and not re.search(r"\d", seg)):
             return seg
         return ""
 
-    # No state token at all. Fall back to a bare postcode when present, but
-    # only accept a short non-street segment -- "Patterson Lakes Community
-    # Centre, 2-30 Thompson Rd, Patterson Lakes 3198" ends in the postcode and
-    # its last token is a street, so guard against that.
-    m = re.search(r"^(.+?)[,\s]+(\d{4})\b", a)
+    # No state token at all. Fall back to a bare postcode, but only when it
+    # ends the address and looks like a Victorian postcode -- "Patterson Lakes
+    # Community Centre, 2-30 Thompson Rd, Patterson Lakes 3198" ends in the
+    # postcode and its last token is a street, so guard against that. Without
+    # the end anchor and the 3xxx requirement, a house number ("Cheltenham
+    # Hall, 1218 Nepean Highway, Cheltenham"), a year ("..., workshops
+    # during 2026") or a phone fragment ("..., Community Connections 1300")
+    # all read as postcodes.
+    m = re.search(r"^(.+?)[,\s]+(3\d{3})\s*[.,]?\s*(?:,\s*Australia\s*)?$", a, re.I)
     if m:
         seg = re.split(r",", m.group(1))[-1].strip()
-        if seg and seg.lower() not in _STATE_TOKENS and not _is_street(seg):
+        if (seg and seg.lower() not in _STATE_TOKENS
+                and not _is_street(seg) and not re.search(r"\d", seg)):
             return seg
+        return ""
+
+    # No postcode or state at all, but a street plus a trailing suburb:
+    # "Cheltenham Hall, 1218 Nepean Highway, Cheltenham" states the suburb
+    # plainly. Accept the last comma segment when an earlier segment looks
+    # like a street and the last looks like a suburb (no digits, not a
+    # state, not a street). Without the street requirement, a bare venue
+    # name ("Kingston Arts Centre") would publish as its own suburb; without
+    # the no-digits requirement, a title plus a year ("..., workshops
+    # during 2026") would do the same.
+    segs = [s.strip().strip(".") for s in re.split(r",", a) if s.strip()]
+    if len(segs) >= 2:
+        last = segs[-1]
+        if (2 <= len(last) <= 40 and last.lower() not in _STATE_TOKENS
+                and not _is_street(last) and not re.search(r"\d", last)
+                and re.fullmatch(r"[A-Za-z][A-Za-z .'\-]*", last)
+                and any(re.match(r"^\s*\d", s) or _is_street(s)
+                        for s in segs[:-1])):
+            return last
     return ""
 
 
@@ -247,4 +279,61 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys as _sys
+    if "--test" in _sys.argv:
+        # Suburb extraction cases. Run by `python scripts/build_site.py
+        # --test` and by checks.py, so a change to the address patterns
+        # fails the build before a venue name or a year can publish as a
+        # suburb again.
+        _TESTS = [
+            # Well-formed addresses keep working.
+            ("VIC with postcode",
+             extract_suburb("Beaumaris Library, 96 Reserve Road, Beaumaris, "
+                            "Victoria 3193"),
+             "Beaumaris"),
+            ("bare postcode at the end",
+             extract_suburb("64 Parkers Road, Parkdale 3195"),
+             "Parkdale"),
+            ("venue plus street plus suburb, no postcode",
+             extract_suburb("Cheltenham Hall, 1218 Nepean Highway, Cheltenham"),
+             "Cheltenham"),
+            # A street number is not a postcode: the old unanchored fallback
+            # read "1218" and published the venue as the suburb.
+            ("a street number is not a postcode",
+             extract_suburb("Cheltenham Hall, 1218 Nepean Highway, "
+                            "Cheltenham VIC 3192"),
+             "Cheltenham"),
+            # A year is not a postcode, so a title plus a year publishes no
+            # suburb rather than "workshops during".
+            ("a year is not a suburb",
+             extract_suburb("Stitch with Sappho, workshops during 2026"),
+             ""),
+            # A phone prefix is not a postcode, so a contact block publishes
+            # no suburb rather than "Community Connections".
+            ("a phone prefix is not a suburb",
+             extract_suburb("Contact, Community Connections 1300"),
+             ""),
+            # A bare venue name is not a suburb.
+            ("a venue name alone is not a suburb",
+             extract_suburb("Kingston Arts Centre"),
+             ""),
+            # A state name is never a suburb.
+            ("a state is not a suburb",
+             extract_suburb("Gardiners Creek and Anniversary Trail Loop Walk, "
+                            "Victoria"),
+             ""),
+        ]
+        _failures = []
+        for _label, _actual, _expected in _TESTS:
+            if _actual == _expected:
+                print(f"ok   {_label}")
+            else:
+                print(f"FAIL {_label}\n       actual:   {_actual!r}"
+                      f"\n       expected: {_expected!r}")
+                _failures.append(_label)
+        if _failures:
+            print(f"\nbuild_site: {len(_failures)}/{len(_TESTS)} cases FAILED")
+            raise SystemExit(1)
+        print(f"\nall {len(_TESTS)} build_site suburb cases as expected")
+    else:
+        main()
