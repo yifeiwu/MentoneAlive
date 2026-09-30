@@ -216,6 +216,9 @@ python scripts/status.py                      # assert the sold-out / service ru
 python scripts/recurrence.py                  # assert the date-inference rules
 python scripts/commercial.py                  # assert the commercial-detection rules
 python scripts/webfetch_granicus.py           # assert the Granicus address parsing
+python scripts/webfetch_http.py               # assert the shared time/month/row parsing
+python scripts/failure_signals.py             # assert config validation + "do not publish"
+python scripts/fetcher_equivalence.py         # assert the fetchers extract the same rows
 python scripts/render_check.py                # prove index.html renders rows, and measure the grid
 ```
 
@@ -224,33 +227,93 @@ The order matters in one place: `build_site.py` must run **before**
 default-hidden flags that `build_site.py` writes. Running it the other way
 round fails the build, which is the intended outcome.
 
-The five assertion scripts are pure: no network, no writes, and each exits
+The eight assertion scripts are pure: no network, no writes, and each exits
 non-zero with the actual value and the expected one. The GHA workflow runs
 all of them, so a rule change that alters a classification fails the build
-before it can reach the published page.
+before it can reach the published page. `render_check.py` is separate because
+it is not pure: it renders `index.html` and measures the result.
+
+`webfetch_http.py` is the single owner of what every source used to repeat:
+the row shape (`make_row`), a month name to a number (`month_number`), a
+written time to (hour, minute) (`parse_time`, `range_start_time`,
+`line_range_starts`), the detail-page fetch loop (`enrich_details`) and progress
+reporting (`report`). The street-word list is the exception: it lives in
+`venues.py`, with `is_online`, because `build_site.py` needs it too and the
+render layer should not have to import the fetch layer. For the same reason
+`webfetch_http.py` imports `curl_cffi` inside `make_session()` rather than at
+module level, so `fetch_events.py` -- which reaches these hosts with `urllib`
+and does no browser impersonation -- can use `month_number()` without pulling in
+a network library.
+
+The time conversion had three near-identical copies, and one disagreed with
+the other two about a range that states its meridiem once — the guide's own
+house style, `10:30-11:30am`. Reading the start's *optional* meridiem group
+without falling back to the end's raised `AttributeError`, which the
+orchestrator's generic handler turned into a discarded snapshot for the entire
+festival. `range_start_time()` is the one reader now, and
+`webfetch_http.py`'s self-test pins the cases whose failure mode is a
+plausible-looking wrong hour rather than a crash.
 
 `scripts/` layout: `fetch_events.py` (API/Drupal/venue sources),
-`webfetch_http.py` (shared session/date helpers, `PartialFetch`),
-`webfetch_{bayside,granicus,ccc,seniors}.py` (one fetcher each),
-`webfetch_sources.py` (thin orchestrator), `dedupe.py`, `recurrence.py`,
-`commercial.py`, `status.py`, `activity_types.py`, `venues.py` (what counts as
-an event held online), `jsonio.py` (atomic writes), `build_site.py`,
-`health_check.py`, `render_check.py`.
+`webfetch_http.py` (the shared owners: row shape, time/month parsing, the
+detail loop, reporting), `webfetch_{bayside,granicus,ccc,seniors}.py` (one
+fetcher each), `webfetch_sources.py` (thin orchestrator + config validation),
+`dedupe.py`, `recurrence.py`, `commercial.py`, `status.py`,
+`activity_types.py`, `venues.py` (what counts as an event held online),
+`jsonio.py` (atomic writes), `build_site.py`, `health_check.py`,
+`render_check.py`.
+
 
 ### Failure behaviour
 
 Both fetchers **exit non-zero** when a source does not fetch cleanly, so a WAF
 block or a markup change turns the Actions run red instead of quietly
-publishing a smaller calendar:
+publishing a smaller calendar.
 
+The contract is one signal, and it is worth stating exactly:
+
+- **`raise PartialFetch` is the only "do not publish" signal.** It means the
+  fetch was cut short, blocked, or misconfigured, and the existing snapshot
+  survives. A fetcher that returns `[]` means the source genuinely has nothing
+  — so `[]` now has one meaning, where it previously had four (WAF block, no
+  events, no `year:` configured, PDF download failed), all reported to the
+  operator as "returned 0 rows";
 - a source that raises, or returns 0 rows, is a hard failure;
-- a source that returns 0 rows never overwrites its snapshot;
+- a source that returns 0 rows never overwrites its snapshot — a festival out
+  of season must not erase the season it already published;
 - a source that *raises* on a config fault (a Kingston Hubs calendar with no
   venue/address) exits before writing anything, so the previous
   `raw_events.json` survives rather than being replaced by a partial run;
 - a multi-page crawl that stops early raises `PartialFetch`, and the existing
   snapshot is kept — a partial crawl is indistinguishable from a source with
   genuinely no events, so it must not replace good data.
+
+**A detail-page block is now protected too.** It used to be a bare
+`continue` in all three sources, which meant a WAF block on the *event* pages
+was indistinguishable from a source with no event pages: the snapshot was
+overwritten with a listing-only file, every venue blank, and the run stayed
+green. `enrich_details()` raises `PartialFetch` when fewer than half its
+attempts load.
+
+**Config faults are found before anything is fetched.** `validate_config()`
+runs over every entry up front — required keys per `type:`, a snapshot name
+that ends in `.json`, no two sources claiming one snapshot, no duplicate id —
+so a typo is one message naming the entry, reported once, instead of a
+`KeyError('url')` from three frames inside a fetcher after the earlier sources
+have already been crawled. Run it on its own with
+`python scripts/webfetch_sources.py --check-config`.
+
+**A successful but truncated fetch is still visible.** None of the above
+covers a fetch that *succeeds* and returns a fraction of the real data — a
+starved `--detail-cap`, a markup change that drops one section, a site that
+quietly stops listing half its events. `PartialFetch` does not fire, and
+`reconcile_store()` will believe the new rows: it drops whatever no source
+justifies, and the source that stopped justifying them is this one. So every
+write prints the previous size beside the new one, and a shrink is called out
+in as many words. It is a warning rather than a refusal, because a term
+genuinely ending does shrink a source, and blocking that would be worse than
+reporting it.
+
 
 ## Deduplication (`dedupe.py`)
 

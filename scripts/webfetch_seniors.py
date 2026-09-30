@@ -1,17 +1,21 @@
 """Kingston Seniors Festival (annual PDF event guide)."""
 import io
 import re
-import time
 from bisect import bisect_right
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
+from webfetch_http import (PartialFetch, fetch_bytes, line_range_starts,
+                           make_row, month_number, report)
+
 # ---------------------------------------------------------------------------
 # Kingston Seniors Festival (annual PDF event guide)
 # ---------------------------------------------------------------------------
 
-SENIORS_MONTHS = {"october": 10, "november": 11, "september": 9}
+# The guide prints September, October and November only (SENIORS_DAYLIST_RE).
+# Month *names* resolve through webfetch_http.month_number, the pipeline's one
+# owner, so a guide that adds a month does not need a second table here.
 SENIORS_CAT_RE = re.compile(
     r"^(Arts, Culture & Creativity|Body & Soul|Gather & Socialise|"
     r"Learning & Technology)(\s+(Arts, Culture & Creativity|Body & Soul|"
@@ -23,12 +27,11 @@ SENIORS_CONTACT_RE = re.compile(
 # the end so "10:30-11:30am" parses. Requiring an explicit one on both ends
 # missed the shared form a printed guide actually uses, and the unparsed time
 # then fell through to whichever time the nearest line mentioned -- including
-# a neighbouring card's -- or to midnight.
-SENIORS_TIME_RE = re.compile(
-    r"(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*"
-    r"(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)", re.I)
-# How far from a date line a time may be and still belong to the same event.
-# _seniors_pool_groups uses the same window for its own pairing.
+# a neighbouring card's -- or to midnight. The pattern and the 12-hour
+# conversion now live in webfetch_http (TIME_RANGE_RE, range_start_time), so
+# this guide and the listing sources cannot disagree about what a time means.
+# How far from a date line a time may be and still belong to the same event;
+# line_range_starts() takes this as its window.
 SENIORS_TIME_WINDOW_LINES = 6
 SENIORS_DAYLIST_RE = re.compile(
     r"(\d{1,2}(?:\s*,\s*\d{1,2})*)\s+(September|October|November)\b", re.I)
@@ -56,6 +59,13 @@ SENIORS_ORG_END_RE = re.compile(
     r"(Centre|Center|Community|Club|Inc\.?|Group|Association|Choir|Council|"
     r"Australia|Ears|AccessCare|Hub|House|Hall|Service|Librar\w+|Arts|Theatre|"
     r"Region|Orchestra|Salon|Network|Project|Connections|Fellas)\W*$", re.I)
+# Deliberately a strict SUBSET of SENIORS_ORG_END_RE, not a duplicate of it,
+# and the two are not interchangeable. _seniors_title() uses this one only
+# behind `acc_len < 12`, where it means "this line may still be part of a
+# wrapped title, keep going"; SENIORS_ORG_END_RE alone at that point means
+# "this is an organisation, the title ends here". Folding the narrow set into
+# the wide one -- or deleting it as redundant -- makes a short partial title
+# followed by "Community Library" or "Fine Arts" break instead of extending.
 SENIORS_GENERIC_END_RE = re.compile(
     r"(Centre|Community|Club|Group|House|Hall|Hub|Service)\W*$", re.I)
 SENIORS_SPLIT_FIX_RE = re.compile(r"\b([A-Z]) ([a-z]{2,})")
@@ -155,12 +165,12 @@ def _seniors_day_lists(lines):
 
 
 def _seniors_expand(m, year):
-    mon = SENIORS_MONTHS[m.group(2).lower()]
+    mon = month_number(m.group(2))
     out = []
     for d in re.findall(r"\d{1,2}", m.group(1)):
         try:
             out.append(datetime(year, mon, int(d)))
-        except ValueError:
+        except (ValueError, TypeError):
             pass
     return out
 
@@ -168,23 +178,13 @@ def _seniors_expand(m, year):
 def _seniors_times(lines):
     """All (line_idx, (h, mi)) time-range starts in lines.
 
-    The start's meridiem is optional, so a range written with a single
-    trailing one ("10:30-11:30am", "7.30 - 9.00pm") is read from its start
-    rather than skipped. Skipped is worse than it sounds: the caller then
-    picks the *nearest* time in the whole text, which on a two-card page is
-    the other event's, and publishes one event's start as another's.
+    A thin wrapper over webfetch_http.line_range_starts(), which owns the
+    pattern and the 12-hour conversion. Skipping a range is worse than it
+    sounds: the caller then picks the *nearest* time in the whole text, which
+    on a two-card page is the other event's, and publishes one event's start as
+    another's.
     """
-    out = []
-    for li, ln in enumerate(lines):
-        for m in SENIORS_TIME_RE.finditer(ln):
-            h, mi = int(m.group(1)), int(m.group(2) or 0)
-            ap = (m.group(3) or m.group(6) or "").lower()
-            if ap == "pm" and h != 12:
-                h += 12
-            if ap == "am" and h == 12:
-                h = 0
-            out.append((li, (max(0, min(23, h)), max(0, min(59, mi)))))
-    return out
+    return line_range_starts(lines)
 
 
 def _seniors_assemble(venue):
@@ -240,30 +240,25 @@ def fetch_kingston_seniors(session, cfg):
     info_url = cfg.get("info_url", pdf_url)
     # No implicit datetime.now().year fallback: the guide is annual, and
     # defaulting to the run year silently reinterprets the whole document.
+    # Its absence is a config fault, not a fetch outcome, so it is raised
+    # rather than returned as an empty source.
     if "year" not in cfg:
-        print(f"  {cfg.get('id')}: no 'year' configured, skipped")
-        return []
+        raise PartialFetch(
+            f"kingston_seniors: sources.yaml has no 'year', so the festival "
+            f"guide is skipped entirely. health_check.seniors_config_errors() "
+            f"reports the same fault.")
     year = int(cfg["year"])
     footer_re = _seniors_footer_re(year)
-    print("  downloading seniors PDF...")
-    pdf_bytes, last = None, None
-    for attempt in range(3):
-        try:
-            r = session.get(pdf_url)
-            if r.status_code == 200 and len(r.content) > 100000:
-                pdf_bytes = r.content
-                break
-            last = f"HTTP {r.status_code}"
-        except Exception as e:
-            last = repr(e)[:120]
-        if attempt < 2:
-            time.sleep(2)
+    report("downloading seniors PDF...")
+    pdf_bytes = fetch_bytes(session, pdf_url, min_len=100000, retries=2)
     if not pdf_bytes:
-        print(f"  seniors PDF failed: {last}")
-        return []
+        # A download that did not happen is a broken fetch, not an empty
+        # guide. Returning [] here used to be reported as "returned 0 rows",
+        # indistinguishable from an out-of-season festival.
+        raise PartialFetch(f"seniors PDF download failed ({pdf_url})")
     reader = PdfReader(io.BytesIO(pdf_bytes))
     full = "\n".join((p.extract_text() or "") for p in reader.pages)
-    print(f"  seniors PDF: {len(reader.pages)} pages, {len(full)} chars")
+    report(f"PDF: {len(reader.pages)} pages, {len(full)} chars")
     page_bounds = [0] + [m.end() for m in re.finditer(
         r"(?m)^\d+\s*\|.*\|\s*\d+\s*$", full)] + [len(full)]
 
@@ -348,9 +343,11 @@ def fetch_kingston_seniors(session, cfg):
         desc = _seniors_clean_desc(lines, footer_re)
         if host:
             desc = (desc + f" Hosted by {host}.").strip()[:500]
-        base = {"name": title, "location": location, "address": address,
-                "price_text": cost, "description": desc or title,
-                "source": source, "source_id": cfg["id"]}
+        # The card's own fields. Its dates come from the date rows below, so
+        # the two datetime keys are empty here and filled in per session.
+        base = make_row(cfg["id"], title, source,
+                        location=location, address=address,
+                        price_text=cost, description=desc or title)
         # Date matches with line numbers (line numbers relative to chunk).
         matches = [(li, m) for li, m in _seniors_day_lists(lines)]
         direct, pooled = [], []
@@ -397,11 +394,11 @@ def fetch_kingston_seniors(session, cfg):
                 emitted_keys.append(
                     (frozenset([(day.month, day.day)]), tm))
         if pooled:
-            pool.append((page_idx, base, pooled, list(enumerate(lines))))
-        if not direct and not pooled:
-            # Truly dateless here; may still gain dates from page pool below.
-            dateless.append((page_idx, base))
-        elif not direct and pooled:
+            pool.append((page_idx, base, pooled, lines))
+        if not direct:
+            # No direct date here; may still gain dates from the page pool
+            # below. `pooled` is the same case -- a chunk whose only dates are
+            # multi-day lists is still dateless until the pool is reconciled.
             dateless.append((page_idx, base))
     # Map pool groups to dateless events, per page.
     pool_by_page, dateless_by_page = defaultdict(list), defaultdict(list)
@@ -429,9 +426,9 @@ def fetch_kingston_seniors(session, cfg):
                 # and events do not line up. Say so rather than silently
                 # truncating one side -- this is the column-association
                 # failure the override file exists to correct.
-                print(f"  seniors page {page_idx + 1}: {len(unclaimed)} date "
-                      f"groups vs {len(targets)} dateless events "
-                      f"(associating by position)")
+                report(f"page {page_idx + 1}: {len(unclaimed)} date "
+                       f"groups vs {len(targets)} dateless events "
+                       f"(associating by position)", level="warn")
             assign = [(targets[i], g) for i, g in enumerate(unclaimed)
                       if i < len(targets)]
         for (_tpage, tbase), (days, tm, cost) in assign:
@@ -469,7 +466,7 @@ def fetch_kingston_seniors(session, cfg):
         seen.add(key)
         uniq.append(r)
     rows = uniq
-    print(f"  seniors festival: {len(rows)} rows ({skipped} chunks skipped)")
+    report(f"festival: {len(rows)} rows ({skipped} chunks skipped)")
     return rows
 
 
@@ -486,7 +483,7 @@ def _seniors_apply_overrides(rows, cfg):
             doc = _json.load(f)
         overrides = doc.get("overrides", [])
     except (FileNotFoundError, ValueError) as e:
-        print(f"  seniors overrides: none ({e})")
+        report(f"overrides: none ({e})", level="warn")
         return rows
 
     # The overrides are transcribed by hand from one year's rendered guide, and
@@ -498,8 +495,8 @@ def _seniors_apply_overrides(rows, cfg):
     # turns it red.
     overrides_year = doc.get("year")
     if overrides_year is None:
-        print("  seniors overrides: no 'year' key - cannot detect a stale "
-              "transcription")
+        report("overrides: no 'year' key - cannot detect a stale transcription",
+               level="warn")
     else:
         # A hand-edited file can hold anything; a bad value must not abort the
         # fetch, it just means staleness cannot be judged here.
@@ -509,10 +506,10 @@ def _seniors_apply_overrides(rows, cfg):
             mismatched = True
             overrides_year = repr(overrides_year)
         if mismatched:
-            print(f"  seniors overrides: STALE - transcribed for "
-                  f"{overrides_year} but sources.yaml says {cfg['year']}. Those "
-                  f"dates will be pruned as >90d old. Re-transcribe or drop "
-                  f"the 'year' key.")
+            report(f"overrides STALE - transcribed for {overrides_year} but "
+                   f"sources.yaml says {cfg['year']}. Those dates will be "
+                   f"pruned as >90d old. Re-transcribe or drop the 'year' key.",
+                   level="error")
 
     def norm(s):
         return " ".join((s or "").lower().split())
@@ -561,41 +558,41 @@ def _seniors_apply_overrides(rows, cfg):
                 # at all -- the run still succeeded, because other events
                 # produced rows. Validate here so the fault is reported.
                 if not (0 <= hh <= 23 and 0 <= mm <= 59):
-                    print(f"  seniors override {ov['name']!r}: time {tm!r} is "
-                          f"out of range, using midnight")
+                    report(f"override {ov['name']!r}: time {tm!r} is out of "
+                           f"range, using midnight", level="warn")
                     hh, mm = 0, 0
             else:
                 if tm:
-                    print(f"  seniors override {ov['name']!r}: "
-                          f"unparseable time {tm!r}, using midnight")
+                    report(f"override {ov['name']!r}: unparseable time {tm!r}, "
+                           f"using midnight", level="warn")
                 hh, mm = 0, 0
             for d in sess.get("dates", []):
                 try:
                     dt = datetime.strptime(d, "%Y-%m-%d").replace(
                         hour=hh, minute=mm)
                 except ValueError as e:
-                    print(f"  seniors override {ov['name']!r}: date {d!r} "
-                          f"unusable ({e}), session skipped")
+                    report(f"override {ov['name']!r}: date {d!r} unusable "
+                           f"({e}), session skipped", level="warn")
                     continue
-                row = dict(base) if base else {}
-                row.update({
-                    "name": ov["name"],
-                    "datetime_text": dt.strftime("%A %d %B, %I:%M %p"),
-                    "datetime_iso": dt.isoformat(),
-                    "location": ov.get("location") or (base or {}).get(
+                # An override is a full row in its own right: it may state a
+                # venue and address the PDF never yielded, so every key is
+                # written rather than inherited.
+                row = make_row(
+                    cfg["id"], ov["name"],
+                    (base or {}).get("source") or cfg.get("info_url", ""),
+                    datetime_iso=dt.isoformat(),
+                    datetime_text=dt.strftime("%A %d %B, %I:%M %p"),
+                    location=ov.get("location") or (base or {}).get(
                         "location", ""),
-                    "address": ov.get("address") or (base or {}).get(
+                    address=ov.get("address") or (base or {}).get(
                         "address", ""),
-                    "price_text": sess.get("cost", ov.get("cost", "")),
-                    "description": (base or {}).get("description")
+                    price_text=sess.get("cost", ov.get("cost", "")),
+                    description=(base or {}).get("description")
                     or ov.get("description", ov["name"]),
-                    "source": (base or {}).get("source") or cfg.get(
-                        "info_url", ""),
-                    "source_id": cfg["id"],
-                })
+                )
                 kept.append(row)
                 applied += 1
-    print(f"  seniors overrides: {len(overrides)} events, {applied} sessions")
+    report(f"overrides: {len(overrides)} events, {applied} sessions")
     return rest + kept
 
 
@@ -610,34 +607,22 @@ def _seniors_pool_groups(entries):
     """
     groups = []
     for _, base, pooled, lines in entries:
-        enum_lines = lines if lines and isinstance(lines[0], tuple) \
-            else list(enumerate(lines))
-        texts = [t for _, t in enum_lines]
+        texts = list(lines)
         # Restrict pairing context to the pooled span: the event's own
         # block times/costs must not leak into row pairing.
         lis = [li for li, _ in pooled]
-        lo, hi = max(0, min(lis) - 6), max(lis) + 8
+        lo = max(0, min(lis) - SENIORS_TIME_WINDOW_LINES)
+        hi = max(lis) + SENIORS_TIME_WINDOW_LINES + 2
         costs = []
-        for li, ln in enum_lines:
+        for li, ln in enumerate(texts):
             if ln == "Cost" and lo <= li <= hi:
                 costs.append((li, _seniors_cost_value(texts, li)))
-        times = []
-        for li, ln in enum_lines:
-            if not (lo <= li <= hi):
-                continue
-            for m in SENIORS_TIME_RE.finditer(ln):
-                h, mi, ap = int(m.group(1)), int(m.group(2) or 0), \
-                    m.group(3).lower()
-                if ap == "pm" and h != 12:
-                    h += 12
-                if ap == "am" and h == 12:
-                    h = 0
-                times.append((li, (max(0, min(23, h)), max(0, min(59, mi)))))
+        times = line_range_starts(texts, lo, hi)
         dates = []
         for li, m in pooled:
-            mon = SENIORS_MONTHS[m.group(2).lower()]
+            mon = month_number(m.group(2))
             days = frozenset((mon, int(d)) for d in
-                             re.findall(r"\d{1,2}", m.group(1)))
+                             re.findall(r"\d{1,2}", m.group(1)) if mon)
             if days:
                 dates.append((li, days))
         if dates and len(dates) == len(times) == len(costs) and len(dates) > 1:
@@ -645,7 +630,9 @@ def _seniors_pool_groups(entries):
                 groups.append((days, tm, cost))
             continue
         for li, m in pooled:
-            mon = SENIORS_MONTHS[m.group(2).lower()]
+            mon = month_number(m.group(2))
+            if not mon:
+                continue
             days = frozenset((mon, int(d)) for d in
                              re.findall(r"\d{1,2}", m.group(1)))
             if not days:

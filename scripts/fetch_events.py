@@ -18,6 +18,7 @@ import yaml
 from bs4 import BeautifulSoup
 
 from jsonio import write_json
+from webfetch_http import month_number
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -74,16 +75,11 @@ def _post(url, payload, headers=None, timeout=15, retries=3):
     raise last
 
 
-MONTH_ABBR = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
-              "jul": 7, "aug": 8, "sep": 9, "sept": 9, "oct": 10, "nov": 11,
-              "dec": 12}
-
-
 def _parse_date(s, ref=None):
     """Parse a source date string into a datetime, or None if unrecognised.
 
-    Month names are resolved through a fixed table rather than strptime's
-    '%b', which follows the process LC_TIME locale and raises on a
+    Month names are resolved through webfetch_http.month_number() rather than
+    strptime's '%b', which follows the process LC_TIME locale and raises on a
     non-English Windows/GHA configuration.
     """
     s = (s or "").strip()
@@ -104,8 +100,7 @@ def _parse_date(s, ref=None):
     if m:
         day, mon_name, h, mi, ap = int(m.group(2)), m.group(3), int(m.group(4)), \
             int(m.group(5) or 0), m.group(6).lower()
-        mon = MONTH_ABBR.get(mon_name[:4].lower()) or \
-            MONTH_ABBR.get(mon_name[:3].lower())
+        mon = month_number(mon_name)
         if mon:
             if ap == "pm" and h != 12:
                 h += 12
@@ -122,8 +117,7 @@ def _parse_date(s, ref=None):
     # "28 Sep 2026" / "28 September 2026" bare dates (midnight).
     m = re.search(r"(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})", s)
     if m:
-        mon = MONTH_ABBR.get(m.group(2)[:4].lower()) or \
-            MONTH_ABBR.get(m.group(2)[:3].lower())
+        mon = month_number(m.group(2))
         if mon:
             try:
                 return datetime(int(m.group(3)), mon, int(m.group(1)))

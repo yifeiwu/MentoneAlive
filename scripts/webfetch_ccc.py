@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup, NavigableString
 
-from webfetch_http import PartialFetch, get
+from webfetch_http import (DETAIL_MIN_SUCCESS_RATIO, PartialFetch, get,
+                           make_row, report)
 
 # ---------------------------------------------------------------------------
 # Cheltenham Community Centre (Weebly term classes + Humanitix bookings)
@@ -310,19 +311,19 @@ def fetch_ccc(session, cfg, detail_cap):
                 seen.add(dedup_key)
                 if kind != "labels":
                     seen.add(key)
-                rows.append({
-                    "name": title,
-                    "datetime_text": schedule,
-                    "datetime_iso": "",
-                    "location": venue,
-                    "address": addr,
-                    "price_text": cost,
-                    "description": (desc[:400] or title),
-                    "source": hum or page_url,
-                    "source_id": cfg["id"],
-                })
+                rows.append(make_row(
+                    cfg["id"], title, hum or page_url,
+                    # A Weebly class states its pattern in prose ("Wednesdays.
+                    # 9am - 12pm"), never a per-occurrence date, so this stays
+                    # blank and recurrence.py derives the dates.
+                    datetime_text=schedule,
+                    location=venue,
+                    address=addr,
+                    price_text=cost,
+                    description=desc[:400] or title,
+                ))
                 n += 1
-        print(f"  ccc {page_url.split('/')[-1]}: {n} activities")
+        report(f"{page_url.split('/')[-1]}: {n} activities")
         time.sleep(0.2)
     rows.extend(enrich_humanitix(session, rows, detail_cap))
     return rows
@@ -359,13 +360,22 @@ def enrich_humanitix(session, rows, cap):
 
     Returns the extra rows a multi-week term expands into; the caller appends
     them. `rows` is mutated in place as before.
+
+    The fetch loop is not the shared enrich_details() one, because it is not a
+    detail pass over every row: it skips every row that is not a Humanitix
+    link, and it can return *new* rows rather than only filling existing ones.
+    It still shares the failure contract -- a cap's worth of attempts that
+    mostly fail to load is a broken crawl, not a source with no booking pages,
+    and must not replace a good snapshot.
     """
     import json as _json
     n = 0
     extra = []
+    attempted = 0
     for r in rows:
         if n >= cap or "humanitix.com" not in (r.get("source") or ""):
             continue
+        attempted += 1
         html = get(session, r["source"])
         if not html:
             continue
@@ -439,9 +449,12 @@ def enrich_humanitix(session, rows, cap):
                 when = when.replace(hour=hh, minute=mm)
             row["datetime_iso"] = when.isoformat()
             if i:
-                row.pop("date_inferred", None)
                 extra.append(row)
         time.sleep(0.2)
-    print(f"  humanitix enriched: {n}"
-          + (f" (+{len(extra)} term rows)" if extra else ""))
+    report(f"humanitix enriched: {n}"
+           + (f" (+{len(extra)} term rows)" if extra else ""))
+    if attempted and n / attempted < DETAIL_MIN_SUCCESS_RATIO:
+        raise PartialFetch(
+            f"only {n}/{attempted} humanitix booking pages parsed for ccc -- "
+            f"the listing is intact but its booking pages are not", extra)
     return extra

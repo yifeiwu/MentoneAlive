@@ -1,21 +1,106 @@
-"""Shared HTTP + date helpers for webfetch sources."""
+"""Shared HTTP + date helpers for webfetch sources.
+
+The single owner for the four things every source repeats: the row shape, a
+month name to a number, a written time to (hour, minute), and the detail-page
+fetch loop. Each had several near-identical copies, and one copy of the time
+conversion disagreed with the others about a range that states its meridiem
+once -- which raised an AttributeError and silently discarded a source's whole
+snapshot.
+
+Fetchers report through `report()` rather than print(), so a line can be
+attributed to the source that produced it and the verbosity can be filtered in
+one place.
+"""
+import os
 import re
+import sys
 import time
 from datetime import datetime
 
-from curl_cffi import requests as cr
+# curl_cffi is imported inside make_session(), not here. This module also owns
+# the pure date/time/row helpers, and two scripts that need only those import
+# it: fetch_events.py, which reaches these hosts with urllib and has no
+# browser impersonation, and the self-test below. A module-level import would
+# make both of them require a network library at import time to parse a month
+# name.
 
-MONTHS = {m: i + 1 for i, m in enumerate(
-    ["jan", "feb", "mar", "apr", "may", "jun",
-     "jul", "aug", "sep", "oct", "nov", "dec"])}
+# --- reporting ------------------------------------------------------------
+# Every fetcher used to print directly, with a hand-typed two- or four-space
+# indent standing in for a log level. That is the only observable behaviour a
+# fetcher has, which is why none of them could be tested. Messages now carry
+# their source and their level, and the indent is derived, not remembered.
+
+_LEVELS = {"debug": 0, "info": 1, "warn": 2, "error": 3}
+_LEVEL_NAMES = {"info": "", "warn": "WARNING", "error": "ERROR"}
+
+# Set EVENTS_FETCH_VERBOSE=debug to see the per-page chatter as well.
+_verbose = os.environ.get("EVENTS_FETCH_VERBOSE", "info").lower()
+# An unrecognised value falls back to info rather than raising: a typo in a log
+# setting should not take down a fetch that has already started.
+_min_level = _LEVELS.get(_verbose, _LEVELS["info"])
+
+# The source currently being fetched, so a message does not have to repeat it.
+_current = {"id": None}
+
+
+def set_reporting_source(source_id):
+    """Attribute subsequent messages to this source id."""
+    _current["id"] = source_id
+
+
+def report(message, level="info"):
+    """Print one fetch-progress line, tagged with its source and level."""
+    if _LEVELS.get(level, 1) < _min_level:
+        return
+    tag = _LEVEL_NAMES.get(level, "")
+    who = _current["id"] or "fetch"
+    stream = sys.stderr if level in ("warn", "error") else sys.stdout
+    indent = "    " if level == "debug" else "  "
+    prefix = f"{who}: " if tag == "" else f"{who}: {tag}: "
+    print(f"{indent}{prefix}{message}", file=stream)
+
+
+# Month names, in one place. "sept" is a real fourth character that neither a
+# 3-letter prefix nor a 3-letter table covers, which is why the lookups below
+# try four characters before three.
+MONTHS = {
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "sept": 9, "oct": 10, "nov": 11,
+    "dec": 12,
+}
+FULL_MONTHS = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5,
+    "june": 6, "july": 7, "august": 8, "september": 9, "october": 10,
+    "november": 11, "december": 12,
+}
+
+
+def month_number(name):
+    """Month number for a full or abbreviated month name, else None.
+
+    Accepts "September", "Sept", "Sep", "SEP", "sept." -- sources write all
+    four, and the festivals in particular print the full name.
+    """
+    key = (name or "").strip().lower().rstrip(".")
+    if not key:
+        return None
+    if key in FULL_MONTHS:
+        return FULL_MONTHS[key]
+    return MONTHS.get(key[:4]) or MONTHS.get(key[:3])
 
 
 class PartialFetch(Exception):
-    """Raised when a multi-page crawl is cut short (network/WAF/markup).
+    """Raised when a fetch is cut short (network/WAF/markup/config).
 
     Carries whatever was collected so far so the caller can report it, but
     the result must NOT be written over a previously-good snapshot: a partial
     crawl is indistinguishable from a source that legitimately has no events.
+
+    This is the ONLY "do not publish" signal. A fetcher that returns [] means
+    "this source genuinely has nothing"; anything broken -- a WAF block, a
+    failed download, a missing required config key -- must raise this, or the
+    orchestrator cannot tell a dead scraper from a quiet season and will
+    overwrite a good snapshot with a fraction of the real data.
     """
     def __init__(self, reason, rows=None):
         super().__init__(reason)
@@ -23,7 +108,40 @@ class PartialFetch(Exception):
         self.rows = rows or []
 
 
+# The row shape every source emits, and the one that lands in a snapshot.
+# This is the single place that shape is written down; it used to be
+# documented only as prose in webfetch_snapshots/README.md and hand-rolled
+# four times, so a fetcher that forgot a key produced a row the rest of the
+# pipeline had to discover by failing.
+ROW_FIELDS = ("name", "datetime_text", "datetime_iso", "location", "address",
+              "price_text", "description", "source", "source_id")
+
+
+def make_row(source_id, name, source, datetime_iso="", datetime_text="",
+             location="", address="", price_text="", description=""):
+    """One snapshot row, with every documented key always present.
+
+    `datetime_iso` stays "" for a dateless listing rather than being stamped
+    with the fetch time: a made-up timestamp is discarded again downstream, and
+    while it is in the file it looks like a real date to anything that reads
+    it. dedupe.py/recurrence.py derive the date from the text.
+    """
+    return {
+        "name": name or "",
+        "datetime_text": datetime_text or "",
+        "datetime_iso": datetime_iso or "",
+        "location": location or "",
+        "address": address or "",
+        "price_text": price_text or "",
+        "description": description or "",
+        "source": source or "",
+        "source_id": source_id,
+    }
+
+
 def make_session():
+    from curl_cffi import requests as cr
+
     s = cr.Session(impersonate="chrome", timeout=15)
     s.headers.update({
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -44,8 +162,131 @@ def get(session, url, retries=2, min_len=1000):
             last = repr(e)[:120]
         if attempt < retries:
             time.sleep(1.5 * (attempt + 1))
-    print(f"    GET failed {url}: {last}")
+    report(f"GET failed {url}: {last}", level="warn")
     return None
+
+
+def fetch_bytes(session, url, min_len, retries=2):
+    """Binary body of `url`, or None. The PDF path; get() is the text one.
+
+    Same retry policy as get(), and the same "small body means something went
+    wrong" guard, so the seniors guide's download loop is not a second copy of
+    it.
+    """
+    last = None
+    for attempt in range(retries + 1):
+        try:
+            r = session.get(url)
+            if r.status_code == 200 and len(r.content) >= min_len:
+                return r.content
+            last = f"HTTP {r.status_code} ({len(r.content)} bytes)"
+        except Exception as e:
+            last = repr(e)[:120]
+        if attempt < retries:
+            time.sleep(1.5 * (attempt + 1))
+    report(f"GET failed {url}: {last}", level="warn")
+    return None
+
+
+# A detail crawl that opened *some* pages but almost none of them is a broken
+# crawl, not a source whose event pages are gone. Below this fraction of
+# attempted pages succeeding, the snapshot is not replaced.
+DETAIL_MIN_SUCCESS_RATIO = 0.5
+
+
+def enrich_details(session, rows, cap, apply_one, *, sleep=0.2, label=""):
+    """Fetch each row's own page and let `apply_one` fill it in, in place.
+
+    The three listing sources each need a detail pass -- the listing card
+    carries a date and a title, and the venue, the real time and the cost are
+    on the event's own page -- and each had its own copy of this loop with its
+    own idea of what counts against the cap.
+
+    Failure is signalled, not swallowed. A detail page that will not load was
+    previously a bare `continue`, so a WAF block on the detail pages looked
+    exactly like a source with no detail pages: the snapshot was overwritten
+    with a listing-only file, every venue blank, and the run stayed green.
+    Under DETAIL_MIN_SUCCESS_RATIO of attempts succeeding, this raises
+    PartialFetch so the previous snapshot survives.
+    """
+    attempted = enriched = 0
+    for r in rows:
+        if cap is not None and enriched >= cap:
+            break
+        url = r.get("source")
+        if not url:
+            continue
+        attempted += 1
+        html = get(session, url)
+        if not html:
+            continue
+        apply_one(r, html)
+        enriched += 1
+        time.sleep(sleep)
+    if attempted and enriched / attempted < DETAIL_MIN_SUCCESS_RATIO:
+        raise PartialFetch(
+            f"only {enriched}/{attempted} detail pages loaded"
+            f"{f' for {label}' if label else ''} -- the listing is intact but "
+            f"its event pages are not")
+    return enriched
+
+
+# --- written times -------------------------------------------------------
+# One owner for "what time does this line state", replacing four hand-rolled
+# copies of the same twelve-hour conversion.
+
+def _hhmm(hour, minute, meridiem):
+    """24-hour (hour, minute) from a loose hour / optional minutes / optional
+    meridiem. Clamped, so a malformed value degrades rather than raising."""
+    hour = int(hour)
+    minute = int(minute or 0)
+    ap = (meridiem or "").strip().lower()
+    if ap == "pm" and hour != 12:
+        hour += 12
+    elif ap == "am" and hour == 12:
+        hour = 0
+    return max(0, min(23, hour)), max(0, min(59, minute))
+
+
+# A time range that states a meridiem. The pattern requires one on the *end*,
+# which is what stops a bare number span from matching, so "1-31" (a date
+# range) and "5-10" (a price) are not read as sessions. The start's meridiem
+# is optional, because a printed range commonly states it once: "10:30-11:30am",
+# "7.30 - 9.00pm".
+TIME_RANGE_RE = re.compile(
+    r"(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*"
+    r"(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)", re.I)
+
+
+def range_start_time(m):
+    """(hour, minute) start of a TIME_RANGE_RE match, or None for no match.
+
+    A range that states its meridiem once puts it on the end and the start
+    inherits it, so "10:30-11:30am" is a 10:30 start rather than an ambiguous
+    one. Reading the start's *optional* group without falling back to the end's
+    is what used to raise AttributeError on the guide's own house style.
+    """
+    if m is None:
+        return None
+    return _hhmm(m.group(1), m.group(2), m.group(3) or m.group(6))
+
+
+def line_range_starts(lines, lo=None, hi=None):
+    """[(line_idx, (hour, minute))] start of every time range within a window.
+
+    `lo`/`hi` bound the pairing context to one event's own block; omit them to
+    scan every line. Time is only ever taken from labelled or adjacent lines,
+    so a range belonging to a neighbouring card is not read as this one's.
+    """
+    out = []
+    for li, ln in enumerate(lines):
+        if lo is not None and not (lo <= li <= hi):
+            continue
+        for m in TIME_RANGE_RE.finditer(ln or ""):
+            start = range_start_time(m)
+            if start:
+                out.append((li, start))
+    return out
 
 
 def parse_time(text):
@@ -98,7 +339,9 @@ def parse_time(text):
             end_h = 0
         if (h, mi) > (end_h, end_mi):
             return None
-    return max(0, min(23, h)), max(0, min(59, mi))
+    # The clamping and 12-hour rollover live in _hhmm so this and the written
+    # -range readers above cannot drift apart.
+    return _hhmm(h, mi, None)
 
 
 def parse_day_month_year(text):
@@ -106,13 +349,95 @@ def parse_day_month_year(text):
     m = re.search(r"(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})", text or "")
     if not m:
         return None
-    mon = MONTHS.get(m.group(2)[:3].lower())
+    mon = month_number(m.group(2))
     if not mon:
         return None
     try:
         return datetime(int(m.group(3)), mon, int(m.group(1)))
     except ValueError:
         return None
+
+
+# ---------------------------------------------------------------------------
+# Self-tests. Run by `python scripts/webfetch_http.py` and by the GHA workflow.
+#
+# This module is the shared owner of every written-time conversion, so a
+# regression here moves every source at once. The cases below are the ones
+# whose failure mode was a plausible-looking wrong hour, not a crash.
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    # (label, actual, expected)
+    TESTS = [
+        # parse_time: the four regressions its docstring records.
+        # A dotted minute is minutes, not the hour: the old optional-minute
+        # group backtracked onto "30" and clamped to 23:00.
+        ("dotted minutes stay minutes",
+         parse_time("9.30am"), (9, 30)),
+        # A range that states its meridiem once is read from its START. The
+        # leading number could not satisfy the required meridiem, so the
+        # search skipped it and published a 9am class at 11am.
+        ("a range's meridiem does not move the start",
+         parse_time("9 - 11am"), (9, 0)),
+        # Backwards is not a session.
+        ("a backwards range is refused",
+         parse_time("9 - 8pm"), None),
+        # 12-hour rollover. A 24-hour form is deliberately NOT read here --
+        # this reader exists for the labelled time fields on the listing
+        # pages, which write am/pm. recurrence._to_hhmm owns 24-hour.
+        ("12pm is noon, not midnight", parse_time("12pm"), (12, 0)),
+        ("12am is midnight", parse_time("12am"), (0, 0)),
+        # A 4-digit year is never an hour.
+        ("a year is not a time", parse_time("2026"), None),
+
+        # range_start_time / line_range_starts: the meridiem-once form that
+        # used to raise AttributeError on the seniors guide.
+        ("meridiem once, on the end",
+         range_start_time(TIME_RANGE_RE.search("10:30-11:30am")), (10, 30)),
+        ("meridiem once, afternoon",
+         range_start_time(TIME_RANGE_RE.search("7.30 - 9.00pm")), (19, 30)),
+        ("meridiem on both ends",
+         range_start_time(TIME_RANGE_RE.search("9:30am - 11:00am")), (9, 30)),
+        ("bare start inherits the end's meridiem",
+         range_start_time(TIME_RANGE_RE.search("9-11am")), (9, 0)),
+        # A date span and a price must not read as a session. This is the
+        # guard that makes the start's meridiem optional safely.
+        ("a date span is not a session",
+         range_start_time(TIME_RANGE_RE.search("1-31 October")), None),
+        ("a bare price is not a session",
+         range_start_time(TIME_RANGE_RE.search("Cost $5-10")), None),
+
+        # line_range_starts: line numbers are what the seniors pairing uses,
+        # and the window is what keeps one card's time off another.
+        ("line numbers are preserved",
+         line_range_starts(["nope", "10:30-11:30am", "also nope"]),
+         [(1, (10, 30))]),
+        ("the window excludes lines outside it",
+         line_range_starts(["10:30-11:30am", "x", "1:00-2:00pm"], 2, 2),
+         [(2, (13, 0))]),
+
+        # month_number: the four forms the sources actually write.
+        ("full month name", month_number("September"), 9),
+        ("four-letter abbreviation", month_number("Sept"), 9),
+        ("three-letter abbreviation", month_number("Sep"), 9),
+        ("mixed case with a full stop", month_number("OCTOBER."), 10),
+        ("an unknown word is not a month", month_number("Term"), None),
+        ("empty is not a month", month_number(""), None),
+    ]
+
+    failures = []
+    for label, actual, expected in TESTS:
+        if actual == expected:
+            print(f"ok   {label}")
+        else:
+            print(f"FAIL {label}\n       actual:   {actual!r}"
+                  f"\n       expected: {expected!r}")
+            failures.append(label)
+
+    if failures:
+        print(f"\nwebfetch_http: {len(failures)}/{len(TESTS)} cases FAILED")
+        raise SystemExit(1)
+    print(f"\nall {len(TESTS)} webfetch_http cases as expected")
 
 
 def combine(dt_day, time_text):

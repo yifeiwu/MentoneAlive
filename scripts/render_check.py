@@ -179,6 +179,26 @@ def dom_a11y_errors(dom, rows):
     elif not re.findall(r"<option", m.group(1)):
         errors.append("mobile sort control has no options")
 
+    # 2.5.3 Label in Name, for the sort control specifically. It was reading
+    # "Sort by" visibly while calling itself "Sort events by" to assistive tech,
+    # so a voice-control user could not say the words on screen. The previous
+    # check only asserted the aria-label literal, so it passed on exactly this
+    # failure: the two strings were never compared. The .ics-btn check above
+    # already worked this way; this is the same rule applied to the other
+    # labelled control.
+    #
+    # The visible text is the label's own text, so the select is stripped before
+    # comparing -- otherwise the selected option is counted as visible label
+    # text and never matches.
+    wrapped = re.search(r'<label[^>]*>\s*([^<]+?)\s*<select[^>]*'
+                        r'aria-label="([^"]*)"', dom)
+    if wrapped:
+        visible, name = wrapped.group(1).strip(), wrapped.group(2)
+        if visible and visible not in name:
+            errors.append(
+                f'the sort control reads {visible!r} but is named {name!r}: the '
+                f"accessible name must contain the visible text (WCAG 2.5.3)")
+
     return errors
 
 

@@ -45,7 +45,11 @@ jobs:
 
       - name: Webfetch sources (browser-impersonating Python)
         timeout-minutes: 45
-        run: python scripts/webfetch_sources.py
+        # The config is validated before any request, so a typo is one message
+        # naming the entry rather than a KeyError from inside a fetcher.
+        run: |
+          python scripts/webfetch_sources.py --check-config
+          python scripts/webfetch_sources.py
 
       - name: Deduplicate (+ webfetch snapshots, infer dates, prune 90d)
         timeout-minutes: 10
@@ -82,6 +86,26 @@ jobs:
       - name: Check Granicus address parsing
         timeout-minutes: 5
         run: python scripts/webfetch_granicus.py
+
+      # webfetch_http is the single owner of every written-time conversion and
+      # month name the fetchers share, so a regression there moves every
+      # source at once. These are the cases whose failure mode was a
+      # plausible-looking wrong hour rather than a crash.
+      - name: Check shared time/month parsing
+        timeout-minutes: 5
+        run: python scripts/webfetch_http.py
+
+      # Config faults and broken fetches used to look alike: a missing key, a
+      # WAF block and a dead scraper all surfaced as "returned 0 rows", and a
+      # detail-page block was a bare `continue` that overwrote a good snapshot
+      # with a listing-only file. These pin the one "do not publish" signal.
+      - name: Check config validation and failure signals
+        timeout-minutes: 5
+        run: python scripts/failure_signals.py
+
+      - name: Check the refactored fetchers still extract the same rows
+        timeout-minutes: 5
+        run: python scripts/fetcher_equivalence.py
 
       # Nothing above can see a JavaScript error: compileall only reads
       # Python, and the other checks only read events.json. A syntax error in

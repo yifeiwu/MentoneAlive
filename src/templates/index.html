@@ -239,7 +239,7 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
   <button class="qf-btn" data-qf="next30" type="button" aria-pressed="false">Next 30 days</button>
   <button class="qf-btn" data-qf="all" type="button" aria-pressed="false">All time</button>
 </div>
-<label class="sortpick">Sort by <select id="sortpick" aria-label="Sort events by"></select></label>
+<label class="sortpick">Sort events by <select id="sortpick" aria-label="Sort events by"></select></label>
 <button id="csv" type="button">Download CSV</button>
 <button id="filtertoggle" type="button" aria-expanded="false" aria-controls="filterpanel">Filters</button>
 </div>
@@ -301,13 +301,24 @@ This file works offline (no server needed); only the Source links need internet.
 var EVENTS = __EVENTS_DATA__;
 var PAGE_SIZE = 50;
 var state = {k:"datetime_iso", dir:1, q:"", range:"upcoming", freeonly:false, hideCommercial:true, types:{}, dateFrom:null, dateTo:null, page:1};
-var _lastList = [];
 // Cached by render(). Every state or control change routes through render(),
 // so these are always current: gotoPage() and the CSV export would otherwise
 // re-run the full filter (with a seven-field concat per row) just to
 // recompute something render() already knows.
 var _lastAll = [];
 var _lastTotalPages = 1;
+// Row object -> its index in EVENTS. The calendar button used to carry the
+// index of its row within the *current 50-row page*, so it resolved correctly
+// only because render() rewrote the button and the cached page list in the same
+// pass. Any change that reordered that list without re-rendering would hand the
+// reader a different event's calendar, and the download's filename is derived
+// from the row too, so the wrong file would look entirely plausible.
+// An index into EVENTS is stable across filtering, sorting and paging, so the
+// button names the event rather than a position. Keyed by object identity,
+// which json.loads makes unique per row; the first occurrence wins if a row
+// object is ever listed twice.
+var _idxByRow = new Map();
+EVENTS.forEach(function(r,i){if(!_idxByRow.has(r))_idxByRow.set(r,i);});
 // The chips are the only way to set a date window, so the URL needs one token
 // for the window rather than a from/to pair plus an "upcoming" flag.
 // next7/next30 are rolling windows, not calendar ones -- a "This Week" chip
@@ -474,7 +485,11 @@ function ics(r){
  lines.push("END:VEVENT","END:VCALENDAR");
  return lines.map(icsFold).join("\r\n");
 }
-function icsDl(i){var r=_lastList[i];if(!r)return;var content=ics(r);if(!content)return;var blob=new Blob([content],{type:"text/calendar"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(r.name||"event").replace(/[^a-z0-9]+/gi,"-").toLowerCase().slice(0,50)+".ics";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);}
+// `ev` is an index into EVENTS, not into the current page: see _idxByRow. It
+// is also bounds-checked against EVENTS rather than trusting the caller, so a
+// stale value from a future refactor downloads nothing instead of the wrong
+// event.
+function icsDl(ev){var r=EVENTS[ev];if(!r)return;var content=ics(r);if(!content)return;var blob=new Blob([content],{type:"text/calendar"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(r.name||"event").replace(/[^a-z0-9]+/gi,"-").toLowerCase().slice(0,50)+".ics";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);}
 function render(){
   var list=filtered().sort(cmp);
   _lastAll=list;
@@ -486,7 +501,6 @@ function render(){
   var start=(state.page-1)*PAGE_SIZE;
   var end=start+PAGE_SIZE;
   var pagedList=list.slice(start,end);
-  _lastList=pagedList;
   var tb=document.getElementById("rows"), h="", prevDate="";
   // A day header is only meaningful while the rows are grouped by day. Under
   // any other sort the dates are interleaved, so the divider fires on nearly
@@ -520,7 +534,12 @@ function render(){
     // voice-control user unable to say what they can see (2.5.3), and 50
     // identical bare labels named no event at all.
     +(r.source?"<a class='src-link' href='"+esc(r.source)+"' target='_blank' rel='noopener' aria-label='Website for "+esc(nm)+" (opens in a new tab)'>Website <span aria-hidden='true'>&#8599;</span></a>":"")
-    +(r.datetime_iso?"<button class='ics-btn' onclick='icsDl("+i+")' aria-label='+ Calendar for "+esc(nm)+"'>+ Calendar</button>":"")
+     // The index here is the row's position in EVENTS, not `i`, the loop's
+     // position in the current page -- see _idxByRow for why. Were it `i`, the
+     // button would download whichever event happened to land on that page
+     // slot, and the filename is derived from the row, so the mismatch would be
+     // invisible to the person who clicked it.
+     +(r.datetime_iso?"<button class='ics-btn' onclick='icsDl("+_idxByRow.get(r)+")' aria-label='+ Calendar for "+esc(nm)+"'>+ Calendar</button>":"")
     +((!r.source&&!r.datetime_iso)?"&mdash;":"")
     +"</div></td>"
     // Clamped to 3 lines, with the full text on title. The description is the

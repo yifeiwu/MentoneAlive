@@ -101,9 +101,13 @@ RULES = [
                      r"pom pom", r"seed ball", r"bee.buddies", r"collage",
                      r"paper craft", r"story.*craft", r"spring stories",
                      r"coffee club", r"manga"]),
-    # After Art & Craft, so an exhibition that merely *depicts* flora or a
-    # wildlife corridor stays art; ahead of Social & Community, whose "famil"
-    # would otherwise take community-garden and birdlife walks.
+    # A rule's position here is no longer a correctness lever: the classifier
+    # unions every match (see _all_matches), so a term's *wording* decides
+    # what it catches, not what precedes it. The entries below are grouped by
+    # subject for readability. Where a rule is deliberately narrow (see
+    # "Environment", "Nature & Environment"), the comment says what the
+    # width buys -- e.g. bare "garden" matched venue names like
+    # "Aspendale Gardens", so only the activity sense is listed.
     ("Nature & Environment", [r"\bbirds?\b", r"birdlife", r"shorebird",
                               r"wildfowl", r"wildlife", r"biodivers",
                               r"\bmicrobats?\b", r"pollinat", r"\bflora\b",
@@ -122,9 +126,9 @@ RULES = [
                               # ("Aspendale Gardens"), so name the activity.
                               r"community garden", r"garden group",
                               r"gardening", r"garden (tour|visit|work|project)"]),
-    # Ahead of Food & Drink: every Chatty Cafe session describes coffee, tea
-    # and cake, so the "cafe\b"/"coffee" patterns would otherwise claim the
-    # whole program.
+    # Narrow by wording, not by position: every Chatty Cafe session describes
+    # coffee, tea and cake, so the Food & Drink vocabulary must not be a
+    # catch-all for the program.
     ("Social & Community", [r"chatty", r"social group",
                             r"cuppa", r"catch ?up",
                             r"newcomers", r"new to the (area|suburb|city)",
@@ -138,11 +142,9 @@ RULES = [
                             r"\bouting\b", r"excursion", r"death caf",
                             r"grief", r"bereave", r"friendly fellas",
                             r"fellas", r"men'?s group", r"seniors club"]),
-    # Health & Wellbeing sits below Food & Drink in RULES, which is right for
-    # "Community Cooking for Seniors" but wrong for the nutrition talks: their
-    # titles say "Eat Well"/"Dietitian", so Food would claim them first and the
-    # whole health rule went dead. This pre-rule keeps the clinical nutrition
-    # vocabulary ahead of the meal words.
+    # Clinical nutrition vocabulary. "Eat Well"/"Dietitian" are the titles a
+    # health talk actually carries, and the Food & Drink vocabulary below
+    # would otherwise claim them on "eating"/"diet" alone.
     ("Health & Wellbeing", [r"\bdiet(itian)?\b", r"\bnutrition(ist|al)?\b",
                             r"eat well", r"age well", r"eat healthy",
                             r"\bhealthy eating\b", r"wellbeing"]),
@@ -170,10 +172,11 @@ RULES = [
                             r"my aged care", r"health check", r"blood pressure",
                              r"diabetes", r"arthritis", r"falls prevention",
                              r"fall prevention program"]),
-    # Late, so a child-specific program with a real subject of its own keeps
-    # it: "Calm and Confident Kids" is Health & Wellbeing, not just for kids.
-    # Deliberately no \bfamil(y|ies)\b: that is Social & Community's, and the
-    # phrase "family friendly" is pricing boilerplate, not a children's event.
+    # Narrow by wording, not by position: a child-specific program with a real
+    # subject of its own still collects that subject's tag, so "Calm and
+    # Confident Kids" is Health & Wellbeing as well as this. Deliberately no
+    # \bfamil(y|ies)\b: that is Social & Community's, and "family friendly" is
+    # pricing boilerplate, not a children's event.
     ("Children & Families", [r"playwork", r"messy play", r"muddy play",
                              r"\bchild(ren)?\b", r"\bkids?\b",
                              r"school holiday", r"holiday (program|activit|scheme)",

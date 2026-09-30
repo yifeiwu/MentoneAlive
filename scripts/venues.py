@@ -27,9 +27,9 @@ def is_online(location):
     A placeholder venue ("TBC", "To be confirmed") is likewise *not* online.
     It is also not a licence to publish: it falls through to `needs_address()`
     returning True, so the row is held to the same address rule as any other.
-    That was the intent of a separate UNKNOWN_VENUE_WORDS tuple that nothing
-    ever read -- the behaviour was already right, by this route rather than by
-    the constant, so the constant has been deleted rather than wired up.
+    That is the behaviour a separate UNKNOWN_VENUE_WORDS tuple used to be
+    asked for; the behaviour was already right by this route rather than by
+    the constant, so the constant was deleted rather than wired up.
     """
     loc = (location or "").strip().lower()
     if not loc:
@@ -44,3 +44,33 @@ def needs_address(row):
     the row is stored, not just the verifier on a published row.
     """
     return not is_online(row.get("location"))
+
+
+# The road-type words an Australian address line can end with.
+#
+# Like the rule above, it lives here because two modules need it and neither
+# should own it: `webfetch_granicus.py` rejects a listing's "address" that is
+# really an event title by requiring a street word, and `build_site.
+# extract_suburb()` refuses to read one of these as a suburb. The two lists had
+# drifted, so a road type could be a street to the fetcher and a suburb to the
+# renderer for the same address.
+#
+# It deliberately does NOT live in webfetch_http.py with the other shared
+# helpers. That module is the fetch layer: a browser-impersonating session, a
+# retry policy, the detail crawl and the progress reporter. build_site.py is
+# the render layer and should not have to import any of that to read a suburb
+# out of an address, and venues.py is already the dependency-free module for
+# shared place-string decisions.
+def street_suffix_words():
+    """`|`-joined alternation of road types, for building a regex.
+
+    Returned rather than stored as a constant because both callers splice it
+    into a pattern, and a caller that could mutate a shared list would be a new
+    way for the two to disagree.
+    """
+    return (
+        "Road|Rd|Street|St|Avenue|Ave|Highway|Hwy|Parade|Pde|Drive|Dr|Lane|"
+        "Ln|Place|Pl|Square|Sq|Terrace|Court|Ct|Boulevard|Blvd|Walk|"
+        "Crescent|Cres|Close|Way|Trail|Parkway|Circuit|Cct|Promenade|Prom|"
+        "Esplanade"
+    )

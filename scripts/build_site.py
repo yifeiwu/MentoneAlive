@@ -10,6 +10,7 @@ from activity_types import TYPES, classify_types
 from commercial import is_commercial
 from jsonio import write_json
 from status import STATUS_LABELS, event_status, is_ongoing_service
+from venues import street_suffix_words
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -95,9 +96,7 @@ def extract_suburb(address):
 
 
 _STREET_TAIL = re.compile(
-    r"\b(Road|Rd|Street|St|Avenue|Ave|Highway|Pde|Parade|Drive|Dr|Lane|Ln|Place|"
-    r"Pl|Square|Sq|Terrace|Court|Ct|Boulevard|Blvd|Walk|Crescent|Cres|Close|"
-    r"Way|Trail|Parkway|Circuit|Cct|Promenade|Prom|Esplanade)\b\.?$", re.I)
+    r"\b(" + street_suffix_words() + r")\b\.?$", re.I)
 
 
 def _is_street(seg):
