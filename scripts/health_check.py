@@ -8,6 +8,10 @@ Run after build_site.py in GHA. Checks:
 - every source label has badge CSS + friendly-name entries in the template
 - the template is a single document with no unfilled placeholders
 - the built index.html is a single document that actually parsed its data
+- the page's markup: no duplicate id, balanced container tags, and no
+  `hidden` attribute overridden by a `display` value in the CSS
+- the table's secondary text declares a rem size (so it cannot compound),
+  and the filter checkboxes declare a target of at least 24x24
 
 Seasonal/static sources (seniors festivals, archived rows) are warn-only:
 their counts legitimately decay to zero out of season.
@@ -32,6 +36,13 @@ ROOT = Path(__file__).resolve().parent.parent
 
 PLACEHOLDERS = ("__EVENTS_DATA__", "__GENERATED_AT__", "__EVENT_COUNT__",
                 "__SOURCE_COUNT__", "__TYPE_CHECKBOXES__")
+
+# Substituted more than once, deliberately: __EVENT_COUNT__ is also in the
+# <noscript> fallback, where it tells a reader with JS off how much of the
+# index they are not seeing. __EVENTS_DATA__ is the one that must appear
+# exactly once -- a second copy inlines the whole event array twice and ships
+# a page whose script never runs (see the count assertion below).
+SINGLE_USE_PLACEHOLDERS = ("__EVENTS_DATA__",)
 
 # The seniors festivals run Sept-Nov (SENIORS_MONTHS in webfetch_seniors.py).
 # Outside that window a stale configured year is harmless -- last year's
@@ -184,6 +195,150 @@ MIN_LINE_HEIGHT = 1.5
 MIN_FORM_FONT_PX = 16.0
 DEFAULT_FONT_PX = 16.0
 
+# WCAG 2.2 SC 2.5.8 Target Size (Minimum). Every filter is a checkbox, and
+# there are 31 suburbs and 18 activity types, so this is the check that matters
+# for this page.
+MIN_TARGET_PX = 24.0
+
+# The secondary layer of the table -- description, address, recurrence chip,
+# badges, the two row buttons -- was sized in em inside a table already at
+# .9em, so it compounded down: 12.7px, 11.8px, 11.8px, 10.8px and 12.2px on
+# desktop. The mobile breakpoint had already been rebuilt in rem to fix exactly
+# this, which left the wider and more common viewport carrying the defect the
+# phone case was written for. Every selector below now has to declare a rem
+# size, because a rem size is what stops a parent's font-size compounding into
+# it -- and at least MIN_LEGIBLE_REM, or the chain returns one notch down.
+MIN_LEGIBLE_REM = 0.75
+REM_SIZED_SELECTORS = (
+    ".desc", ".addr", ".recur", ".badge", ".ics-btn", ".src-link",
+    ".qf-btn", ".reset-btn", "footer", ".count", ".pagination button",
+    ".pagination .pg-info", ".typefilter", ".typefilter .thead", "table",
+)
+
+# Container elements whose nesting must balance. <span> and friends are inline
+# and frequently unclosed, so only the containers that hold the layout are
+# counted; an unbalanced <div> silently changes the shape of everything after
+# it without failing any other check.
+BALANCED_TAGS = ("div", "table", "thead", "tbody", "main", "nav", "select")
+
+
+def _strip_code(source):
+    """Markup with <style>, <script> and comments removed.
+
+    A duplicated id or an unbalanced tag inside a string in the script block is
+    not a duplicated element, and the JSON payload inlined into the page
+    contains no tags at all -- so all three are removed before counting.
+    """
+    source = re.sub(r"<!--.*?-->", "", source, flags=re.S)
+    source = re.sub(r"<style\b[^>]*>.*?</style>", "", source, flags=re.S | re.I)
+    source = re.sub(r"<script\b[^>]*>.*?</script>", "", source, flags=re.S | re.I)
+    return source
+
+
+def _strip_media(css):
+    """CSS with every @media block removed, leaving the unconditional rules.
+
+    The mobile block legitimately overrides .tcheck to a 44px target, so a check
+    that reads the whole stylesheet sees only the more permissive of the two and
+    passes even when the desktop rule has been deleted or reduced to the native
+    13px box. The desktop rules are the ones that were wrong.
+    """
+    out = []
+    i = 0
+    while True:
+        m = re.compile(r"@media\b").search(css, i)
+        if not m:
+            out.append(css[i:])
+            break
+        out.append(css[i:m.start()])
+        depth, j = 0, css.index("{", m.end())
+        k = j
+        while k < len(css):
+            if css[k] == "{":
+                depth += 1
+            elif css[k] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            k += 1
+        i = k + 1
+    return "".join(out)
+
+
+def _rules_for(css, selector):
+    """Bodies of every rule whose selector list contains `selector` as a whole.
+
+    The lookahead is what makes this correct, twice over. `.badge` must not
+    match the fifteen `.badge-*` colour rules, which carry no font-size of their
+    own, and `.addr` must not match a `.addrlocation` -- renaming a selector to
+    dodge the check would otherwise pass it silently. And `.tcheck` must not
+    match `.tcheck input`, which is a descendant selector about the box rather
+    than the label: only `,` or `{` may follow, never a further name.
+    """
+    pattern = re.escape(selector) + r"(?=\s*[,{])"
+    return re.findall(pattern + r"[^{}]*\{([^}]*)\}", css)
+
+
+def _duplicate_ids(source):
+    """Yield (id, count) for every id appearing on more than one element."""
+    source = _strip_code(source)
+    counts = Counter(re.findall(r'\sid="([^"]+)"', source))
+    return [(i, n) for i, n in sorted(counts.items()) if n > 1]
+
+
+def _unbalanced_tags(source):
+    """Describe the first unbalanced container tag, or return "".
+
+    Self-closing and void elements are excluded. <col>/<colgroup> are balanced
+    by CSS (display:none) rather than by markup, so <col ...> is not counted.
+    """
+    source = _strip_code(source)
+    counts = {}
+    for tag in BALANCED_TAGS:
+        opens = len(re.findall(r"<%s\b[^>]*>" % tag, source, re.I))
+        closes = len(re.findall(r"</%s>" % tag, source, re.I))
+        if opens != closes:
+            counts[tag] = (opens, closes)
+    if not counts:
+        return ""
+    return ", ".join(f"<{t}> {o} open vs {c} close"
+                     for t, (o, c) in sorted(counts.items()))
+
+
+def _hidden_visibility_errors(css, source, name):
+    """An element with `hidden` must not also be given a `display` value.
+
+    The UA stylesheet's `[hidden]{display:none}` has specificity 0,0,1,0, so a
+    single class rule is enough to beat it. That is not hypothetical: the filter
+    panel was `.filterpanel{display:flex}` and `<div id="filterpanel" hidden>`,
+    so it rendered open on every load while the toggle beside it reported
+    aria-expanded="false" -- and pushed roughly 340px of viewport above the
+    results. Nothing in a text check sees it, because both halves of the markup
+    are individually correct.
+    """
+    errors = []
+    markup = _strip_code(source)
+    # (selector, class) for every element carrying a hidden attribute.
+    hidden_classes = set()
+    for tag in re.findall(r"<[a-z][a-z0-9]*\b[^>]*\shidden\b[^>]*>", markup, re.I):
+        hidden_classes.update(re.findall(r'class="([^"]+)"', tag))
+    for cls in sorted(hidden_classes):
+        bodies = _rules_for(css, "." + cls)
+        if not bodies:
+            continue
+        # _rules_for excludes [hidden] selectors, so anything here sets a
+        # display value on the element in its visible state.
+        declares_display = any(re.search(r"\bdisplay\s*:\s*(?!none)\b", b)
+                                for b in bodies)
+        guarded = any(re.search(r"\bdisplay\s*:\s*none\b", b)
+                      for b in _rules_for(css, "." + cls + "[hidden]"))
+        if declares_display and not guarded:
+            errors.append(
+                f"{name}: .{cls} carries the hidden attribute in the markup but "
+                f"sets display in CSS, so [hidden] is overridden and the element "
+                f"is always visible. Add .{cls}[hidden]{{display:none}}")
+    return errors
+
 
 def a11y_errors(source, name):
     """Accessibility invariants for one copy of the page.
@@ -302,9 +457,13 @@ def a11y_errors(source, name):
     if not body_lh:
         errors.append(f"{name}: body has no line-height to check (1.4.12)")
     elif float(body_lh.group(1)) < MIN_LINE_HEIGHT:
-        errors.append(
-            f"body line-height {body_lh.group(1)} is under "
-            f"{MIN_LINE_HEIGHT} (WCAG 1.4.12 Text Spacing)")
+        errors.append(f"{name}: body line-height {body_lh.group(1)} is under "
+                      f"{MIN_LINE_HEIGHT} (WCAG 1.4.12 Text Spacing)")
+
+    errors.extend(_rem_floor_errors(css, name))
+    errors.extend(_target_size_errors(css, name))
+    errors.extend(_hidden_visibility_errors(css, source, name))
+
 
     # iOS viewport zoom, for every selector that styles a form control.
     # `em` is resolved against a 16px base here, which is the real parent
@@ -326,8 +485,88 @@ def a11y_errors(source, name):
     # a phone had no indicator at all.
     if not re.search(r":focus-visible\s*\{", css):
         errors.append(f"{name}: no :focus-visible ring anywhere; the only one "
-                      f"was on the sort headers, which mobile hides")
+                      "was on the sort headers, which mobile hides")
 
+    return errors
+
+
+def _rem_floor_errors(css, name):
+    """The table's secondary text must not be sized in a compounding chain.
+
+    An em length inside a parent that is itself sized in em multiplies: the
+    table was at .9em, so .88em for the description rendered at 12.7px and
+    .75em for a badge at 10.8px, and the mobile breakpoint had to be rewritten
+    to fix exactly that while desktop kept it. Requiring a rem length is the
+    check that catches it, because a rem length cannot compound -- whatever the
+    parent computes to, the child is that many pixels.
+    """
+    errors = []
+    for selector in REM_SIZED_SELECTORS:
+        # The desktop rules only: inside @media the mobile block is free to
+        # re-set these, and it is the unconditional chain that compounded.
+        bodies = _rules_for(_strip_media(css), selector)
+        if not bodies:
+            errors.append(f"{name}: no rule for {selector}, so the table's "
+                          "secondary text has no size floor at all")
+            continue
+        # A selector may be declared across several rules -- .desc carries its
+        # clamp in one and its size in another -- so this asks whether the
+        # selector ends up with a compliant size, not whether every rule that
+        # mentions it does.
+        declared = []
+        for body in bodies:
+            m = re.search(r"font-size\s*:\s*([\d.]+)\s*(rem|em|px|%)?", body)
+            if m:
+                declared.append((m.group(1), m.group(2) or "px"))
+        if not declared:
+            # Not a pass. Dropping the declaration is how an explicit floor gets
+            # lost in the first place: the element silently inherits whatever the
+            # chain happens to compute to, which is how a badge reached 10.8px.
+            errors.append(f"{name}: {selector} declares no font-size, so it "
+                          "inherits from the em chain above it. Give it an "
+                          f"explicit rem size of at least {MIN_LEGIBLE_REM}rem")
+            continue
+        for size, unit in declared:
+            value = float(size)
+            if unit == "em":
+                errors.append(f"{name}: {selector} is sized in {size}em, "
+                              "which multiplies with its parent's font-size. "
+                              "Use rem so the size cannot compound")
+            elif unit != "rem":
+                errors.append(f"{name}: {selector} is sized in {unit}, not rem, "
+                              "so it cannot be checked against the floor")
+            elif value < MIN_LEGIBLE_REM:
+                errors.append(f"{name}: {selector} is {size}rem "
+                              f"({value * DEFAULT_FONT_PX:.1f}px), under the "
+                              f"{MIN_LEGIBLE_REM}rem floor")
+    return errors
+
+
+def _target_size_errors(css, name):
+    """Filter checkboxes must have a target of at least 24x24 (WCAG 2.5.8).
+
+    Every filter on this page is a checkbox -- 31 suburbs and 18 activity types
+    -- so the native 13px box was the whole hit target. The label wraps each
+    one, and the label is what a click lands on, so the rule that matters is
+    the label's min-height; the box size is checked too so that a label which
+    later loses its wrapper is caught.
+    """
+    errors = []
+    labels = _rules_for(_strip_media(css), ".tcheck")
+    if not labels:
+        errors.append(f"{name}: no .tcheck rule, so the 49 filter checkboxes "
+                      "have no declared target size")
+        return errors
+    for body in labels:
+        m = re.search(r"min-height\s*:\s*([\d.]+)px", body)
+        if not m:
+            errors.append(f"{name}: .tcheck has no min-height, so a filter "
+                          f"checkbox's target is the {MIN_TARGET_PX:.0f}px "
+                          "box alone (WCAG 2.5.8)")
+        elif float(m.group(1)) < MIN_TARGET_PX:
+            errors.append(f"{name}: .tcheck min-height is {m.group(1)}px, "
+                          f"under the {MIN_TARGET_PX:.0f}px target "
+                          "(WCAG 2.5.8)")
     return errors
 
 
@@ -663,11 +902,29 @@ def main():
             errors.append(f"template has {doctypes} <!DOCTYPE> (want exactly 1)")
         if tpl.lower().count("</html>") != 1:
             errors.append(f"template has {tpl.lower().count('</html>')} </html> "
-                          f"(want exactly 1)")
+                          "(want exactly 1)")
+
+        # A repeated id or an unbalanced container is invisible to every other
+        # check here and to a regex scan of the script block, and it is not
+        # hypothetical: an edit to the control bar once left a second copy of
+        # the CSV and Filters buttons and a stray </div>, so getElementById
+        # silently addressed the first of each and the page rendered both. Every
+        # id in the page is unique by definition -- there is no legitimate
+        # reason for two elements to share one.
+        for element, dupes in _duplicate_ids(tpl):
+            errors.append(f"template has {dupes} elements with id={element!r}; "
+                          "ids must be unique (getElementById addresses only "
+                          "the first)")
+        unbalanced = _unbalanced_tags(tpl)
+        if unbalanced:
+            errors.append("template markup is unbalanced: " + unbalanced)
+
         for ph in PLACEHOLDERS:
-            if tpl.count(ph) != 1:
+            if ph not in tpl:
+                errors.append(f"placeholder {ph} is missing from the template")
+            elif ph in SINGLE_USE_PLACEHOLDERS and tpl.count(ph) != 1:
                 errors.append(f"placeholder {ph} appears {tpl.count(ph)}x "
-                              f"(want exactly 1)")
+                              "(want exactly 1)")
         # Top-level calls to functions that are never defined abort the whole
         # script block before render() runs.
         for fn in ("parseURLState", "updateURL", "updatePagination",

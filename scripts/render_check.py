@@ -114,6 +114,7 @@ def dom_a11y_errors(dom, rows):
         errors.append("rendered table has no <caption>")
 
     for node, why in (('id="count"', "result count"),
+                      ('id="count-live"', "result count live region"),
                       ("<main", "main landmark")):
         if node not in dom:
             errors.append(f"rendered page has no {why}")
@@ -121,12 +122,32 @@ def dom_a11y_errors(dom, rows):
     # role="status" is what makes a filter change announce itself; without it
     # a screen reader user is not told the list changed at all, and the
     # wholesale innerHTML replacement drops the virtual cursor regardless.
+    #
+    # It is a separate, visually-hidden element from the visible count, not the
+    # count itself. A role="status" element announces on *every* text change,
+    # and the search box re-renders 150ms after each keystroke, so while the
+    # live region was the visible count a screen reader announced the result
+    # count once per character typed. render() writes the visible count at once
+    # and announceCount() writes this twin on a trailing timer, only when the
+    # text has actually changed. Both must exist and both must be populated --
+    # a live region that is empty announces nothing.
+    live = re.search(r'<[a-z]+[^>]*id="count-live"[^>]*>', dom)
+    if live:
+        tag = live.group(0)
+        if 'role="status"' not in tag:
+            errors.append("result count live region is not role=\"status\": "
+                          "a filter change is never announced")
+        if "aria-live" not in tag:
+            errors.append("result count live region has no aria-live")
+        if re.search(r'id="count-live"[^>]*>\s*</', dom):
+            errors.append("result count live region rendered empty, so it "
+                          "announces nothing")
+    # The visible count must not be a live region itself, or the whole point
+    # of splitting the two is undone.
     count = re.search(r'<div[^>]*id="count"[^>]*>', dom)
-    if count and 'role="status"' not in count.group(0):
-        errors.append("result count is not a live region (role=\"status\"): "
-                      "a filter change is never announced")
-    if count and "aria-live" not in count.group(0):
-        errors.append("result count has no aria-live")
+    if count and "aria-live" in count.group(0):
+        errors.append("the visible result count is itself a live region, so it "
+                      "announces on every keystroke again")
 
     # Each data cell must carry its own label element. This is the assertion
     # that covers the original bug: the labels used to be ::before content,

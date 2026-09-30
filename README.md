@@ -790,20 +790,37 @@ out of season.
 Five further checks cover the defects described above, each of which was
 verified to fail the build when reintroduced:
 
-- **no row the sources do not back** — it re-runs `dedupe.reconcile_store()`
+- **no row the sources do not back** - it re-runs `dedupe.reconcile_store()`
   over the published rows against this run's inputs, so a stale start time or
   a withdrawn listing cannot survive a green build;
-- **`build_site.py` actually ran** — every row carries a `hidden_by_default`
+- **`build_site.py` actually ran** - every row carries a `hidden_by_default`
   flag, without which the page would quietly show every sold-out workshop and
   drop-in service;
-- **status/service flags match their own text** — re-derived, not trusted, so
+- **status/service flags match their own text** - re-derived, not trusted, so
   a `status.py` regression cannot leave a sold-out row looking bookable;
-- **the Greater Dandenong detail fetch still works** — if most of its rows are
+- **the Greater Dandenong detail fetch still works** - if most of its rows are
   back at the generic `Greater Dandenong` location, the venue is unknown again
   and the catchment is not filtering anything;
-- **no Greater Dandenong venue outside the configured catchment** — read back
+- **no Greater Dandenong venue outside the configured catchment** - read back
   from `sources.yaml`, so widening `suburb_filter` is the way to admit more,
   and events held online are exempt (they have no suburb).
+
+And four covering the page rather than the data, each verified the same way —
+see *Interaction defects found in review* below for what each was written for:
+
+- **no duplicate `id`, and balanced container tags** - an edit once left a second
+  copy of two buttons and a stray `</div>`, which `getElementById` resolved
+  around silently while the page rendered both;
+- **no `hidden` attribute overridden by a `display` value** - `.filterpanel` set
+  `display:flex` at a higher specificity than the UA's `[hidden]`, so the panel
+  rendered open while its toggle reported `aria-expanded="false"`;
+- **the table's secondary text declares a rem size of at least 0.75rem** -
+  `rem` rather than a minimum, because a rem length cannot compound with a
+  parent's font-size the way an `em` one does, and a *missing* declaration is
+  a failure because it inherits from that chain;
+- **`.tcheck` has a `min-height` of at least 24px** - all 49 filters are
+  checkboxes, and the `<label>` is what a click lands on.
+
 
 The Greater Dandenong floor is deliberately low (10, see `MIN_SOURCE` in
 `health_check.py`). That source is a narrow, genuinely filtered catchment
@@ -938,6 +955,157 @@ probe prints it, rather than against 375.
 - **The inferred-date note is real text, not a `title`.** A title needs a
   hover, so the fact that 32% of published dates were derived rather than
   published was completely unreachable on a touch screen.
+
+## Interaction defects found in review, and what fixed them
+
+The pipeline's checks read data and CSS; almost none of them execute a user
+gesture. A review of the built page in a real browser found four defects that
+every existing check passed, and the same review found the page's typography
+was *worse* on desktop than on the phone. Each of these has an assertion now, and
+each assertion has been verified to fail the build when the defect is put back.
+
+### Search matched the whole query as one literal substring
+
+`hay.indexOf(q)` with no tokenisation, so any multi-word query returned
+nothing at all. Measured against the shipped index:
+
+| Query | Before | After |
+| --- | --- | --- |
+| `yoga cheltenham` | 0 | 24 |
+| `chatty cafe cheltenham` | 0 | 24 |
+
+The zero was the problem, not the miss: the empty state read "No events match
+your filters", so a reader who had typed two words concluded there was nothing
+on. The query is now split on whitespace and every term must appear. It stays a
+substring test rather than word-boundary matching, so `chi` also matches
+`Chisholm` — that over-matches, and the alternative under-matched.
+
+### The sort could not be reversed on a phone
+
+Below 768px the `thead` is clipped, so the `<select>` is the only sort control.
+Its `change` handler reversed the direction only when `k === state.k`, and a
+`<select>` fires no `change` event when the already-selected option is chosen
+again. **The `state.dir*=-1` branch was unreachable**, so a phone reader could
+pick a column and not one of them could reverse it. There is now a direction
+button beside the select, and all three controls (two headers-worth of `th`
+click, the select, the button) go through one `applySort()`, so they cannot
+drift apart again.
+
+### Sorting did not reset to page 1
+
+Every filter set `state.page=1`; both sort handlers did not. Sorting 1522 rows
+by name from page 20 landed the reader mid-alphabet with no indication that
+pages 1–19 now existed. `applySort()` owns it for all three controls.
+
+### The filter panel was never actually hidden
+
+`.filterpanel{display:flex}` has specificity 0,1,0 and the UA rule for
+`[hidden]` is `[hidden]{display:none}` at 0,0,1,0 — so the class rule won and
+`<div id="filterpanel" hidden>` rendered **open on every load**, while the
+toggle beside it reported `aria-expanded="false"`. It cost ~340px of viewport
+above the results; on a phone it was 162px of the control bar. This is
+invisible to a text check, because both halves of the markup are individually
+correct, and it was missed by reading the template. `health_check.py` now
+compares every element carrying a `hidden` attribute against the CSS rules for
+its class, and requires a `.[cls][hidden]{display:none}` guard.
+
+### The desktop table was the one with the 10px text
+
+The `768px` block exists because an `em` chain compounded `table .9em → td →
+.desc .88em` down to 10.6px on a phone. That chain was never fixed for the
+desktop table, which is the wider and more common viewport. Measured there
+before this change:
+
+| Element | Desktop | Mobile |
+| --- | --- | --- |
+| description | 12.7px | 14px |
+| address | 11.8px | 13px |
+| recurrence chip | 11.8px | 13px |
+| source / status badges | **10.8px** | 12px |
+| Website / + Calendar | 12.2px | 14px |
+| Reset filters | **11.8px** | 14px |
+
+Every one is now `rem`, on both breakpoints, and `health_check.py` asserts each
+selector declares a rem size of at least `0.75rem`. Requiring **rem** rather
+than a minimum size is the part that matters: a rem length cannot compound, so
+the check holds whatever a future edit sets the parent to. Deleting the
+declaration is also a failure — an element with no `font-size` inherits from
+the chain, which is how the badge reached 10.8px in the first place.
+
+The same check covers target size (WCAG 2.2 SC 2.5.8). All 49 filters are
+checkboxes, and `.tcheck` had no `min-height`, so the target was the native
+13px box alone. The `<label>` is what a click actually lands on, and it is now
+at least 24px on desktop and 44px on a phone.
+
+### Smaller things, same cause
+
+- **The date was printed twice on every row.** The default sort groups rows
+  under day headers, and the header directly above already stated
+  "Wednesday, 30 September 2026" — which each of the fifty rows beneath it then
+  repeated as "Wed 30 Sep 2026". `fmtDate()` takes a `timeOnly` flag now and
+  prints just the time under a grouping, with the full date kept in a
+  `.visually-hidden` span so a screen reader reading cell by cell still hears
+  it. This is also what the 13% Date & time column was sized for.
+- **The count announced once per keystroke.** The visible count was itself the
+  `role="status"` live region, and the search box re-renders 150ms after each
+  keystroke, so a screen reader spoke the result count once per character. The
+  visible count is written immediately and a visually-hidden twin is written on
+  a 600ms trailing timer, only when the text has changed. `render_check.py`
+  asserts both exist, both are populated, and the visible one is *not* a live
+  region.
+- **The "hide" checkbox and its count named the wrong things.** It covered
+  commercial, service **and cancelled**, and both the label and the count line
+  said "sold out" instead. Sold-out rows are deliberately still visible with a
+  badge, so the label was wrong in both directions; the count is now split into
+  the three reasons it actually has.
+- **The empty state named the filters.** It listed what is actually excluding
+  rows, and only offered the reset button when something is set.
+- **The CSV dropped `date_inferred` and `recurrence`.** The `.ics` carries
+  `X-COMMENTS-DERIVED-DATE` precisely so a derived date does not become a
+  confirmed one off the page, and the CSV — 489 derived rows — undid it. It now
+  carries `DateInferred`, `Recurrence`, `Suburb`, `StatusLabel` and
+  `ServiceReason` alongside the 13 it had.
+- **Two controls had no clear affordance.** There is a × inside the search
+  field and Escape clears it; Enter flushes the pending redraw and dismisses the
+  mobile keyboard, which is what `enterkeyhint="search"` had been promising.
+- **Inline `onclick` on the calendar and reset buttons.** Both are read by one
+  delegated listener on `#rows`, which also survives the tbody being rewritten
+  by every render. Inline handlers would stop the page working under a CSP that
+  forbids `unsafe-inline`.
+- **A `<noscript>` fallback.** With JS off the page showed headers and an empty
+  table. It now says so and links to `data/events.json`.
+
+### Two invariants that are structural rather than visual
+
+An edit to the control bar once left a **second copy of the CSV and Filters
+buttons and a stray `</div>`** — `getElementById` addressed the first of each,
+the page rendered both, and every other check passed. So:
+
+- **ids must be unique.** There is no legitimate reason for two elements to
+  share one, and the failure is silent rather than loud.
+- **Container tags must balance** (`div`, `table`, `thead`, `tbody`, `main`,
+  `nav`, `select`). An unbalanced `<div>` changes the shape of everything after
+  it without failing anything.
+
+Both run against the template *and* the built `index.html`, with `<style>`,
+`<script>` and comments stripped first — the JSON payload is inlined into the
+page and contains no tags, and a selector mentioned in a CSS comment is prose,
+not a rule.
+
+### Things this deliberately did not change
+
+- **Facet counts are whole-index totals, not per-filter.** `Exercise &
+  Fitness (441)` is how many events carry that tag across the index, not how
+  many your other filters leave. Recomputing them per pass means a second
+  filtered count for every facet on every keystroke. The panel hint now says
+  which it is, and the suburb checkboxes carry counts too, so the two groups
+  behave alike.
+- **The `.ics` duration is still a flat 60 minutes.** No end time exists in the
+  data, and inventing one per event type would be a guess.
+- **The Type column still prints every tag.** 178 rows carry three or more and
+  the longest joined string is 71 characters, so the column wraps to four or
+  five lines. Truncating to a primary tag needs a real notion of primary, which
+  `classify_types()` does not currently have.
 
 ## Dependency upgrades
 

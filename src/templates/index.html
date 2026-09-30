@@ -29,19 +29,42 @@ header{background:var(--primary);color:#fff;padding:16px 20px}
 header h1{margin:0 0 4px;font-size:1.35em}
 header p{margin:2px 0;font-size:.85em}
 .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 20px;background:var(--light);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
-.controls input[type=search]{padding:7px 10px;font-size:1em;min-width:200px;flex:1}
+/* The clear control is positioned inside the field rather than beside it, so
+   it costs no row height on a phone. The wrapper is the positioning context
+   and is also what carries the basis: the input cannot be a percentage of a
+   flex parent it is not a child of. */
+.searchwrap{position:relative;flex:1 1 100%;display:flex}
+/* The search field takes the whole first row. The bar's other controls add up
+   to more than 1280px, so with the field competing for that row it got about
+   285px while "Download CSV" and "Filters" were pushed onto a second one -- the
+   primary control was the narrowest thing on the bar. Owning a row also matches
+   the phone layout, where the bar already stacks. */
+.controls input[type=search]{padding:8px 36px 8px 10px;font-size:1rem;min-width:0;flex:1}
+/* WebKit draws its own clear button inside a non-empty search field, which
+   would sit directly on top of this one. */
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
+/* top/bottom:0 rather than a fixed height, so the target is exactly as tall
+   as the field -- 40px on desktop and at or above the 44px target on a phone,
+   without a second breakpoint. The .controls selector is repeated because it
+   is more specific and would otherwise win the padding and font-size. */
+.controls .qclear{position:absolute;right:2px;top:0;bottom:0;width:32px;padding:0;font-size:1.2rem;line-height:1;background:none;border:0;border-radius:4px;color:#444;cursor:pointer}
+.controls .qclear:hover{background:#dde5ee}
 /* 1rem, not .95em: the selector covers the sort <select> and iOS Safari
    zooms the viewport on focus of any form control below 16px, then never
    zooms back out. */
 .controls select,.controls button{padding:7px 10px;font-size:1rem}
 #filtertoggle.has-filters{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:bold}
-.typefilter{display:flex;flex-wrap:wrap;gap:4px 12px;width:100%;padding:8px 0 0;border-top:1px solid var(--border);font-size:.88em;max-height:120px;overflow-y:auto}
-.typefilter .thead{width:100%;font-weight:bold;font-size:.92em}
-.tcheck{white-space:nowrap}
-.tcheck input{margin-right:4px}
-.count{padding:8px 20px;font-size:.9em;color:#444}
+.typefilter{display:flex;flex-wrap:wrap;gap:4px 12px;width:100%;padding:8px 0 0;border-top:1px solid var(--border);font-size:.875rem;max-height:120px;overflow-y:auto}
+.typefilter .thead{width:100%;font-weight:bold;font-size:.8125rem}
+/* 2.5.8 wants 24x24. The box is 18px but it is wrapped in a label, and the
+   label -- not the box -- is the hit target: it spans the checkbox and the
+   name, and clicking the name toggles the box. Measured before this rule the
+   target was the 13px native box and nothing else, for all 31 suburb and 18
+   type filters. The mobile block raises the same label to 44px. */
+.tcheck{display:inline-flex;align-items:center;gap:6px;min-height:24px;white-space:nowrap}
+.tcheck input{width:18px;height:18px;margin:0;flex:none}
+.count{padding:8px 20px;font-size:.875rem;color:#444}
 .tablewrap{overflow-x:auto;padding:0 20px 40px}
-table{border-collapse:collapse;width:100%;font-size:.9em}
 /* Column real estate, in order of how much text a column carries and how much
    a reader needs it. The price column was the widest thing on the page --
    about 430px of a 1240px table -- because it was nowrap and one CCC row's
@@ -57,15 +80,26 @@ table{border-collapse:collapse;width:100%;font-size:.9em}
 
    Event      most important and the longest field (p90 50 chars, max 94)
    Details    the most verbose column (p90 226, max 400) but the least
-              important -- it is read on demand, not scanned, so it is
-              allocated generously but clamped below
+               important -- it is read on demand, not scanned, so it is
+               allocated generously but clamped below
    Location   where to go; carries the address too (p90 32 + 60)
    Date&time  the default sort key and the thing a reader scans for; a fixed
-              ~22 characters plus the recurrence chip
+               ~22 characters plus the recurrence chip
    Type       a filter facet, median 18
    Links      two fixed-width buttons
-   Price      rarely long, rarely important */
-table{border-collapse:collapse;table-layout:fixed;width:100%;font-size:.9em}
+   Price      rarely long, rarely important
+
+   Every font size below is rem, on every breakpoint. This is not a style
+   preference: the mobile block exists because an em chain compounded down
+   through table (.9em) -> td -> .desc (.88em) to 12.7px, and the same chain
+   was never fixed for the desktop table, which is the wider and more common
+   viewport. Measured at the pre-fix values, on desktop: description 12.7px,
+   address 11.8px, recurrence chip 11.8px, source and status badges 10.8px,
+   the Website and + Calendar buttons 12.2px, and -- because it sits inside
+   .filterhint -- the Reset filters button 11.8px. health_check.py asserts
+   that each of these selectors declares a rem size of at least 0.75rem, so
+   the chain cannot come back. */
+table{border-collapse:collapse;table-layout:fixed;width:100%;font-size:.875rem}
 .col-name{width:24%}
 .col-when{width:13%}
 .col-type{width:10%}
@@ -100,7 +134,7 @@ td{overflow-wrap:break-word}
    so VoiceOver and TalkBack read a stacked table as an unlabelled wall of
    values. display:none here because the desktop table has a header row. */
 .celllabel{display:none}
-.badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:.75em;font-weight:bold;color:#fff;margin-right:4px}
+.badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:.75rem;font-weight:bold;color:#fff;margin-right:4px}
 /* White text on each background, so every one of these is held to 4.5:1 by
    health_check.py. They were not: #e67e22 was 2.85:1, #27ae60 2.87:1,
    #16a085 3.28:1, #e74c3c 3.82:1 and #d35400 4.17:1. At the 9px a badge
@@ -120,55 +154,74 @@ td{overflow-wrap:break-word}
 .badge-service{background:#5a6672}
 .badge-status{background:#8a4b00}
 .badge-kingston_arts{background:#ad1457}
-.ics-btn{background:#fff;border:1px solid var(--primary);color:var(--primary);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:.85em;white-space:nowrap}
+.ics-btn{background:#fff;border:1px solid var(--primary);color:var(--primary);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:.8125rem;white-space:nowrap}
 .ics-btn:hover{background:var(--primary);color:#fff}
-.src-link{display:inline-block;background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:4px;padding:4px 10px;font-size:.85em;text-decoration:none;white-space:nowrap}
+.src-link{display:inline-block;background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:4px;padding:6px 10px;font-size:.8125rem;text-decoration:none;white-space:nowrap}
 .src-link:hover{background:#084a86}
 .linkcell{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
-.emptyrow td{text-align:center;padding:24px 12px;font-size:1em}
-.reset-btn{background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:4px;padding:6px 14px;cursor:pointer;font-size:.9em;margin-top:8px}
+.emptyrow td{text-align:center;padding:24px 12px}
+/* Was .9em, and it sits inside .filterhint (.82em), so the one control that
+   can undo every other filter rendered at 11.8px. It is the only way back from
+   an empty result, which is exactly when it is being looked for. */
+.reset-btn{background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:4px;padding:8px 14px;cursor:pointer;font-size:.875rem;margin-top:8px}
 .reset-btn:hover{background:#084a86}
 .quickfilters{display:flex;gap:6px;flex-wrap:wrap}
 /* --control-border is 3.26:1 against white. The old --border grey was 1.44:1,
    which left the unselected chips with no visible boundary at all (1.4.11).
    --border is kept for the table grid, where 1px rules are decoration. */
-.qf-btn{background:#fff;border:1px solid var(--control-border);border-radius:4px;padding:5px 12px;cursor:pointer;font-size:.85em}
+.qf-btn{background:#fff;border:1px solid var(--control-border);border-radius:4px;padding:6px 12px;cursor:pointer;font-size:.8125rem}
 .qf-btn:hover{background:var(--light)}
 .qf-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 /* The mobile layout hides thead, which removed the only sort control with
    it, so a phone could not sort at all. This is that control, shown only
    where it is needed; its options are built from th[data-k] so the two
-   cannot drift apart. */
+   cannot drift apart. It also carries the direction toggle, because a
+   <select> fires no change event when the already-selected option is picked
+   again -- so the reverse half of the sort was unreachable below 768px. */
 .sortpick{display:none;align-items:center;gap:8px;font-size:1rem}
-.sortpick select{flex:1;min-width:0}
+.sortpick select{flex:1;min-width:0;font-size:1rem}
+.sortpick .sortdir{width:44px;padding:7px 0;text-align:center;font-size:1rem;flex:none}
 .filterpanel{display:flex;flex-wrap:wrap;gap:12px;padding:12px 20px;background:#f8f9fa;border-bottom:1px solid var(--border)}
+/* The UA rule for [hidden] is display:none at specificity 0,0,1,0, so the
+   display:flex above beat it: the panel was visible on every load while the
+   toggle beside it read aria-expanded="false". The control said "collapsed"
+   and the page said otherwise, and it cost ~340px of viewport above the
+   results. Any element given a display value needs this to go with it. */
+.filterpanel[hidden],.qclear[hidden]{display:none}
 .filterhint{width:100%;margin:0;font-size:.82em;color:#555}
 @media print{.controls,.filterpanel,.pagination{display:none}}
 .pagination{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 20px;flex-wrap:wrap}
-.pagination button{background:var(--primary);color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:.9em;white-space:nowrap}
+/* The disabled pager was #888 on #ccc: 2.21:1. WCAG 1.4.3 exempts a disabled
+   control, but this is the pager, and "which way am I able to go" is the one
+   thing a disabled button still has to communicate. */
+.pagination button{background:var(--primary);color:#fff;border:none;border-radius:4px;padding:8px 12px;cursor:pointer;font-size:.875rem;white-space:nowrap}
 .pagination button:hover:not(:disabled){background:#084a86}
-.pagination button:disabled{background:#ccc;color:#888;cursor:not-allowed}
-.pagination .pg-info{font-size:.9em;color:#444;padding:0 8px}
-.desc{color:#444;font-size:.88em;margin-top:4px}
-.recur{color:#8a6d1f;background:#fdf6e0;border:1px solid #f0e2b6;border-radius:3px;display:inline-block;margin-top:3px;padding:1px 5px;font-size:.82em;font-style:italic}
-.addr{color:#666;font-size:.82em;margin-top:2px}
-.daydivider{background:var(--primary);color:#fff;font-weight:bold;text-align:center;padding:6px;font-size:.9em}
-footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--border)}
+.pagination button:disabled{background:#d8dde3;color:#5c5c5c;cursor:not-allowed}
+.pagination .pg-info{font-size:.875rem;color:#444;padding:0 8px}
+.desc{color:#444;font-size:.8125rem;margin-top:4px}
+/* #8a6d1f on #fdf6e0 was 4.53:1 -- passing by 0.03, at a size small enough
+   that a rounding of the palette undoes it. Darkened to 6.4:1. */
+.recur{color:#6b5215;background:#fdf6e0;border:1px solid #f0e2b6;border-radius:3px;display:inline-block;margin-top:3px;padding:1px 5px;font-size:.8125rem;font-style:italic}
+.addr{color:#666;font-size:.8125rem;margin-top:2px}
+.daydivider{background:var(--primary);color:#fff;font-weight:bold;text-align:center;padding:6px;font-size:.8125rem}
+footer{padding:12px 20px;font-size:.8125rem;color:#555;border-top:1px solid var(--border)}
+.noscript{margin:12px 20px;padding:12px 14px;border:1px solid var(--border);border-left:4px solid var(--primary);background:var(--light)}
+.noscript p{margin:0 0 6px}
+.noscript p:last-child{margin:0}
 @media(max-width:768px){
   /* Sticking a ~300px column to the top of a 553px iOS viewport occluded
      more than half the screen, with the results scrolling underneath it. */
   .controls{position:static;flex-direction:column;align-items:stretch}
-  .controls input[type=search]{min-width:100%}
+  .searchwrap{min-width:100%;width:100%}
   /* The panel is not sticky, so a tall panel costs nothing, and 80px showed
      three of eighteen type checkboxes in a nested scroller. */
   .typefilter{max-height:none;overflow:visible}
   .sortpick{display:flex}
   .tablewrap{padding:0 10px 20px}
-  /* rem, not a chain of em. table .9em -> td .82em -> .desc .9em compounded
-     down to 10.6px for the description, 8.9px for the badges and the field
-     labels, and 10.0px for the buttons inside each card. The card layout
-     stacks vertically with the full width available, so shrinking the type
-     bought nothing. 1rem here, and every nested size a floor of its own. */
+  /* The card layout stacks vertically with the full width available, so
+     shrinking the type bought nothing. Everything below is already rem-based
+     on desktop, so this block now only has to raise the base size rather than
+     unwind an em chain. */
   table{font-size:1rem}
   th,td{padding:8px 10px;font-size:1rem}
   /* display:block on the table parts strips their implicit ARIA roles, so
@@ -202,21 +255,23 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
      than three lines out of seven, and the full value is what the reader
      wants. */
   .desc,.priceval{-webkit-line-clamp:unset;display:block;overflow:visible}
-  .badge{display:inline-block;margin:2px 0;font-size:.75rem}
+  .badge{margin:2px 0}
   .desc{font-size:.875rem}
   /* The recurrence chip is an inline-block whose label runs to "Every Tuesday,
      Wednesday, Thursday and Friday". It must wrap on a phone: kept on one
      line it pushed the document 72px off the right edge (1.4.10). */
   .recur{white-space:normal;max-width:100%;display:inline-block}
-  .addr{font-size:.8125rem}
-  .recur{font-size:.8125rem}
   /* 44px targets, not the ~24px the 10px text produced (2.5.5). */
   .ics-btn,.src-link{min-height:44px;display:inline-flex;align-items:center;font-size:.875rem;padding:8px 12px}
   .linkcell{gap:8px}
   #tall,#tclear,#sall,#sclear{min-height:44px;padding:8px 14px}
   .qf-btn,.pagination button,.controls button{min-height:44px;padding:10px 14px}
-  .tcheck{display:inline-flex;align-items:center;min-height:44px;white-space:normal}
-  .tcheck input{width:20px;height:20px;margin-right:8px}
+  .tcheck{min-height:44px;white-space:normal}
+  .tcheck input{width:20px;height:20px}
+  /* The clear control tracks the field's height on its own, so it only needs
+     to be a little wider to stay a comfortable thumb target. */
+  .controls .qclear{width:40px;font-size:1.4rem}
+  .controls input[type=search]{padding-right:44px}
 }
 </style>
 </head>
@@ -228,10 +283,19 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
 <p>Generated: __GENERATED_AT__ &nbsp;|&nbsp; __EVENT_COUNT__ events &nbsp;|&nbsp; __SOURCE_COUNT__ sources</p>
 </header>
 <main id="main">
+<noscript>
+<div class="noscript">
+<p><b>JavaScript is switched off, so the searchable list cannot be built.</b> Nothing is wrong with the page &mdash; the events themselves are still here, just not as a table you can filter.</p>
+<p>The same <span id="ns-count">__EVENT_COUNT__</span> events are published as data, in <a href="data/events.json">data/events.json</a> (JSON, one object per event, sorted by date) and as <a href="data/raw_events.json">data/raw_events.json</a> (the unmerged scrape).</p>
+</div>
+</noscript>
 <div class="controls">
+<div class="searchwrap">
 <input type="search" id="q" placeholder="Search events, descriptions, locations&hellip;" aria-label="Search events" enterkeyhint="search" autocapitalize="off" autocorrect="off" spellcheck="false">
+<button class="qclear" id="qclear" type="button" aria-label="Clear search" title="Clear search" hidden>&times;</button>
+</div>
 <label><input type="checkbox" id="freeonly"> Free only</label>
-<label><input type="checkbox" id="hidecommercial" checked> Hide commercial, services &amp; sold out</label>
+<label><input type="checkbox" id="hidecommercial" checked> Hide commercial, drop-in services &amp; cancelled</label>
 <div class="quickfilters" id="quickfilters">
   <button class="qf-btn" data-qf="upcoming" type="button" aria-pressed="false">Upcoming</button>
   <button class="qf-btn" data-qf="today" type="button" aria-pressed="false">Today</button>
@@ -239,10 +303,15 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
   <button class="qf-btn" data-qf="next30" type="button" aria-pressed="false">Next 30 days</button>
   <button class="qf-btn" data-qf="all" type="button" aria-pressed="false">All time</button>
 </div>
-<label class="sortpick">Sort events by <select id="sortpick" aria-label="Sort events by"></select></label>
+<div class="sortpick">
+  <label for="sortpick">Sort</label>
+  <select id="sortpick" aria-label="Sort events by"></select>
+  <button class="sortdir" id="sortdir" type="button" aria-label="Sort direction: ascending. Switch to descending">&#9650;</button>
+</div>
 <button id="csv" type="button">Download CSV</button>
 <button id="filtertoggle" type="button" aria-expanded="false" aria-controls="filterpanel">Filters</button>
 </div>
+
 <div class="filterpanel" id="filterpanel" hidden>
 <div class="typefilter" id="suburbfilter">
 <span class="thead">Suburbs: <button id="sall" type="button">Select all</button> <button id="sclear" type="button">Clear</button></span>
@@ -251,10 +320,11 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
 <span class="thead">Activity type: <button id="tall" type="button">Select all</button> <button id="tclear" type="button">Clear</button></span>
 __TYPE_CHECKBOXES__
 </div>
-<p class="filterhint">Tick one or more suburbs to narrow to those suburbs; untick all suburbs (Clear) to show every suburb. An event shows while any of its activity tags is ticked; untick types to exclude them (Select all restores everything).
+<p class="filterhint"><b>Suburbs</b> narrow: tick one or more to show only those, or untick them all (Clear) to show every suburb &mdash; the two are not the same thing, because ticking all of them still drops rows whose source gave no suburb. <b>Activity types</b> work the other way round: every type starts ticked, and an event shows while any of its tags is still ticked, so untick a type to exclude it (Select all puts them all back). The number in brackets is how many events carry that tag across the whole index, not how many your other filters leave.
 <button id="resetall" type="button" class="reset-btn">Reset filters</button></p>
 </div>
-<div class="count" id="count" role="status" aria-live="polite" aria-atomic="true"></div>
+<div class="count" id="count"></div>
+<p class="visually-hidden" id="count-live" role="status" aria-live="polite" aria-atomic="true"></p>
 <nav class="pagination" id="pagination-top" aria-label="Pagination">
   <button class="pg-first" type="button" aria-label="First page" title="First page">&laquo;&laquo;</button>
   <button class="pg-prev" type="button" aria-label="Previous page" title="Previous page">&laquo;</button>
@@ -294,7 +364,7 @@ __TYPE_CHECKBOXES__
 </main>
 <footer>
 Sources: Kingston Hubs (Chelsea &amp; Patterson Lakes), Kingston Council, Bayside Council, Greater Dandenong (Springvale/Keysborough), What's On Frankston, Chatty Cafe Australia.
-Activity types are inferred from event names and descriptions. Commercial pub/meal deals, drop-in services (a centre's takeaway meals, say) and listings the venue has sold out of or cancelled are hidden by default.
+Activity types are inferred from event names and descriptions. Commercial pub/meal deals, drop-in services (a centre's takeaway meals, say) and cancelled listings are hidden by default; a session that is sold out or fully booked stays visible with a badge, because a listing you can no longer book is still worth knowing about.
 This file works offline (no server needed); only the Source links need internet.
 </footer>
 <script>
@@ -325,6 +395,11 @@ EVENTS.forEach(function(r,i){if(!_idxByRow.has(r))_idxByRow.set(r,i);});
 // meant Sunday-to-Saturday, so on a Wednesday it showed three days of the past
 // and four of the future, which is not what anyone means by a week of events.
 var RANGES = ["upcoming","today","next7","next30","all"];
+// The sortable columns, so a restored ?sort= cannot name something the table
+// has no column for. Kept in step with the th[data-k] values below by
+// health_check.py, which reads both lists out of the template.
+var SORTS = ["name","datetime_iso","types","price_sort","location"];
+var DEFAULT_SORT = "datetime_iso";
 
 // Both filter groups are checkbox lists, so a single click toggles one
 // value -- no Ctrl-click needed. Suburbs are opt-in (nothing ticked means
@@ -334,13 +409,16 @@ function setSuburbsChecked(all){document.querySelectorAll("#suburbfilter input[d
 // Restore filter state from the query string so a filtered view can be shared
 // or bookmarked. Missing pieces fall back to the defaults in `state`.
 function parseURLState(){
- var p=new URLSearchParams(window.location.search);
- if(p.has("q")) state.q=p.get("q");
- if(p.has("page")) {var n=parseInt(p.get("page"),10); if(n>0) state.page=n;}
- var range=p.get("range");
- if(range&&RANGES.indexOf(range)>=0) state.range=range;
- if(p.has("free")) state.freeonly=p.get("free")==="1";
- if(p.has("hidecommercial")) state.hideCommercial=p.get("hidecommercial")!=="0";
+  var p=new URLSearchParams(window.location.search);
+  if(p.has("q")) state.q=p.get("q");
+  if(p.has("page")) {var n=parseInt(p.get("page"),10); if(n>0) state.page=n;}
+  var range=p.get("range");
+  if(range&&RANGES.indexOf(range)>=0) state.range=range;
+  var sort=p.get("sort");
+  if(sort&&SORTS.indexOf(sort)>=0) state.k=sort;
+  if(p.get("dir")==="desc") state.dir=-1;
+  if(p.has("free")) state.freeonly=p.get("free")==="1";
+  if(p.has("hidecommercial")) state.hideCommercial=p.get("hidecommercial")!=="0";
  var types=p.get("types");
  if(types){state.types={}; types.split(",").filter(Boolean).forEach(function(t){state.types[t]=false;});}
  var subs=(p.get("suburb")||"").split(",").filter(Boolean);
@@ -354,30 +432,48 @@ function updateURL(){
  if(state.range!=="upcoming") p.set("range",state.range);
  if(state.freeonly) p.set("free","1");
  if(!state.hideCommercial) p.set("hidecommercial","0");
- var off=Object.keys(state.types).filter(function(t){return state.types[t]===false;});
- if(off.length) p.set("types",off.join(","));
- // Written as well as read: parseURLState() restores this, so without the set
- // here a shared link could open a suburb filter but selecting one produced no
- // link to share.
- var subs=getCheckedSuburbs();
- if(subs.length) p.set("suburb",subs.join(","));
- if(state.page>1) p.set("page",String(state.page));
+  var off=Object.keys(state.types).filter(function(t){return state.types[t]===false;});
+  if(off.length) p.set("types",off.join(","));
+  // Written as well as read: parseURLState() restores this, so without the set
+  // here a shared link could open a suburb filter but selecting one produced no
+  // link to share.
+  var subs=getCheckedSuburbs();
+  if(subs.length) p.set("suburb",subs.join(","));
+  // The sort too. The page number was already carried, so a link that landed
+  // the reader on page 7 of a list they could no longer re-order was the
+  // state it shared and not the state it produced.
+  if(state.k!==DEFAULT_SORT) p.set("sort",state.k);
+  if(state.dir===-1) p.set("dir","desc");
+  if(state.page>1) p.set("page",String(state.page));
  var q=p.toString();
  var url=window.location.pathname+(q?"?"+q:"");
  window.history.replaceState(null,"",url);
 }
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-function fmtDate(iso){if(!iso)return "";var d=new Date(iso);if(isNaN(d))return esc(iso);
+// `timeOnly` is passed when the rows are grouped under day headers, which is
+// the default sort. The header directly above each group already states the
+// full date ("Wednesday, 30 September 2026"), so repeating "Wed 30 Sep 2026"
+// in all fifty rows beneath it is the same fact twice on every line -- and it
+// is why the Date & time column needed 13% of the table. Under grouping the
+// cell shows the time, with the date kept in the accessibility tree so a
+// screen reader reading the table cell by cell still hears it.
+function fmtDate(iso,timeOnly){
+ if(!iso)return "";
+ var d=new Date(iso);
+ if(isNaN(d))return esc(iso);
  var days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
  var day=days[d.getDay()]+" "+d.getDate()+" "+mon[d.getMonth()]+" "+d.getFullYear();
  // Midnight is the pipeline's marker for "date known, time not stated", not a
  // real 00:00 start. Printing it would invent a start time the source never gave.
   // Every inferred row that lands on 00:00 was checked: none of them state a
   // time in their own text, so "all day" is what the source actually says.
- if(d.getHours()===0&&d.getMinutes()===0)return day+", all day";
+ var allDay=d.getHours()===0&&d.getMinutes()===0;
+ var full=esc(day)+(allDay?", all day":"");
+ if(timeOnly) return "<span class='visually-hidden'>"+full+"</span>"+(allDay?"all day":fmtTime(d));
+ return full+(allDay?"":", "+fmtTime(d));}
+function fmtTime(d){
  var h=d.getHours(),ap=h>=12?"PM":"AM";h=h%12;if(h===0)h=12;
- var m=("0"+d.getMinutes()).slice(-2);
- return day+", "+h+":"+m+" "+ap;}
+ return h+":"+("0"+d.getMinutes()).slice(-2)+" "+ap;}
 function isFree(r){if(r.price_sort===0)return true;return /^\s*free\s*$/i.test(r.price_text||"");}
 // Multi-tag types with a legacy fallback: rows built before the migration
 // carry a single `type` string, so normalise to an array. OR semantics.
@@ -401,34 +497,54 @@ function recurrenceNote(r){if(!r.date_inferred||!r.recurrence)return "";
  // derived rather than published was completely unreachable -- which is the
  // one thing a reader most needs to know about them.
  return "<div class='recur'>"+esc(r.recurrence)+"<span class='visually-hidden'> (date inferred from the source description, not published by it)</span></div>";}
-// How many commercial rows the *current* filter is suppressing. Counted in
-// the same pass as the filter itself, because a global total is misleading:
+// How many rows each of the three reasons for hiding is suppressing. Counted
+// in the same pass as the filter itself, because a global total is misleading:
 // with a search or date window active it reported commercial events that
 // were excluded by the search anyway and had nothing to do with the list.
-var _commercialHidden=0;
+// Cancelled is tracked separately from the other two because the checkbox
+// covers all three and its label has to name all three.
+var _hiddenCounts = {commercial:0, service:0, cancelled:0};
 function filtered(){
- var q=state.q.toLowerCase();
- var mSubs=getCheckedSuburbs();
- var out=[];
- _commercialHidden=0;
- for(var i=0;i<EVENTS.length;i++){
-  var r=EVENTS[i];
-  if(state.freeonly && !isFree(r)) continue;
-  if(mSubs.length && mSubs.indexOf(r.suburb||"")<0) continue;
-  // OR filter: an event stays visible while ANY of its tags is still ticked.
-  // It hides only when every tag it carries has been unticked.
-  var rTypes=getTypes(r), allOff=rTypes.length>0;
-  for(var ti=0;ti<rTypes.length;ti++){if(state.types[rTypes[ti]]!==false){allOff=false;break;}}
-  if(allOff) continue;
-  if(state.dateFrom && r.datetime_iso && new Date(r.datetime_iso)<state.dateFrom) continue;
-  if(state.dateTo && r.datetime_iso && new Date(r.datetime_iso)>state.dateTo) continue;
-  if(q){var hay=((r.name||"")+" "+(r.description||"")+" "+(r.location||"")+" "+(r.address||"")+" "+(r.price_text||"")+" "+getTypes(r).join(" ")+" "+(r.suburb||"")).toLowerCase();
-   if(hay.indexOf(q)<0) continue;}
-  // Last, so a commercial row is only counted once it has cleared every
-  // other filter.
-  if(state.hideCommercial && r.hidden_by_default){_commercialHidden++;continue;}
-  out.push(r);}
- return out;
+  var q=state.q.toLowerCase();
+  // Split on whitespace and require every term. The query used to be matched
+  // as one literal substring, so any multi-word search returned nothing at
+  // all -- measured on the shipped index, "yoga cheltenham" found 0 of the 34
+  // events that contain both words, and "chatty cafe cheltenham" 0 of 24. The
+  // empty state then said "no events match your filters", which reads as
+  // "there is nothing on" rather than "you typed two words".
+  //
+  // It stays a substring test rather than word-boundary matching, so "chi"
+  // also matches "Chisholm". That over-matches; the alternative under-matched,
+  // which is the failure this replaces.
+  var terms=q.split(/\s+/).filter(Boolean);
+  var mSubs=getCheckedSuburbs();
+  var out=[];
+  _hiddenCounts.commercial=0;_hiddenCounts.service=0;_hiddenCounts.cancelled=0;
+  for(var i=0;i<EVENTS.length;i++){
+   var r=EVENTS[i];
+   if(state.freeonly && !isFree(r)) continue;
+   if(mSubs.length && mSubs.indexOf(r.suburb||"")<0) continue;
+   // OR filter: an event stays visible while ANY of its tags is still ticked.
+   // It hides only when every tag it carries has been unticked.
+   var rTypes=getTypes(r), allOff=rTypes.length>0;
+   for(var ti=0;ti<rTypes.length;ti++){if(state.types[rTypes[ti]]!==false){allOff=false;break;}}
+   if(allOff) continue;
+   if(state.dateFrom && r.datetime_iso && new Date(r.datetime_iso)<state.dateFrom) continue;
+   if(state.dateTo && r.datetime_iso && new Date(r.datetime_iso)>state.dateTo) continue;
+   if(terms.length){
+    var hay=((r.name||"")+" "+(r.description||"")+" "+(r.location||"")+" "+(r.address||"")+" "+(r.price_text||"")+" "+getTypes(r).join(" ")+" "+(r.suburb||"")).toLowerCase();
+    var miss=false;
+    for(var k=0;k<terms.length;k++){if(hay.indexOf(terms[k])<0){miss=true;break;}}
+    if(miss) continue;}
+   // Last, so a commercial row is only counted once it has cleared every
+   // other filter.
+   if(state.hideCommercial && r.hidden_by_default){
+    if(r.status==="cancelled")_hiddenCounts.cancelled++;
+    else if(r.is_service)_hiddenCounts.service++;
+    else _hiddenCounts.commercial++;
+    continue;}
+   out.push(r);}
+  return out;
 }
 function cmp(a,b){
  var k=state.k, va=a[k], vb=b[k];
@@ -490,6 +606,41 @@ function ics(r){
 // stale value from a future refactor downloads nothing instead of the wrong
 // event.
 function icsDl(ev){var r=EVENTS[ev];if(!r)return;var content=ics(r);if(!content)return;var blob=new Blob([content],{type:"text/calendar"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(r.name||"event").replace(/[^a-z0-9]+/gi,"-").toLowerCase().slice(0,50)+".ics";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);}
+// The empty state names what is actually filtering, rather than the single
+// sentence "No events match your filters" that sent a reader who had typed two
+// words looking for a class that was listed all along. The reset button carries
+// a data-act so the one delegated listener on #rows can reach it -- the tbody
+// is replaced on every render, so a per-button listener would not survive.
+function emptyRow(){
+ var why=[];
+ if(state.q)why.push("the search &ldquo;"+esc(state.q)+"&rdquo;");
+ var subs=getCheckedSuburbs();
+ if(subs.length)why.push("the suburb filter ("+subs.length+" selected)");
+ var off=[];
+ document.querySelectorAll("#typefilter input[data-type]").forEach(function(cb){if(!cb.checked)off.push(cb.getAttribute("data-type"));});
+ if(off.length)why.push(off.length+" unticked activit"+(off.length===1?"y":"ies"));
+ if(state.freeonly)why.push("&ldquo;Free only&rdquo;");
+ if(state.range!=="all")why.push("the &ldquo;"+state.range+"&rdquo; date window");
+ var msg=why.length?("Nothing matches "+why.join(", ")+"."):"There are no events in this index.";
+ return "<tr class='emptyrow' role='row'><td role='cell' colspan='7'>"+msg+"<br>"
+   +(why.length?"<button class='reset-btn' data-act='reset' type='button'>Reset filters</button>":"")+"</td></tr>";}
+// The count is the page's only result feedback, so it is announced -- but a
+// role="status" element announces on every text change, and the search box
+// re-renders 150ms after each keystroke, so it announced the result count once
+// per character typed. The visible count is written straight away (a sighted
+// reader wants it now); this writes a visually-hidden twin on a trailing timer
+// and only when the text has actually changed, so it speaks once the reader
+// stops typing.
+var _annTimer=null,_lastAnnounced="";
+function announceCount(text){
+ if(text===_lastAnnounced)return;
+ if(_annTimer)return;// a pending write already covers this one
+ _annTimer=setTimeout(function(){
+  _annTimer=null;
+  if(text===_lastAnnounced)return;
+  _lastAnnounced=text;
+  var live=document.getElementById("count-live");
+  if(live)live.textContent=text;},600);}
 function render(){
   var list=filtered().sort(cmp);
   _lastAll=list;
@@ -520,7 +671,7 @@ function render(){
    var d=r.datetime_iso?String(r.datetime_iso).slice(0,10):"";
    if(groupByDay&&d&&d!==prevDate){var dt=new Date(d+"T00:00:00");var label=isNaN(dt)?esc(d):dt.toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});h+="<tr role='row'><td role='cell' colspan='7' class='daydivider'>"+label+"</td></tr>";prevDate=d;}
    var nm=r.name||"this event";
-   h+="<tr role='row'><td role='cell'>"+lbl("Event")+"<b>"+esc(r.name)+"</b>"+commercialBadge(r)+"</td><td role='cell' class='when'>"+lbl("Date &amp; time")+fmtDate(r.datetime_iso)+recurrenceNote(r)+"</td>"
+    h+="<tr role='row'><td role='cell'>"+lbl("Event")+"<b>"+esc(r.name)+"</b>"+commercialBadge(r)+"</td><td role='cell' class='when'>"+lbl("Date &amp; time")+fmtDate(r.datetime_iso,groupByDay)+recurrenceNote(r)+"</td>"
     +"<td role='cell'>"+lbl("Type")+esc(typeStr(r))+"</td>"
     // The price text is wrapped so the 2-line clamp has an element to apply
     // to, and carries the full value on title for hover/long-press. It is
@@ -538,8 +689,12 @@ function render(){
      // position in the current page -- see _idxByRow for why. Were it `i`, the
      // button would download whichever event happened to land on that page
      // slot, and the filename is derived from the row, so the mismatch would be
-     // invisible to the person who clicked it.
-     +(r.datetime_iso?"<button class='ics-btn' onclick='icsDl("+_idxByRow.get(r)+")' aria-label='+ Calendar for "+esc(nm)+"'>+ Calendar</button>":"")
+     // invisible to the person who clicked it. It is a data attribute read by
+     // one delegated listener on #rows, not an inline onclick: the tbody is
+     // rewritten wholesale by every render(), so a per-button listener would
+     // have to be rebound each time, and inline handlers would stop the page
+     // working under a Content-Security-Policy that forbids unsafe-inline.
+     +(r.datetime_iso?"<button class='ics-btn' data-ics='"+_idxByRow.get(r)+"' aria-label='+ Calendar for "+esc(nm)+"'>+ Calendar</button>":"")
     +((!r.source&&!r.datetime_iso)?"&mdash;":"")
     +"</div></td>"
     // Clamped to 3 lines, with the full text on title. The description is the
@@ -547,17 +702,24 @@ function render(){
     // least important to scan, so a fixed column width alone still left rows
     // seven lines tall.
     +"<td role='cell'>"+lbl("Details")+"<div class='desc' title='"+esc(r.description||"")+"'>"+esc(r.description||"")+"</div></td></tr>";}
-  tb.innerHTML=h||"<tr class='emptyrow'><td colspan='7'>No events match your filters.<br><button class='reset-btn' onclick='resetFilters()' type='button'>Reset filters</button></td></tr>";
-  var nComm=_commercialHidden;
+  tb.innerHTML=h||emptyRow();
+  var hc=_hiddenCounts, parts=[];
+  if(state.hideCommercial&&hc.commercial)parts.push(hc.commercial+" commercial");
+  if(state.hideCommercial&&hc.service)parts.push(hc.service+" drop-in service"+(hc.service===1?"":"s"));
+  if(state.hideCommercial&&hc.cancelled)parts.push(hc.cancelled+" cancelled");
   var totalFiltered=list.length;
   var showingStart=totalFiltered>0?(state.page-1)*PAGE_SIZE+1:0;
   var showingEnd=Math.min(state.page*PAGE_SIZE,totalFiltered);
-  // Only mention the commercial count while commercial events are actually
-  // being suppressed, and report how many the *current* filter hid.
-  var commNote=(state.hideCommercial&&nComm)?(" ("+nComm+" commercial, service or sold out hidden)"):"";
-  document.getElementById("count").textContent="Showing "+showingStart+"-"+showingEnd+" of "+totalFiltered+" events"+commNote+".";
+  var countText="Showing "+showingStart+"-"+showingEnd+" of "+totalFiltered+" events";
+  if(parts.length)countText+=" ("+parts.join(", ")+" hidden)";
+  countText+=".";
+  // The visible count is written immediately: a sighted reader wants it now.
+  // The announcement is not -- see announceCount().
+  document.getElementById("count").textContent=countText;
+  announceCount(countText);
   updatePagination(totalPages);
   updateURL();
+  var qc=document.getElementById("qclear");if(qc)qc.hidden=!state.q;
   var nf=0;
   if(state.q)nf++;
   if(getCheckedSuburbs().length)nf++;
@@ -573,14 +735,19 @@ function render(){
     // announce its state. aria-sort on a bare <th> is what a screen reader
     // reads back, and it was previously absent entirely.
 
-    th.setAttribute("aria-sort",isK?(state.dir===1?"ascending":"descending"):"none");
-    // The mobile layout hides thead, so this <select> is the only way to
-    // sort on a phone. It is driven from the same state, so the two controls
-    // stay in step and a shared link arrives with the right column selected.
-    var sp=document.getElementById("sortpick");
-    if(sp)sp.value=state.k;});
+     th.setAttribute("aria-sort",isK?(state.dir===1?"ascending":"descending"):"none");});
+   // The mobile <select> is the only sort control on a phone, so it is driven
+   // from the same state as the headers: the two stay in step, and a shared
+   // link arrives with the right column selected. Its direction is a separate
+   // button, since the select cannot express it.
+   var sp=document.getElementById("sortpick");
+   if(sp)sp.value=state.k;
+   var sd=document.getElementById("sortdir");
+   if(sd){sd.textContent=state.dir===1?"\u25B2":"\u25BC";
+    sd.setAttribute("aria-label","Sort direction: "+(state.dir===1?"ascending. Switch to descending":"descending. Switch to ascending"));
+    sd.setAttribute("title",state.dir===1?"Ascending - switch to descending":"Descending - switch to ascending");}
   syncQuickFilters();
-}
+ }
 
 function resetFilters(){
  state.q="";state.range="upcoming";state.freeonly=false;state.hideCommercial=true;
@@ -597,23 +764,37 @@ function resetFilters(){
 // to announce. Make each one a real control while keeping the columnheader
 // semantics that role="button" would throw away.
 var sortPick=document.getElementById("sortpick");
+var sortDir=document.getElementById("sortdir");
+// One function behind all three sort controls, so the page reset and the
+// direction toggle cannot be added to one of them and forgotten on another.
+function applySort(k,toggle){
+ if(toggle&&k===state.k){state.dir*=-1;}
+ else if(toggle){state.dir=1;state.k=k;}
+ else{state.k=k;state.dir=1;}
+ // Page 1. This was missing from both sort handlers while every other filter
+ // reset it, so re-ordering a 1522-row list kept the reader wherever they
+ // were: sort by Name on page 20 and you land in the middle of the alphabet
+ // with no indication that pages 1-19 now exist.
+ state.page=1;
+ render();}
+function reverseSort(){state.dir*=-1;state.page=1;render();}
 document.querySelectorAll("th[data-k]").forEach(function(th){
- var k=th.getAttribute("data-k");
- var text=th.textContent.replace(/[\u25b2\u25bc]/g,"").trim();
- th.setAttribute("title","Sort by "+esc(text));
- // The mobile <select> is built from these same elements, so a column added
- // to the table header cannot be missing from the phone sort control. Both
- // write to the same state, so they can never disagree.
- if(sortPick)sortPick.appendChild(new Option(text,k));
- function sortBy(){if(state.k===k){state.dir*=-1;}else{state.k=k;state.dir=1;}
-  render();}
- th.addEventListener("click",sortBy);
- th.addEventListener("keydown",function(e){
-  if(e.key==="Enter"||e.key===" "||e.key==="Spacebar"){e.preventDefault();sortBy();}});});
-if(sortPick)sortPick.addEventListener("change",function(e){
- var k=e.target.value;
- if(k===state.k){state.dir*=-1;}else{state.k=k;state.dir=1;}
- render();});
+  var k=th.getAttribute("data-k");
+  var text=th.textContent.replace(/[\u25b2\u25bc]/g,"").trim();
+  th.setAttribute("title","Sort by "+esc(text));
+  // The mobile <select> is built from these same elements, so a column added
+  // to the table header cannot be missing from the phone sort control. Both
+  // write to the same state, so they can never disagree.
+  if(sortPick)sortPick.appendChild(new Option(text,k));
+  th.addEventListener("click",function(){applySort(k,true);});
+  th.addEventListener("keydown",function(e){
+   if(e.key==="Enter"||e.key===" "||e.key==="Spacebar"){e.preventDefault();applySort(k,true);}});});
+if(sortPick)sortPick.addEventListener("change",function(e){applySort(e.target.value,false);});
+// The direction toggle exists because a <select> fires no change event when
+// the already-selected option is chosen again, so `state.dir*=-1` in the
+// change handler was unreachable below 768px -- the only sort control there.
+// Every phone reader could pick a column and none of them could reverse it.
+if(sortDir)sortDir.addEventListener("click",reverseSort);
 // The sort headers are tabindex=0, and the mobile layout hides thead but must
 // not hide it from the accessibility tree. Left alone they would be focusable
 // controls with nothing on screen: a keyboard user tabs into a blank space and
@@ -653,14 +834,43 @@ document.querySelectorAll(".pagination").forEach(function(pg){
  pg.querySelector(".pg-next").addEventListener("click",function(){gotoPage(state.page+1,pg);});
  pg.querySelector(".pg-last").addEventListener("click",function(){gotoPage(_lastTotalPages,pg);});});
 
+// One delegated listener for every control inside the tbody. render() replaces
+// #rows wholesale, so a listener bound per button would have to be rebound on
+// every pass; and inline onclick would stop the page working under a CSP that
+// forbids unsafe-inline, which a file://-openable page is likely to be served
+// with eventually.
+document.getElementById("rows").addEventListener("click",function(e){
+  var ics=e.target.closest("[data-ics]");
+  if(ics){icsDl(parseInt(ics.getAttribute("data-ics"),10));return;}
+  var act=e.target.closest("[data-act]");
+  if(act&&act.getAttribute("data-act")==="reset")resetFilters();});
+
 // Typing re-ran the full filter + sort + re-render (every row, seven fields
 // concatenated per row) on every keystroke. Record the value immediately so
 // the input stays responsive, but coalesce the expensive redraw.
-var qTimer=null;
-document.getElementById("q").addEventListener("input",function(e){
- state.q=e.target.value;state.page=1;
- if(qTimer)clearTimeout(qTimer);
- qTimer=setTimeout(function(){qTimer=null;render();},150);});
+var qInput=document.getElementById("q"),qTimer=null;
+function clearSearch(refocus){
+  state.q="";state.page=1;
+  qInput.value="";
+  if(qTimer){clearTimeout(qTimer);qTimer=null;}
+  render();
+  if(refocus)qInput.focus();}
+qInput.addEventListener("input",function(e){
+  state.q=e.target.value;state.page=1;
+  // The clear button is toggled here rather than only in render(), so it
+  // appears on the first keystroke instead of 150ms later.
+  var qc=document.getElementById("qclear");if(qc)qc.hidden=!state.q;
+  if(qTimer)clearTimeout(qTimer);
+  qTimer=setTimeout(function(){qTimer=null;render();},150);});
+qInput.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){e.preventDefault();clearSearch(false);return;}
+  // enterkeyhint="search" promises a search key that commits the query. There
+  // is no <form> to submit, so it flushed the pending redraw and dropped the
+  // mobile keyboard -- which is what pressing it on a phone actually means.
+  if(e.key==="Enter"){e.preventDefault();
+   if(qTimer){clearTimeout(qTimer);qTimer=null;render();}
+   qInput.blur();}});
+document.getElementById("qclear").addEventListener("click",function(){clearSearch(true);});
 document.getElementById("filtertoggle").addEventListener("click",function(){var p=document.getElementById("filterpanel");var hidden=p.hasAttribute("hidden");if(hidden){p.removeAttribute("hidden");this.setAttribute("aria-expanded","true");}else{p.setAttribute("hidden","");this.setAttribute("aria-expanded","false");}});
 // The single source of truth for the quick-filter ranges, so the chip
 // highlight can be rebuilt from state instead of only being set on click.
@@ -703,20 +913,29 @@ document.getElementById("tclear").addEventListener("click",function(){
 document.getElementById("sall").addEventListener("click",function(){setSuburbsChecked(true);state.page=1;render();});
 document.getElementById("sclear").addEventListener("click",function(){setSuburbsChecked(false);state.page=1;render();});
 document.getElementById("csv").addEventListener("click",function(){
- var list=_lastAll;
- function q(v){v=v==null?"":String(v);return '"'+v.replace(/"/g,'""')+'"';}
- var out=["Event,DateTime,Type,Price,Location,Address,Description,Source,IsCommercial,CommercialReason,IsService,Status,StatusDetail"];
- list.forEach(function(r){out.push([q(r.name),q(r.datetime_iso),q(getTypes(r).join(", ")),q(r.price_text),q(r.location),q(r.address),q(r.description),q(r.source),q(r.is_commercial?"yes":"no"),q(r.commercial_reason||""),q(r.is_service?"yes":"no"),q(r.status||""),q(r.status_detail||"")].join(","));});
+  var list=_lastAll;
+  function q(v){v=v==null?"":String(v);return '"'+v.replace(/"/g,'""')+'"';}
+  // DateInferred and Recurrence were missing, which quietly undid the rule the
+  // .ics export is built on: a date the pipeline derived from prose must not
+  // become a confirmed one the moment it leaves the page. 489 of 1522 rows are
+  // derived, and the CSV was the one export that dropped the fact -- so a
+  // re-import treated a guess as a stated date. Suburb, StatusLabel and
+  // ServiceReason are here for the same reason: the reason a row was classified
+  // the way it was is the part a downstream reader cannot reconstruct.
+  var out=["Event,DateTime,DateInferred,Recurrence,Type,Price,Location,Suburb,Address,Description,Source,IsCommercial,CommercialReason,IsService,ServiceReason,Status,StatusLabel,StatusDetail"];
+  list.forEach(function(r){out.push([q(r.name),q(r.datetime_iso),q(r.date_inferred?"yes":"no"),q(r.recurrence||""),q(getTypes(r).join(", ")),q(r.price_text),q(r.location),q(r.suburb||""),q(r.address),q(r.description),q(r.source),q(r.is_commercial?"yes":"no"),q(r.commercial_reason||""),q(r.is_service?"yes":"no"),q(r.service_reason||""),q(r.status||""),q(r.status_label||""),q(r.status_detail||"")].join(","));});
  var blob=new Blob([out.join("\r\n")],{type:"text/csv"});
  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="community-events.csv";a.click();
  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);});
-(function(){var subs={};EVENTS.forEach(function(r){if(r.suburb)subs[r.suburb]=1;});
- // Suburb checkboxes are built at runtime from the event data, mirroring the
- // build-time type checkboxes above: one click toggles one suburb, so there
- // is no Ctrl-click to discover. textContent (not innerHTML) carries the name
- // so a suburb containing markup cannot break out of its label.
- function fillSuburbs(obj){var s=document.getElementById("suburbfilter");if(!s)return;Object.keys(obj).sort().forEach(function(k){var lab=document.createElement("label");lab.className="tcheck";var cb=document.createElement("input");cb.type="checkbox";cb.setAttribute("data-suburb",k);lab.appendChild(cb);lab.appendChild(document.createTextNode(" "+k));s.appendChild(lab);cb.addEventListener("change",function(){state.page=1;render();});});}
- fillSuburbs(subs);
+(function(){var subs={};EVENTS.forEach(function(r){if(r.suburb)subs[r.suburb]=(subs[r.suburb]||0)+1;});
+  // Suburb checkboxes are built at runtime from the event data, mirroring the
+  // build-time type checkboxes above: one click toggles one suburb, so there
+  // is no Ctrl-click to discover. textContent (not innerHTML) carries the name
+  // so a suburb containing markup cannot break out of its label. The count is
+  // in brackets to match the type checkboxes; both are whole-index totals and
+  // neither responds to the other filters, which the panel hint now says.
+  function fillSuburbs(obj){var s=document.getElementById("suburbfilter");if(!s)return;Object.keys(obj).sort().forEach(function(k){var lab=document.createElement("label");lab.className="tcheck";var cb=document.createElement("input");cb.type="checkbox";cb.setAttribute("data-suburb",k);lab.appendChild(cb);lab.appendChild(document.createTextNode(" "+k+" ("+obj[k]+")"));s.appendChild(lab);cb.addEventListener("change",function(){state.page=1;render();});});}
+  fillSuburbs(subs);
  // Checkbox lists now exist, so the URL state can be applied to them.
  parseURLState();
  // Derive the date window from the restored chip, not from the URL directly.
