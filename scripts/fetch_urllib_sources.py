@@ -18,7 +18,8 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from webfetch_http import PartialFetch, enrich_details, make_row, month_number
+from webfetch_http import (PartialFetch, enrich_details, make_row, month_number,
+                           parse_day_month_year, report)
 
 BASE = "https://www.kingston.vic.gov.au"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -31,33 +32,20 @@ HEADERS = {
 }
 
 
-def _get(url, headers=None, timeout=15, retries=3):
+def _request(url, data=None, headers=None, timeout=15, retries=3):
+    """GET (data=None) or POST (data=bytes) with urllib, retrying and raising.
+
+    One implementation rather than one per verb: the only difference between the
+    two was the request body and three headers. Raises the last exception on
+    failure, which is what lets a caller turn a page-0 miss into a PartialFetch.
+    """
     if retries < 1:
         raise ValueError("retries must be >= 1")
     h = dict(HEADERS)
-    if headers:
-        h.update(headers)
-    last = None
-    for attempt in range(retries):
-        try:
-            req = urllib.request.Request(url, headers=h)
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                return r.read().decode("utf-8", "ignore")
-        except Exception as e:
-            last = e
-            if attempt < retries - 1:
-                time.sleep(2 ** attempt)
-    raise last
-
-
-def _post(url, payload, headers=None, timeout=15, retries=3):
-    if retries < 1:
-        raise ValueError("retries must be >= 1")
-    data = json.dumps(payload).encode()
-    h = dict(HEADERS)
-    h["Content-Type"] = "application/json; charset=utf-8"
-    h["X-Requested-With"] = "XMLHttpRequest"
-    h["Origin"] = BASE
+    if data is not None:
+        h["Content-Type"] = "application/json; charset=utf-8"
+        h["X-Requested-With"] = "XMLHttpRequest"
+        h["Origin"] = BASE
     if headers:
         h.update(headers)
     last = None
@@ -71,6 +59,14 @@ def _post(url, payload, headers=None, timeout=15, retries=3):
             if attempt < retries - 1:
                 time.sleep(2 ** attempt)
     raise last
+
+
+def _get(url, headers=None, timeout=15, retries=3):
+    return _request(url, None, headers, timeout, retries)
+
+
+def _post(url, payload, headers=None, timeout=15, retries=3):
+    return _request(url, json.dumps(payload).encode(), headers, timeout, retries)
 
 
 def _parse_date(s, ref=None):
@@ -118,16 +114,10 @@ def _parse_date(s, ref=None):
                     return cand
             if candidates:
                 return candidates[-1]
-    # "28 Sep 2026" / "28 September 2026" bare dates (midnight).
-    m = re.search(r"(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})", s)
-    if m:
-        mon = month_number(m.group(2))
-        if mon:
-            try:
-                return datetime(int(m.group(3)), mon, int(m.group(1)))
-            except ValueError:
-                return None
-    return None
+    # "28 Sep 2026" / "28 September 2026" bare dates (midnight). The shared
+    # reader owns this shape: it is the same regex and the same month lookup,
+    # so a bare date cannot parse one way here and another way there.
+    return parse_day_month_year(s)
 
 
 # price_sort lives in fetch_sources.py (the single canonical implementation);
@@ -179,8 +169,8 @@ def fetch_kingston_hubs(cfg, session=None):
         # Dead entries rot into the same trap: a calendar is renamed upstream,
         # its id changes, the new id is added to `calendars`, and the stale
         # entry quietly stops applying.
-        print(f"  Kingston Hubs: calendar_venues has entries for calendars "
-              f"not in `calendars`: {sorted(unmapped)}")
+        report(f"calendar_venues has entries for calendars not in `calendars`: "
+               f"{sorted(unmapped)}", level="warn")
     rows = []
     now = datetime.now()
     for start in _month_range(now.year, now.month, 12):
@@ -194,14 +184,14 @@ def fetch_kingston_hubs(cfg, session=None):
         try:
             resp = _post(f"{BASE}/ocapi/calendars/getcalendaritems", payload, timeout=15)
         except Exception as e:
-            print(f"  Kingston Hubs month {start[:7]}: FAILED {e!r}")
+            report(f"month {start[:7]}: FAILED {e!r}", level="warn")
             continue
         # Parse outside the request try, so one malformed card cannot discard
         # every row already collected for this month.
         try:
             data = json.loads(resp)
         except ValueError as e:
-            print(f"  Kingston Hubs month {start[:7]}: bad JSON {e!r}")
+            report(f"month {start[:7]}: bad JSON {e!r}", level="warn")
             continue
         for day in data.get("data", []) or []:
             for it in day.get("Items", []) or []:
@@ -303,18 +293,17 @@ def _gd_detail_location(soup):
     return "", ""
 
 
-def _suburb_from_address(address):
-    """Suburb from the tail of an Australian address line.
+def extract_suburb(address):
+    """Suburb from a street address, validated against the gazetted list.
 
-    "44 Memorial Drive, Noble Park" -> "Noble Park"
-    "1 Smith St, Dandenong VIC 3175" -> "Dandenong"
+    build_site owns the rule, because it also owns publishing the value; this
+    used to be a second reader here that took the last comma segment and
+    returned it unchecked, so a detail page stating only a street published
+    "1218 Nepean Highway" as the suburb and counted as placed. Imported
+    lazily: build_site is a rendering module and this is a fetching one.
     """
-    segments = [s.strip() for s in (address or "").split(",") if s.strip()]
-    if not segments:
-        return ""
-    last = re.sub(r"\b(?:VIC|Victoria)\b\.?\s*\d{4}\s*$", "", segments[-1],
-                  flags=re.I).strip(" ,.")
-    return last
+    from build_site import extract_suburb as _extract
+    return _extract(address)
 
 
 def _classifiable(row, known=GD_CATCHMENT):
@@ -389,12 +378,12 @@ def fetch_greater_dandenong(cfg, session=None):
         except Exception as e:
             if page == 0:
                 raise PartialFetch(f"Greater Dandenong page {page} FAILED {e!r}")
-            print(f"  Greater Dandenong page {page}: FAILED {e!r}")
+            report(f"page {page}: FAILED {e!r}", level="warn")
             continue
         if not html:
             if page == 0:
                 raise PartialFetch(f"Greater Dandenong page {page}: no content")
-            print(f"  Greater Dandenong page {page}: no content")
+            report(f"page {page}: no content", level="warn")
             break
         soup = BeautifulSoup(html, "html.parser")
         views = soup.select(".views-col")
@@ -426,10 +415,10 @@ def fetch_greater_dandenong(cfg, session=None):
         if page and not fresh:
             # The listing has been exhausted; asking for more only re-sends
             # what we already have.
-            print(f"  Greater Dandenong: no new events past page {page - 1}")
+            report(f"no new events past page {page - 1}")
             break
         time.sleep(0.2)
-    print(f"  Greater Dandenong: {len(cards)} distinct events from the listing")
+    report(f"{len(cards)} distinct events from the listing")
 
     # Build every row from the card first, then open the detail pages in one
     # shared loop. This used to fetch details inline with its own `continue` on
@@ -443,15 +432,15 @@ def fetch_greater_dandenong(cfg, session=None):
         description=card["description"],
     ) for link, card in list(cards.items())[:detail_cap]]
     if len(cards) > len(rows):
-        print(f"  Greater Dandenong: detail_cap {detail_cap} reached, "
-              f"{len(cards) - len(rows)} events left without a venue")
+        report(f"detail_cap {detail_cap} reached, "
+               f"{len(cards) - len(rows)} events left without a venue")
 
     def _apply_detail(row, html):
         venue, address = _gd_detail_location(BeautifulSoup(html, "html.parser"))
         if venue:
             row["location"] = venue
             row["address"] = ", ".join(p for p in (venue, address) if p)
-            row["suburb"] = _suburb_from_address(address)
+            row["suburb"] = extract_suburb(address)
 
     enrich_details(session, rows, None, _apply_detail, sleep=0.15,
                    label="greater_dandenong")
@@ -467,13 +456,11 @@ def fetch_greater_dandenong(cfg, session=None):
         else:
             dropped += 1
 
-    print(f"  Greater Dandenong: venue found for {placed}, "
-          f"suburb unknown for {unplaced}")
-    print(f"  Greater Dandenong: catchment {list(allowed)} keeps {len(kept)}, "
-          f"drops {dropped}")
+    report(f"venue found for {placed}, suburb unknown for {unplaced}")
+    report(f"catchment {list(allowed)} keeps {len(kept)}, drops {dropped}")
     kept_subs = sorted({r["suburb"] for r in kept if r["suburb"]})
     if kept_subs:
-        print(f"    suburbs kept: {', '.join(kept_subs)}")
+        report(f"suburbs kept: {', '.join(kept_subs)}", level="debug")
     return kept
 
 
@@ -513,7 +500,7 @@ def fetch_gd_libraries(cfg, session=None):
                 description=card.get_text(" ", strip=True)[:300],
             ))
     except Exception as e:
-        print(f"  GD Libraries: parse FAILED {e!r}")
+        report(f"parse FAILED {e!r}", level="warn")
         return rows
 
     # Same platform as the council listing, so the venue is on the detail page
@@ -527,7 +514,7 @@ def fetch_gd_libraries(cfg, session=None):
         if venue:
             row["location"] = venue
             row["address"] = ", ".join(p for p in (venue, address) if p)
-            row["suburb"] = _suburb_from_address(address)
+            row["suburb"] = extract_suburb(address)
 
     enrich_details(session, rows, cfg.get("detail_cap", 60), _apply_detail,
                    sleep=0.15, label="gd_libraries")
@@ -539,9 +526,8 @@ def fetch_gd_libraries(cfg, session=None):
         # them, and the two published different answers to one question.
         before = len(rows)
         rows = [r for r in rows if _passes_suburb_filter(r, allowed)]
-        print(f"  GD Libraries: {before - len(rows)} row(s) outside "
-              f"suburb_filter {allowed}")
-    print(f"  GD Libraries: {len(rows)} events, venue resolved for {placed}")
+        report(f"{before - len(rows)} row(s) outside suburb_filter {allowed}")
+    report(f"{len(rows)} events, venue resolved for {placed}")
     return rows
 
 
@@ -626,7 +612,7 @@ def fetch_chatty_cafe(cfg, session=None):
     rows = []
     for venue in cfg.get("venues", []) or []:
         if not isinstance(venue, dict) or not venue.get("slug") or not venue.get("schedule"):
-            print(f"  Chatty Cafe: skipping malformed venue entry {venue!r}")
+            report(f"skipping malformed venue entry {venue!r}", level="warn")
             continue
         vname = venue.get("name") or venue["slug"]
         url = f"https://chattycafeaustralia.org.au/venue/{venue['slug']}/"
@@ -636,17 +622,16 @@ def fetch_chatty_cafe(cfg, session=None):
             live = _chatty_live_schedule(html)
             if live and live != schedule:
                 if _chatty_schedule_is_usable(live):
-                    print(f"  Chatty Cafe {vname}: schedule updated "
-                          f"from site ({live!r})")
+                    report(f"{vname}: schedule updated from site ({live!r})")
                     schedule = live
                 else:
-                    print(f"  Chatty Cafe {vname}: site text {live!r} "
-                          f"is not a usable schedule, keeping configured "
-                          f"{schedule!r}")
+                    report(f"{vname}: site text {live!r} is not a usable "
+                           f"schedule, keeping configured {schedule!r}",
+                           level="warn")
         except Exception as e:
             # Keep the configured schedule rather than dropping the venue.
-            print(f"  Chatty Cafe {vname}: fetch FAILED {e!r}, "
-                  f"using configured schedule")
+            report(f"{vname}: fetch FAILED {e!r}, using configured schedule",
+                   level="warn")
         rows.append(make_row(
             cfg["id"], f"Chatty Cafe - {vname}", url,
             datetime_text=schedule,

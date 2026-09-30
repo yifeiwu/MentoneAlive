@@ -108,14 +108,13 @@ def tbody_of(dom):
 def dom_a11y_errors(dom, rows):
     errors = []
 
-    # With thead visually hidden on mobile, the caption is the only thing
-    # naming what the list is.
-    if "<caption" not in dom:
-        errors.append("rendered table has no <caption>")
-
+    # `<caption` and `<main` are asserted by health_check.a11y_errors against the
+    # template's text, and the rendered DOM is that same text, so re-deriving them
+    # here could only differ if the page failed to render at all -- which the
+    # row count below already catches. These two ids are asserted nowhere else,
+    # because only a running page can show that the live region was rendered.
     for node, why in (('id="count"', "result count"),
-                      ('id="count-live"', "result count live region"),
-                      ("<main", "main landmark")):
+                      ('id="count-live"', "result count live region")):
         if node not in dom:
             errors.append(f"rendered page has no {why}")
 
@@ -522,10 +521,10 @@ def main():
         print(f"FAIL: {INDEX} not found - run scripts/build_site.py first")
         return 1
     html = open(INDEX, encoding="utf-8").read()
-    if "__EVENTS_DATA__" in html or "__TYPE_CHECKBOXES__" in html:
-        print(f"FAIL: {INDEX} still has unsubstituted template placeholders")
-        return 1
 
+    # Unsubstituted placeholders are health_check's job, and it checks all five
+    # PLACEHOLDERS against this same file before this runs. An unbuilt page then
+    # fails the row-count assertion below instead.
     browser = find_browser()
     if not browser:
         print("SKIP: no Chromium-family browser found, cannot render the page.")

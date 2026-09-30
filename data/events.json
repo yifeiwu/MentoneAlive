@@ -45661,6 +45661,101 @@
    "hidden_by_default": false
   },
   {
+   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-11-11T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "ccc",
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-11-11T12:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "ccc",
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Takeaway Meals",
+   "datetime_text": "Every Tuesday, Wednesday, Thursday and Friday",
+   "datetime_iso": "2026-10-21T10:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Take home delicious, nutritious meals for one. Available Tuesday to Friday, 10am–2pm.. Tuesday to Friday. 10am–2pm",
+   "source": "https://www.chelt.com.au/soul-cafe.html",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "ccc",
+   "sources": [
+    "https://www.chelt.com.au/soul-cafe.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday, Thursday and Friday",
+   "types": [
+    "Food & Drink"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": true,
+   "service_reason": "service:takeaway meals",
+   "hidden_by_default": true
+  },
+  {
    "name": "STEADYmoves",
    "datetime_text": "Every Tuesday and Friday",
    "datetime_iso": "2026-10-06T11:30:00",
@@ -45835,70 +45930,6 @@
    "recurrence": "Every Tuesday and Friday",
    "types": [
     "Other"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
-   "datetime_text": "Every Wednesday",
-   "datetime_iso": "2026-11-11T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "ccc",
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday",
-   "types": [
-    "Books & Reading",
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
-   "datetime_text": "Every Wednesday",
-   "datetime_iso": "2026-11-11T12:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "ccc",
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday",
-   "types": [
-    "Books & Reading",
-    "Info Session"
    ],
    "suburb": "Cheltenham",
    "is_commercial": false,
@@ -46095,37 +46126,6 @@
    "is_service": false,
    "service_reason": "",
    "hidden_by_default": false
-  },
-  {
-   "name": "Takeaway Meals",
-   "datetime_text": "Every Tuesday, Wednesday, Thursday and Friday",
-   "datetime_iso": "2026-10-21T10:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Take home delicious, nutritious meals for one. Available Tuesday to Friday, 10am–2pm.. Tuesday to Friday. 10am–2pm",
-   "source": "https://www.chelt.com.au/soul-cafe.html",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "ccc",
-   "sources": [
-    "https://www.chelt.com.au/soul-cafe.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday, Wednesday, Thursday and Friday",
-   "types": [
-    "Food & Drink"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": true,
-   "service_reason": "service:takeaway meals",
-   "hidden_by_default": true
   }
  ]
 }

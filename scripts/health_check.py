@@ -573,8 +573,8 @@ def _target_size_errors(css, name):
 MIN_TOTAL = 700
 # Generous floors (~25-50% of normal) for always-on sources.
 # gd_libraries is low because dedupe_by_source_url() collapses the listings
-# that greater_dandenong also scrapes from the same page; the four that remain
-# are the only events unique to that source.
+# that greater_dandenong also scrapes from the same page; the thirteen that
+# remain are the only events unique to that source.
 # ccc and chatty_cafe were both 10, which was below the noise: chatty_cafe lost
 # six of its twenty venues to a broken schedule extractor and still cleared 10
 # by a factor of 16, and ccc lost every session of a term but the first. Both

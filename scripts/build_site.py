@@ -250,9 +250,9 @@ def main():
         "is_service", "service_reason", "status", "status_label",
         "status_detail", "hidden_by_default",
     )
-    # A false flag is worth omitting (1513 of 1522 rows carry one, and every
-    # read of all three is guarded, so absent already means false). A zero is
-    # NOT: `price_sort == 0` is 514 rows and is how `isFree()` recognises a
+    # A false flag is worth omitting: only 13 of 1531 rows carry a true one, and
+    # every read of all three is guarded, so absent already means false. A zero
+    # is NOT: `price_sort == 0` is 514 rows and is how `isFree()` recognises a
     # free event, so it is kept. Note that `value in ("", [], None, False)`
     # cannot express that -- `0.0 == False` in Python, so it would drop every
     # free row's price.

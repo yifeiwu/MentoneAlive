@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup, NavigableString
 
-from webfetch_http import (DETAIL_MIN_SUCCESS_RATIO, PartialFetch, get,
+from webfetch_http import (DETAIL_MIN_SUCCESS_RATIO, PartialFetch, _hhmm, get,
                            make_row, report)
 
 # ---------------------------------------------------------------------------
@@ -168,7 +168,14 @@ _CCC_TIME_RE = re.compile(
 
 
 def _ccc_first_time(text):
-    """'HH:MM' for the first time stated in `text`, or '' if it states none."""
+    """'HH:MM' for the first time stated in `text`, or '' if it states none.
+
+    The regex here reads a form parse_time() does not -- '12noon' and
+    '11 midday' are both in use in this source's schedules -- so this stays a
+    separate reader. Only the 12-hour conversion is shared, through _hhmm, which
+    also clamps: this regex will happily capture '99pm', and an unclamped
+    '111:00' reaches datetime.replace(hour=111) and takes the whole source down.
+    """
     m = _CCC_TIME_RE.search(text or "")
     if not m:
         return ""
@@ -178,10 +185,8 @@ def _ccc_first_time(text):
         hour, minute, ap = int(m.group(4)), 0, m.group(5).lower()
     else:
         return "12:00"
-    if ap == "p" and hour != 12:
-        hour += 12
-    elif ap == "a" and hour == 12:
-        hour = 0
+    # The regex captures a single letter ("9p"), _hhmm wants the word.
+    hour, minute = _hhmm(hour, minute, ap + "m")
     return f"{hour:02d}:{minute:02d}"
 
 

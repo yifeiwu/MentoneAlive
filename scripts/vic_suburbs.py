@@ -72,8 +72,11 @@ KNOWN_SUBURBS = frozenset({
     "St Kilda",
     "St Kilda East",
     # City of Greater Dandenong (catchment is Springvale/Keysborough, but
-    # neighbours appear in addresses and must validate rather than vanish)
+    # neighbours appear in addresses and must validate rather than vanish.
+    # Cleveland, Notting Hill and Rowville are in GD_CATCHMENT, so a listing
+    # there must resolve to a suburb rather than an empty string.)
     "Bangholme",
+    "Cleveland",
     "Dandenong",
     "Dandenong North",
     "Dandenong South",
@@ -81,6 +84,8 @@ KNOWN_SUBURBS = frozenset({
     "Keysborough",
     "Noble Park",
     "Noble Park North",
+    "Notting Hill",
+    "Rowville",
     "Springvale",
     "Springvale South",
     # Frankston / Casey / Mornington fringe (archivals + neighbours)

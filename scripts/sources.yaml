@@ -127,8 +127,10 @@ sources:
   - name: "Chatty Cafe"
     id: "chatty_cafe"
     type: "venues"
-    url: "https://chattycafeaustralia.org.au/find-a-chatty-table/"
-    # Selected venues near Cheltenham, Mentone, Mordialloc, Chelsea
+    # Venue pages are built from each slug below
+    # (https://chattycafeaustralia.org.au/venue/<slug>/), so there is no
+    # listing url to configure. Selected venues near Cheltenham, Mentone,
+    # Mordialloc, Chelsea.
     venues:
       - slug: "cheltenham-community-centre"
         name: "Cheltenham Community Centre"

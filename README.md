@@ -24,11 +24,11 @@ observation, not a standing total. Read the live number from the store.
 | Kingston Seniors Festival | `kingston_seniors` | 159 | Annual PDF guide + hand-checked overrides |
 | Bayside Council events | `bayside_live` | 142 | HTML, full `?page=` pagination |
 | Frankston archived programmes | `frankston_archived` | 26 | Static snapshot (live pages WAF-blocked) |
-| Greater Dandenong | `greater_dandenong` | 18 | HTML + per-event detail pages, `suburb_filter` applied |
+| Greater Dandenong | `greater_dandenong` | 16 | HTML + per-event detail pages, `suburb_filter` applied |
 | Bayside archived programmes | `bayside_archived` | 12 | Static snapshot |
 | Kingston Arts | `kingston_arts` | 10 | HTML, same platform as `kingston_council` |
-| Kingston Council upcoming events | `kingston_council` | 4 | HTML, page 1 only (Granicus pager is a JS postback) |
-| Greater Dandenong Libraries | `gd_libraries` | 4 | HTML, same CMS and detail treatment |
+| Kingston Council upcoming events | `kingston_council` | 6 | HTML, page 1 only (Granicus pager is a JS postback) |
+| Greater Dandenong Libraries | `gd_libraries` | 13 | HTML, same CMS and detail treatment |
 
 Two hosts 403 a plain `urllib` request outright and so need browser TLS
 impersonation: `kingston_council` and `kingston_arts`. The two Greater Dandenong
@@ -232,6 +232,8 @@ the build before it can reach the published page. The suites are:
 | `commercial` | commercial detection rules |
 | `webfetch_granicus` | Granicus address parsing |
 | `webfetch_http` | shared time/month/row parsing |
+| `build_site` | suburb extraction |
+| `fetchers` | the fetch call convention, without a network |
 | `failure_signals` | config validation and the "do not publish" signal |
 | `fetcher_equivalence` | the fetchers extract the same rows they used to |
 

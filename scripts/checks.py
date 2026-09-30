@@ -15,13 +15,11 @@ different formats. So:
 
 The suites stay where they are. This only owns the boilerplate.
 """
-import runpy
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SUITE_DIR = ROOT / "scripts"
 
 # Each suite is a module in scripts/ whose __main__ block asserts its rules and
 # exits non-zero on failure. Order is only for readable output.

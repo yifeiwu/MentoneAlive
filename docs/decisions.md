@@ -108,8 +108,8 @@ to the operator as "returned 0 rows".
 
 The related rules that follow from it:
 
-- **A source that raises, or returns 0 rows, is a hard failure.** Both fetchers
-  exit non-zero.
+- **A source that raises, or returns 0 rows, is a hard failure.** The fetcher
+  exits non-zero.
 - **0 rows never overwrites a snapshot.** A festival out of season must not
   erase the season it already published.
 - **A crawl that stops early raises `PartialFetch`.** A partial crawl is
@@ -561,7 +561,7 @@ column's width and no later rule can lower it. The price column was ~430px of a
 ~1240px table — a third of the viewport — because the cell was `nowrap` and one
 row's `price_text` was `"Physiotherapy fees apply FIND OUT MORE BUTTON Find Out
 More"`, 59 characters of page furniture a fetcher bug had put in a cost field.
-Its own 90th percentile is 4 characters and 681 of 1,522 rows have no price at
+Its own 90th percentile is 4 characters and 690 of 1,531 rows have no price at
 all.
 
 Fixed layout takes the widths from the `<colgroup>`, so content wraps and the
@@ -679,7 +679,7 @@ mistaken for load-bearing.
 | Thing | What it actually is |
 | --- | --- |
 | `bayside_seniors` | 74 fetched rows, **0 published**. Every event URL is byte-identical to one in `bayside_auto.json`. It cost a source entry, 7 listing pages and up to 90 detail fetches per run, and was invisible to the health check because seasonal sources are warn-only. **Removed.** |
-| `MIN_TOTAL = 700` | The real index is 1,522 rows, so this can only fire after a 54% collapse — and `MIN_SOURCE` localises better. The per-source floors of 3 do the real work. |
+| `MIN_TOTAL = 700` | The real index is 1,531 rows, so this can only fire after a 54% collapse — and `MIN_SOURCE` localises better. The per-source floors of 3 do the real work. |
 | Horizon constants in `recurrence.py` | `WEEKLY/FORTNIGHTLY/MONTHLY_HORIZON_*` are all slack above the 12-occurrence cap, which always truncates first. They never decide an outcome; they only stop a runaway loop on a malformed spec. Kept, with a comment saying so — removing them would put a loop bound in charge of the last occurrence. |
 | Archived sources | `frankston_archived`/`bayside_archived` carry no date of their own, so `prune_old` never touches them — they re-derive *forward* indefinitely and will keep publishing. A deliberate trade, not an oversight: the live pages are WAF-blocked. |
 | The seniors festival | 10% of the calendar for one month of the year, and two files that must be re-synced by hand every October. Kept: it is a real event that is genuinely on, and the alternatives are a thinner calendar or a hand-written scraper for the PDF. |
