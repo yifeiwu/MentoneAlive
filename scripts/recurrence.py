@@ -60,7 +60,7 @@ _FOUR_DIGIT_YEAR_RE = re.compile(r"^(?:19|20)\d{2}$")
 # weekday in a title is trusted as a recurring pattern.
 _ONGOING_HINT_RE = re.compile(
     r"\bevery\s+\w+day\b|\beach\s+\w+day\b|\bweekly\b|\bfortnightly\b"
-    r"|\bterm\b|\bongoing\b|\brecurring\b|\bevery\s+week\b|\bevery\s+month\b"
+    r"|\bterm\b|\bongoing\b|\brecurring\b"
     r"|\b\d+\s*weeks?\b|\bclasses?\s+each\b|\bsessions?\s+each\b"
     # "First Tuesday each week", "every other week". "each <weekday>" was
     # already here but "each week" was not, so a weekly class written that
@@ -84,7 +84,7 @@ _TIME_TOKEN = (
     r"\d{1,2}[:.]\d{2}\s*[ap]\.?\s*m\.?"
     # "12noon" / "12 midday" is one time, not a bare hour plus a word.
     rf"|\b\d{{1,2}}\s*(?:{_NOON_ALT})\b"
-    rf"|\b(?:{_NOON_ALT})\b"
+    rf"|\b(?:{_NOON_ALT}|midnight)\b"
     r"|\b\d{1,2}\s*[ap]\.?\s*m\.?"
     r"|\b\d{1,2}[:.]\d{2}\b"
     r")")
@@ -299,6 +299,20 @@ def weekday_slots(text):
     ranges = _time_ranges(text)
     events += [(pos, "time", (start, end))
                for pos, _end_pos, start, end in ranges]
+    # A backwards bare-hour range ("9 - 8pm") is refused in _time_ranges, but
+    # its end time would otherwise return here as a lone time point and be
+    # published as a session at 20:00. Exclude those positions so a refused
+    # range stays refused instead of re-entering through the fallback.
+    refused_spans = []
+    for m in _BARE_HOUR_RANGE_RE.finditer(text or ""):
+        start_token, end_token = m.group(1), m.group(2)
+        if _BARE_START_RE.match(start_token):
+            ap = re.search(r"([ap])\.?\s*m?\.?$", end_token, re.I)
+            if ap:
+                start_token += ap.group(1) + "m"
+        start, end = _to_hhmm(start_token), _to_hhmm(end_token)
+        if start and end and end < start:
+            refused_spans.append((m.start(), m.end()))
     # A lone time with no range ("Every Thursday 11.30am") still belongs to the
     # weekdays that precede it. Without this the slot stayed untimed and the
     # occurrence was published at midnight.
@@ -308,6 +322,8 @@ def weekday_slots(text):
             continue
         # Skip any time already consumed as part of a range.
         if any(start <= m.start() < end for start, end, _, _ in ranges):
+            continue
+        if any(rs <= m.start() < re_ for rs, re_ in refused_spans):
             continue
         events.append((m.start(), "time", (single, single)))
     events.sort(key=lambda ev: ev[0])
@@ -343,8 +359,8 @@ def weekday_slots(text):
 
 def _dedupe_slots(slots):
     out, seen = [], set()
-    for day, start, end in sorted(slots, key=lambda s: (s[0], s[1] or "")):
-        key = (day, start)
+    for day, start, end in sorted(slots, key=lambda s: (s[0], s[1] or "", s[2] or "")):
+        key = (day, start, end)
         if key in seen:
             continue
         seen.add(key)
@@ -460,7 +476,7 @@ def _extract_single_date(text, today, require_year):
             try:
                 candidate = date(year, mon, day)
             except ValueError:
-                return None
+                continue
             if candidate >= today:
                 return candidate
             if (today - candidate).days <= YEAR_ROLL_GRACE_DAYS:
@@ -536,9 +552,12 @@ def _parse_text(text, today, allow_loose_single=False):
     single = stale_single = None
     if slots and not _ONGOING_HINT_RE.search(text):
         single = _extract_single_date(text, today, require_year=True)
-        if single is None and allow_loose_single:
-            single = _extract_single_date(text, today, require_year=False)
-            if single is None and re.search(rf"\b\d{{1,2}}\s+({MONTH_ALT})\b",
+        loose = None
+        if single is None:
+            loose = _extract_single_date(text, today, require_year=False)
+            if allow_loose_single:
+                single = loose
+            if loose is None and re.search(rf"\b\d{{1,2}}\s+({MONTH_ALT})\b",
                                             text, re.I):
                 stale_single = True
     # A weekday and a time with no date anywhere is a pattern. That is how
@@ -613,7 +632,7 @@ def _name_hint_spec(name, text=""):
     if not _ONGOING_HINT_RE.search(text or ""):
         return None
     if _WEEKEND_RE.search(name):
-        return Spec("weekly", [(5, None, None)], label="Every Saturday")
+        return Spec("weekly", [(5, None, None), (6, None, None)], label="Every weekend")
     m = _DAY_TOKEN_RE.search(name)
     if not m:
         return None
@@ -631,13 +650,16 @@ def build_spec(row, today=None):
         value = (row.get(field_name) or "").strip()
         if value and value not in texts:
             texts.append(value)
+    first_reason = None
     for index, text in enumerate(texts):
         spec, reason = _parse_text(text, today,
                                     allow_loose_single=index == len(texts) - 1)
         if spec is not None:
             return spec, None
-        if reason:
-            return None, reason
+        if reason and first_reason is None:
+            first_reason = reason
+    if first_reason:
+        return None, first_reason
     spec = _name_hint_spec(row.get("name") or "",
                            " ".join(texts))
     if spec is not None:
@@ -773,7 +795,7 @@ def expand(spec, today=None, max_occurrences=MAX_OCCURRENCES):
         # count only applies where there is no range, and is converted to
         # occurrences by how many sessions the week actually holds.
         if not (spec.start_date or spec.end_date):
-            per_week = max(1, len({s[0] for s in spec.slots}))
+            per_week = max(1, len(spec.slots))
             found = found[:spec.max_periods * per_week]
     return found[:max_occurrences]
 
@@ -810,7 +832,7 @@ def infer_event(row, today=None, max_occurrences=MAX_OCCURRENCES):
     if spec.end_date:
         label = f"{label} (to {spec.end_date.strftime('%d %b %Y')})"
     elif spec.max_periods:
-        label = f"{label} ({spec.max_periods} sessions)"
+        label = f"{label} ({spec.max_periods} weeks)"
     return [_row_with_date(row, day, start, label)
             for day, start in occurrences], label
 
@@ -1028,7 +1050,7 @@ if __name__ == "__main__":
          [(5, "18:00", "20:00")]),
         ("a backwards range is refused, not published",
          slots_for("Mondays 9 - 8pm"),
-         [(0, "20:00", "20:00")]),
+         None),
 
         # --- "each week" is not "of the month" -----------------------------
         # The alternation read "week" as a monthly period, so a weekly class

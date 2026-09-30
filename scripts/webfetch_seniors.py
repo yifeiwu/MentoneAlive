@@ -242,12 +242,16 @@ def fetch_kingston_seniors(cfg, session=None):
     # defaulting to the run year silently reinterprets the whole document.
     # Its absence is a config fault, not a fetch outcome, so it is raised
     # rather than returned as an empty source.
-    if "year" not in cfg:
+    if "year" not in cfg or cfg.get("year") is None:
         raise PartialFetch(
             f"kingston_seniors: sources.yaml has no 'year', so the festival "
             f"guide is skipped entirely. health_check.seniors_config_errors() "
             f"reports the same fault.")
-    year = int(cfg["year"])
+    try:
+        year = int(cfg["year"])
+    except (ValueError, TypeError):
+        raise PartialFetch(
+            f"kingston_seniors: invalid 'year' {cfg.get('year')!r}")
     footer_re = _seniors_footer_re(year)
     report("downloading seniors PDF...")
     pdf_bytes = fetch_bytes(session, pdf_url, min_len=100000, retries=2)
@@ -388,8 +392,10 @@ def fetch_kingston_seniors(cfg, session=None):
             for day in _seniors_expand(m, year):
                 dt = day.replace(hour=tm[0], minute=tm[1]) if tm \
                     else day.replace(hour=0, minute=0)
+                text = (dt.strftime("%A %d %B, %I:%M %p") if tm
+                        else dt.strftime("%A %d %B"))
                 rows.append(dict(base,
-                                 datetime_text=dt.strftime("%A %d %B, %I:%M %p"),
+                                 datetime_text=text,
                                  datetime_iso=dt.isoformat()))
                 emitted_keys.append(
                     (frozenset([(day.month, day.day)]), tm))
@@ -412,7 +418,7 @@ def fetch_kingston_seniors(cfg, session=None):
         # Skip groups already emitted directly. emitted_keys holds per-day
         # single frozensets while pooled groups span several days, so the
         # comparison is on the days actually covered.
-        direct_days = {key[0] for key in emitted_keys}
+        direct_days = {t for key in emitted_keys for t in key[0]}
         unclaimed = [g for g in groups
                      if not (g[0] & direct_days and len(g[0]) == 1)]
         targets = dateless_by_page[page_idx]
@@ -517,14 +523,18 @@ def _seniors_apply_overrides(rows, cfg):
     def matches(r, ov):
         # Name match, then venue. A stored `hit` flag was set in both branches
         # and never read; the `else: return False` carried the control flow.
-        if norm(r["name"]) == norm(ov["name"]):
+        ov_name = ov.get("name") or ""
+        ov_venue = ov.get("venue") or ""
+        if not ov_name or not ov_venue:
+            return False
+        if norm(r.get("name")) == norm(ov_name):
             pass
-        elif len(norm(ov["name"])) > 8 and norm(r["name"]).endswith(
-                norm(ov["name"])):
+        elif len(norm(ov_name)) > 8 and norm(r.get("name")).endswith(
+                norm(ov_name)):
             pass
         else:
             return False
-        return ov["venue"] in norm(
+        return ov_venue.lower() in norm(
             (r.get("location") or "") + " " + (r.get("address") or ""))
 
     mine = [r for r in rows if r.get("source_id") == cfg["id"]]
@@ -566,11 +576,13 @@ def _seniors_apply_overrides(rows, cfg):
                     report(f"override {ov['name']!r}: unparseable time {tm!r}, "
                            f"using midnight", level="warn")
                 hh, mm = 0, 0
-            for d in sess.get("dates", []):
+            for d in sess.get("dates", []) or []:
                 try:
+                    if not isinstance(d, str):
+                        raise ValueError(f"not a date string: {d!r}")
                     dt = datetime.strptime(d, "%Y-%m-%d").replace(
                         hour=hh, minute=mm)
-                except ValueError as e:
+                except (ValueError, TypeError) as e:
                     report(f"override {ov['name']!r}: date {d!r} unusable "
                            f"({e}), session skipped", level="warn")
                     continue

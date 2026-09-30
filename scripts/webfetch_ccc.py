@@ -107,7 +107,10 @@ def _ccc_section_starts(main):
         if len(title) < 3:
             continue
         starts.append((block, "labels", title))
-    starts.sort(key=lambda s: getattr(s[0], "sourceline", 0) or 0)
+    # BeautifulSoup has no `sourceline` (lxml only), so sort by document
+    # order via a descendant index instead of a key that is always 0.
+    order = {id(el): i for i, el in enumerate(main.descendants)}
+    starts.sort(key=lambda s: order.get(id(s[0]), 0))
     return starts
 
 
@@ -272,8 +275,6 @@ def fetch_ccc(cfg, session=None, detail_cap=None):
                                       f"Instructor: {instr}" if instr else "")
                                      if x)
                 else:
-                    if key in seen:
-                        continue
                     bits, cost = _ccc_free_signals(span_text)
                     cost = _ccc_clean_cost(cost)
                     generic = bool(re.search(
@@ -309,8 +310,6 @@ def fetch_ccc(cfg, session=None, detail_cap=None):
                             r["source"] = hum
                     continue
                 seen.add(dedup_key)
-                if kind != "labels":
-                    seen.add(key)
                 rows.append(make_row(
                     cfg["id"], title, hum or page_url,
                     # A Weebly class states its pattern in prose ("Wednesdays.
@@ -373,7 +372,9 @@ def enrich_humanitix(session, rows, cap):
     extra = []
     attempted = 0
     for r in rows:
-        if n >= cap or "humanitix.com" not in (r.get("source") or ""):
+        if "humanitix.com" not in (r.get("source") or ""):
+            continue
+        if cap is not None and n >= cap:
             continue
         attempted += 1
         html = get(session, r["source"])

@@ -217,7 +217,7 @@ def _apply_granicus_detail(r, html):
     if street:
         r["address"] = f"{street.strip()}, {suburb.strip()} " \
                        f"{postcode.strip()}"
-        if not r["location"] or r["location"] in ("Greater Dandenong",):
+        if not r["location"]:
             # Only derive a venue name from the street when the page gave
             # none. Strip a leading house number: "979 Nepean Highway" is
             # an address, not a place name.

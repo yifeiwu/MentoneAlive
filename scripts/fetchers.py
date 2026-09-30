@@ -1,7 +1,7 @@
 """The fetch call convention, asserted without touching the network.
 
 `fetch_sources.py` calls every fetcher the same way -- `fetcher(cfg, session)`,
-plus a `detail_cap` for the three types that also feed the shared raw file, and
+plus a `detail_cap` for the three snapshot types that crawl detail pages, and
 it detects that third argument with `inspect.signature`. So a fetcher whose
 signature drifts is not a clean failure: it compiles, `checks.py` passes,
 `--check-config` passes, and the source only breaks on a live run, where the

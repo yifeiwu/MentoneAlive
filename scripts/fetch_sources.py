@@ -4,8 +4,9 @@ One entry point for all sources, because a source's transport is a property of
 its *host*, not of the script that happens to fetch it. This used to be two:
 `fetch_events.py` (plain urllib) and `webfetch_sources.py` (curl-cffi Chrome
 impersonation), split on the claim that "plain urllib gets 403 from the Granicus
-WAF". Only `kingston_council` and `kingston_arts` actually need impersonation;
-the other three webfetch hosts answer plain HTTP. So a source now says
+WAF". `kingston_council` and `kingston_arts` need impersonation for listings,
+and `greater_dandenong` + `gd_libraries` need it for detail pages only;
+the other webfetch hosts answer plain HTTP. So a source now says
 `impersonate: true` in sources.yaml and everything else shares one dispatch, one
 config validation pass and one set of failure rules.
 
@@ -134,8 +135,9 @@ def validate_config(entries):
                 errors.append(f"source {sid!r} (type ccc): needs 'pages' or "
                               f"'url'")
             if ftype == "api":
+                cals = cfg.get("calendars") or []
                 unmapped = [
-                    c for c in cfg["calendars"]
+                    c for c in cals
                     if not cfg.get("calendar_venues", {}).get(c, {}).get("name")
                     or not cfg.get("calendar_venues", {}).get(c, {}).get("address")]
                 if unmapped:

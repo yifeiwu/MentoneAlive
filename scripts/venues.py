@@ -31,10 +31,11 @@ def is_online(location):
     asked for; the behaviour was already right by this route rather than by
     the constant, so the constant was deleted rather than wired up.
     """
+    import re as _re
     loc = (location or "").strip().lower()
     if not loc:
         return False
-    return any(word in loc for word in ONLINE_VENUE_WORDS)
+    return any(_re.search(rf"\b{_re.escape(word)}\b", loc) for word in ONLINE_VENUE_WORDS)
 
 
 def needs_address(row):

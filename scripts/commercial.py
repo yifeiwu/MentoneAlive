@@ -62,7 +62,8 @@ def _has_price(event):
     ps = event.get("price_sort")
     if isinstance(ps, (int, float)) and ps is not None and ps > 0:
         return True
-    return _price_amount(event.get("price_text")) is not None
+    amt = _price_amount(event.get("price_text"))
+    return amt is not None and amt > 0
 
 
 def _has_solid_price(event):
@@ -92,14 +93,35 @@ def _venue_hit(location, address):
         if rx.search(blob_wo_public if rx.pattern == r"\bpub\b" else blob):
             return True
     # Ambiguous words may be exempted by a clearly community venue string.
+    # NOTE: SOFT in an allowlisted venue still counts as a venue hit here;
+    # the rescue for unpriced community trivia lives in is_commercial's
+    # trivia branch (which requires HARD or non-allowlisted SOFT). A priced
+    # meal at a "Sports Bar" inside a Community Centre stays commercial.
     if not ALLOWLIST_RE.search(blob) or RSL_RE.search(blob):
         for rx in SOFT_VENUE_RE:
             if rx.search(blob):
                 return True
         return False
-    # No \bpub\b guard here: the HARD loop above already returned True on
-    # blob_wo_public for that pattern, so reaching this point proves the scrub
-    # left no bare "pub". The guard could never change the result.
+    for rx in SOFT_VENUE_RE:
+        if rx.search(blob):
+            return True
+    return False
+
+
+def _venue_hit_hard_or_public(blob):
+    """True for HARD venues or SOFT venues outside an allowlisted community string.
+
+    Used by the trivia branch so "Trivia at Chelsea Community Centre
+    (Sports Bar)" is not flagged on the room name alone.
+    """
+    if not blob:
+        return False
+    for rx in HARD_VENUE_RE:
+        blob_wo_public = re.sub(r"publi[cs]\w*|publish\w*", " ", blob, flags=re.I)
+        if rx.search(blob_wo_public if rx.pattern == r"\bpub\b" else blob):
+            return True
+    if ALLOWLIST_RE.search(blob) and not RSL_RE.search(blob):
+        return False
     for rx in SOFT_VENUE_RE:
         if rx.search(blob):
             return True
@@ -126,11 +148,13 @@ def is_commercial(event):
     has_trivia = bool(TRIVIA_RE.search(text))
 
     # User rule: trivia is commercial only when priced,
-    # or when hosted at a commercial venue (pub trivia).
-    if has_trivia and (venue or _has_solid_price(event)):
+    # or when hosted at a commercial venue (pub trivia). A SOFT room name
+    # inside an allowlisted community venue does not count as the venue.
+    _trivia_venue = _venue_hit_hard_or_public(venue_blob)
+    if has_trivia and (_trivia_venue or _has_solid_price(event)):
         # `venue` short-circuits, so naming pricing in the same reason string
         # would claim a check that never ran.
-        return True, "trivia+venue" if venue else "trivia+priced"
+        return True, "trivia+venue" if _trivia_venue else "trivia+priced"
 
     # Weak venue terms need corroboration: priced meal or RSL+meal context.
     if venue:
@@ -141,8 +165,9 @@ def is_commercial(event):
         if priced or meal_ctx:
             return True, "venue+meal-context"
 
-    # RSL in text + meal/priced context (venue may be blank, e.g. bayside_live)
-    if RSL_RE.search(text) and (priced or re.search(
+    # RSL in text or venue + meal/priced context (venue may be blank, e.g. bayside_live)
+    rsl_present = bool(RSL_RE.search(text) or RSL_RE.search(venue_blob))
+    if rsl_present and (priced or re.search(
             r"meal|bistro|dinner|lunch|trivia|raffle|happy", text, re.I)):
         return True, "rsl+meal-context"
 

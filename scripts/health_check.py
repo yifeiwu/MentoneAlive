@@ -70,7 +70,7 @@ def seniors_config_errors(today=None):
     except yaml.YAMLError as e:
         return [f"sources.yaml unparseable: {e}"]
 
-    seniors = next((s for s in (cfg.get("webfetch") or [])
+    seniors = next((s for s in ((cfg.get("webfetch") or []) + (cfg.get("sources") or []))
                     if s.get("type") == "kingston_seniors_pdf"), None)
     if seniors is None:
         return ["sources.yaml has no kingston_seniors_pdf source"]
@@ -761,6 +761,23 @@ def main():
             f"{len(no_address)} rows have no address (only an event held "
             f"online may omit one): {dict(by_source)} e.g. {sample}")
 
+    # Every published suburb must be a gazetted Victorian locality in the
+    # catchment set (scripts/vic_suburbs.py). extract_suburb() already refuses
+    # to invent one, so a failure here means either a fetcher carried a
+    # suburb through verbatim that was never validated, or the catchment has
+    # genuinely grown and the list needs the newcomer. Either way the fix is
+    # explicit: add the real locality, or fix the extractor -- never silently
+    # publish a new filter checkbox.
+    from vic_suburbs import is_known_suburb
+    unknown_suburbs = sorted(
+        {s for s in ((r.get("suburb") or "").strip() for r in rows)
+         if s and not is_known_suburb(s)})
+    if unknown_suburbs:
+        errors.append(
+            f"{len(unknown_suburbs)} suburbs are not gazetted localities in "
+            f"vic_suburbs.py: {', '.join(unknown_suburbs[:8])} - add the real "
+            f"locality or fix the extractor")
+
     # The Greater Dandenong catchment is only enforceable if the fetcher got a
     # real venue: the listing cards carry none, so a regression that drops the
     # detail fetch leaves every row at the generic "Greater Dandenong" location
@@ -777,8 +794,9 @@ def main():
                 f"suburb_filter is not filtering")
         try:
             with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
-                gd_cfg = next((s for s in (yaml.safe_load(f) or {})
-                               .get("sources", []) if s.get("id")
+                _cfg = yaml.safe_load(f) or {}
+                _all = (_cfg.get("webfetch") or []) + (_cfg.get("sources") or [])
+                gd_cfg = next((s for s in _all if s.get("id")
                                == "greater_dandenong"), None) or {}
         except (OSError, yaml.YAMLError) as e:
             gd_cfg = {}

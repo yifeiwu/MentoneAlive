@@ -6499,38 +6499,6 @@
   {
    "name": "Chatty Cafe - Cheltenham Community Centre",
    "datetime_text": "Every Wednesday and Thursday",
-   "datetime_iso": "2026-09-30T10:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Rd, Cheltenham VIC 3192",
-   "price_text": "Free",
-   "description": "Chatty Cafe at Cheltenham Community Centre. Wednesdays & Thursdays at 10:30am during school term. A welcoming space for conversation and connection.",
-   "source": "https://chattycafeaustralia.org.au/venue/cheltenham-community-centre/",
-   "source_id": "chatty_cafe",
-   "price_sort": 0.0,
-   "source_label": "chatty_cafe",
-   "has_real_date": true,
-   "sources": [
-    "https://chattycafeaustralia.org.au/venue/cheltenham-community-centre/"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday and Thursday",
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Food & Drink",
-    "Social & Community"
-   ]
-  },
-  {
-   "name": "Chatty Cafe - Cheltenham Community Centre",
-   "datetime_text": "Every Wednesday and Thursday",
    "datetime_iso": "2026-10-01T10:30:00",
    "location": "Cheltenham Community Centre",
    "address": "8 Chesterville Rd, Cheltenham VIC 3192",
@@ -6807,38 +6775,6 @@
    "date_inferred": true,
    "recurrence": "Every Wednesday and Thursday",
    "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Food & Drink",
-    "Social & Community"
-   ]
-  },
-  {
-   "name": "Chatty Cafe - Chelsea Heights Community Centre",
-   "datetime_text": "Every Wednesday",
-   "datetime_iso": "2026-09-30T10:00:00",
-   "location": "Chelsea Heights Community Centre",
-   "address": "160 Thames Promenade, Chelsea Heights VIC 3196",
-   "price_text": "Free",
-   "description": "Chatty Cafe at Chelsea Heights Community Centre. Wednesday 10am-12pm (school term only). A welcoming space for conversation and connection.",
-   "source": "https://chattycafeaustralia.org.au/venue/chelsea-heights-community-centre/",
-   "source_id": "chatty_cafe",
-   "price_sort": 0.0,
-   "source_label": "chatty_cafe",
-   "has_real_date": true,
-   "sources": [
-    "https://chattycafeaustralia.org.au/venue/chelsea-heights-community-centre/"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday",
-   "suburb": "Chelsea Heights",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -7543,38 +7479,6 @@
    "date_inferred": true,
    "recurrence": "2nd Tuesday of every month",
    "suburb": "Chelsea",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Food & Drink",
-    "Social & Community"
-   ]
-  },
-  {
-   "name": "Chatty Cafe - Dingley Village Neighbourhood Centre",
-   "datetime_text": "Every Wednesday",
-   "datetime_iso": "2026-09-30T10:00:00",
-   "location": "Dingley Village Neighbourhood Centre",
-   "address": "31B Marcus Rd, Dingley Village VIC 3172",
-   "price_text": "Free",
-   "description": "Chatty Cafe at Dingley Village Neighbourhood Centre. Wednesday 10am - 12noon. A welcoming space for conversation and connection.",
-   "source": "https://chattycafeaustralia.org.au/venue/dingley-village-neighbourhood-centre/",
-   "source_id": "chatty_cafe",
-   "price_sort": 0.0,
-   "source_label": "chatty_cafe",
-   "has_real_date": true,
-   "sources": [
-    "https://chattycafeaustralia.org.au/venue/dingley-village-neighbourhood-centre/"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday",
-   "suburb": "Dingley Village",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -11462,7 +11366,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Info Session"
+    "Other"
    ]
   },
   {
@@ -12888,6 +12792,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Books & Reading",
     "Music & Performance"
    ]
   },
@@ -15489,37 +15394,6 @@
   {
    "name": "Mahjong",
    "datetime_text": "Every Wednesday",
-   "datetime_iso": "2026-09-30T14:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "Free",
-   "description": "Enjoy a friendly game of Mahjong in a welcoming and social environment. Whether you're an experienced player or looking to learn, Mahjong is a great way to keep your mind active, meet new people and enjoy a fun afternoon. Backgammon is also available for anyone who would like to play.. Wednesdays. 2:00pm – 3:30pm. Instructor: Self-guided Bookings: Essential - call us on 9583 0095 to book.",
-   "source": "https://www.chelt.com.au/free-activities.html",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": 0.0,
-   "source_label": "ccc",
-   "sources": [
-    "https://www.chelt.com.au/free-activities.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday",
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Games & Cards"
-   ]
-  },
-  {
-   "name": "Mahjong",
-   "datetime_text": "Every Wednesday",
    "datetime_iso": "2026-10-07T14:00:00",
    "location": "Cheltenham Community Centre",
    "address": "8 Chesterville Road, Cheltenham VIC 3192",
@@ -16637,37 +16511,6 @@
    "sources": [
     "https://events.humanitix.com/2026-pilates-term-4"
    ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Exercise & Fitness"
-   ]
-  },
-  {
-   "name": "Love to Live",
-   "datetime_text": "Every Wednesday (10 sessions)",
-   "datetime_iso": "2026-09-30T12:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "$12 per session",
-   "description": "Term 4 (10 weeks). Wednesdays, 12:00pm – 12:45pm. Instructor: Naki",
-   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": 12.0,
-   "source_label": "ccc",
-   "sources": [
-    "https://www.chelt.com.au/exercise-dance-yoga.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday (10 sessions)",
    "suburb": "Cheltenham",
    "is_commercial": false,
    "commercial_reason": "",
@@ -19911,70 +19754,6 @@
   {
    "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
    "datetime_text": "Every Wednesday",
-   "datetime_iso": "2026-09-30T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "ccc",
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday",
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Books & Reading",
-    "Info Session"
-   ]
-  },
-  {
-   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
-   "datetime_text": "Every Wednesday",
-   "datetime_iso": "2026-09-30T12:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "ccc",
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Wednesday",
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Books & Reading",
-    "Info Session"
-   ]
-  },
-  {
-   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
-   "datetime_text": "Every Wednesday",
    "datetime_iso": "2026-10-07T09:00:00",
    "location": "Cheltenham Community Centre",
    "address": "8 Chesterville Road, Cheltenham VIC 3192",
@@ -20350,37 +20129,6 @@
    "hidden_by_default": false,
    "types": [
     "Info Session"
-   ]
-  },
-  {
-   "name": "Takeaway Meals",
-   "datetime_text": "Every Tuesday, Wednesday, Thursday and Friday",
-   "datetime_iso": "2026-09-30T10:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Take home delicious, nutritious meals for one. Available Tuesday to Friday, 10am–2pm.. Tuesday to Friday. 10am–2pm",
-   "source": "https://www.chelt.com.au/soul-cafe.html",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "ccc",
-   "sources": [
-    "https://www.chelt.com.au/soul-cafe.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday, Wednesday, Thursday and Friday",
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": true,
-   "service_reason": "service:takeaway meals",
-   "hidden_by_default": true,
-   "types": [
-    "Food & Drink"
    ]
   },
   {
@@ -21140,6 +20888,7 @@
    "hidden_by_default": false,
    "types": [
     "Art & Craft",
+    "Books & Reading",
     "Info Session",
     "Seniors Festival"
    ]
@@ -22454,7 +22203,6 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Art & Craft",
     "Seniors Festival",
     "Social & Community",
     "Sport & Outdoors"
@@ -44704,7 +44452,7 @@
     "https://www.kingstonarts.com.au/whats-on/kings-of-the-gypsies"
    ],
    "types": [
-    "Other"
+    "Books & Reading"
    ],
    "suburb": "",
    "is_commercial": false,
@@ -45755,6 +45503,164 @@
    "hidden_by_default": false
   },
   {
+   "name": "Chatty Cafe - Cheltenham Community Centre",
+   "datetime_text": "Every Wednesday and Thursday",
+   "datetime_iso": "2026-11-11T10:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Rd, Cheltenham VIC 3192",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Cheltenham Community Centre. Wednesdays & Thursdays at 10:30am. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/cheltenham-community-centre/",
+   "source_id": "chatty_cafe",
+   "has_real_date": true,
+   "price_sort": 0.0,
+   "source_label": "chatty_cafe",
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/cheltenham-community-centre/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday and Thursday",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Chelsea Heights Community Centre",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-23T10:00:00",
+   "location": "Chelsea Heights Community Centre",
+   "address": "160 Thames Promenade, Chelsea Heights VIC 3196",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Chelsea Heights Community Centre. Wednesday 10am-12pm. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/chelsea-heights-community-centre/",
+   "source_id": "chatty_cafe",
+   "has_real_date": true,
+   "price_sort": 0.0,
+   "source_label": "chatty_cafe",
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/chelsea-heights-community-centre/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Chelsea Heights",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Dingley Village Neighbourhood Centre",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-23T10:00:00",
+   "location": "Dingley Village Neighbourhood Centre",
+   "address": "31B Marcus Rd, Dingley Village VIC 3172",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Dingley Village Neighbourhood Centre. Wednesday 10am – 12noon. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/dingley-village-neighbourhood-centre/",
+   "source_id": "chatty_cafe",
+   "has_real_date": true,
+   "price_sort": 0.0,
+   "source_label": "chatty_cafe",
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/dingley-village-neighbourhood-centre/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Dingley Village",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mahjong",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-23T14:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Free",
+   "description": "Enjoy a friendly game of Mahjong in a welcoming and social environment. Whether you're an experienced player or looking to learn, Mahjong is a great way to keep your mind active, meet new people and enjoy a fun afternoon. Backgammon is also available for anyone who would like to play.. Wednesdays. 2:00pm – 3:30pm. Instructor: Self-guided Bookings: Essential - call us on 9583 0095 to book.",
+   "source": "https://www.chelt.com.au/free-activities.html",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": 0.0,
+   "source_label": "ccc",
+   "sources": [
+    "https://www.chelt.com.au/free-activities.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "types": [
+    "Games & Cards"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Love to Live",
+   "datetime_text": "Every Wednesday (10 weeks)",
+   "datetime_iso": "2026-12-09T12:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "$12 per session",
+   "description": "Term 4 (10 weeks). Wednesdays, 12:00pm – 12:45pm. Instructor: Naki",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": 12.0,
+   "source_label": "ccc",
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday (10 weeks)",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
    "name": "STEADYmoves",
    "datetime_text": "Every Tuesday and Friday",
    "datetime_iso": "2026-10-06T11:30:00",
@@ -45929,6 +45835,70 @@
    "recurrence": "Every Tuesday and Friday",
    "types": [
     "Other"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-11-11T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "ccc",
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-11-11T12:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "ccc",
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "types": [
+    "Books & Reading",
+    "Info Session"
    ],
    "suburb": "Cheltenham",
    "is_commercial": false,
@@ -46125,6 +46095,37 @@
    "is_service": false,
    "service_reason": "",
    "hidden_by_default": false
+  },
+  {
+   "name": "Takeaway Meals",
+   "datetime_text": "Every Tuesday, Wednesday, Thursday and Friday",
+   "datetime_iso": "2026-10-21T10:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Take home delicious, nutritious meals for one. Available Tuesday to Friday, 10am–2pm.. Tuesday to Friday. 10am–2pm",
+   "source": "https://www.chelt.com.au/soul-cafe.html",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "ccc",
+   "sources": [
+    "https://www.chelt.com.au/soul-cafe.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday, Thursday and Friday",
+   "types": [
+    "Food & Drink"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": true,
+   "service_reason": "service:takeaway meals",
+   "hidden_by_default": true
   }
  ]
 }

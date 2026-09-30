@@ -553,12 +553,12 @@ function cmp(a,b){
 }
 // `new Date(iso)` returns Invalid Date rather than throwing for an unparseable
 // string, so the isNaN test is the whole check and the try/catch was unreachable.
-function icsDateLocal(iso){var d=new Date(iso);if(isNaN(d))return null;function p(n){return ("0"+n).slice(-2);}return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"T"+p(d.getHours())+p(d.getMinutes())+"00";}
+function icsDateLocal(iso){var d=new Date(iso);if(isNaN(d))return null;function p(n){return ("0"+n).slice(-2);}return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"T"+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());}
 // DTSTAMP is the moment the calendar object was *created*, in UTC. It was
 // previously set to the event's own start time, so a 2026 event claimed to have
 // been filed on the day it occurs.
 function icsStampUTC(){var d=new Date();function p(n){return ("0"+n).slice(-2);}return d.getUTCFullYear()+p(d.getUTCMonth()+1)+p(d.getUTCDate())+"T"+p(d.getUTCHours())+p(d.getUTCMinutes())+p(d.getUTCSeconds())+"Z";}
-function icsEscape(s){return String(s||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n").slice(0,500);}
+function icsEscape(s){var raw=String(s||"").slice(0,500);var esc=raw.replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n");if(/\\$/.test(esc))esc=esc.slice(0,-1);return esc;}
 // RFC 5545 folds content lines at 75 *octets*, not characters. Counting JS
 // characters under-counts every non-ASCII character, so a description with an
 // accented letter or an em dash could still emit an over-long line -- and
@@ -572,11 +572,12 @@ function icsFold(line){
   // Continuation lines spend one octet on the leading space.
   var budget=parts.length?74:75;
   if(icsBytes(rest)<=budget){parts.push(rest);break;}
+  var chars=Array.from(rest);
   var n=0,bytes=0;
-  while(n<rest.length){var w=icsBytes(rest.charAt(n));if(bytes+w>budget)break;bytes+=w;n++;}
+  while(n<chars.length){var w=icsBytes(chars[n]);if(bytes+w>budget)break;bytes+=w;n++;}
   if(n===0)n=1;// a single char wider than the budget: emit it rather than loop
-  parts.push(rest.slice(0,n));
-  rest=rest.slice(n);}
+  parts.push(chars.slice(0,n).join(""));
+  rest=chars.slice(n).join("");}
  return parts.join("\r\n ");}
 function ics(r){
  if(!r.datetime_iso) return "";
@@ -625,16 +626,18 @@ function emptyRow(){
 // reader wants it now); this writes a visually-hidden twin on a trailing timer
 // and only when the text has actually changed, so it speaks once the reader
 // stops typing.
-var _annTimer=null,_lastAnnounced="";
+var _annTimer=null,_lastAnnounced="",_pendingText=null;
 function announceCount(text){
  if(text===_lastAnnounced)return;
- if(_annTimer)return;// a pending write already covers this one
+ _pendingText=text;
+ if(_annTimer)return;
  _annTimer=setTimeout(function(){
   _annTimer=null;
-  if(text===_lastAnnounced)return;
-  _lastAnnounced=text;
+  var t=_pendingText;_pendingText=null;
+  if(t===_lastAnnounced)return;
+  _lastAnnounced=t;
   var live=document.getElementById("count-live");
-  if(live)live.textContent=text;},600);}
+  if(live)live.textContent=t;},600);}
 function render(){
   var list=filtered().sort(cmp);
   _lastAll=list;

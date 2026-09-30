@@ -34,6 +34,12 @@ jobs:
       - name: Install dependencies
         run: pip install .
 
+      # Pure rule assertions first (fail-fast, no network): a broken classifier
+      # should not cost a 45-minute crawl.
+      - name: Check rule assertions
+        timeout-minutes: 10
+        run: python scripts/checks.py
+
       # Both exit non-zero when a source fails or returns nothing, and a
       # multi-page crawl that stops early keeps the previous snapshot rather
       # than overwriting it. A failed run therefore leaves the last good
@@ -61,19 +67,6 @@ jobs:
         timeout-minutes: 5
         run: python scripts/health_check.py
 
-      # Every rule assertion in one step. Each suite is pure -- no network, no
-      # writes -- and exits non-zero with the actual value and the expected one,
-      # so a rule change that alters a classification fails the build before it
-      # can reach the published page. Run one with
-      # `python scripts/checks.py <name>`; `--list` names them.
-      #
-      # recurrence.py is the one that matters most: it decides the day a reader
-      # turns up, so a wrong date is worse than a missing event -- the row still
-      # renders and still looks bookable.
-      - name: Check rule assertions
-        timeout-minutes: 10
-        run: python scripts/checks.py
-
       # Nothing above can see a JavaScript error: the other checks only read
       # Python and events.json. A syntax error in the template therefore builds
       # and passes, then publishes a blank calendar. This renders the built page
@@ -92,6 +85,7 @@ jobs:
         run: python scripts/render_check.py
 
       - name: Commit updated data
+        timeout-minutes: 5
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -109,5 +103,6 @@ jobs:
           path: '.'
 
       - name: Deploy to GitHub Pages
+        timeout-minutes: 5
         id: deployment
         uses: actions/deploy-pages@v4

@@ -1,11 +1,11 @@
 """Source fetchers that reach their host with plain urllib.
 
 Every fetcher here takes `(cfg, session)` and returns snapshot rows. `session`
-is None for these: they use `urllib.request`, which answers their hosts
-directly. The two sources that do need a browser-impersonating session (Greater
-Dandenong's detail pages) call `make_session()` themselves -- see
-`docs/decisions.md` D2a for why impersonation is a per-source flag and not a
-script boundary.
+is the run's shared session from `fetch_sources.session_for()` (plain or
+browser-impersonating per `impersonate:`); Kingston Hubs and Chatty Cafe ignore
+it for their listing requests but Greater Dandenong reuses it for detail pages
+via `_gd_session()`. See `docs/decisions.md` D2a for why impersonation is a
+per-source flag and not a script boundary.
 
 `fetch_sources.py` owns the entry point, config validation, snapshot writing and
 the failure rules. Nothing here writes a file.
@@ -18,7 +18,7 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from webfetch_http import enrich_details, make_row, month_number
+from webfetch_http import PartialFetch, enrich_details, make_row, month_number
 
 BASE = "https://www.kingston.vic.gov.au"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -107,11 +107,17 @@ def _parse_date(s, ref=None):
             # Anchor on the reference year, rolling forward when the month has
             # already passed, so a "28 December" listing in November is next
             # year rather than 11 months in the past.
+            candidates = []
             for year in (ref.year, ref.year + 1):
                 try:
-                    return datetime(year, mon, day, h % 24, mi)
+                    candidates.append(datetime(year, mon, day, h % 24, mi))
                 except ValueError:
                     continue
+            for cand in candidates:
+                if cand >= ref:
+                    return cand
+            if candidates:
+                return candidates[-1]
     # "28 Sep 2026" / "28 September 2026" bare dates (midnight).
     m = re.search(r"(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})", s)
     if m:
@@ -124,19 +130,8 @@ def _parse_date(s, ref=None):
     return None
 
 
-def _price_sort(cost):
-    if not cost:
-        return None
-    if re.search(r"\bfree\b", cost, re.I):
-        return 0.0
-    if re.search(r"gold coin", cost, re.I):
-        return 1.0
-    m = re.search(r"\$\s*(\d+(?:\.\d+)?)", cost)
-    return float(m.group(1)) if m else None
-
-
-
-
+# price_sort lives in fetch_sources.py (the single canonical implementation);
+# rows here carry price_text and are normalised downstream.
 def _month_range(year, month, n_months):
     out = []
     y, m = year, month
@@ -392,9 +387,13 @@ def fetch_greater_dandenong(cfg, session=None):
         try:
             html = _gd_fetch(session, url, timeout=12)
         except Exception as e:
+            if page == 0:
+                raise PartialFetch(f"Greater Dandenong page {page} FAILED {e!r}")
             print(f"  Greater Dandenong page {page}: FAILED {e!r}")
             continue
         if not html:
+            if page == 0:
+                raise PartialFetch(f"Greater Dandenong page {page}: no content")
             print(f"  Greater Dandenong page {page}: no content")
             break
         soup = BeautifulSoup(html, "html.parser")
@@ -490,11 +489,9 @@ def fetch_gd_libraries(cfg, session=None):
     try:
         html = _gd_fetch(session, url, timeout=12)
     except Exception as e:
-        print(f"  GD Libraries: FAILED {e!r}")
-        return rows
+        raise PartialFetch(f"GD Libraries: FAILED {e!r}")
     if not html:
-        print("  GD Libraries: no content")
-        return rows
+        raise PartialFetch("GD Libraries: no content")
     try:
         soup = BeautifulSoup(html, "html.parser")
         for card in soup.select(".views-col"):
@@ -627,7 +624,11 @@ def fetch_chatty_cafe(cfg, session=None):
     value before preferring it is what makes "prefer the site" safe.
     """
     rows = []
-    for venue in cfg.get("venues", []):
+    for venue in cfg.get("venues", []) or []:
+        if not isinstance(venue, dict) or not venue.get("slug") or not venue.get("schedule"):
+            print(f"  Chatty Cafe: skipping malformed venue entry {venue!r}")
+            continue
+        vname = venue.get("name") or venue["slug"]
         url = f"https://chattycafeaustralia.org.au/venue/{venue['slug']}/"
         schedule = venue["schedule"]
         try:
@@ -635,24 +636,24 @@ def fetch_chatty_cafe(cfg, session=None):
             live = _chatty_live_schedule(html)
             if live and live != schedule:
                 if _chatty_schedule_is_usable(live):
-                    print(f"  Chatty Cafe {venue['name']}: schedule updated "
+                    print(f"  Chatty Cafe {vname}: schedule updated "
                           f"from site ({live!r})")
                     schedule = live
                 else:
-                    print(f"  Chatty Cafe {venue['name']}: site text {live!r} "
+                    print(f"  Chatty Cafe {vname}: site text {live!r} "
                           f"is not a usable schedule, keeping configured "
                           f"{schedule!r}")
         except Exception as e:
             # Keep the configured schedule rather than dropping the venue.
-            print(f"  Chatty Cafe {venue['name']}: fetch FAILED {e!r}, "
+            print(f"  Chatty Cafe {vname}: fetch FAILED {e!r}, "
                   f"using configured schedule")
         rows.append(make_row(
-            cfg["id"], f"Chatty Cafe - {venue['name']}", url,
+            cfg["id"], f"Chatty Cafe - {vname}", url,
             datetime_text=schedule,
-            location=venue["name"],
-            address=venue["address"],
+            location=vname,
+            address=venue.get("address") or "",
             price_text="Free",
-            description=f"Chatty Cafe at {venue['name']}. {schedule}. "
+            description=f"Chatty Cafe at {vname}. {schedule}. "
                         f"A welcoming space for conversation and connection.",
         ))
     return rows

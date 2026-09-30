@@ -11,6 +11,7 @@ from commercial import is_commercial
 from jsonio import write_json
 from status import STATUS_LABELS, event_status, is_ongoing_service
 from venues import STREET_SUFFIX_WORDS
+from vic_suburbs import canonical_suburb
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -43,7 +44,8 @@ def _safe_url(value):
         # origin, which is exactly the exfiltration the scheme check exists to
         # prevent. Reject before the relative-prefix test below.
         return ""
-    if url.startswith(SAFE_PREFIXES) or url.startswith(SAFE_SCHEMES):
+    low = url.lower()
+    if url.startswith(SAFE_PREFIXES) or low.startswith(SAFE_SCHEMES):
         return url
     return ""
 
@@ -63,14 +65,20 @@ def extract_suburb(address):
     a street number ("1218 Nepean Highway"), a year ("workshops during
     2026") or a phone fragment ("Community Connections 1300") -- read as
     a postcode and the comma-segment before it published as a suburb.
+
+    Every candidate is validated against vic_suburbs.KNOWN_SUBURBS (gazetted
+    Victorian localities for the catchment). An unknown candidate returns ""
+    rather than publishing a venue name or parsing artefact as a suburb; the
+    health check then names the newcomer so a real locality can be added.
     """
     a = (address or "").strip()
     if not a:
         return ""
 
     # "... VIC 3192" / "... Victoria 3193" -> capture everything before the
-    # state token. Non-greedy so the *last* state+postcode is used, not the
-    # first, since an address can name two suburbs ("Beaumaris, Beaumaris").
+    # state token. Non-greedy avoids a trailing comma in the capture, and
+    # since the match must end at the state+postcode there is only one place
+    # it can anchor, so first vs last is not the issue.
     m = re.search(r"^(.+?)[,\s]+(?:VIC|Victoria)\.?\s+(3\d{3})\b", a, re.I)
     if m:
         head = m.group(1)
@@ -79,7 +87,7 @@ def extract_suburb(address):
         seg = re.split(r",", head)[-1].strip()
         if (seg and seg.lower() not in _STATE_TOKENS
                 and not _is_street(seg) and not re.search(r"\d", seg)):
-            return seg
+            return canonical_suburb(seg)
         return ""
 
     # "..., Frankston, VIC" -- state present, no postcode. Same rule.
@@ -88,7 +96,7 @@ def extract_suburb(address):
         seg = re.split(r",", m.group(1))[-1].strip()
         if (seg and seg.lower() not in _STATE_TOKENS
                 and not _is_street(seg) and not re.search(r"\d", seg)):
-            return seg
+            return canonical_suburb(seg)
         return ""
 
     # No state token at all. Fall back to a bare postcode, but only when it
@@ -104,7 +112,7 @@ def extract_suburb(address):
         seg = re.split(r",", m.group(1))[-1].strip()
         if (seg and seg.lower() not in _STATE_TOKENS
                 and not _is_street(seg) and not re.search(r"\d", seg)):
-            return seg
+            return canonical_suburb(seg)
         return ""
 
     # No postcode or state at all, but a street plus a trailing suburb:
@@ -123,7 +131,7 @@ def extract_suburb(address):
                 and re.fullmatch(r"[A-Za-z][A-Za-z .'\-]*", last)
                 and any(re.match(r"^\s*\d", s) or _is_street(s)
                         for s in segs[:-1])):
-            return last
+            return canonical_suburb(last)
     return ""
 
 
@@ -186,7 +194,10 @@ def main():
         # is: Greater Dandenong states the suburb on the detail page, and its
         # addresses carry no "VIC ####" for extract_suburb to anchor on, so
         # deriving it here would throw that away and leave the row suburb-less.
-        r["suburb"] = (r.get("suburb") or "").strip() or extract_suburb(
+        # Either way the suburb is validated against the gazetted list, so a
+        # fetcher typo or a parsing artefact publishes as "" rather than as a
+        # filter checkbox nobody can act on.
+        r["suburb"] = canonical_suburb(r.get("suburb") or "") or extract_suburb(
             r.get("address") or r.get("location") or "")
         flag, reason = is_commercial(r)
         r["is_commercial"] = flag
@@ -206,7 +217,8 @@ def main():
         r["service_reason"] = service_reason
         r["hidden_by_default"] = bool(flag or service or status == "cancelled")
         r["source"] = _safe_url(r.get("source"))
-        r["sources"] = [u for u in (r.get("sources") or []) if _safe_url(u)]
+        r["sources"] = [_safe_url(u) for u in (r.get("sources") or [])]
+        r["sources"] = [u for u in r["sources"] if u]
 
     data["rows"] = rows
     write_json(ROOT / "data" / "events.json", data)
@@ -322,6 +334,21 @@ if __name__ == "__main__":
              extract_suburb("Gardiners Creek and Anniversary Trail Loop Walk, "
                             "Victoria"),
              ""),
+            # A well-formed address in an unknown locality publishes no
+            # suburb rather than a new filter checkbox: the newcomer is for
+            # the curator to add to vic_suburbs.py, not for the parser to
+            # invent. (Sydney is not in the catchment set.)
+            ("an unknown locality is not a suburb",
+             extract_suburb("1 Example St, Sydney NSW 2000"),
+             ""),
+            ("a misspelt catchment suburb is not silently kept",
+             extract_suburb("8 Chesterville Rd, Cheltenahm VIC 3192"),
+             ""),
+            # Lookup is case-insensitive but publishes the gazetted spelling,
+            # so the suburb column stays stable however a source capitalised it.
+            ("casing is canonicalised",
+             extract_suburb("8 Chesterville Rd, CHELTENHAM VIC 3192"),
+             "Cheltenham"),
         ]
         _failures = []
         for _label, _actual, _expected in _TESTS:

@@ -50,7 +50,7 @@ def reference_today():
 
 
 def normalize_name(name):
-    return " ".join((name or "").lower().strip().split())
+    return fold_accents(" ".join((name or "").lower().strip().split()))
 
 
 def fold_accents(text):
@@ -65,7 +65,7 @@ def fold_accents(text):
 
 # A subtitle or qualifier after a separator: "Chatty Cafe - Connect over a
 # Cuppa" and "Chatty Cafe" are the same program named by two sources.
-_SUBTITLE_SPLIT_RE = re.compile(r"\s+[-|:–—]\s+|\s+[|:]\s+")
+_SUBTITLE_SPLIT_RE = re.compile(r"\s+[-|:–—]\s+")
 
 # Generic trailing tags that carry no programme identity.
 _NAME_NOISE_RE = re.compile(
@@ -100,12 +100,18 @@ def _same_time_of_day(a, b):
 
     Two sessions of one class at one venue on the same day ("Cert II in EAL"
     9am and 12:30pm) are distinct events and must not merge. Rows without a
-    time are treated as matching, so all-day listings still collapse.
+    time only match each other, so a timed session never collapses into an
+    all-day (midnight) listing for the same programme.
     """
-    ta = str(a.get("datetime_iso") or "")[11:16]
-    tb = str(b.get("datetime_iso") or "")[11:16]
-    if not ta or not tb or ta == "00:00" or tb == "00:00":
-        return True
+    def _tod(row):
+        try:
+            return _local(row.get("datetime_iso") or "").strftime("%H:%M")
+        except (ValueError, TypeError):
+            return ""
+    ta, tb = _tod(a), _tod(b)
+    untimed = {"", "00:00"}
+    if ta in untimed or tb in untimed:
+        return ta in untimed and tb in untimed
     return ta == tb
 
 
@@ -135,8 +141,12 @@ def slot_hash(event):
     12:30pm-3:30pm), so collapsing on the date alone would erase the
     second session.
     """
-    iso = str(event.get("datetime_iso") or "").replace("Z", "")
-    stamp = iso[:16] if "T" in iso else ""
+    raw = event.get("datetime_iso") or ""
+    try:
+        stamp = _local(raw).strftime("%Y-%m-%dT%H:%M") if "T" in str(raw) else ""
+    except (ValueError, TypeError):
+        iso = str(raw).replace("Z", "")
+        stamp = iso[:16] if "T" in iso else ""
     key = (f"{normalize_name(event.get('name', ''))}|"
            f"{stamp}|"
            f"{normalize_location(event.get('location', ''))}")
@@ -171,7 +181,14 @@ def _venue_compatible(loc1, loc2):
         return True
     # One source often gives the short name, the other the organisation:
     # 'Greater Dandenong' vs 'Greater Dandenong Libraries'.
-    return a.startswith(b) or b.startswith(a)
+    if a.startswith(b) or b.startswith(a):
+        # Prefix alone over-matches ("Park" vs "Parkview Tavern"), so require
+        # the match to end on a word boundary.
+        longer, shorter = (a, b) if len(a) >= len(b) else (b, a)
+        rest = longer[len(shorter):]
+        if not rest or rest[0] in " ,-/(":
+            return True
+    return False
 
 
 def dedupe_by_source_url(rows):
@@ -202,7 +219,11 @@ def dedupe_by_source_url(rows):
     prog_index = {}
     out, merged = [], 0
     for r in rows:
-        stamp = str(r.get("datetime_iso") or "")[:16]
+        raw_stamp = r.get("datetime_iso") or ""
+        try:
+            stamp = _local(raw_stamp).strftime("%Y-%m-%dT%H:%M") if "T" in str(raw_stamp) else ""
+        except (ValueError, TypeError):
+            stamp = str(raw_stamp).replace("Z", "")[:16]
         name = normalize_name(r.get("name", ""))
         if "T" not in stamp or not name:
             out.append(r)
@@ -486,6 +507,7 @@ def reconcile_store(rows, live_rows, today=None, report=True):
             kept.append(r)
         else:
             dropped.append(r)
+            continue
         # A row the source vouches for, but whose address or location the
         # source has since corrected into a well-formed value. Applied after
         # the keep/drop decision so it cannot affect which rows survive.
@@ -513,7 +535,8 @@ def reconcile_store(rows, live_rows, today=None, report=True):
                 stored_price = (r.get("price_text") or "").strip()
                 fresh_price = (live.get("price_text") or "").strip()
                 if stored_price and fresh_price and len(fresh_price) < len(
-                        stored_price):
+                        stored_price) and (_malformed(stored_price) or len(stored_price) > 60
+                        or "BUTTON" in stored_price or "FIND OUT" in stored_price.upper()):
                     r["price_text"] = fresh_price
                     repaired += 1
                 break
@@ -805,7 +828,8 @@ def main():
     raw = [dict(r) for r in live]
 
     try:
-        existing = read_json(ROOT / "data" / "events.json", default={}).get("rows", [])
+        stored_doc = read_json(ROOT / "data" / "events.json", default={})
+        existing = stored_doc.get("rows", []) if isinstance(stored_doc, dict) else []
     except json.JSONDecodeError as e:
         # A truncated events.json wedges every later run; say so explicitly
         # rather than surfacing a stack trace deep in the merge.

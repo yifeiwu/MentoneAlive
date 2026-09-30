@@ -17,7 +17,8 @@ which the raw listing answers on its face:
   commercial -- the meals are subsidised -- so they get their own flag rather
   than being mislabelled as a pub promotion.
 
-Both are hidden by default in the UI, behind the same checkbox, and both are
+Both stay visible but badged in the UI, except cancelled which is hidden
+by default behind the same checkbox, and both are
 recorded in events.json and the CSV export so the distinction survives.
 """
 import re
@@ -27,13 +28,13 @@ import re
 SOLD_OUT_RE = re.compile(r"\bsold\s*out\b|\bselling\s*(?:fast|out)\b", re.I)
 FULLY_BOOKED_RE = re.compile(r"\bfull(?:y)?\s*booked\b|\bno\s*(?:places|spots)\b",
                              re.I)
-CANCELLED_RE = re.compile(r"\bcancell?ed\b|\bpostponed\b", re.I)
+CANCELLED_RE = re.compile(r"\bcancell?ed\b|\bcancellation\b|\bcancel\b|\bpostponed\b", re.I)
 
 # "Sold out: Wednesday, 30 September..." -- the status leads the listing's
 # own date field, so anchor on the start of the string.
 _LEADING_STATUS_RE = re.compile(
     r"^\s*(sold\s*out|fully\s*booked|booked\s*out|booked\s*full|cancell?ed|"
-    r"postponed|selling\s*(?:fast|out))\b[:\-\u2013]?", re.I)
+    r"cancellation|cancel|postponed|selling\s*(?:fast|out)|no\s*(?:places|spots))\b[:\-\u2013]?", re.I)
 
 # A drop-in service rather than a bookable session. Anchored on the phrase a
 # venue actually uses to describe one, not on a bare noun, so "meals" in a
