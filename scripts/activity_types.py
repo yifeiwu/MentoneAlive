@@ -226,12 +226,6 @@ def classify_types(name, description="", category=""):
     return sorted(matched, key=lambda t: order.get(t, len(order)))
 
 
-def classify(name, description="", category=""):
-    """Legacy single-type wrapper: primary (first) tag, for old callers."""
-    tags = classify_types(name, description, category)
-    return tags[0] if tags else "Other"
-
-
 if __name__ == "__main__":
     # (name, description, category, expected tags in TYPES order). Multi-tag:
     # orthogonal facets compose rather than collapsing to one winner, so

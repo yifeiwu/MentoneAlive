@@ -272,7 +272,6 @@ GD_CATCHMENT = ("springvale", "keysborough", "dandenong", "doveton",
 # The listing card has no venue at all -- only title, date and category -- so
 # this is the only place the suburb appears.
 _GD_LOCATION_LABEL = re.compile(r"^\s*Location\s*$", re.I)
-_GD_VENUE_HOSTS = ("greaterdandenong.vic.gov.au",)
 
 
 def _gd_detail_location(soup):
@@ -442,13 +441,18 @@ def fetch_greater_dandenong(cfg):
             break
         card = cards[link]
         venue = address = ""
+        # A separate name, reset every iteration. Sharing the listing loop's
+        # `html` meant that when a detail fetch raised, the `if html` guard below
+        # still saw the *previous* card's markup and stamped that event's venue
+        # and address onto this one.
+        detail_html = None
         try:
-            html = _gd_fetch(session, link, timeout=12)
+            detail_html = _gd_fetch(session, link, timeout=12)
         except Exception as e:
             print(f"    detail FAILED {card['name']!r}: {e!r}")
-        if html:
+        if detail_html:
             venue, address = _gd_detail_location(
-                BeautifulSoup(html, "html.parser"))
+                BeautifulSoup(detail_html, "html.parser"))
         row = {
             "name": card["name"],
             "datetime_text": card["datetime_text"],

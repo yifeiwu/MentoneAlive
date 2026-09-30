@@ -175,7 +175,7 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
 <header>
 <h1>Community Events Index</h1>
 <p>Kingston &middot; Bayside &middot; Greater Dandenong (Springvale/Keysborough) &middot; Frankston &middot; Chatty Cafe</p>
-<p>Generated: 2026-09-30 13:10 &nbsp;|&nbsp; 1309 events &nbsp;|&nbsp; 11 sources</p>
+<p>Generated: 2026-09-30 13:27 &nbsp;|&nbsp; 1309 events &nbsp;|&nbsp; 11 sources</p>
 </header>
 <main id="main">
 <div class="controls">
@@ -264,7 +264,7 @@ var state = {k:"datetime_iso", dir:1, q:"", range:"upcoming", freeonly:false, hi
 var _lastList = [];
 // Cached by render(). Every state or control change routes through render(),
 // so these are always current: gotoPage() and the CSV export would otherwise
-// re-run the full 2037-row filter (with a seven-field concat per row) just to
+// re-run the full filter (with a seven-field concat per row) just to
 // recompute something render() already knows.
 var _lastAll = [];
 var _lastTotalPages = 1;
@@ -321,8 +321,8 @@ function fmtDate(iso){if(!iso)return "";var d=new Date(iso);if(isNaN(d))return e
  var day=days[d.getDay()]+" "+d.getDate()+" "+mon[d.getMonth()]+" "+d.getFullYear();
  // Midnight is the pipeline's marker for "date known, time not stated", not a
  // real 00:00 start. Printing it would invent a start time the source never gave.
- // All 109 inferred rows that land on 00:00 were checked: none of them state a
- // time in their own text, so "all day" is what the source actually says.
+  // Every inferred row that lands on 00:00 was checked: none of them state a
+  // time in their own text, so "all day" is what the source actually says.
  if(d.getHours()===0&&d.getMinutes()===0)return day+", all day";
  var h=d.getHours(),ap=h>=12?"PM":"AM";h=h%12;if(h===0)h=12;
  var m=("0"+d.getMinutes()).slice(-2);
@@ -339,7 +339,7 @@ function typeStr(r){return getTypes(r).join(", ");}
 function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",bayside_seniors:"Bayside Seniors"};
 return '<span class="badge badge-'+(src||"unknown")+'">'+esc(m[src]||src||"unknown")+'</span>'}
 function commercialBadge(r){var h='';if(r.is_commercial)h+='<span class="badge badge-commercial">COMMERCIAL</span>';if(r.is_service)h+='<span class="badge badge-service">DROP-IN SERVICE</span>';if(r.status)h+='<span class="badge badge-status">'+esc(r.status_label||r.status.toUpperCase())+'</span>';return h;}
-// 58% of published rows (1180/2037) are date_inferred: recurrence.py derived
+// A large share of published rows are date_inferred: recurrence.py derived
 // the date from prose because the source never published per-occurrence dates.
 // The pipeline stores a `recurrence` label for exactly this purpose, but the
 // table never showed it, so a derived date was indistinguishable from a stated
@@ -586,7 +586,7 @@ document.querySelectorAll(".pagination").forEach(function(pg){
  pg.querySelector(".pg-next").addEventListener("click",function(){gotoPage(state.page+1,pg);});
  pg.querySelector(".pg-last").addEventListener("click",function(){gotoPage(_lastTotalPages,pg);});});
 
-// Typing re-ran the full filter + sort + re-render (2037 rows, seven fields
+// Typing re-ran the full filter + sort + re-render (every row, seven fields
 // concatenated per row) on every keystroke. Record the value immediately so
 // the input stays responsive, but coalesce the expensive redraw.
 var qTimer=null;

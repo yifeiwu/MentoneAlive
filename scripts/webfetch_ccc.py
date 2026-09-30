@@ -115,15 +115,17 @@ def _ccc_section_span(start_el, next_el, max_elements=4000):
 
 
 def _ccc_trunc_start(text, limit=120):
-    """Trim a long address from the *start*, keeping the beginning.
+    """Trim a long address from the *end*, keeping the beginning.
 
-    Slicing from the end ([-120:]) keeps the postcode and discards the street
-    name, which is the part that identifies the venue.
+    Slicing from the start ([:120]) keeps the venue name and street, which is
+    the part that identifies the venue, and drops the tail. The old
+    `clean[-limit:]` kept the *end* -- postcode and suburb -- and discarded the
+    street name, which is the exact failure this function exists to prevent.
     """
     clean = re.sub(r"\s+", " ", text or "").strip()
     if len(clean) <= limit:
         return clean
-    return "..." + clean[-limit:]
+    return clean[:limit].rstrip(" ,") + "..."
 
 
 WEEKDAY_RE = (r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)s?"

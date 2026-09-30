@@ -9,8 +9,8 @@ Kingston Arts). Fetching uses curl-cffi with Chrome TLS impersonation.
 Usage:
 
     python scripts/webfetch_sources.py                  # all sources
-    python scripts/webfetch_sources.py --source bayside # one source
-    python scripts/webfetch_sources.py --source bayside --max-pages 2 --detail-cap 5
+    python scripts/webfetch_sources.py --source bayside_live   # one source
+    python scripts/webfetch_sources.py --source bayside_live --max-pages 2 --detail-cap 5
 """
 import argparse
 import sys
@@ -79,9 +79,20 @@ def main():
     with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
+    webfetch_cfg = config.get("webfetch", [])
+    if args.source:
+        # A typo used to match nothing, skip the whole loop and exit 0 -- a
+        # "successful" run that fetched no data. Validate against the real ids
+        # so a miss is loud, and list them to make the correct id obvious.
+        known = [c.get("id") for c in webfetch_cfg]
+        if args.source not in known:
+            print(f"No webfetch source with id {args.source!r}. "
+                  f"Available: {', '.join(str(i) for i in known)}")
+            sys.exit(2)
+
     session = make_session()
     failures = []
-    for cfg in config.get("webfetch", []):
+    for cfg in webfetch_cfg:
         if args.source and cfg.get("id") != args.source:
             continue
         snapshot = cfg.get("snapshot")

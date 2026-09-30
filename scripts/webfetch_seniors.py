@@ -85,18 +85,6 @@ def _seniors_title(head):
     return title, host
 
 
-def _seniors_time_start(text):
-    m = SENIORS_TIME_RE.search(text or "")
-    if not m:
-        return None
-    h, mi, ap = int(m.group(1)), int(m.group(2) or 0), m.group(3).lower()
-    if ap == "pm" and h != 12:
-        h += 12
-    if ap == "am" and h == 12:
-        h = 0
-    return max(0, min(23, h)), max(0, min(59, mi))
-
-
 def _seniors_clean_desc(lines, footer_re):
     out = []
     for ln in lines:

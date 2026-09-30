@@ -474,13 +474,17 @@ def deduplicate(new_events, existing_events):
         found = False
         cand_name = normalize_name(candidate.get("name", ""))
         cand_loc = normalize_location(candidate.get("location", ""))
+        # Computed once, up front, and unconditionally: both pass gates below
+        # and the index update at the end of the loop read it, so a candidate
+        # with no datetime_iso used to reach them unassigned and raise
+        # UnboundLocalError, killing the whole run.
+        cand_dp = date_part(candidate.get("datetime_iso"))
 
         # Pass 2: same name+location across sources. Only merge when BOTH
         # have real dates on the SAME day AND at the same time of day.
         # Dateless rows never trigger cross-source merges in Pass 2 (per user
         # rule: dateless is not an event).
         if cand_name and cand_loc:
-            cand_dp = date_part(candidate.get("datetime_iso"))
             if cand_dp:
                 for existing in name_loc_index.get((cand_name, cand_loc), []):
                     exist_dp = date_part(existing.get("datetime_iso"))
@@ -496,24 +500,22 @@ def deduplicate(new_events, existing_events):
                     break
 
         # Pass 3: fuzzy (same day, close time, strict location)
-        if not found and candidate.get("datetime_iso"):
-            cand_dp = date_part(candidate.get("datetime_iso"))
-            if cand_dp:
-                for existing in date_index.get(cand_dp, []):
-                    if not existing.get("datetime_iso"):
-                        continue
-                    if name_similarity(existing.get("name", ""),
-                                       candidate.get("name", "")) < 0.75:
-                        continue
-                    if not location_matches(existing.get("location", ""),
-                                            candidate.get("location", "")):
-                        continue
-                    if not time_matches(existing.get("datetime_iso", ""),
-                                        candidate.get("datetime_iso", "")):
-                        continue
-                    _merge_sources(existing, candidate)
-                    found = True
-                    break
+        if not found and cand_dp:
+            for existing in date_index.get(cand_dp, []):
+                if not existing.get("datetime_iso"):
+                    continue
+                if name_similarity(existing.get("name", ""),
+                                   candidate.get("name", "")) < 0.75:
+                    continue
+                if not location_matches(existing.get("location", ""),
+                                        candidate.get("location", "")):
+                    continue
+                if not time_matches(existing.get("datetime_iso", ""),
+                                    candidate.get("datetime_iso", "")):
+                    continue
+                _merge_sources(existing, candidate)
+                found = True
+                break
 
         if not found:
             candidate["sources"] = [candidate.get("source", "")]

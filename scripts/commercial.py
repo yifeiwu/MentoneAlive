@@ -29,8 +29,6 @@ SOFT_VENUE = [r"\binn\b", r"\bsports?\s*bar\b", r"\btab\b.*\bbet\b"]
 
 HARD_VENUE_RE = [re.compile(p, re.I) for p in HARD_VENUE]
 SOFT_VENUE_RE = [re.compile(p, re.I) for p in SOFT_VENUE]
-# The single \bpub\b pattern needs the "public/publishing" scrub applied.
-PUB_VENUE_RE = re.compile(r"\bpub\b", re.I)
 
 # Word-bounded: without \b, "park" matched "Parker", "hall" matched
 # "Shall we dance", "bank" matched "Bank Bar" and "beach" matched "Beaches",
@@ -47,7 +45,6 @@ TRIVIA_RE = re.compile(r"\btrivia\b", re.I)
 # "$20.00" parsed as 2.0 and failed the >= 5 gate in _has_solid_price.
 PRICE_RE = re.compile(r"\$\s*(\d+(?:\.\d{1,2})?)")
 RSL_RE = re.compile(r"\brsl\b", re.I)
-PUB_WORD_RE = re.compile(r"\bpub\b", re.I)
 
 
 def _price_amount(text):
@@ -100,8 +97,11 @@ def _venue_hit(location, address):
             if rx.search(blob):
                 return True
         return False
+    # No \bpub\b guard here: the HARD loop above already returned True on
+    # blob_wo_public for that pattern, so reaching this point proves the scrub
+    # left no bare "pub". The guard could never change the result.
     for rx in SOFT_VENUE_RE:
-        if rx.search(blob) and not PUB_WORD_RE.search(blob_wo_public):
+        if rx.search(blob):
             return True
     return False
 
@@ -147,3 +147,96 @@ def is_commercial(event):
         return True, "rsl+meal-context"
 
     return False, ""
+
+
+if __name__ == "__main__":
+    # (event, expected flag). Reasons are the machine-readable tags above;
+    # asserting the flag alone would let a classifier start returning a
+    # different reason for the same verdict and go unnoticed. These are the
+    # documented invariants from the module docstring, plus the false
+    # positives that the word-bounded allowlist was written to prevent.
+    community = {"location": "Beaumaris Library, 96 Reserve Road, Beaumaris VIC 3193",
+                 "address": "96 Reserve Road, Beaumaris"}
+    tests = [
+        # Strong food/deal keywords count outright, with no corroboration.
+        ({"name": "Parmas for Seniors", "description": "Free Parma lunch."},
+         True, "strong:"),
+        ({"name": "Steak Night", "price_text": "$25"}, True, "strong:"),
+        ({"name": "Happy Hour", "description": "Half price drinks."},
+         True, "strong:"),
+        ({"name": "Members Draw", "description": "Monthly draw."},
+         True, "strong:"),
+
+        # A hard venue word is a precondition, not a verdict: the event still
+        # needs a price or a meal context. Parkview Tavern is detected as a
+        # denylisted venue (it is not rescued by the allowlist), and trivia at
+        # it is commercial on the venue alone.
+        ({"name": "Trivia Night", "description": "Every Tuesday.",
+          "location": "Parkview Tavern"}, True, "trivia+venue"),
+        ({"name": "Social Night", "description": "Come along.",
+          "location": "Parkview Tavern"}, False, ""),
+        ({"name": "Quiz", "description": "Prizes to be won.",
+          "location": "Parkview Tavern", "price_text": "$10"},
+         True, "venue+meal-context"),
+
+        # A soft venue word IS rescued by a community venue string, until
+        # something corroborates it.
+        ({"name": "Social Night", "description": "Bring a friend.",
+          "location": "Chelsea Community Centre (Sports Bar)"}, False, ""),
+        ({"name": "Social Night", "description": "Bring a friend, $20 entry.",
+          "location": "Chelsea Community Centre (Sports Bar)",
+          "price_text": "$20"}, True, "venue+meal-context"),
+
+        # "pub" is hard, but the public/publishing scrub keeps prose safe.
+        ({"name": "Pubs with a Past", "description": "A heritage talk.",
+          "location": "Mordialloc Library"}, False, ""),
+        ({"name": "Public Library Talk", "description": "Published history.",
+          "location": "Chelsea Library"}, False, ""),
+
+        # Trivia: commercial only when priced or at a denylisted venue.
+        ({"name": "Trivia Night", "description": "Every Tuesday.",
+          "location": "Mentone Community Centre"}, False, ""),
+        ({"name": "Trivia Night", "description": "Every Tuesday. $5 entry.",
+          "price_text": "$5"}, True, "trivia+priced"),
+        ({"name": "Trivia Night", "description": "Every Tuesday. $3 entry.",
+          "price_text": "$3"}, False, ""),  # too cheap to look commercial
+
+        # Weak venue words need corroboration; gold-coin stays community.
+        ({"name": "Innkeeper Talk", "location": "The Green Inn"}, False, ""),
+        ({"name": "Innkeeper Talk", "location": "The Green Inn",
+          "description": "Includes a roast dinner.", "price_text": "$30"},
+         True, "venue+meal-context"),
+        ({"name": "Gold Coin Donation", "description": "A gold coin donation.",
+          "location": "Chelsea Community Centre"}, False, ""),
+
+        # RSL needs a meal/priced context, and beats the allowlist.
+        ({"name": "RSL Bingo", "description": "Eyes down please.",
+          "location": "Chelsea RSL"}, False, ""),
+        ({"name": "RSL Lunch", "description": "Members meal deal.",
+          "location": "Chelsea RSL"}, True, "rsl+meal-context"),
+
+        # Community venues stay community.
+        ({"name": "Mahjong", "description": "Learn the game.",
+          **community}, False, ""),
+        ({"name": "Gentle Exercise", "description": "Tai chi for all.",
+          "location": "Rowville Community Centre"}, False, ""),
+    ]
+
+    failures = []
+    for i, (event, expected, reason_prefix) in enumerate(tests, 1):
+        flag, reason = is_commercial(event)
+        if flag != expected:
+            failures.append(
+                f"case {i} {event['name']!r}: expected flag={expected}, "
+                f"got flag={flag} (reason={reason!r})")
+        elif reason_prefix and not reason.startswith(reason_prefix):
+            failures.append(
+                f"case {i} {event['name']!r}: expected reason prefix "
+                f"{reason_prefix!r}, got {reason!r}")
+
+    if failures:
+        print(f"commercial: {len(failures)}/{len(tests)} cases FAILED")
+        for f in failures:
+            print(f"  FAIL: {f}")
+        raise SystemExit(1)
+    print(f"commercial: {len(tests)} cases passed")

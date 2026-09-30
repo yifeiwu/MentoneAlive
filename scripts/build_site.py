@@ -16,7 +16,11 @@ ROOT = Path(__file__).resolve().parent.parent
 # Only these may be published as a link target. A javascript:/data: URL in
 # row["source"] would otherwise be inlined verbatim and reach an href, where
 # HTML-escaping does not neutralise the scheme.
-SAFE_SCHEMES = ("http://", "https://", "/", "#", "mailto:")
+SAFE_SCHEMES = ("http://", "https://", "mailto:")
+# Same-root relative links and in-page anchors. Note "/" cannot simply join
+# SAFE_SCHEMES: "//evil.example/x" is protocol-relative and would resolve to
+# another origin, so a leading "/" is only allowed when not doubled.
+SAFE_PREFIXES = ("/", "#")
 
 # The state token that follows the suburb in an Australian address. The old
 # postcode fallback matched the last word before the postcode, which for
@@ -33,7 +37,14 @@ def _safe_url(value):
     url = (value or "").strip()
     if not url:
         return ""
-    return url if url.startswith(SAFE_SCHEMES) else ""
+    if url.startswith("//"):
+        # Protocol-relative: inherits the page scheme but points at another
+        # origin, which is exactly the exfiltration the scheme check exists to
+        # prevent. Reject before the relative-prefix test below.
+        return ""
+    if url.startswith(SAFE_PREFIXES) or url.startswith(SAFE_SCHEMES):
+        return url
+    return ""
 
 
 def extract_suburb(address):

@@ -33,7 +33,6 @@ import urllib.parse
 
 INDEX = "index.html"
 EVENTS = os.path.join("data", "events.json")
-TEMPLATE = os.path.join("src", "templates", "index.html")
 
 # Enough for the page to load 1.6MB of inline JSON and run one render.
 VIRTUAL_TIME_MS = "4000"

@@ -54,9 +54,11 @@ The event detail page has what the card lacks, in named fields:
 ```
 
 So the fetcher now opens each event, reads those two fields, derives the
-suburb from the address, and filters on it. Of the 51 events the council
-lists, 15 are in the catchment; the other 36 are Dandenong (17), Noble Park
-(16) and Heatherton (2), and are dropped. `suburb_filter` is the single lever
+suburb from the address, and filters on it. In the run that prompted this
+change, the council listed 51 events and 15 were in the catchment; the other 36
+were Dandenong (17), Noble Park (16) and Heatherton (2), and were dropped. (A
+point-in-time observation, not a standing total — read the live figure from
+`counts` in `data/events.json`.) `suburb_filter` is the single lever
 if you want them back — add `"Dandenong"` and `"Noble Park"` to it and the
 count roughly triples. Online events (`location: "Online"`) have no suburb and
 are always kept.
@@ -562,9 +564,10 @@ verified to fail the build when reintroduced:
   from `sources.yaml`, so widening `suburb_filter` is the way to admit more,
   and events held online are exempt (they have no suburb).
 
-The Greater Dandenong floor is deliberately low (8). That source is a narrow,
-genuinely filtered catchment of 15 events publishing one stated date each, so
-the check's job is to catch the scraper dying at 0 rows, not a quiet season.
+The Greater Dandenong floor is deliberately low (10, see `MIN_SOURCE` in
+`health_check.py`). That source is a narrow, genuinely filtered catchment
+publishing one stated date each, so the check's job is to catch the scraper
+dying at 0 rows, not a quiet season.
 
 ### The page is rendered, not just inspected (`render_check.py`)
 
