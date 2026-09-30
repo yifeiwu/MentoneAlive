@@ -104,8 +104,7 @@ def main():
             cfg = dict(cfg, max_pages=args.max_pages)
         # detail_cap bounds per-detail-page fetches, so it only means anything
         # for a source that opens one page per event. The seniors PDF arrives
-        # whole and has none, so --detail-cap is not passed to it rather than
-        # being passed and quietly ignored.
+        # whole and has none, so it receives only (session, cfg).
         cap = args.detail_cap if args.detail_cap is not None \
             else cfg.get("detail_cap", 15)
         if cfg.get("type") == "kingston_seniors_pdf":

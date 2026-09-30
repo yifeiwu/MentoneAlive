@@ -205,7 +205,7 @@ what `reconcile_store()` checks, so nothing loses its justification.
 ## Pipeline
 
 ```bash
-pip install -r requirements.txt               # pinned versions
+pip install beautifulsoup4==4.15.0 pyyaml==6.0.2 rapidfuzz==3.14.6 curl-cffi==0.16.3 pypdf==6.19.0  # pinned versions
 python scripts/fetch_events.py                # Python-safe sources → data/raw_events.json
 python scripts/webfetch_sources.py            # browser-impersonating sources → scripts/webfetch_snapshots/*.json
 python scripts/dedupe.py                      # merge + dedupe → data/events.json
@@ -878,11 +878,11 @@ probe prints it, rather than against 375.
 
 ## Dependency upgrades
 
-`requirements.txt` is pinned to known-good versions. To upgrade:
+Dependencies are pinned in `pyproject.toml`. To upgrade:
 `pip install -U <pkg>`, run the full pipeline locally
 (`fetch` can be skipped; use `--source <id> --max-pages 2 --detail-cap 2`
 for a fast webfetch slice), confirm `health_check.py` passes, then update
-the pin.
+the pin in `pyproject.toml`.
 
 ## Data files are written atomically
 

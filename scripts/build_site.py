@@ -113,7 +113,7 @@ def main():
     print(f"Building site with {len(rows)} events...")
 
     for r in rows:
-        r["types"] = classify_types(r.get("name", ""), r.get("description") or "")
+        r["types"] = classify_types(r.get("name", ""), r.get("description") or "", r.get("source_label", ""))
         r.pop("type", None)
         # A fetcher that opened the event's own page already knows where it
         # is: Greater Dandenong states the suburb on the detail page, and its

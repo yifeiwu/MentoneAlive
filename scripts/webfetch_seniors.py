@@ -230,14 +230,10 @@ def _seniors_assemble(venue):
     return location, address
 
 
-def fetch_kingston_seniors(session, cfg, detail_cap=None):
+def fetch_kingston_seniors(session, cfg):
     """Fetch the Kingston seniors festival guide.
 
-    `detail_cap` is accepted and unused: the PDF arrives whole, so there is no
-    detail page to bound. The other three fetchers take a cap that does apply
-    to them, and webfetch_sources.py passes one here from --detail-cap or the
-    source config, so the parameter used to look like it controlled something
-    and did not.
+    The PDF arrives whole, so there is no detail page to bound.
     """
     from pypdf import PdfReader
     pdf_url = cfg["pdf_url"]

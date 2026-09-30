@@ -23,6 +23,7 @@ TYPES = [
     "Movies & Cinema",
     "Music & Performance",
     "Nature & Environment",
+    "Seniors Festival",
     "Social & Community",
     "Sport & Outdoors",
     "Technology",
@@ -35,6 +36,7 @@ TYPES = [
 # Rule order is no longer load-bearing for correctness (union collects all
 # matches); TYPES order determines display order.
 RULES = [
+    ("Seniors Festival", [r"seniors? festival", r"senior'?s? festival", r"kingston_seniors", r"bayside_seniors"]),
     ("Movies & Cinema", [r"movie", r"film", r"cinema", r"screening", r"pinocchio"]),
     ("Dance", [r"ballroom danc", r"belly danc", r"line danc", r"\bdanc(e|ing|ers)\b",
                r"ballet", r"jazz class", r"jazz routine", r"broadway jazz",

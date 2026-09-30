@@ -21932,6 +21932,7 @@
    "hidden_by_default": false,
    "types": [
     "Books & Reading",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -21963,7 +21964,8 @@
    "hidden_by_default": false,
    "types": [
     "Art & Craft",
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -21994,7 +21996,8 @@
    "hidden_by_default": false,
    "types": [
     "Art & Craft",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -22024,7 +22027,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -22055,7 +22059,8 @@
    "hidden_by_default": false,
    "types": [
     "Art & Craft",
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -22086,6 +22091,7 @@
    "hidden_by_default": false,
    "types": [
     "Music & Performance",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -22117,7 +22123,8 @@
    "hidden_by_default": false,
    "types": [
     "Art & Craft",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -22147,7 +22154,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Art & Craft"
+    "Art & Craft",
+    "Seniors Festival"
    ]
   },
   {
@@ -22177,7 +22185,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Art & Craft"
+    "Art & Craft",
+    "Seniors Festival"
    ]
   },
   {
@@ -22208,7 +22217,8 @@
    "hidden_by_default": false,
    "types": [
     "Art & Craft",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -22240,6 +22250,7 @@
    "types": [
     "Art & Craft",
     "Market & Exhibition",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -22272,6 +22283,7 @@
    "types": [
     "Dance",
     "Market & Exhibition",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -22303,7 +22315,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Movies & Cinema"
+    "Movies & Cinema",
+    "Seniors Festival"
    ]
   },
   {
@@ -22333,7 +22346,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Books & Reading"
+    "Books & Reading",
+    "Seniors Festival"
    ]
   },
   {
@@ -22363,7 +22377,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Other"
+    "Seniors Festival"
    ]
   },
   {
@@ -22393,7 +22407,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Other"
+    "Seniors Festival"
    ]
   },
   {
@@ -22423,7 +22437,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Other"
+    "Seniors Festival"
    ]
   },
   {
@@ -22454,7 +22468,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -22485,6 +22500,7 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
+    "Seniors Festival",
     "Sport & Outdoors"
    ]
   },
@@ -22516,7 +22532,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -22546,7 +22563,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -22577,7 +22595,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Market & Exhibition"
+    "Market & Exhibition",
+    "Seniors Festival"
    ]
   },
   {
@@ -22607,7 +22626,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -22637,7 +22657,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Dance"
+    "Dance",
+    "Seniors Festival"
    ]
   },
   {
@@ -22668,7 +22689,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -22699,7 +22721,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -22729,7 +22752,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Other"
+    "Seniors Festival"
    ]
   },
   {
@@ -22759,7 +22782,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -22790,6 +22814,7 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
+    "Seniors Festival",
     "Sport & Outdoors"
    ]
   },
@@ -22820,7 +22845,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -22851,7 +22877,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -22881,7 +22908,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -22912,7 +22940,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -22943,7 +22972,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -22974,7 +23004,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -23005,7 +23036,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -23036,7 +23068,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -23067,7 +23100,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -23098,7 +23132,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -23129,7 +23164,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -23160,7 +23196,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -23191,7 +23228,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -23221,7 +23259,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -23252,7 +23291,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -23282,7 +23322,8 @@
    "service_reason": "",
    "hidden_by_default": true,
    "types": [
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -23313,6 +23354,7 @@
    "hidden_by_default": false,
    "types": [
     "Art & Craft",
+    "Seniors Festival",
     "Social & Community",
     "Sport & Outdoors"
    ]
@@ -23345,7 +23387,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -23376,7 +23419,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -23407,6 +23451,7 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -23437,7 +23482,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -23468,7 +23514,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -23498,7 +23545,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -23530,6 +23578,7 @@
    "types": [
     "Food & Drink",
     "Market & Exhibition",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -23560,7 +23609,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Movies & Cinema"
+    "Movies & Cinema",
+    "Seniors Festival"
    ]
   },
   {
@@ -23591,7 +23641,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -23622,7 +23673,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -23652,6 +23704,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Social & Community",
     "Sport & Outdoors"
    ]
@@ -23683,6 +23736,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Social & Community",
     "Sport & Outdoors"
    ]
@@ -23714,6 +23768,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Social & Community",
     "Sport & Outdoors"
    ]
@@ -23745,6 +23800,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Social & Community",
     "Sport & Outdoors"
    ]
@@ -23776,6 +23832,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Social & Community",
     "Sport & Outdoors"
    ]
@@ -23808,7 +23865,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -23839,7 +23897,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -23870,7 +23929,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -23901,7 +23961,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -23932,7 +23993,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -23963,7 +24025,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -23994,7 +24057,8 @@
    "hidden_by_default": false,
    "types": [
     "Games & Cards",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24025,7 +24089,8 @@
    "hidden_by_default": false,
    "types": [
     "Games & Cards",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24056,7 +24121,8 @@
    "hidden_by_default": false,
    "types": [
     "Games & Cards",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24086,6 +24152,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -24116,7 +24183,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -24147,7 +24215,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24177,7 +24246,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24208,7 +24278,8 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -24239,7 +24310,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24270,7 +24342,8 @@
    "hidden_by_default": false,
    "types": [
     "Games & Cards",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24300,6 +24373,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -24331,7 +24405,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24361,7 +24436,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24392,7 +24468,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24423,7 +24500,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -24453,7 +24531,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Games & Cards"
+    "Games & Cards",
+    "Seniors Festival"
    ]
   },
   {
@@ -24483,7 +24562,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Games & Cards"
+    "Games & Cards",
+    "Seniors Festival"
    ]
   },
   {
@@ -24513,7 +24593,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Games & Cards"
+    "Games & Cards",
+    "Seniors Festival"
    ]
   },
   {
@@ -24543,7 +24624,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Games & Cards"
+    "Games & Cards",
+    "Seniors Festival"
    ]
   },
   {
@@ -24573,7 +24655,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Games & Cards"
+    "Games & Cards",
+    "Seniors Festival"
    ]
   },
   {
@@ -24603,7 +24686,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Games & Cards"
+    "Games & Cards",
+    "Seniors Festival"
    ]
   },
   {
@@ -24633,7 +24717,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24663,7 +24748,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24693,7 +24779,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24724,7 +24811,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24755,7 +24843,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24786,7 +24875,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24817,7 +24907,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24847,7 +24938,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24877,7 +24969,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24907,7 +25000,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24937,7 +25031,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24967,7 +25062,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -24998,6 +25094,7 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -25029,6 +25126,7 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -25059,7 +25157,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25089,7 +25188,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25119,7 +25219,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25149,7 +25250,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25179,7 +25281,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25209,7 +25312,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25239,7 +25343,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25269,7 +25374,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25300,7 +25406,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -25331,7 +25438,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -25362,7 +25470,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -25393,7 +25502,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -25424,7 +25534,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -25455,7 +25566,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -25486,7 +25598,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Food & Drink"
+    "Food & Drink",
+    "Seniors Festival"
    ]
   },
   {
@@ -25517,7 +25630,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -25548,7 +25662,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -25578,7 +25693,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25608,7 +25724,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25638,7 +25755,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25668,7 +25786,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25699,7 +25818,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -25730,7 +25850,8 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -25761,6 +25882,7 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -25792,6 +25914,7 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -25823,6 +25946,7 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -25854,6 +25978,7 @@
    "hidden_by_default": false,
    "types": [
     "Exercise & Fitness",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -25885,7 +26010,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25916,7 +26042,8 @@
    "hidden_by_default": false,
    "types": [
     "Dance",
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25946,7 +26073,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -25976,7 +26104,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Exercise & Fitness"
+    "Exercise & Fitness",
+    "Seniors Festival"
    ]
   },
   {
@@ -26007,6 +26136,7 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -26038,6 +26168,7 @@
    "hidden_by_default": false,
    "types": [
     "Games & Cards",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -26069,6 +26200,7 @@
    "hidden_by_default": false,
    "types": [
     "Games & Cards",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -26100,6 +26232,7 @@
    "hidden_by_default": false,
    "types": [
     "Games & Cards",
+    "Seniors Festival",
     "Social & Community"
    ]
   },
@@ -26130,6 +26263,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Sport & Outdoors"
    ]
   },
@@ -26160,6 +26294,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Sport & Outdoors"
    ]
   },
@@ -26190,6 +26325,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Sport & Outdoors"
    ]
   },
@@ -26220,6 +26356,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Sport & Outdoors"
    ]
   },
@@ -26251,6 +26388,7 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
+    "Seniors Festival",
     "Sport & Outdoors"
    ]
   },
@@ -26282,6 +26420,7 @@
    "hidden_by_default": false,
    "types": [
     "Food & Drink",
+    "Seniors Festival",
     "Sport & Outdoors"
    ]
   },
@@ -26312,7 +26451,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Games & Cards"
+    "Games & Cards",
+    "Seniors Festival"
    ]
   },
   {
@@ -26342,7 +26482,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Games & Cards"
+    "Games & Cards",
+    "Seniors Festival"
    ]
   },
   {
@@ -26372,6 +26513,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26402,6 +26544,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26432,6 +26575,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26462,6 +26606,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26493,7 +26638,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -26524,7 +26670,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -26555,7 +26702,8 @@
    "hidden_by_default": false,
    "types": [
     "Health & Wellbeing",
-    "Info Session"
+    "Info Session",
+    "Seniors Festival"
    ]
   },
   {
@@ -26585,6 +26733,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26615,6 +26764,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26645,6 +26795,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26675,6 +26826,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26705,6 +26857,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26735,6 +26888,7 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
+    "Seniors Festival",
     "Technology"
    ]
   },
@@ -26886,7 +27040,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Health & Wellbeing"
+    "Health & Wellbeing",
+    "Seniors Festival"
    ]
   },
   {
@@ -27218,7 +27373,8 @@
    "service_reason": "",
    "hidden_by_default": false,
    "types": [
-    "Music & Performance"
+    "Music & Performance",
+    "Seniors Festival"
    ]
   },
   {
@@ -46601,6 +46757,7 @@
    "types": [
     "Food & Drink",
     "Music & Performance",
+    "Seniors Festival",
     "Social & Community"
    ],
    "suburb": "",
@@ -46632,6 +46789,7 @@
     "https://libraries.greaterdandenong.vic.gov.au/events/tea-and-tech-seniors-festival"
    ],
    "types": [
+    "Seniors Festival",
     "Technology"
    ],
    "is_commercial": false,
@@ -47260,13 +47418,14 @@
   "Books & Reading": 97,
   "Market & Exhibition": 24,
   "Nature & Environment": 38,
-  "Other": 148,
+  "Other": 144,
   "Info Session": 65,
   "Children & Families": 64,
   "Music & Performance": 39,
   "Dance": 42,
   "Technology": 21,
-  "Health & Wellbeing": 86
+  "Health & Wellbeing": 86,
+  "Seniors Festival": 162
  },
  "commercial_count": 1,
  "service_count": 12,
