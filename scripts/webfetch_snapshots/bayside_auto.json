@@ -10,7 +10,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/one-one-device-advice-series",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 10 Jun 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -25,7 +24,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/special-display-fossil-discoveries-prehistoric-bayside",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Mon 17 Aug 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -40,7 +38,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/capture-wild-bayside-and-win",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 24 Sep 2026, 12:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -55,7 +52,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/kids-school-holiday-art-workshops",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Mon 28 Sep 2026, 9:30 AM",
   "price_sort": 45.0,
   "source_label": "bayside_live"
  },
@@ -70,7 +66,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/stop-motion-animation-workshop-kids-5-10-yrs",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 10:00 AM",
   "price_sort": 20.0,
   "source_label": "bayside_live"
  },
@@ -85,7 +80,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/laraine-stephens-bathing-box-murders-book-launch",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 6:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -100,7 +94,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/fairies-rippon-lea",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 10:00 AM",
   "price_sort": 30.0,
   "source_label": "bayside_live"
  },
@@ -115,7 +108,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/spot-clock-competition",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 12:00 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -130,7 +122,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/free-counselling-services-highett-neighbourhood-community-house",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 1 Oct 2026, 9:00 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -145,7 +136,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/centenarians-celebration-celebrating-100-years-and-beyond",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 1 Oct 2026, 12:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -160,7 +150,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/reflection-playable-streets",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 1 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -175,7 +164,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/paul-gelsumini-ten-tenors",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 1:30 PM",
   "price_sort": 10.0,
   "source_label": "bayside_live"
  },
@@ -190,7 +178,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/discover-art-pencil",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -205,7 +192,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/play-cards",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -220,7 +206,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-painting-starting-basics",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 1:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -235,7 +220,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-painting-starting-basics-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 1:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -250,7 +234,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-mandala-workshop",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 1:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -265,7 +248,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/colour-your-world-art-exhibition",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -280,7 +262,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/artists-residence-exhibition",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 8:30 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -295,7 +276,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/reflection-playable-streets-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 11:00 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -310,7 +290,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dads-playgroup",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 10:00 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -325,7 +304,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/acrylic-painting-starting-basics",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -340,7 +318,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/art-printing-methods-starting-basics",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 1:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -355,7 +332,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/write-space-sandringham-library",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -370,7 +346,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/reflection-playable-streets-1",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 1:00 PM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -385,7 +360,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-youth-art-fundraiser",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 5:00 PM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -400,7 +374,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neighbourly-ride-hampton",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 4 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -415,7 +388,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/devilbend-reservoir-loop-walk-mornington-peninsula",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 4 Oct 2026, 9:00 AM",
   "price_sort": 5.0,
   "source_label": "bayside_live"
  },
@@ -430,7 +402,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/belly-dance-and-baklava-afternoon-tea",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 4 Oct 2026, 2:00 PM",
   "price_sort": 18.0,
   "source_label": "bayside_live"
  },
@@ -445,7 +416,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/welcome-waders-ricketts-point-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 4 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -460,7 +430,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/talk-history-melbourne-racewear",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 4 Oct 2026, 2:00 PM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -475,7 +444,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/world-animal-day-celebration-animal-blessings-fundraiser",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 4 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -490,7 +458,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/conversation-academy-award-winning-filmmaker-adam-elliot",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 4 Oct 2026, 12:00 PM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -505,7 +472,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/discover-art-pencil-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -520,7 +486,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bayside-art-babies-term42026",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 9:30 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -535,7 +500,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/black-gold-composting-and-worm-farming-presentation",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 1:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -550,7 +514,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-1",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -565,7 +528,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-line-dancing",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 12:45 PM",
   "price_sort": 20.0,
   "source_label": "bayside_live"
  },
@@ -580,7 +542,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-gymnastics-classes-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 1:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -595,7 +556,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/easy-walking-1",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 2:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -610,7 +570,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ancestry-library-edition-beginners",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -625,7 +584,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/first-nations-basket-weaving",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 7 Oct 2026, 11:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -640,7 +598,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/works-wonder-magic-show-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 7 Oct 2026, 1:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -655,7 +612,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/rest-and-restore-irest-meditation-and-soundbath",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 7 Oct 2026, 12:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -670,7 +626,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/line-dancing-beginners-and-beyond-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 7 Oct 2026, 6:30 PM",
   "price_sort": 5.0,
   "source_label": "bayside_live"
  },
@@ -685,7 +640,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-mens-shed-open-day",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 7 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -700,7 +654,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/its-never-too-late-meditate-session-1",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -715,7 +668,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-yoga",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -730,7 +682,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-croquet-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 1:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -745,7 +696,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/riley-james-wreck-conversation-geoff-parkes",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 6:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -760,7 +710,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/melbourne-sculpture-biennale-2026-soft-systems",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 11:00 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -775,7 +724,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/victorian-bridge-centre-open-day-learn-or-play",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 9 Oct 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -790,7 +738,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/play-mahjong",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 9 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -805,7 +752,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/roy-orbison-story-glenn-douglas-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 9 Oct 2026, 12:45 PM",
   "price_sort": 10.0,
   "source_label": "bayside_live"
  },
@@ -820,7 +766,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/citizen-science-nature-walk",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 9 Oct 2026, 2:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -835,7 +780,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-beginner-crochet-workshop",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 10 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -850,7 +794,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/zoe-australia-melbourne-justice-walk-2026",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 10 Oct 2026, 9:45 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -865,7 +808,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/final-gala-day-bayside-community-nursery",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 10 Oct 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -880,7 +822,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/thin-blue-line-police-brighton-cemetery",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 11 Oct 2026, 2:00 PM",
   "price_sort": 15.0,
   "source_label": "bayside_live"
  },
@@ -895,7 +836,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-croquet-3",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 11 Oct 2026, 2:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -910,7 +850,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/destination-imagination-community-festival-stem-tournament",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 11 Oct 2026, 9:00 AM",
   "price_sort": 10.0,
   "source_label": "bayside_live"
  },
@@ -925,7 +864,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/rebetiko-festival-celebration-anatreptix",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 11 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -940,7 +878,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/recording-life-stories",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Mon 12 Oct 2026, 2:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -955,7 +892,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bayside-art-babies-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Mon 12 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -970,7 +906,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/carers-week-movie-event",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -985,7 +920,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1000,7 +934,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-tai-chi-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 10:45 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1015,7 +948,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/do-you-sing-shower",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 7:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1030,7 +962,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-aikido-demonstration",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "bayside_live"
  },
@@ -1045,7 +976,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/vocally-wild-choir-open-rehearsal",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 7:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1060,7 +990,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 2:00 PM",
   "price_sort": 10.0,
   "source_label": "bayside_live"
  },
@@ -1075,7 +1004,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cycling-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1090,7 +1018,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-lawn-bowls-4",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 9:45 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1105,7 +1032,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dungeons-and-dragons-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1120,7 +1046,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/death-cafe",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 12:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1135,7 +1060,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-4",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 2:00 PM",
   "price_sort": 10.0,
   "source_label": "bayside_live"
  },
@@ -1150,7 +1074,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sing-long",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 6:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1165,7 +1088,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/tricia-stringer-paradise-resort",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 12:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1180,7 +1102,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/support-carers-webinar",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 7:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1195,7 +1116,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/carers-week-high-tea-elton-and-olivia",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 12:45 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1210,7 +1130,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/home-energy-upgrades-program-information-session-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1225,7 +1144,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-walk-and-talk",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 11:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1240,7 +1158,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cranbourne-gardens-late-spring",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 9:00 AM",
   "price_sort": 5.0,
   "source_label": "bayside_live"
  },
@@ -1255,7 +1172,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-rewire-choir",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 2:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1270,7 +1186,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neurodiversity-kids-presentation-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 4:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1285,7 +1200,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/analog-art-club-9",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 6:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1300,7 +1214,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/comedy-show-brad-oakes",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 16 Oct 2026, 7:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1315,7 +1228,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/morning-tea-slac-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 16 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1330,7 +1242,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/lets-connect-through-community-singing",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 16 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1345,7 +1256,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/karaoke-singing",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 16 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1360,7 +1270,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-pilates-1",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 16 Oct 2026, 10:45 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1375,7 +1284,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/timber-craft-workshop",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 16 Oct 2026, 2:30 PM",
   "price_sort": 25.0,
   "source_label": "bayside_live"
  },
@@ -1390,7 +1298,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/national-carers-week-melbourne-sculpture-biennale",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 16 Oct 2026, 6:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1405,7 +1312,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/graeme-simsion-novel-project-writing-event",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 17 Oct 2026, 1:00 PM",
   "price_sort": 30.0,
   "source_label": "bayside_live"
  },
@@ -1420,7 +1326,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/how-preserve-your-harvest",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 17 Oct 2026, 10:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1435,7 +1340,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/black-rock-life-saving-club-open-day-season-launch-2026",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 17 Oct 2026, 3:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1450,7 +1354,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/celebrate-seniors-day-us-including-free-bbq",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 18 Oct 2026, 11:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1465,7 +1368,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sakura-hampton",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 18 Oct 2026, 1:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1480,7 +1382,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/birds-your-neighbourhood-kirsty-costa",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Mon 19 Oct 2026, 6:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1495,7 +1396,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-3",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 20 Oct 2026, 2:00 PM",
   "price_sort": 25.0,
   "source_label": "bayside_live"
  },
@@ -1510,7 +1410,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-3",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 20 Oct 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1525,7 +1424,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/healthy-tennis-workshops",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 20 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1540,7 +1438,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/birdlife-bayside-monthly-meeting",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 21 Oct 2026, 7:30 PM",
   "price_sort": 5.0,
   "source_label": "bayside_live"
  },
@@ -1555,7 +1452,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ask-about-aged-care-information-session-beaumaris-community-centre",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 21 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1570,7 +1466,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/suzy-singer-cabaret-show",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 21 Oct 2026, 1:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1585,7 +1480,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dungeons-and-dragons-1",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 21 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1600,7 +1494,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/croquet-come-and-try-it",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 21 Oct 2026, 1:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1615,7 +1508,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/stay-water-wise-life",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 21 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1630,7 +1522,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/its-never-too-late-meditate-session-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 22 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1645,7 +1536,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/matthew-ricketson-getting-murdoched-conversation-jon-faine",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 22 Oct 2026, 6:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1660,7 +1550,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/camino-de-santiago-what-it-and-how-its-done-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 22 Oct 2026, 7:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1675,7 +1564,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/making-healthy-dumplings-masterclass",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 23 Oct 2026, 9:00 AM",
   "price_sort": 10.0,
   "source_label": "bayside_live"
  },
@@ -1690,7 +1578,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bowls-technique-and-wellbeing-sessions",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 23 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1705,7 +1592,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/mature-rainbow-conversations",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 23 Oct 2026, 10:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1720,7 +1606,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/connections-art-dementia",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 23 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1735,7 +1620,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/fitness-class",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 24 Oct 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1750,7 +1634,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cards-canasta-and-500",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 24 Oct 2026, 1:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1765,7 +1648,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-celebrate-childrens-week-us",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 24 Oct 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1780,7 +1662,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/hampton-sailing-club-open-day",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 24 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1795,7 +1676,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sandringham-band-rotunda-100-year-community-celebration",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 25 Oct 2026, 11:00 AM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -1810,7 +1690,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-screen-social",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 27 Oct 2026, 10:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1825,7 +1704,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-4",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 27 Oct 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1840,7 +1718,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/positive-parenting-session-raising-waste-wise-children",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 27 Oct 2026, 6:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1855,7 +1732,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bag-sewing-day",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 28 Oct 2026, 1:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1870,7 +1746,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/gardiners-creek-and-anniversary-trail-loop-walk",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 28 Oct 2026, 9:30 AM",
   "price_sort": 5.0,
   "source_label": "bayside_live"
  },
@@ -1885,7 +1760,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/vikki-petraitis-reckoning-conversation-robert-gott",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 28 Oct 2026, 6:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1900,7 +1774,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/grant-seekers-guide-using-ai",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 28 Oct 2026, 5:30 PM",
   "price_sort": null,
   "source_label": "bayside_live"
  },
@@ -1915,7 +1788,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/tour-wildflower-meadow-yalukit-willam-nature-reserve",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 28 Oct 2026, 10:45 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1930,7 +1802,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/beach-walk-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 29 Oct 2026, 8:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1945,7 +1816,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/mens-shed-open-day-2",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 29 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1960,7 +1830,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-beaumaris-pubs-past",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 29 Oct 2026, 4:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -1975,7 +1844,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/spooky-sonantinas-halloween-spectacular",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 30 Oct 2026, 12:45 PM",
   "price_sort": 10.0,
   "source_label": "bayside_live"
  },
@@ -1990,7 +1858,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/black-rock-house-horrors",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 31 Oct 2026, 5:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2005,7 +1872,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/chris-macheras-old-vintage-melbourne-culinary-history-conversation-jaclyn-crupi",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 5 Nov 2026, 6:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2020,7 +1886,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/simple-act-kindness",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 6 Nov 2026, 8:00 PM",
   "price_sort": 32.0,
   "source_label": "bayside_live"
  },
@@ -2035,7 +1900,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sandringham-community-cup",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 7 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2050,7 +1914,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/national-recycling-week-storytime-visit-waste-collection-truck-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Tue 10 Nov 2026, 10:30 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2065,7 +1928,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-art-society-47th-annual-art-exhibition",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 12 Nov 2026, 9:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2080,7 +1942,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neurodiversity-kids-presentation-3",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Thu 12 Nov 2026, 4:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2095,7 +1956,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ask-about-aged-care-information-session-carnegie-library-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 13 Nov 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2110,7 +1970,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/microbats-cheltenham-park-0",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Fri 13 Nov 2026, 8:30 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2125,7 +1984,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/self-publishing-101-workshop",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sat 21 Nov 2026, 1:00 PM",
   "price_sort": 20.0,
   "source_label": "bayside_live"
  },
@@ -2140,7 +1998,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/jock-serong-suitable-man-conversation-gideon-haigh",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Sun 22 Nov 2026, 2:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  },
@@ -2155,7 +2012,6 @@
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/shelley-burr-shot-conversation-vikki-petraitis",
   "source_id": "bayside_live",
   "has_real_date": true,
-  "datetime_display": "Wed 25 Nov 2026, 6:00 PM",
   "price_sort": 0.0,
   "source_label": "bayside_live"
  }

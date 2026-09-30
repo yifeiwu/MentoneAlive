@@ -32,6 +32,7 @@ SUITES = (
     ("commercial", "commercial detection rules"),
     ("webfetch_granicus", "Granicus address parsing"),
     ("webfetch_http", "shared time/month/row parsing"),
+    ("fetchers", "the fetch call convention, without a network"),
     ("failure_signals", "config validation and the do-not-publish signal"),
     ("fetcher_equivalence", "the fetchers extract the same rows they used to"),
 )

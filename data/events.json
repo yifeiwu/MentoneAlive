@@ -20353,35 +20353,6 @@
    ]
   },
   {
-   "name": "Holiday Activities",
-   "datetime_text": "daily. 8:45am-4:15pm",
-   "datetime_iso": "2026-09-30T08:45:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Rd, Cheltenham VIC 3192, Australia",
-   "price_text": "",
-   "description": "Action-packed programs for primary school children in the school holidays daily 8:45am-4:15pm. • January • April • June • September-October Watch this page for full details of each program as we approach the school holidays. Book now. daily. 8:45am-4:15pm",
-   "source": "https://events.humanitix.com/2026-sep-oct-holiday-program-cheltenham-community-centre",
-   "source_id": "ccc",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "ccc",
-   "sources": [
-    "https://events.humanitix.com/2026-sep-oct-holiday-program-cheltenham-community-centre"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Children & Families"
-   ]
-  },
-  {
    "name": "Takeaway Meals",
    "datetime_text": "Every Tuesday, Wednesday, Thursday and Friday",
    "datetime_iso": "2026-09-30T10:00:00",
@@ -20988,96 +20959,6 @@
     "Children & Families",
     "Exercise & Fitness",
     "Sport & Outdoors"
-   ]
-  },
-  {
-   "name": "'Hand me down' by Andrew Duong",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 11:00 AM \r\n\tto 04:00 PM",
-   "datetime_iso": "2026-09-30T11:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "Kingston Arts Centre",
-   "price_text": "",
-   "description": "Exhibiting a series of paintings exploring inherited items and their cultural significance through an Australian-Cambodian-Chinese lens. Paintings reference stories of second-generation migrants and people born in the 90's, through a playful tone that speaks to values of sharing, appreciation and family.",
-   "source": "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong",
-   "source_id": "kingston_arts",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "kingston_arts",
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong"
-   ],
-   "suburb": "",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Art & Craft",
-    "Books & Reading",
-    "Social & Community"
-   ]
-  },
-  {
-   "name": "'Rendered Other and Cast Out' by Elizabeth Cole",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 11:00 AM \r\n\tto 04:00 PM",
-   "datetime_iso": "2026-09-30T11:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "Kingston Arts Centre",
-   "price_text": "",
-   "description": "A multi-disciplinary exhibition that reworks Antarctic and personal archival materials to warn of our uncertain future due to human-caused global warming. The five-part installation references the historic age of polar exploration, colonial-era whaling and the possible post-human consequences of inaction.",
-   "source": "https://www.kingstonarts.com.au/whats-on/rendered-other-and-cast-out",
-   "source_id": "kingston_arts",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "kingston_arts",
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/rendered-other-and-cast-out"
-   ],
-   "suburb": "",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Info Session",
-    "Market & Exhibition"
-   ]
-  },
-  {
-   "name": "Stitch with Sappho: Community Textile Installation by Juliet D Collins",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 11:00 AM \r\n\tto 04:00 PM",
-   "datetime_iso": "2026-09-30T11:00:00",
-   "location": "Shirley Burke Theatre",
-   "address": "Shirley Burke Theatre",
-   "price_text": "",
-   "description": "A collaborative textile and mixed media installation created with community participants; weaving together stitched fragments to reimagine Ancient Greek poet Sappho’s legacy and enduring presence through collective making.",
-   "source": "https://www.kingstonarts.com.au/whats-on/stitch-with-sappho-by-juliet-d-collins",
-   "source_id": "kingston_arts",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "kingston_arts",
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/stitch-with-sappho-by-juliet-d-collins"
-   ],
-   "suburb": "",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Art & Craft"
    ]
   },
   {
@@ -26030,35 +25911,6 @@
    ]
   },
   {
-   "name": "Spring Paper Collage - Art, Craft and Conversation",
-   "datetime_text": "Wednesday 30 September, 6:30pm",
-   "datetime_iso": "2026-09-30T18:30:00",
-   "location": "Springvale Library",
-   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
-   "suburb": "Springvale",
-   "price_text": "",
-   "description": "30 Sep Spring Paper Collage - Art, Craft and Conversation Wednesday 30 September, 6:30pm Adult Programs",
-   "source": "https://libraries.greaterdandenong.vic.gov.au/libraries/events/spring-paper-collage-art-craft-and-conversation",
-   "source_id": "greater_dandenong",
-   "price_sort": null,
-   "source_label": "greater_dandenong",
-   "has_real_date": true,
-   "sources": [
-    "https://libraries.greaterdandenong.vic.gov.au/libraries/events/spring-paper-collage-art-craft-and-conversation"
-   ],
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Art & Craft"
-   ]
-  },
-  {
    "name": "Citizenship English Language Classes",
    "datetime_text": "Thursday 1 October, 10:00am",
    "datetime_iso": "2026-10-01T10:00:00",
@@ -26408,35 +26260,6 @@
    "types": [
     "Info Session",
     "Technology"
-   ]
-  },
-  {
-   "name": "FULLY BOOKED - Card Making - Libraries After Dark",
-   "datetime_text": "Thursday 1 October, 6:00am",
-   "datetime_iso": "2026-10-01T06:00:00",
-   "location": "Keysborough Community Hub",
-   "address": "Keysborough Community Hub, 10 Villiers Rd, Keysborough 3173",
-   "price_text": "",
-   "description": "01 Oct FULLY BOOKED - Card Making - Libraries After Dark Thursday 1 October, 6:00am Adult Programs",
-   "source": "https://libraries.greaterdandenong.vic.gov.au/events/fully-booked-card-making-libraries-after-dark",
-   "source_id": "gd_libraries",
-   "suburb": "Keysborough",
-   "price_sort": null,
-   "source_label": "gd_libraries",
-   "has_real_date": true,
-   "sources": [
-    "https://libraries.greaterdandenong.vic.gov.au/events/fully-booked-card-making-libraries-after-dark"
-   ],
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "fully_booked",
-   "status_detail": "FULLY BOOKED",
-   "status_label": "FULLY BOOKED",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Games & Cards"
    ]
   },
   {
@@ -30749,13 +30572,12 @@
    "address": "54-70 Thompson Rd, Patterson Lakes 3197",
    "price_text": "",
    "description": "Mahjong",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mahjong-patterson-lakes",
+   "source": "https://www.kingston.vic.gov.au",
    "source_id": "kingston_hubs",
    "price_sort": null,
    "source_label": "kingston_hubs",
    "has_real_date": true,
    "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mahjong-patterson-lakes",
     "https://www.kingston.vic.gov.au"
    ],
    "types": [
@@ -37398,96 +37220,6 @@
     "Other"
    ],
    "suburb": "Langwarrin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Henan Provence Hometown Association of Australia Inc.",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 AM \r\n\tto 05:00 PM",
-   "datetime_iso": "2026-09-30T09:00:00",
-   "location": "Sundowner Community Centre, 24 Sundowner Ave, Clarinda 3169",
-   "address": "Sundowner Community Centre, 24 Sundowner Ave, Clarinda 3169",
-   "price_text": "",
-   "description": "A Chinese seniors group that preserves Chinese heritage through Tai Chi and dance.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/henan-province-hometown-association-of-australia-inc",
-   "source_id": "kingston_council",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "kingston_council",
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/henan-province-hometown-association-of-australia-inc"
-   ],
-   "types": [
-    "Dance",
-    "Exercise & Fitness",
-    "Info Session"
-   ],
-   "suburb": "Clarinda",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Waste and cleansing in Springvale Activity Centre",
-   "datetime_text": "Tuesday 13 October, 7:00pm",
-   "datetime_iso": "2026-10-13T19:00:00",
-   "location": "Saigon Rex Restaurant",
-   "address": "Saigon Rex Restaurant, 1st Floor, 17 Balmoral Avenue, Springvale",
-   "suburb": "Springvale",
-   "price_text": "",
-   "description": "13 Oct Waste and cleansing in Springvale Activity Centre Tuesday 13 October, 7:00pm Community Events",
-   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/waste-and-cleansing-springvale-activity-centre",
-   "source_id": "greater_dandenong",
-   "price_sort": null,
-   "source_label": "greater_dandenong",
-   "has_real_date": true,
-   "sources": [
-    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/waste-and-cleansing-springvale-activity-centre"
-   ],
-   "types": [
-    "Other"
-   ],
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Family Fun - School Holiday Activities",
-   "datetime_text": "Friday 2 October, 11:00am",
-   "datetime_iso": "2026-10-02T11:00:00",
-   "location": "Dandenong Library",
-   "address": "Dandenong Library, 225 Lonsdale Street, Dandenong",
-   "price_text": "",
-   "description": "02 Oct Family Fun - School Holiday Activities Friday 2 October, 11:00am Children's Programs",
-   "source": "https://libraries.greaterdandenong.vic.gov.au/events/family-fun-school-holiday-activities",
-   "source_id": "gd_libraries",
-   "suburb": "Dandenong",
-   "price_sort": null,
-   "source_label": "gd_libraries",
-   "has_real_date": true,
-   "sources": [
-    "https://libraries.greaterdandenong.vic.gov.au/events/family-fun-school-holiday-activities"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -45220,36 +44952,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "Tea and Tech - Seniors Festival",
-   "datetime_text": "Friday 2 October, 2:30pm",
-   "datetime_iso": "2026-10-02T14:30:00",
-   "location": "Dandenong Library",
-   "address": "Dandenong Library, 225 Lonsdale Street, Dandenong",
-   "price_text": "",
-   "description": "02 Oct Tea and Tech - Seniors Festival Friday 2 October, 2:30pm Adult Programs",
-   "source": "https://libraries.greaterdandenong.vic.gov.au/events/tea-and-tech-seniors-festival",
-   "source_id": "gd_libraries",
-   "suburb": "Dandenong",
-   "price_sort": null,
-   "source_label": "gd_libraries",
-   "has_real_date": true,
-   "sources": [
-    "https://libraries.greaterdandenong.vic.gov.au/events/tea-and-tech-seniors-festival"
-   ],
-   "types": [
-    "Seniors Festival",
-    "Technology"
-   ],
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "FunNet for 7-9 year olds - Beginner Netball Skills",
    "datetime_text": "Every Monday (to 14 Dec 2026)",
    "datetime_iso": "2026-12-14T15:00:00",
@@ -45273,99 +44975,6 @@
     "Sport & Outdoors"
    ],
    "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "500 Card Games & Cuppa",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 01:00 PM \r\n\tto 04:00 PM",
-   "datetime_iso": "2026-09-30T13:00:00",
-   "location": "Aspendale Gardens Community Centre, 103-105 Kearney Drive, Aspendale Gardens 3195",
-   "address": "Aspendale Gardens Community Centre, 103-105 Kearney Drive, Aspendale Gardens 3195",
-   "price_text": "",
-   "description": "Join us for a game of 500 and a cup of tea or coffee!",
-   "source": "https://www.kingston.vic.gov.au/community/events/community-events/500-Card-Games-Cuppa",
-   "source_id": "kingston_council",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "kingston_council",
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/community-events/500-Card-Games-Cuppa"
-   ],
-   "types": [
-    "Food & Drink",
-    "Games & Cards",
-    "Social & Community"
-   ],
-   "suburb": "Aspendale Gardens",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 03:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-09-30T15:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "Kingston Arts Centre",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "kingston_arts",
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 03:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-09-30T15:00:00",
-   "location": "Kingston City Hall",
-   "address": "Kingston City Hall",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "has_real_date": true,
-   "price_sort": null,
-   "source_label": "kingston_arts",
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -45405,9 +45014,574 @@
    "hidden_by_default": false
   },
   {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-10-05T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-10-12T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-10-19T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-10-26T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-02T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-09T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-16T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-23T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-30T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-12-07T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-12-14T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Toddler Time - Springvale Library",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-12-21T10:30:00",
+   "location": "Springvale Library",
+   "address": "Springvale Library, 5 Hillcrest Grove, Springvale",
+   "price_text": "",
+   "description": "05 Oct Toddler Time - Springvale Library Monday 5 October, 10:30am Children's Programs",
+   "source": "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale",
+   "source_id": "gd_libraries",
+   "suburb": "Springvale",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "gd_libraries",
+   "sources": [
+    "https://libraries.greaterdandenong.vic.gov.au/events/toddler-time-springvale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "types": [
+    "Books & Reading",
+    "Children & Families"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Holiday Activities",
+   "datetime_text": "daily. 8:45am-4:15pm",
+   "datetime_iso": "2026-10-01T08:45:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Rd, Cheltenham VIC 3192, Australia",
+   "price_text": "",
+   "description": "Action-packed programs for primary school children in the school holidays daily 8:45am-4:15pm. • January • April • June • September-October Watch this page for full details of each program as we approach the school holidays. Book now. daily. 8:45am-4:15pm",
+   "source": "https://events.humanitix.com/2026-sep-oct-holiday-program-cheltenham-community-centre",
+   "source_id": "ccc",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "ccc",
+   "sources": [
+    "https://events.humanitix.com/2026-sep-oct-holiday-program-cheltenham-community-centre"
+   ],
+   "types": [
+    "Children & Families"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Kingston Sounds' by Susannah Langley",
+   "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-09-30T21:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "Kingston Arts Centre",
+   "price_text": "",
+   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
+   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
+   "source_id": "kingston_arts",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_arts",
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
+   ],
+   "types": [
+    "Art & Craft",
+    "Market & Exhibition",
+    "Technology"
+   ],
+   "suburb": "",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Refugia' by Kerri Wilson McConchie",
+   "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+   "datetime_iso": "2026-09-30T21:00:00",
+   "location": "Kingston City Hall",
+   "address": "Kingston City Hall",
+   "price_text": "",
+   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
+   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
+   "source_id": "kingston_arts",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_arts",
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
+   ],
+   "types": [
+    "Art & Craft",
+    "Games & Cards",
+    "Nature & Environment"
+   ],
+   "suburb": "",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Hand me down' by Andrew Duong",
+   "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+   "datetime_iso": "2026-10-01T11:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "979 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "Exhibiting a series of paintings exploring inherited items and their cultural significance through an Australian-Cambodian-Chinese lens. Paintings reference stories of second-generation migrants and people born in the 90's, through a playful tone that speaks to values of sharing, appreciation and family.",
+   "source": "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong",
+   "source_id": "kingston_arts",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_arts",
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong"
+   ],
+   "types": [
+    "Art & Craft",
+    "Books & Reading",
+    "Social & Community"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Rendered Other and Cast Out' by Elizabeth Cole",
+   "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+   "datetime_iso": "2026-10-01T11:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "979 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "A multi-disciplinary exhibition that reworks Antarctic and personal archival materials to warn of our uncertain future due to human-caused global warming. The five-part installation references the historic age of polar exploration, colonial-era whaling and the possible post-human consequences of inaction.",
+   "source": "https://www.kingstonarts.com.au/whats-on/rendered-other-and-cast-out",
+   "source_id": "kingston_arts",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_arts",
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/rendered-other-and-cast-out"
+   ],
+   "types": [
+    "Info Session",
+    "Market & Exhibition"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Stitch with Sappho: Community Textile Installation by Juliet D Collins",
+   "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+   "datetime_iso": "2026-10-01T11:00:00",
+   "location": "Shirley Burke Theatre",
+   "address": "Stitch with Sappho, workshops during 2026",
+   "price_text": "",
+   "description": "A collaborative textile and mixed media installation created with community participants; weaving together stitched fragments to reimagine Ancient Greek poet Sappho’s legacy and enduring presence through collective making.",
+   "source": "https://www.kingstonarts.com.au/whats-on/stitch-with-sappho-by-juliet-d-collins",
+   "source_id": "kingston_arts",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_arts",
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/stitch-with-sappho-by-juliet-d-collins"
+   ],
+   "types": [
+    "Art & Craft"
+   ],
+   "suburb": "workshops during",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
    "name": "Biodiversity month",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 03:00 PM \r\n\tto Wednesday, 30 September 2026 | 11:59 PM",
-   "datetime_iso": "2026-09-30T15:00:00",
+   "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Wednesday, 30 September 2026 | 11:59 PM",
+   "datetime_iso": "2026-09-30T21:00:00",
    "location": "Sir William Fry Reserve, Nepean Highway",
    "address": "Sir William Fry Reserve, Nepean Highway, Highett 3190",
    "price_text": "",
@@ -45435,8 +45609,8 @@
   },
   {
    "name": "School holidays at Waves",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 03:00 PM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-09-30T15:00:00",
+   "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\t - Friday, 2 October 2026",
+   "datetime_iso": "2026-09-30T21:00:00",
    "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
    "address": "111 Chesterville Road, Highett 3190",
    "price_text": "",
@@ -45454,6 +45628,123 @@
     "Social & Community"
    ],
    "suburb": "Highett",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mental Health Month",
+   "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-01T00:00:00",
+   "location": "70 Thompson Road",
+   "address": "54-70 Thompson Road, Patterson Lakes 3197",
+   "price_text": "",
+   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
+   "source_id": "kingston_council",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_council",
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
+   ],
+   "types": [
+    "Health & Wellbeing"
+   ],
+   "suburb": "Patterson Lakes",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Community Connections Program",
+   "datetime_text": "Next date: Thursday, 01 October 2026 | 09:00 AM \r\n\tto 05:00 PM",
+   "datetime_iso": "2026-10-01T09:00:00",
+   "location": "Clarinda Community Centre, 58B Viney Street, Clarinda 3169",
+   "address": "Contact, Community Connections 1300",
+   "price_text": "",
+   "description": "Providing access to services to overcome and avoid homelessness.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/community-connections",
+   "source_id": "kingston_council",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_council",
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/community-connections"
+   ],
+   "types": [
+    "Other"
+   ],
+   "suburb": "Community Connections",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Gumnuts Program",
+   "datetime_text": "Next date: Thursday, 01 October 2026 | 09:15 AM \r\n\tto 02:15 PM",
+   "datetime_iso": "2026-10-01T09:15:00",
+   "location": "Mordialloc Neighbourhood House, 457 Main Street, Mordialloc 3195",
+   "address": "457 Main Street, Mordialloc 3195",
+   "price_text": "",
+   "description": "A pre kinder program for 3 and 4 year olds.",
+   "source": "https://www.kingston.vic.gov.au/community/events/community-events/Gumnuts-Program-1",
+   "source_id": "kingston_council",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_council",
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/community-events/Gumnuts-Program-1"
+   ],
+   "types": [
+    "Other"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Koala Program",
+   "datetime_text": "Next date: Thursday, 01 October 2026 | 09:15 AM \r\n\tto 02:15 PM",
+   "datetime_iso": "2026-10-01T09:15:00",
+   "location": "Mordialloc Neighbourhood House, 457 Main Street, Mordialloc 3195",
+   "address": "457 Main Street, Mordialloc 3195",
+   "price_text": "",
+   "description": "Occasional child care for children aged 6 weeks to 3 years.",
+   "source": "https://www.kingston.vic.gov.au/community/events/community-events/Koala-Program-1",
+   "source_id": "kingston_council",
+   "has_real_date": true,
+   "price_sort": null,
+   "source_label": "kingston_council",
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/community-events/Koala-Program-1"
+   ],
+   "types": [
+    "Children & Families",
+    "Nature & Environment"
+   ],
+   "suburb": "Mordialloc",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",

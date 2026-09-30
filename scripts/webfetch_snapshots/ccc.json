@@ -10,7 +10,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 16 Jul 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -25,7 +24,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -40,7 +38,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -55,7 +52,6 @@
   "source": "https://www.chelt.com.au/free-activities.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Wednesdays. 2:00pm – 3:30pm",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -70,7 +66,6 @@
   "source": "https://www.chelt.com.au/free-activities.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Tuesdays. 1:00pm – 3:00pm",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -85,7 +80,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -100,7 +94,6 @@
   "source": "https://events.humanitix.com/2026-zumba-gold-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 10:30 AM",
   "price_sort": 120.0,
   "source_label": "ccc"
  },
@@ -115,7 +108,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Term 4 - To be confirmed. Mondays, 11am - 12pm",
   "price_sort": 8.0,
   "source_label": "ccc"
  },
@@ -130,7 +122,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 9 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -145,7 +136,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -160,7 +150,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -175,7 +164,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -190,7 +178,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -205,7 +192,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Term 4 (10 weeks). Wednesdays, 12:00pm – 12:45pm",
   "price_sort": 12.0,
   "source_label": "ccc"
  },
@@ -220,7 +206,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 24 Sep 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -235,7 +220,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -250,7 +234,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Tuesdays, 10:00am - 11:15am | Thursdays, 11:00am - 12:15pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -265,7 +248,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Tuesdays, 11:30am - 12:15pm",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -280,7 +262,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Tuesdays, 12:15pm - 1:15pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -295,7 +276,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -310,7 +290,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Mondays 10:30am - 11:30am | Fridays 1pm - 2pm | Fridays 2pm - 3pm",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -325,7 +304,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Fridays 10am - 10:50am",
   "price_sort": 16.0,
   "source_label": "ccc"
  },
@@ -340,7 +318,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -355,7 +332,6 @@
   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "First Tuesday of every month. 1pm - 2pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -370,7 +346,6 @@
   "source": "https://www.chelt.com.au/social-activities.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Monday to Friday",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -385,7 +360,6 @@
   "source": "https://www.chelt.com.au/social-activities.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Wednesday",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -400,7 +374,6 @@
   "source": "https://www.chelt.com.au/social-activities.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Thursday",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -415,7 +388,6 @@
   "source": "https://www.chelt.com.au/social-activities.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Wednesday",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -430,7 +402,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 6 Oct 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -445,7 +416,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -460,7 +430,6 @@
   "source": "https://www.chelt.com.au/creative-classes.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Every second Saturday. 10:30am - 12:30pm. Term 4 (17th October - 5th December",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -475,7 +444,6 @@
   "source": "https://www.chelt.com.au/creative-classes.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Saturdays. 1pm - 2pm. Term 1 (7 Feb - 21 Mar, 7 weeks",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -490,7 +458,6 @@
   "source": "https://www.chelt.com.au/creative-classes.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Saturdays. 1pm - 2pm. Term 1 (7 Feb - 21 Mar, 7 weeks",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -505,7 +472,6 @@
   "source": "https://www.chelt.com.au/workshops.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Thursday",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -520,7 +486,6 @@
   "source": "https://www.chelt.com.au/workshops.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Thursday",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -535,7 +500,6 @@
   "source": "https://www.chelt.com.au/computer-courses.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "",
   "price_sort": 20.0,
   "source_label": "ccc"
  },
@@ -550,7 +514,6 @@
   "source": "https://www.chelt.com.au/computer-courses.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -565,7 +528,6 @@
   "source": "https://www.chelt.com.au/computer-courses.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -580,7 +542,6 @@
   "source": "https://www.chelt.com.au/computer-courses.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "",
   "price_sort": 20.0,
   "source_label": "ccc"
  },
@@ -595,7 +556,6 @@
   "source": "https://www.chelt.com.au/learn-english.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -610,7 +570,6 @@
   "source": "https://www.chelt.com.au/learn-english.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Mondays. 9am - 12pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -625,7 +584,6 @@
   "source": "https://www.chelt.com.au/learn-english.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Mondays. 9am - 12pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -640,7 +598,6 @@
   "source": "https://www.chelt.com.au/learn-english.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -655,7 +612,6 @@
   "source": "https://www.chelt.com.au/learn-english.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Mondays. 9am - 12pm. 12:30pm - 3:30pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -670,7 +626,6 @@
   "source": "https://www.chelt.com.au/learn-english.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Wednesdays",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -685,14 +640,13 @@
   "source": "https://www.chelt.com.au/learn-english.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Tuesdays",
   "price_sort": 55.0,
   "source_label": "ccc"
  },
  {
   "name": "Holiday Activities",
   "datetime_text": "daily. 8:45am-4:15pm",
-  "datetime_iso": "2026-09-30T08:45:00",
+  "datetime_iso": "2026-10-01T08:45:00",
   "location": "Cheltenham Community Centre",
   "address": "8 Chesterville Rd, Cheltenham VIC 3192, Australia",
   "price_text": "",
@@ -700,7 +654,6 @@
   "source": "https://events.humanitix.com/2026-sep-oct-holiday-program-cheltenham-community-centre",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 8:45 AM",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -715,7 +668,6 @@
   "source": "https://www.chelt.com.au/youth.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -730,7 +682,6 @@
   "source": "https://www.chelt.com.au/youth.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -745,7 +696,6 @@
   "source": "https://www.chelt.com.au/soul-cafe.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Tuesday to Friday. 10am–2pm",
   "price_sort": null,
   "source_label": "ccc"
  },
@@ -760,7 +710,6 @@
   "source": "https://www.chelt.com.au/soul-cafe.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -775,7 +724,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -790,7 +738,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 7 Oct 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -805,7 +752,6 @@
   "source": "https://www.chelt.com.au/playgroups.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Thursdays. 11:15am - 12:15pm. Term 2 - 10 weeks (23rd Apr - 25 Jun",
   "price_sort": 133.0,
   "source_label": "ccc"
  },
@@ -820,7 +766,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -835,7 +780,6 @@
   "source": "https://www.chelt.com.au/funnet.html",
   "source_id": "ccc",
   "has_real_date": false,
-  "datetime_display": "Monday. 15pm - 5pm. Term 4 : 5th October – 14th December Weeks : 10 Join anytime and p",
   "price_sort": 20.0,
   "source_label": "ccc"
  },
@@ -850,7 +794,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 23 Jul 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -865,7 +808,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 30 Jul 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -880,7 +822,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 6 Aug 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -895,7 +836,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 13 Aug 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -910,7 +850,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 20 Aug 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -925,7 +864,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 27 Aug 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -940,7 +878,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 3 Sep 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -955,7 +892,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 10 Sep 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -970,7 +906,6 @@
   "source": "https://events.humanitix.com/2026-chair-yoga-term-3",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 17 Sep 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -985,7 +920,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1000,7 +934,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 22 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1015,7 +948,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 29 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1030,7 +962,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 5 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1045,7 +976,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 12 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1060,7 +990,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 19 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1075,7 +1004,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 26 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1090,7 +1018,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 3 Dec 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1105,7 +1032,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 10 Dec 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1120,7 +1046,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 17 Dec 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1135,7 +1060,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1150,7 +1074,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 22 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1165,7 +1088,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 29 Oct 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1180,7 +1102,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 5 Nov 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1195,7 +1116,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 12 Nov 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1210,7 +1130,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 19 Nov 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1225,7 +1144,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 26 Nov 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1240,7 +1158,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 3 Dec 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1255,7 +1172,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 10 Dec 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1270,7 +1186,6 @@
   "source": "https://events.humanitix.com/2026-sewing-club-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 17 Dec 2026, 11:00 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1285,7 +1200,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 12 Oct 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1300,7 +1214,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 19 Oct 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1315,7 +1228,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 26 Oct 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1330,7 +1242,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 2 Nov 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1345,7 +1256,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 9 Nov 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1360,7 +1270,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 16 Nov 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1375,7 +1284,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 23 Nov 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1390,7 +1298,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 30 Nov 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1405,7 +1312,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 7 Dec 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1420,7 +1326,6 @@
   "source": "https://events.humanitix.com/2026-hatha-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 14 Dec 2026, 6:15 PM",
   "price_sort": 187.0,
   "source_label": "ccc"
  },
@@ -1435,7 +1340,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 16 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1450,7 +1354,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 23 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1465,7 +1368,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 30 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1480,7 +1382,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 6 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1495,7 +1396,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 13 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1510,7 +1410,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 20 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1525,7 +1424,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 27 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1540,7 +1438,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 4 Dec 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1555,7 +1452,6 @@
   "source": "https://events.humanitix.com/2026-everyday-strength-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Fri 11 Dec 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -1570,7 +1466,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 12 Oct 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1585,7 +1480,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 19 Oct 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1600,7 +1494,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 26 Oct 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1615,7 +1508,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 2 Nov 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1630,7 +1522,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 9 Nov 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1645,7 +1536,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 16 Nov 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1660,7 +1550,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 23 Nov 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1675,7 +1564,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 30 Nov 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1690,7 +1578,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 7 Dec 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1705,7 +1592,6 @@
   "source": "https://events.humanitix.com/2026-advanced-yoga-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 14 Dec 2026, 7:30 PM",
   "price_sort": 209.0,
   "source_label": "ccc"
  },
@@ -1720,7 +1606,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1735,7 +1620,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 20 Oct 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1750,7 +1634,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 27 Oct 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1765,7 +1648,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 3 Nov 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1780,7 +1662,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 10 Nov 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1795,7 +1676,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 17 Nov 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1810,7 +1690,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 24 Nov 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1825,7 +1704,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 1 Dec 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1840,7 +1718,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 8 Dec 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1855,7 +1732,6 @@
   "source": "https://events.humanitix.com/2026-pickleball-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 15 Dec 2026, 9:30 AM",
   "price_sort": 10.0,
   "source_label": "ccc"
  },
@@ -1870,7 +1746,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -1885,7 +1760,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 20 Oct 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -1900,7 +1774,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 27 Oct 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -1915,7 +1788,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 3 Nov 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -1930,7 +1802,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 10 Nov 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -1945,7 +1816,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 17 Nov 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -1960,7 +1830,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 24 Nov 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -1975,7 +1844,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 1 Dec 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -1990,7 +1858,6 @@
   "source": "https://events.humanitix.com/2026-tuesday-qigong-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 8 Dec 2026, 2:00 PM",
   "price_sort": 130.0,
   "source_label": "ccc"
  },
@@ -2005,7 +1872,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2020,7 +1886,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 20 Oct 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2035,7 +1900,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 27 Oct 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2050,7 +1914,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 3 Nov 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2065,7 +1928,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 10 Nov 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2080,7 +1942,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 17 Nov 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2095,7 +1956,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 24 Nov 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2110,7 +1970,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 1 Dec 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2125,7 +1984,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 8 Dec 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2140,7 +1998,6 @@
   "source": "https://events.humanitix.com/2026-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 15 Dec 2026, 5:30 PM",
   "price_sort": 18.0,
   "source_label": "ccc"
  },
@@ -2155,7 +2012,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 1 Oct 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2170,7 +2026,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 8 Oct 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2185,7 +2040,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2200,7 +2054,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 22 Oct 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2215,7 +2068,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 29 Oct 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2230,7 +2082,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 5 Nov 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2245,7 +2096,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 12 Nov 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2260,7 +2110,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 19 Nov 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2275,7 +2124,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 26 Nov 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2290,7 +2138,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 3 Dec 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2305,7 +2152,6 @@
   "source": "https://events.humanitix.com/2026-move-and-mingle-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 10 Dec 2026, 11:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2320,7 +2166,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 12 Oct 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2335,7 +2180,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 19 Oct 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2350,7 +2194,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 26 Oct 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2365,7 +2208,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 2 Nov 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2380,7 +2222,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 9 Nov 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2395,7 +2236,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 16 Nov 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2410,7 +2250,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 23 Nov 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2425,7 +2264,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 30 Nov 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2440,7 +2278,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 7 Dec 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2455,7 +2292,6 @@
   "source": "https://events.humanitix.com/2026-mums-and-bubs-pilates-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 14 Dec 2026, 11:00 AM",
   "price_sort": 140.0,
   "source_label": "ccc"
  },
@@ -2470,7 +2306,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 12 Oct 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2485,7 +2320,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 19 Oct 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2500,7 +2334,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 26 Oct 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2515,7 +2348,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 2 Nov 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2530,7 +2362,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 9 Nov 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2545,7 +2376,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 16 Nov 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2560,7 +2390,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 23 Nov 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2575,7 +2404,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 30 Nov 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2590,7 +2418,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 7 Dec 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2605,7 +2432,6 @@
   "source": "https://events.humanitix.com/2026-guided-meditation-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 14 Dec 2026, 10:00 AM",
   "price_sort": 5.0,
   "source_label": "ccc"
  },
@@ -2620,7 +2446,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 13 Oct 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2635,7 +2460,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 20 Oct 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2650,7 +2474,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 27 Oct 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2665,7 +2488,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 3 Nov 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2680,7 +2502,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 10 Nov 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2695,7 +2516,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 17 Nov 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2710,7 +2530,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 24 Nov 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2725,7 +2544,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 1 Dec 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2740,7 +2558,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 8 Dec 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2755,7 +2572,6 @@
   "source": "https://events.humanitix.com/2026-art-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Tue 15 Dec 2026, 9:30 AM",
   "price_sort": 265.0,
   "source_label": "ccc"
  },
@@ -2770,7 +2586,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 22 Oct 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2785,7 +2600,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 29 Oct 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2800,7 +2614,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 5 Nov 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2815,7 +2628,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 12 Nov 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2830,7 +2642,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 19 Nov 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2845,7 +2656,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 26 Nov 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2860,7 +2670,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 3 Dec 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2875,7 +2684,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 10 Dec 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2890,7 +2698,6 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 17 Dec 2026, 9:15 AM",
   "price_sort": 150.0,
   "source_label": "ccc"
  },
@@ -2905,7 +2712,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 12 Oct 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -2920,7 +2726,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 19 Oct 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -2935,7 +2740,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 26 Oct 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -2950,7 +2754,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 2 Nov 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -2965,7 +2768,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 9 Nov 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -2980,7 +2782,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 16 Nov 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -2995,7 +2796,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 23 Nov 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3010,7 +2810,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 30 Nov 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3025,7 +2824,6 @@
   "source": "https://events.humanitix.com/2026-music-for-tots-mondays-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Mon 7 Dec 2026, 9:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3040,7 +2838,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 14 Oct 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3055,7 +2852,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 21 Oct 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3070,7 +2866,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 28 Oct 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3085,7 +2880,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 4 Nov 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3100,7 +2894,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 11 Nov 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3115,7 +2908,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 18 Nov 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3130,7 +2922,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 25 Nov 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3145,7 +2936,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 2 Dec 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3160,7 +2950,6 @@
   "source": "https://events.humanitix.com/2026-music-and-play-for-bubs-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Wed 9 Dec 2026, 11:30 AM",
   "price_sort": 7.0,
   "source_label": "ccc"
  },
@@ -3175,7 +2964,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 15 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3190,7 +2978,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 22 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3205,7 +2992,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 29 Oct 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3220,7 +3006,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 5 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3235,7 +3020,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 12 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3250,7 +3034,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 19 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3265,7 +3048,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 26 Nov 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3280,7 +3062,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 3 Dec 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3295,7 +3076,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 10 Dec 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  },
@@ -3310,7 +3090,6 @@
   "source": "https://events.humanitix.com/2026-messy-play-term-4",
   "source_id": "ccc",
   "has_real_date": true,
-  "datetime_display": "Thu 17 Dec 2026, 9:30 AM",
   "price_sort": 0.0,
   "source_label": "ccc"
  }

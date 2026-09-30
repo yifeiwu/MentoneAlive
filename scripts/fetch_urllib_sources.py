@@ -159,7 +159,7 @@ def _add_one_month(iso):
 # Source: Kingston Hubs (OpenCities calendar API)
 # ---------------------------------------------------------------------------
 
-def fetch_kingston_hubs(cfg):
+def fetch_kingston_hubs(cfg, session=None):
     cal_ids = cfg["calendars"]
     # Explicit id -> venue map, and it must be complete. The API returns a
     # CalendarId and nothing else useful, so this map is the only source of a
@@ -374,7 +374,7 @@ def _gd_fetch(session, url, timeout=15):
     return r.text
 
 
-def fetch_greater_dandenong(cfg):
+def fetch_greater_dandenong(cfg, session=None):
     session = _gd_session(session)
     allowed = cfg.get("suburb_filter", [])
     max_pages = cfg.get("max_pages", 8)
@@ -480,11 +480,12 @@ def fetch_greater_dandenong(cfg):
 
 # Frankston live (Everi) is WAF-blocked for Python; see webfetch snapshots.
 
-def fetch_gd_libraries(cfg):
+def fetch_gd_libraries(cfg, session=None):
     # GD Libraries returns all events on one page; ?page=N is ignored, so
     # there is no pagination loop here.
     rows = []
     url = cfg["url"]
+    allowed = cfg.get("suburb_filter", [])
     session = _gd_session(session)
     try:
         html = _gd_fetch(session, url, timeout=12)
@@ -608,7 +609,7 @@ def _chatty_schedule_is_usable(schedule):
     return spec is not None and bool(spec.slots)
 
 
-def fetch_chatty_cafe(cfg):
+def fetch_chatty_cafe(cfg, session=None):
     """Fetch Chatty Cafe venues.
 
     sources.yaml holds the venue list and a fallback schedule. The live page is

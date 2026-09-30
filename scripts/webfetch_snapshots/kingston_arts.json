@@ -1,8 +1,8 @@
 [
  {
   "name": "'Kingston Sounds' by Susannah Langley",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 03:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-  "datetime_iso": "2026-09-30T15:00:00",
+  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+  "datetime_iso": "2026-09-30T21:00:00",
   "location": "Kingston Arts Centre",
   "address": "Kingston Arts Centre",
   "price_text": "",
@@ -10,14 +10,13 @@
   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 3:00 PM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
  {
   "name": "'Refugia' by Kerri Wilson McConchie",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 03:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-  "datetime_iso": "2026-09-30T15:00:00",
+  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+  "datetime_iso": "2026-09-30T21:00:00",
   "location": "Kingston City Hall",
   "address": "Kingston City Hall",
   "price_text": "",
@@ -25,14 +24,13 @@
   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 3:00 PM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
  {
   "name": "'Hand me down' by Andrew Duong",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 11:00 AM \r\n\tto 04:00 PM",
-  "datetime_iso": "2026-09-30T11:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+  "datetime_iso": "2026-10-01T11:00:00",
   "location": "Kingston Arts Centre",
   "address": "979 Nepean Highway, Moorabbin 3189",
   "price_text": "",
@@ -40,14 +38,13 @@
   "source": "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 11:00 AM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
  {
   "name": "'Rendered Other and Cast Out' by Elizabeth Cole",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 11:00 AM \r\n\tto 04:00 PM",
-  "datetime_iso": "2026-09-30T11:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+  "datetime_iso": "2026-10-01T11:00:00",
   "location": "Kingston Arts Centre",
   "address": "979 Nepean Highway, Moorabbin 3189",
   "price_text": "",
@@ -55,14 +52,13 @@
   "source": "https://www.kingstonarts.com.au/whats-on/rendered-other-and-cast-out",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 11:00 AM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
  {
   "name": "Stitch with Sappho: Community Textile Installation by Juliet D Collins",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 11:00 AM \r\n\tto 04:00 PM",
-  "datetime_iso": "2026-09-30T11:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+  "datetime_iso": "2026-10-01T11:00:00",
   "location": "Shirley Burke Theatre",
   "address": "Stitch with Sappho, workshops during 2026",
   "price_text": "",
@@ -70,7 +66,6 @@
   "source": "https://www.kingstonarts.com.au/whats-on/stitch-with-sappho-by-juliet-d-collins",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Wed 30 Sep 2026, 11:00 AM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
@@ -85,7 +80,6 @@
   "source": "https://www.kingstonarts.com.au/whats-on/drag-bingo",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Fri 2 Oct 2026, 7:30 PM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
@@ -100,7 +94,6 @@
   "source": "https://www.kingstonarts.com.au/whats-on/Your-sounds-of-kingston",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 11:00 AM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
@@ -115,7 +108,6 @@
   "source": "https://www.kingstonarts.com.au/whats-on/exhibition-celebration-for-stitch-with-sappho-exhibition",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 1:00 PM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
@@ -130,7 +122,6 @@
   "source": "https://www.kingstonarts.com.au/whats-on/kings-of-the-gypsies",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Sat 3 Oct 2026, 5:00 PM",
   "price_sort": null,
   "source_label": "kingston_arts"
  },
@@ -145,7 +136,6 @@
   "source": "https://www.kingstonarts.com.au/whats-on/laneway-learning/lush-paper-flowers",
   "source_id": "kingston_arts",
   "has_real_date": true,
-  "datetime_display": "Mon 5 Oct 2026, 6:30 PM",
   "price_sort": null,
   "source_label": "kingston_arts"
  }

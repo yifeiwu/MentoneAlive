@@ -253,6 +253,19 @@ def normalize(rows):
 _SESSIONS = {}
 
 
+def load_config():
+    """Every source entry, tagged with which config list it came from.
+
+    `group` decides whether an entry owns a committed snapshot file, and it is
+    tagged here rather than in sources.yaml so the file stays a description of
+    the sources rather than of this script's internals.
+    """
+    with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+    return ([dict(c, group="snapshot") for c in config.get("webfetch", [])]
+            + [dict(c, group="shared") for c in config.get("sources", [])])
+
+
 def session_for(cfg):
     """The session this source's host needs.
 
@@ -281,15 +294,7 @@ def main():
                     help="validate sources.yaml and exit without fetching")
     args = ap.parse_args()
 
-    with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-
-    # `group` marks which config list an entry came from, because that -- not its
-    # type -- decides whether it owns a committed snapshot file. It is added
-    # here rather than in sources.yaml so the file stays a description of the
-    # sources rather than of this script's internals.
-    entries = ([dict(c, group="snapshot") for c in config.get("webfetch", [])]
-               + [dict(c, group="shared") for c in config.get("sources", [])])
+    entries = load_config()
 
     # Every config fault at once, before any request. A typo should be one
     # message naming the entry, not a KeyError from inside a fetcher after
@@ -393,7 +398,13 @@ def main():
         for sid, reason in failures:
             print(f"  FAIL: {sid}: {reason}")
         sys.exit(1)
-    print(f"fetch ok: {len(entries)} source(s)")
+    # The number actually run, not the number configured: a `--source` run
+    # fetched one, and reporting nine made a single-source debug run look like a
+    # complete refresh when it was nothing of the kind.
+    ran = 1 if args.source else len(entries)
+    print(f"fetch ok: {ran} of {len(entries)} configured source(s)"
+          + ("  (--source run: raw_events.json now holds this source only)"
+             if args.source else ""))
 
 
 def _snapshot_path(cfg):

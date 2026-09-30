@@ -2,7 +2,11 @@ name: Update Events
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    # Weekly, Monday 06:00 UTC. The sources publish a calendar rather than a
+    # feed of changes, so a day-over-day diff is mostly re-downloading the same
+    # pages; the one that changes fastest is the seniors festival, which is
+    # hand-synced anyway. Use workflow_dispatch for an off-cycle refresh.
+    - cron: '0 6 * * 1'
   workflow_dispatch:
 
 permissions:

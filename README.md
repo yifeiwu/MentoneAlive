@@ -276,9 +276,10 @@ PDF extraction, which is why `seniors_festival_overrides.json` exists at all.
 
 ## GitHub Actions
 
-`.github/workflows/update-events.yml` runs daily at 06:00 UTC with per-step
-timeouts: fetch → dedupe → build → health check → rule assertions → render check
-→ commit (`data/events.json`, `index.html`, snapshots) → Pages deploy.
+`.github/workflows/update-events.yml` runs weekly on Monday at 06:00 UTC with
+per-step timeouts: fetch → dedupe → build → health check → rule assertions →
+render check → commit (`data/events.json`, `index.html`, snapshots) → Pages
+deploy. `workflow_dispatch` triggers an off-cycle refresh.
 
 A failed fetch leaves the last good `events.json` and `index.html` in place
 rather than publishing a smaller calendar. That is intentional — do not add
