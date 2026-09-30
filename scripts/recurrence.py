@@ -9,8 +9,6 @@ recurrence spec and expands it into concrete dated occurrences.
 Unparseable listings are reported as unresolvable and dropped by the caller.
 Inference never overrides a date a source actually supplied.
 """
-from __future__ import annotations
-
 import os
 import re
 from copy import deepcopy
@@ -18,6 +16,13 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, time as dt_time, timedelta
 
 MAX_OCCURRENCES = 12
+
+# Loop bounds for expand(). Each is deliberately slack above MAX_OCCURRENCES, so
+# the cap is always what bounds an expansion and these only ever stop a runaway
+# loop on a malformed spec: 126 days is 18 weekly candidates, 252 days is 18
+# fortnightly periods, 20 months is 20 monthly candidates, against a cap of 12.
+# Tightening any of them to 12 would let a bound, not the cap, decide the last
+# occurrence.
 WEEKLY_HORIZON_DAYS = 126
 FORTNIGHTLY_HORIZON_DAYS = 252
 MONTHLY_HORIZON_MONTHS = 20
@@ -781,7 +786,6 @@ def _row_with_date(row, day, start, label):
     stamp = _at(day, start) if start else datetime.combine(day, dt_time.min)
     out["datetime_iso"] = stamp.isoformat(timespec="seconds")
     out["datetime_text"] = label
-    out["datetime_display"] = stamp.strftime("%a %d %b %Y, %I:%M %p").replace(" 0", " ")
     out["has_real_date"] = True
     out["date_inferred"] = True
     out["recurrence"] = label
@@ -919,8 +923,6 @@ def resolve_dateless(rows, today=None, max_occurrences=MAX_OCCURRENCES):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    import itertools
-
     # A fixed "today" so the expected dates below are literal rather than
     # relative to whenever the suite runs.
     TODAY = date(2026, 9, 30)

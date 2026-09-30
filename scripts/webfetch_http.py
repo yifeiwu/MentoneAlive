@@ -18,11 +18,10 @@ import time
 from datetime import datetime
 
 # curl_cffi is imported inside make_session(), not here. This module also owns
-# the pure date/time/row helpers, and two scripts that need only those import
-# it: fetch_events.py, which reaches these hosts with urllib and has no
-# browser impersonation, and the self-test below. A module-level import would
-# make both of them require a network library at import time to parse a month
-# name.
+# the pure date/time/row helpers, and fetch_urllib_sources.py imports those
+# while having no browser impersonation of its own, as does the self-test
+# below. A module-level import would make both require a network library at
+# import time just to parse a month name.
 
 # --- reporting ------------------------------------------------------------
 # Every fetcher used to print directly, with a hand-typed two- or four-space
@@ -140,6 +139,7 @@ def make_row(source_id, name, source, datetime_iso="", datetime_text="",
 
 
 def make_session():
+    """A curl-cffi session presenting a Chrome TLS fingerprint."""
     from curl_cffi import requests as cr
 
     s = cr.Session(impersonate="chrome", timeout=15)
@@ -148,6 +148,57 @@ def make_session():
         "Accept-Language": "en-AU,en;q=0.9",
     })
     return s
+
+
+class _Response:
+    """What the fetch layer reads off a response: status, text, bytes."""
+
+    def __init__(self, status_code, body):
+        self.status_code = status_code
+        self.content = body
+        self.text = body.decode("utf-8", "ignore")
+
+
+class PlainSession:
+    """A urllib-backed session with the same shape as a curl_cffi one.
+
+    Every source takes a session, because `impersonate: true` in sources.yaml
+    decides *which kind* of session a host needs -- not whether a session
+    exists. Four hosts answer plain urllib; two need Chrome TLS impersonation
+    because a WAF blocks them. Handing a source None because it is not
+    impersonated is a failure mode that only appears on the sources which
+    happen to be fine.
+    """
+
+    UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+          "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
+
+    def __init__(self, timeout=15):
+        self.timeout = timeout
+
+    def get(self, url, timeout=None, **kwargs):
+        import urllib.request
+
+        req = urllib.request.Request(url, headers={
+            "User-Agent": self.UA,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                      "*/*;q=0.8",
+            "Accept-Language": "en-AU,en;q=0.9",
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
+                return _Response(r.status, r.read())
+        except urllib.error.HTTPError as e:
+            return _Response(e.code, e.read())
+        except Exception as e:
+            # curl_cffi raises on a connection error, and `get()` above turns
+            # that into "HTTP 0", so match it rather than letting a different
+            # exception type escape from under the shared retry loop.
+            return _Response(0, str(e).encode())
+
+
+def make_plain_session():
+    return PlainSession()
 
 
 def get(session, url, retries=2, min_len=1000):

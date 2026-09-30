@@ -11,17 +11,24 @@ sys.path.insert(0, "scripts")
 
 import yaml  # noqa: E402
 
+from checks import check as _check  # noqa: E402
+from fetch_sources import (_count_change, _previous_count,  # noqa: E402
+                           validate_config)
 from webfetch_http import (PartialFetch, enrich_details, make_row,  # noqa: E402
-                           report, set_reporting_source)
-from webfetch_sources import (_count_change, _previous_count,  # noqa: E402
-                              validate_config)
+                           set_reporting_source)
 
 set_reporting_source("test")
 
 with open("scripts/sources.yaml", encoding="utf-8") as f:
-    GOOD = yaml.safe_load(f)["webfetch"]
+    CONFIG = yaml.safe_load(f)
+GOOD = [{**c, "group": "snapshot" if c in CONFIG["webfetch"] else "shared"}
+        for c in CONFIG["webfetch"] + CONFIG["sources"]]
 
 failures = []
+
+
+def check(label, actual, expected):
+    return _check(label, actual, expected, failures)
 
 
 def cfg_with(sid, **changes):
@@ -31,15 +38,6 @@ def cfg_with(sid, **changes):
             entry.update(changes)
             return entry
     raise KeyError(sid)
-
-
-def check(label, actual, expected):
-    ok = actual == expected
-    print(f"{'ok  ' if ok else 'FAIL'} {label}"
-          + ("" if ok else f"\n       actual:   {actual!r}"
-                          f"\n       expected: {expected!r}"))
-    if not ok:
-        failures.append(label)
 
 
 # --- config validation ----------------------------------------------------
@@ -65,19 +63,38 @@ CONFIG_CASES = [
     # One pass reports every type-independent fault, not just the first.
     ("type-independent faults are all reported",
      [cfg_with("bayside_live", url="", snapshot="", name="")], 3),
-    # An unknown type skips only the keys that need a type to know.
+    # An unknown type skips only the keys that need a type to know -- and the
+    # snapshot check, which is keyed on the config list rather than the type,
+    # still runs.
     ("an unknown type still reports the rest",
      [cfg_with("bayside_live", type="nope", snapshot="")], 2),
+    # A plain-source entry owns no snapshot, so none is demanded of it.
+    ("a plain source needs no snapshot",
+     [cfg_with("kingston_hubs", snapshot=None)], 0),
 ]
 
 for label, entries, expected in CONFIG_CASES:
     errors = validate_config(entries)
-    ok = len(errors) == expected
-    print(f"{'ok  ' if ok else 'FAIL'} {label}"
-          + ("" if ok else f"\n       expected {expected} error(s), got "
-                          f"{len(errors)}: {errors}"))
-    if not ok:
-        failures.append(label)
+    check(label, len(errors), expected)
+
+# The same rule applies to the plain-source half, which shares this validator
+# now that there is one dispatcher: a Kingston Hubs calendar with no venue and
+# address is a hard failure, because the alternative is a wrong address
+# published silently.
+def api_errors(**changes):
+    return [e for e in validate_config([cfg_with("kingston_hubs", **changes)])
+            if "no name AND address" in e]
+
+
+check("a calendar with no venue/address is named",
+      len(api_errors(calendars=["x"], calendar_venues={})), 1)
+check("a half-mapped calendar is named",
+      len(api_errors(
+          calendars=["a1bc2435-21cb-4d26-9b8a-80fc0a7a74df"],
+          calendar_venues={"a1bc2435-21cb-4d26-9b8a-80fc0a7a74df":
+                           {"name": "Chelsea Activity Hub"}})), 1)
+check("a fully mapped calendar is accepted",
+      len(api_errors()), 0)
 
 
 # --- the one failure signal ----------------------------------------------
@@ -122,13 +139,7 @@ for label, ok_urls, n_rows, should_raise in DETAIL_CASES:
                        sleep=0)
     except PartialFetch as e:
         raised = e
-    ok = (raised is not None) == should_raise
-    print(f"{'ok  ' if ok else 'FAIL'} {label}"
-          + ("" if ok else f"\n       expected "
-                          f"{'a PartialFetch' if should_raise else 'success'}, "
-                          f"got {raised!r}"))
-    if not ok:
-        failures.append(label)
+    check(label, raised is not None, should_raise)
 
 
 # --- a truncated-but-successful fetch is reported ------------------------
@@ -136,20 +147,31 @@ for label, ok_urls, n_rows, should_raise in DETAIL_CASES:
 # the real data. That is what a starved --detail-cap produced once: a good
 # 221-row snapshot replaced by 65 undated rows, silently.
 # _previous_count must read the file BEFORE the write, or "was N" always
-# reports the count that was just written and the comparison is vacuous.
-SNAP = "scripts/webfetch_snapshots/ccc.json"
-before = _previous_count(SNAP)
-check("the committed ccc snapshot reads 221 rows", before, 221)
-check("a 70% shrink is called out loudly",
-      "70% smaller" in _count_change(before, 65), True)
-check("a real snapshot that grew is not called out",
-      "smaller" in _count_change(before, 400), False)
-check("the same size is not called out",
-      "smaller" in _count_change(before, 221), False)
-check("a missing previous snapshot is not a shrink",
-      "smaller" in _count_change(None, 10), False)
-check("an unreadable previous snapshot does not raise",
-      _count_change(None, 10), "10 rows (no previous snapshot)")
+# reports the count that was just written and the comparison is vacuous -- so
+# this case writes a snapshot of its own into a temp dir and reads that, rather
+# than asserting against the committed ccc.json. It used to hard-code 221,
+# which meant a legitimate change in how many classes the CCC site lists failed
+# the build with a message about a file this suite does not control.
+import tempfile  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+with tempfile.TemporaryDirectory() as _tmp:
+    snap = Path(_tmp) / "snap.json"
+    from jsonio import write_json  # noqa: E402
+
+    write_json(snap, [{"name": f"row {i}"} for i in range(100)])
+    before = _previous_count(snap)
+    check("a snapshot's own row count is read back", before, 100)
+    check("a 35% shrink is called out loudly",
+          "35% smaller" in _count_change(before, 65), True)
+    check("a real snapshot that grew is not called out",
+          "smaller" in _count_change(before, 400), False)
+    check("the same size is not called out",
+          "smaller" in _count_change(before, 100), False)
+    check("a missing previous snapshot is not a shrink",
+          "smaller" in _count_change(None, 10), False)
+    check("an unreadable previous snapshot does not raise",
+          _count_change(None, 10), "10 rows (no previous snapshot)")
 
 
 if failures:

@@ -199,7 +199,7 @@ def _ccc_free_signals(text):
     return bits, cost
 
 
-def fetch_ccc(session, cfg, detail_cap):
+def fetch_ccc(cfg, session=None, detail_cap=None):
     rows, seen = [], set()
     for page_url in cfg.get("pages", [cfg.get("url", "")]):
         if not page_url:

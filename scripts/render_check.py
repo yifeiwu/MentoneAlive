@@ -545,8 +545,12 @@ def main():
         n_rows = len(re.findall(r"<tr", rows))
         if n_rows == 0:
             errors.append("table body rendered 0 rows")
-        if "No events match" in rows:
-            errors.append("page rendered the 'no events match' empty state")
+        # This used to also assert the empty state was not showing, by looking
+        # for the literal "No events match". That string no longer exists -- the
+        # empty state now names the filters that are excluding rows ("Nothing
+        # matches the suburb filter (2 selected)") -- so the assertion was
+        # permanently green. The 0-rows check above is the real one, and it
+        # catches the same condition.
         count = re.search(r'id="count"[^>]*>([^<]*)', dom)
         count_text = count.group(1).strip() if count else ""
         if not re.match(r"Showing \d+-\d+ of \d+ events", count_text):
@@ -577,21 +581,29 @@ def main():
             print("  browser said: %s" % describe_js_error(browser, profile))
             return 1
 
-        # A stale page is a passing test of the wrong artefact, so say so.
-        # Compare against the header's generated total, not the visible row
-        # count: the default filters legitimately hide past and commercial
-        # events, so the table is always smaller than the dataset.
+        # A stale page is a passing test of the wrong artefact, so compare it. Compare
+        # against the header's generated total, not the visible row count: the
+        # default filters legitimately hide past and commercial events, so the
+        # table is always smaller than the dataset. This was a NOTE, which
+        # could not fail a run -- but index.html is a *committed* artefact, so a
+        # page disagreeing with its own data is a defect, not a diagnostic. In
+        # CI build_site.py has just run, so this can only fire when something is
+        # genuinely wrong; locally it tells you to rebuild.
+        stale = []
         try:
             import json
             with open(EVENTS, encoding="utf-8") as jf:
                 total = len(json.load(jf)["rows"])
             header = re.search(r"(\d+)\s*events", dom)
             if header and int(header.group(1)) != total:
-                print("NOTE: page header claims %s events but data/events.json "
-                      "has %d; rebuild before trusting this."
-                      % (header.group(1), total))
+                stale.append("page header claims %s events but "
+                             "data/events.json has %d; rebuild before trusting "
+                             "this" % (header.group(1), total))
         except (OSError, ValueError, KeyError):
             pass
+        if stale:
+            print("FAIL: %s" % stale[0])
+            return 1
 
         print("render ok: %s rendered %d rows (%s)"
               % (os.path.basename(browser), n_rows, count_text))

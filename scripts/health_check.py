@@ -590,8 +590,7 @@ MIN_SOURCE = {
     "kingston_arts": 3,
     "gd_libraries": 3,
 }
-WARN_ONLY = {"kingston_seniors", "bayside_seniors", "bayside_archived",
-             "frankston_archived"}
+WARN_ONLY = {"kingston_seniors", "bayside_archived", "frankston_archived"}
 
 
 def main():
@@ -817,17 +816,13 @@ def main():
         if unknown_tags:
             errors.append(f"rows carry unknown activity tags {unknown_tags} - "
                           f"add them to TYPES so the UI can filter them")
-        legacy = [r for r in rows if "type" in r]
-        if legacy:
-            errors.append(f"{len(legacy)} rows still carry legacy single "
-                          f"`type` - did build_site.py run?")
-        other_mixed = [r for r in rows
-                       if "Other" in (r.get("types") or []) and len(r.get("types") or []) > 1]
-        if other_mixed:
-            sample = ", ".join(sorted({(r.get("name") or "?")[:40]
-                                       for r in other_mixed})[:5])
-            errors.append(f"{len(other_mixed)} rows mix 'Other' with real tags: "
-                          f"{sample}")
+        # Two checks that used to live here were removed rather than kept:
+        # "any row still carrying a legacy single `type`" is redundant, because
+        # a store where build_site.py did not run already fails the empty-types
+        # check above and the missing-hidden_by_default check below; and
+        # "'Other' mixed with real tags" is structurally impossible, since
+        # classify_types returns ["Other"] iff nothing matched. Neither could
+        # fail in any reachable state.
 
     # The store must be exactly what the sources justify. Re-running the
     # pipeline's own reconciliation is the check: a row that would be dropped
@@ -837,7 +832,7 @@ def main():
     live = load_live_inputs(quiet=True)
     if live is None:
         errors.append("could not load source inputs to reconcile against - "
-                      "did fetch_events.py / webfetch_sources.py run?")
+                      "did fetch_sources.py run?")
     else:
         kept, dropped = reconcile_store(rows, live, reference_today())
         if dropped:
@@ -925,12 +920,11 @@ def main():
             elif ph in SINGLE_USE_PLACEHOLDERS and tpl.count(ph) != 1:
                 errors.append(f"placeholder {ph} appears {tpl.count(ph)}x "
                               "(want exactly 1)")
-        # Top-level calls to functions that are never defined abort the whole
-        # script block before render() runs.
-        for fn in ("parseURLState", "updateURL", "updatePagination",
-                   "getTypes", "typeStr", "filtered"):
-            if not re.search(r"function\s+" + fn + r"\s*\(", tpl):
-                errors.append(f"template calls {fn}() but never defines it")
+        # A top-level call to an undefined function aborts the whole script
+        # block before render() runs. This does NOT try to catch that by
+        # scanning for names -- a regex cannot see a parse error, which is the
+        # more likely fault. render_check.py executes the built page and
+        # asserts it produced rows, which covers both.
         errors.extend(a11y_errors(tpl, "template"))
     except FileNotFoundError as e:
         errors.append(f"template missing: {e}")

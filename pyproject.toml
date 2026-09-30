@@ -13,4 +13,12 @@ dependencies = [
 
 [build-system]
 requires = ["setuptools>=68"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
+
+# A collection of scripts, not an installable library: nothing here is imported
+# as `eventscal.something`, and `scripts/` has no __init__.py. Declaring no
+# modules keeps the build from looking for one -- without this, setuptools
+# auto-discovery fails on the flat layout, which is why the pins below were
+# never actually installable and CI carried a second copy of them.
+[tool.setuptools]
+py-modules = []

@@ -313,8 +313,7 @@ def _merge_sources(existing, candidate, refresh_source=False):
         existing["source"] = cand_src
     # Prefer keeping a real date over a dateless duplicate.
     if not existing.get("datetime_iso") and candidate.get("datetime_iso"):
-        for k in ("datetime_iso", "datetime_display", "datetime_text",
-                  "has_real_date"):
+        for k in ("datetime_iso", "datetime_text", "has_real_date"):
             # `is not None` would skip a genuine empty string, leaving the
             # dateless row with a blank display after gaining a real date.
             if candidate.get(k):
@@ -670,6 +669,14 @@ def _normalize_raw(row, quiet=False):
         row["datetime_iso"] = None
     if not isinstance(row.get("sources"), list):
         row["sources"] = [row.get("source", "")]
+    # Two fields no consumer reads: `datetime_display` (a formatted copy of
+    # datetime_iso, which the page recomputes) and `date_text` (never read by
+    # anything, including back when the archive fixture carried it). No fetcher
+    # writes them any more, but a snapshot committed before that still carries
+    # them, and the store is supposed to be the documented schema rather than
+    # whatever the last fetch happened to emit.
+    row.pop("datetime_display", None)
+    row.pop("date_text", None)
     # Dedupe sources list
     seen, uniq = set(), []
     for s in row["sources"]:
@@ -726,21 +733,6 @@ def prune_old(rows, days=PRUNE_DAYS, today=None):
     return kept, pruned
 
 
-def drop_dateless(rows):
-    """Safety net: nothing publishes without a date.
-
-    resolve_dateless() has already dated or dropped every dateless row, so
-    anything left here is undateable and must not reach the calendar.
-    """
-    kept, dropped = [], 0
-    for r in rows:
-        if not r.get("datetime_iso"):
-            dropped += 1
-            continue
-        kept.append(r)
-    return kept, dropped
-
-
 def load_live_inputs(quiet=False):
     """Every row the sources published this run, normalised.
 
@@ -754,7 +746,7 @@ def load_live_inputs(quiet=False):
     if raw is None:
         if quiet:
             return None
-        print("FAIL: data/raw_events.json missing - run fetch_events.py first")
+        print("FAIL: data/raw_events.json missing - run fetch_sources.py first")
         sys.exit(1)
     if not isinstance(raw, list):
         if quiet:
@@ -856,30 +848,17 @@ def main():
     # a leftover from a listing that was corrected or withdrawn.
     merged, stale_stored = reconcile_store(merged, live, today)
     merged, pruned = prune_old(merged, PRUNE_DAYS, today)
-    merged, still_dateless = drop_dateless(merged)
+    # No local "nothing publishes without a date" filter here: resolve_dateless
+    # keeps a row only when it already has a datetime_iso or infer_event dated
+    # it, and everything between here and there only ever drops rows. So such a
+    # filter could not fire. health_check.py checks the same invariant on the
+    # published artefact instead, which is where a violation would actually
+    # matter.
     print(f"After dedup: {len(merged)} ({new_count} new, {pruned} pruned "
           f">{PRUNE_DAYS}d, {inferred['dropped']} undatable, "
-          f"{len(stale_stored)} unbacked, {still_dateless} still dateless)")
+          f"{len(stale_stored)} unbacked)")
 
-    output = {
-        "generated_at": datetime.now(tz=LOCAL_TZ).isoformat(timespec="seconds"),
-        "counts": {
-            # `existing` is the pre-merge store size, so it does not reconcile
-            # with `total` once pruning/dropping has run. Report the counts as
-            # they are named, and the final total separately.
-            "existing": len(existing),
-            "new": new_count,
-            "pruned": pruned,
-            "inferred": inferred["expanded"],
-            "undatable": inferred["dropped"],
-            "still_dateless": still_dateless,
-            "unbacked": len(stale_stored),
-            "total": len(merged),
-        },
-        "rows": merged,
-    }
-
-    write_json(ROOT / "data" / "events.json", output)
+    write_json(ROOT / "data" / "events.json", {"rows": merged})
     print("Wrote data/events.json")
 
 

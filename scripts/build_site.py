@@ -10,7 +10,7 @@ from activity_types import TYPES, classify_types
 from commercial import is_commercial
 from jsonio import write_json
 from status import STATUS_LABELS, event_status, is_ongoing_service
-from venues import street_suffix_words
+from venues import STREET_SUFFIX_WORDS
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -96,12 +96,48 @@ def extract_suburb(address):
 
 
 _STREET_TAIL = re.compile(
-    r"\b(" + street_suffix_words() + r")\b\.?$", re.I)
+    r"\b(" + STREET_SUFFIX_WORDS + r")\b\.?$", re.I)
 
 
 def _is_street(seg):
     """True when a comma-segment is a street/road name, not a suburb."""
     return bool(_STREET_TAIL.search(seg.strip()))
+
+
+def _strip_build_comments(source):
+    """Drop the code's own prose from a built page, keeping the page working.
+
+    The template carries ~25 KB of rationale for the CSS and JS, and that same
+    rationale also lives in docs/decisions.md and in the check docstrings. It is
+    worth keeping in the repo and not worth shipping to every reader of the
+    page.
+
+    The rules are deliberately conservative, because the inlined JSON payload
+    arrives by `replace()` and a naive strip would corrupt it:
+
+    - CSS block comments, whole-block. Safe here because no CSS string literal
+      contains `/*` -- the only `content:` values are `center`.
+    - JS line comments, but only whole lines whose first non-space character is
+      `//`. Trailing comments are left alone, because the ICS PRODID is
+      `"PRODID:-//Events Index//EN"` and a rule that could match mid-line would
+      be one regex away from rewriting it.
+    - HTML comments.
+
+    Call this on the template, before any payload is substituted.
+    """
+    def _style(m):
+        return m.group(1) + re.sub(r"/\*.*?\*/", "", m.group(2), flags=re.S) \
+            + m.group(3)
+
+    def _script(m):
+        kept = [l for l in m.group(2).split("\n") if not l.lstrip().startswith("//")]
+        return m.group(1) + "\n".join(kept) + m.group(3)
+
+    source = re.sub(r"(<style\b[^>]*>)(.*?)(</style>)", _style, source,
+                    flags=re.S | re.I)
+    source = re.sub(r"(<script\b[^>]*>)(.*?)(</script>)", _script, source,
+                    flags=re.S | re.I)
+    return re.sub(r"<!--.*?-->", "", source, flags=re.S)
 
 
 def main():
@@ -141,15 +177,11 @@ def main():
         r["sources"] = [u for u in (r.get("sources") or []) if _safe_url(u)]
 
     data["rows"] = rows
-    data["type_counts"] = dict(Counter(
-        t for r in rows for t in (r.get("types") or ["Other"])))
-    data["commercial_count"] = sum(1 for r in rows if r.get("is_commercial"))
-    data["service_count"] = sum(1 for r in rows if r.get("is_service"))
-    data["unavailable_count"] = sum(1 for r in rows if r.get("status"))
     write_json(ROOT / "data" / "events.json", data)
     print(f"Wrote data/events.json with types + commercial "
-          f"({data['commercial_count']} commercial, {data['service_count']} "
-          f"services, {data['unavailable_count']} sold out / fully booked)")
+          f"({sum(1 for r in rows if r.get('is_commercial'))} commercial, "
+          f"{sum(1 for r in rows if r.get('is_service'))} services, "
+          f"{sum(1 for r in rows if r.get('status'))} sold out / fully booked)")
 
     type_counts = Counter(t for r in rows for t in r.get("types", ["Other"]))
     # Keep checkbox order stable and in TYPES order (not alphabetical), so the
@@ -160,15 +192,42 @@ def main():
 
     template_path = ROOT / "src" / "templates" / "index.html"
     with open(template_path, encoding="utf-8") as f:
-        template = f.read()
+        template = _strip_build_comments(f.read())
 
-    data_json = json.dumps(rows, ensure_ascii=False)
-    # Inlined into a <script> block: "</" prevents a </script> breakout, and
-    # U+2028/U+2029 are JavaScript line terminators in string literals before
-    # ES2019, which would break the parse for the whole page.
-    data_json = (data_json.replace("</", "<\\/")
-                 .replace("\u2028", "\\u2028")
-                 .replace("\u2029", "\\u2029"))
+    # Only the fields the page reads, and only when they carry something.
+    # `sources`, `datetime_display`, `datetime_text`, `has_real_date`,
+    # `source_id` and `date_text` are pipeline-internal: a reader of
+    # data/events.json gets them from the committed store, but inlining all of
+    # them for every row is ~100 KB of page nobody can search.
+    PAGE_FIELDS = (
+        "name", "datetime_iso", "location", "address", "suburb", "description",
+        "price_text", "price_sort", "types", "source", "source_label",
+        "date_inferred", "recurrence", "is_commercial", "commercial_reason",
+        "is_service", "service_reason", "status", "status_label",
+        "status_detail", "hidden_by_default",
+    )
+    # A false flag is worth omitting (1513 of 1522 rows carry one, and every
+    # read of all three is guarded, so absent already means false). A zero is
+    # NOT: `price_sort == 0` is 514 rows and is how `isFree()` recognises a
+    # free event, so it is kept. Note that `value in ("", [], None, False)`
+    # cannot express that -- `0.0 == False` in Python, so it would drop every
+    # free row's price.
+    FLAGS = ("is_commercial", "is_service", "hidden_by_default")
+
+    def _keep(field, value):
+        if value is None or value == "" or value == []:
+            return False
+        if field in FLAGS and value is False:
+            return False
+        return True
+
+    payload = [{k: r[k] for k in PAGE_FIELDS if k in r and _keep(k, r[k])}
+               for r in rows]
+
+    # Inlined into a <script> block: "</" prevents a </script> breakout. The
+    # U+2028/U+2029 escapes are not needed -- both became legal in JavaScript
+    # string literals in ES2019, and every browser since accepts them raw.
+    data_json = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
 
     html_out = template.replace("__EVENTS_DATA__", data_json)
     html_out = html_out.replace("__GENERATED_AT__", datetime.now().strftime("%Y-%m-%d %H:%M"))

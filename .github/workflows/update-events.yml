@@ -28,30 +28,21 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: |
-          pip install beautifulsoup4==4.15.0 pyyaml==6.0.2 rapidfuzz==3.14.6 curl-cffi==0.16.3 pypdf==6.19.0
+        run: pip install .
 
-      - name: Syntax check scripts
-        run: python -m compileall -q scripts
-
-      # Both fetchers exit non-zero when a source fails or returns nothing, and
-      # a multi-page crawl that stops early keeps the previous snapshot rather
+      # Both exit non-zero when a source fails or returns nothing, and a
+      # multi-page crawl that stops early keeps the previous snapshot rather
       # than overwriting it. A failed run therefore leaves the last good
       # events.json and index.html in place instead of publishing a smaller
       # calendar -- that is intentional, do not add continue-on-error here.
-      - name: Fetch events (Python sources only)
-        timeout-minutes: 15
-        run: python scripts/fetch_events.py
-
-      - name: Webfetch sources (browser-impersonating Python)
+      #
+      # The config is validated before any request, so a typo is one message
+      # naming the entry rather than a KeyError from inside a fetcher.
+      - name: Fetch sources
         timeout-minutes: 45
-        # The config is validated before any request, so a typo is one message
-        # naming the entry rather than a KeyError from inside a fetcher.
-        run: |
-          python scripts/webfetch_sources.py --check-config
-          python scripts/webfetch_sources.py
+        run: python scripts/fetch_sources.py
 
-      - name: Deduplicate (+ webfetch snapshots, infer dates, prune 90d)
+      - name: Deduplicate (+ snapshots, infer dates, prune 90d)
         timeout-minutes: 10
         run: python scripts/dedupe.py
 
@@ -59,67 +50,39 @@ jobs:
         timeout-minutes: 10
         run: python scripts/build_site.py
 
+      # Must run after build_site.py: it verifies the status and
+      # default-hidden flags that build_site.py writes, so the other order
+      # fails the build, which is the intended outcome.
       - name: Health check
         timeout-minutes: 5
         run: python scripts/health_check.py
 
-      - name: Check classifier rules
-        timeout-minutes: 5
-        run: python scripts/activity_types.py
-
-      - name: Check status / service rules
-        timeout-minutes: 5
-        run: python scripts/status.py
-
-      # recurrence.py decides the day a reader turns up, so a wrong date is
-      # worse than a missing event: the row still renders and still looks
-      # bookable. Its cases are real listing text, and each was a live defect
-      # that shipped a correct-looking wrong date through a green build.
-      - name: Check date inference rules
-        timeout-minutes: 5
-        run: python scripts/recurrence.py
-
-      - name: Check commercial detection rules
-        timeout-minutes: 5
-        run: python scripts/commercial.py
-
-      - name: Check Granicus address parsing
-        timeout-minutes: 5
-        run: python scripts/webfetch_granicus.py
-
-      # webfetch_http is the single owner of every written-time conversion and
-      # month name the fetchers share, so a regression there moves every
-      # source at once. These are the cases whose failure mode was a
-      # plausible-looking wrong hour rather than a crash.
-      - name: Check shared time/month parsing
-        timeout-minutes: 5
-        run: python scripts/webfetch_http.py
-
-      # Config faults and broken fetches used to look alike: a missing key, a
-      # WAF block and a dead scraper all surfaced as "returned 0 rows", and a
-      # detail-page block was a bare `continue` that overwrote a good snapshot
-      # with a listing-only file. These pin the one "do not publish" signal.
-      - name: Check config validation and failure signals
-        timeout-minutes: 5
-        run: python scripts/failure_signals.py
-
-      - name: Check the refactored fetchers still extract the same rows
-        timeout-minutes: 5
-        run: python scripts/fetcher_equivalence.py
-
-      # Nothing above can see a JavaScript error: compileall only reads
-      # Python, and the other checks only read events.json. A syntax error in
-      # the template therefore builds and passes, then publishes a blank
-      # calendar. This renders the built page and asserts it has rows, so a
-      # blank page fails the run before the commit below. Chrome is
-      # preinstalled on ubuntu-latest; the check skips if none is found.
+      # Every rule assertion in one step. Each suite is pure -- no network, no
+      # writes -- and exits non-zero with the actual value and the expected one,
+      # so a rule change that alters a classification fails the build before it
+      # can reach the published page. Run one with
+      # `python scripts/checks.py <name>`; `--list` names them.
       #
-      # It also measures the desktop column widths, which is the only check
-      # that can see the results grid overflowing its container. The price
-      # column was a third of the table because one row's price_text was a
-      # 58-character leaked button label and the cell was nowrap: the markup
-      # was correct and only the layout was wrong, and .tablewrap's
-      # overflow-x:auto turned it into a silent horizontal scroll.
+      # recurrence.py is the one that matters most: it decides the day a reader
+      # turns up, so a wrong date is worse than a missing event -- the row still
+      # renders and still looks bookable.
+      - name: Check rule assertions
+        timeout-minutes: 10
+        run: python scripts/checks.py
+
+      # Nothing above can see a JavaScript error: the other checks only read
+      # Python and events.json. A syntax error in the template therefore builds
+      # and passes, then publishes a blank calendar. This renders the built page
+      # and asserts it has rows, so a blank page fails the run before the commit
+      # below. Chrome is preinstalled on ubuntu-latest; the check skips if none is
+      # found.
+      #
+      # It also measures the desktop column widths, which is the only check that
+      # can see the results grid overflowing its container. The price column was
+      # a third of the table because one row's price_text was a 58-character
+      # leaked button label and the cell was nowrap: the markup was correct and
+      # only the layout was wrong, and .tablewrap's overflow-x:auto turned it
+      # into a silent horizontal scroll.
       - name: Check the page renders results
         timeout-minutes: 5
         run: python scripts/render_check.py

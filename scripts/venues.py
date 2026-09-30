@@ -61,16 +61,12 @@ def needs_address(row):
 # the render layer and should not have to import any of that to read a suburb
 # out of an address, and venues.py is already the dependency-free module for
 # shared place-string decisions.
-def street_suffix_words():
-    """`|`-joined alternation of road types, for building a regex.
-
-    Returned rather than stored as a constant because both callers splice it
-    into a pattern, and a caller that could mutate a shared list would be a new
-    way for the two to disagree.
-    """
-    return (
-        "Road|Rd|Street|St|Avenue|Ave|Highway|Hwy|Parade|Pde|Drive|Dr|Lane|"
-        "Ln|Place|Pl|Square|Sq|Terrace|Court|Ct|Boulevard|Blvd|Walk|"
-        "Crescent|Cres|Close|Way|Trail|Parkway|Circuit|Cct|Promenade|Prom|"
-        "Esplanade"
-    )
+#
+# A `|`-joined alternation rather than a list, because both callers splice it
+# straight into a pattern.
+STREET_SUFFIX_WORDS = (
+    "Road|Rd|Street|St|Avenue|Ave|Highway|Hwy|Parade|Pde|Drive|Dr|Lane|"
+    "Ln|Place|Pl|Square|Sq|Terrace|Court|Ct|Boulevard|Blvd|Walk|"
+    "Crescent|Cres|Close|Way|Trail|Parkway|Circuit|Cct|Promenade|Prom|"
+    "Esplanade"
+)

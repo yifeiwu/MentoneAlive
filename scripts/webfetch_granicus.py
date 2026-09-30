@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 from webfetch_http import (PartialFetch, combine, enrich_details, get,
                            make_row, parse_day_month_year, report)
-from venues import needs_address, street_suffix_words
+from venues import STREET_SUFFIX_WORDS, needs_address
 
 # ---------------------------------------------------------------------------
 # Granicus (Kingston Council + Kingston Arts, page 1; pager is JS postback)
@@ -39,14 +39,14 @@ GRANICUS_ADDRESS_INLINE_RE = re.compile(
 # of these as a suburb.
 GRANICUS_STREET_RE = re.compile(
     r"^\s*\d+[A-Za-z]?(?:[-/][A-Za-z0-9]+)*\s|"
-    r"\b(?:" + street_suffix_words() + r")\b", re.I)
+    r"\b(?:" + STREET_SUFFIX_WORDS + r")\b", re.I)
 
 
 def _is_street_line(text):
     return bool(GRANICUS_STREET_RE.search(text or ""))
 
 
-def fetch_granicus(session, cfg, detail_cap):
+def fetch_granicus(cfg, session=None, detail_cap=None):
     html = get(session, cfg["url"], retries=3)
     if not html:
         # A listing page that will not load is a broken fetch, not an empty
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     # than a reimplementation of it. The harness used to repeat the
     # newline-then-inline dispatch by hand, so it validated a copy that could
     # drift from the code that runs.
-    def address_of(html_text, mode="newline"):
+    def address_of(html_text):
         row = make_row("test", "Event", "https://example.invalid/x",
                        location="Kingston Arts Centre",
                        address="Kingston Arts Centre")
@@ -245,14 +245,14 @@ if __name__ == "__main__":
          "979 Nepean Highway, Moorabbin 3189"),
         ("inline address",
          address_of("<p>Kingston Arts Centre, 979 Nepean Highway, "
-                    "Moorabbin 3189</p>", "space"),
+                    "Moorabbin 3189</p>"),
          "Kingston Arts Centre, 979 Nepean Highway, Moorabbin 3189"),
         ("inline address with a state",
-         address_of("<p>1 Example St, Cheltenham, VIC 3192</p>", "space"),
+         address_of("<p>1 Example St, Cheltenham, VIC 3192</p>"),
          "1 Example St, Cheltenham 3192"),
         ("two-word suburb",
          address_of("<p>Frankston North Library, 21 Beach St, "
-                    "Frankston North VIC 3199</p>", "space"),
+                    "Frankston North VIC 3199</p>"),
          "Frankston North Library, 21 Beach St, Frankston North 3199"),
         ("a page with no address yields nothing",
          address_of("<div>Some event page with no location block</div>"),
@@ -261,10 +261,10 @@ if __name__ == "__main__":
         # pattern accepts a year, so "Refugia 2026" matched and published
         # "Kerri Wilson McConchie, Refugia 2026" as the address.
         ("a title followed by a year is not an address",
-         address_of("<p>Kerri Wilson McConchie, Refugia 2026</p>", "space"),
+         address_of("<p>Kerri Wilson McConchie, Refugia 2026</p>"),
          None),
         ("a title followed by words is not an address",
-         address_of("<p>Susannah Langley, Testing Grounds Sounds</p>", "space"),
+         address_of("<p>Susannah Langley, Testing Grounds Sounds</p>"),
          None),
     ]
 

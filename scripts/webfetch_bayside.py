@@ -12,7 +12,7 @@ from webfetch_http import (PartialFetch, combine, enrich_details, get,
 # Bayside (Drupal, ?page=N)
 # ---------------------------------------------------------------------------
 
-def fetch_bayside(session, cfg, detail_cap):
+def fetch_bayside(cfg, session=None, detail_cap=None):
     rows, seen_links = [], set()
     max_pages = cfg.get("max_pages", 12)
     for page in range(max_pages):
@@ -114,7 +114,6 @@ def _apply_bayside_detail(r, html):
         # "Bayley Arts Gallery,, 1 Avoca Street". Two published rows.
         parts = [p.strip().strip(",").strip() for p in loc.split("|")
                  if p.strip() and p.strip().lower() != "australia"]
-        parts = [p for p in parts if p]
         if parts:
             r["location"] = parts[0]
             r["address"] = ", ".join(parts)

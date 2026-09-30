@@ -112,15 +112,9 @@ th{background:var(--primary);color:#fff;cursor:pointer;white-space:nowrap;user-s
 th.nosort{cursor:default}
 th .arrow{font-size:.8em}
 tr:nth-child(even) td{background:#f7fafd}
-/* Wrapping, not nowrap. A nowrap price cell is what let a 58-character cost
-   string dictate a third of the table width, and the date cell's recurrence
-   chip ("Every Tuesday, Wednesday, Thursday and Friday", 45 characters)
-   would overflow a 13% column. The chip is an inline-block inside a nowrap
-   cell, which is also what pushed the mobile page 72px off the right edge --
-   see the note in the 768px block below. */
-td.price,td.when{white-space:normal;overflow-wrap:break-word}
 /* A long unbroken token (a URL, a run of digits) still has to break rather
-   than widen the cell. */
+   than widen the cell. Widths come from <colgroup> with table-layout:fixed, so
+   nothing can dictate a column either way -- see docs/decisions.md D27. */
 td{overflow-wrap:break-word}
 /* Bound the two most verbose cells. Width alone does not bound a row: a
    400-character description in a 20% column is still seven lines, and the row
@@ -186,8 +180,9 @@ td{overflow-wrap:break-word}
    display:flex above beat it: the panel was visible on every load while the
    toggle beside it read aria-expanded="false". The control said "collapsed"
    and the page said otherwise, and it cost ~340px of viewport above the
-   results. Any element given a display value needs this to go with it. */
-.filterpanel[hidden],.qclear[hidden]{display:none}
+   results. Any element given a display value needs this to go with it -- which
+   is only .filterpanel; .qclear sets no display, so the UA rule already wins. */
+.filterpanel[hidden]{display:none}
 .filterhint{width:100%;margin:0;font-size:.82em;color:#555}
 @media print{.controls,.filterpanel,.pagination{display:none}}
 .pagination{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 20px;flex-wrap:wrap}
@@ -212,7 +207,6 @@ footer{padding:12px 20px;font-size:.8125rem;color:#555;border-top:1px solid var(
   /* Sticking a ~300px column to the top of a 553px iOS viewport occluded
      more than half the screen, with the results scrolling underneath it. */
   .controls{position:static;flex-direction:column;align-items:stretch}
-  .searchwrap{min-width:100%;width:100%}
   /* The panel is not sticky, so a tall panel costs nothing, and 80px showed
      three of eighteen type checkboxes in a nested scroller. */
   .typefilter{max-height:none;overflow:visible}
@@ -257,10 +251,6 @@ footer{padding:12px 20px;font-size:.8125rem;color:#555;border-top:1px solid var(
   .desc,.priceval{-webkit-line-clamp:unset;display:block;overflow:visible}
   .badge{margin:2px 0}
   .desc{font-size:.875rem}
-  /* The recurrence chip is an inline-block whose label runs to "Every Tuesday,
-     Wednesday, Thursday and Friday". It must wrap on a phone: kept on one
-     line it pushed the document 72px off the right edge (1.4.10). */
-  .recur{white-space:normal;max-width:100%;display:inline-block}
   /* 44px targets, not the ~24px the 10px text produced (2.5.5). */
   .ics-btn,.src-link{min-height:44px;display:inline-flex;align-items:center;font-size:.875rem;padding:8px 12px}
   .linkcell{gap:8px}
@@ -477,7 +467,9 @@ function fmtTime(d){
 function isFree(r){if(r.price_sort===0)return true;return /^\s*free\s*$/i.test(r.price_text||"");}
 // Multi-tag types with a legacy fallback: rows built before the migration
 // carry a single `type` string, so normalise to an array. OR semantics.
-function getTypes(r){if(Array.isArray(r.types))return r.types.length?r.types:["Other"];if(r.type)return [r.type];return ["Other"];}
+// r.type was the pre-multi-tag single string; build_site.py pops it and
+// health_check.py fails the build if any row still carries one.
+function getTypes(r){if(Array.isArray(r.types)&&r.types.length)return r.types;return ["Other"];}
 function typeStr(r){return getTypes(r).join(", ");}
 // One map for every source label, keyed unquoted so health_check.py's
 // `[,]<label>:` scan finds each name here. The keys are valid identifiers, so
@@ -550,7 +542,7 @@ function cmp(a,b){
  var k=state.k, va=a[k], vb=b[k];
  // The Type column is now a multi-tag array; sort on its display string.
  // Also maps the legacy `type` key onto the new `types` column.
- if(k==="type"||k==="types"){va=typeStr(a);vb=typeStr(b);}
+ if(k==="types"){va=typeStr(a);vb=typeStr(b);}
  if(Array.isArray(va))va=va.join(", ");
  if(Array.isArray(vb))vb=vb.join(", ");
  if(va==null && vb==null) return 0;
@@ -559,7 +551,9 @@ function cmp(a,b){
  if(typeof va==="number"||typeof vb==="number") return (va-vb)*state.dir;
  return String(va).localeCompare(String(vb))*state.dir;
 }
-function icsDateLocal(iso){try{var d=new Date(iso);if(isNaN(d))return null;function p(n){return ("0"+n).slice(-2);}return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"T"+p(d.getHours())+p(d.getMinutes())+"00";}catch(e){return null;}}
+// `new Date(iso)` returns Invalid Date rather than throwing for an unparseable
+// string, so the isNaN test is the whole check and the try/catch was unreachable.
+function icsDateLocal(iso){var d=new Date(iso);if(isNaN(d))return null;function p(n){return ("0"+n).slice(-2);}return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"T"+p(d.getHours())+p(d.getMinutes())+"00";}
 // DTSTAMP is the moment the calendar object was *created*, in UTC. It was
 // previously set to the event's own start time, so a 2026 event claimed to have
 // been filed on the day it occurs.
@@ -570,7 +564,7 @@ function icsEscape(s){return String(s||"").replace(/\\/g,"\\\\").replace(/;/g,"\
 // accented letter or an em dash could still emit an over-long line -- and
 // slicing on a character count can cut a surrogate pair in half. Measure in
 // UTF-8 bytes and always break on a character boundary.
-function icsBytes(s){try{return new TextEncoder().encode(s).length;}catch(e){return s.length;}}
+function icsBytes(s){return new TextEncoder().encode(s).length;}
 function icsFold(line){
  if(icsBytes(line)<=75)return line;
  var parts=[],rest=line;
@@ -788,7 +782,7 @@ document.querySelectorAll("th[data-k]").forEach(function(th){
   if(sortPick)sortPick.appendChild(new Option(text,k));
   th.addEventListener("click",function(){applySort(k,true);});
   th.addEventListener("keydown",function(e){
-   if(e.key==="Enter"||e.key===" "||e.key==="Spacebar"){e.preventDefault();applySort(k,true);}});});
+   if(e.key==="Enter"||e.key===" "){e.preventDefault();applySort(k,true);}});});
 if(sortPick)sortPick.addEventListener("change",function(e){applySort(e.target.value,false);});
 // The direction toggle exists because a <select> fires no change event when
 // the already-selected option is chosen again, so `state.dir*=-1` in the

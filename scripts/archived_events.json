@@ -1,7 +1,6 @@
 [
  {
   "name": "Bayside Farmers' Market, Sandringham",
-  "date_text": "4th Saturday every month",
   "location": "Trey Bit Reserve (Jetty Road), Sandringham",
   "address": "Trey Bit Reserve (Jetty Road), Sandringham VIC 3191",
   "price_text": "Free",
@@ -12,7 +11,6 @@
  },
  {
   "name": "One-on-one Device Advice Series",
-  "date_text": "Recurring",
   "location": "Beaumaris Library, Sandringham Library, Hampton Library and Brighton Library",
   "address": "Beaumaris Library, Sandringham Library, Hampton Library and Brighton Library",
   "price_text": "Free",
@@ -23,7 +21,6 @@
  },
  {
   "name": "Free Digital Skills and English Support",
-  "date_text": "Recurring",
   "location": "Bayside Libraries",
   "address": "",
   "price_text": "Free",
@@ -34,7 +31,6 @@
  },
  {
   "name": "Learning to sing sessions",
-  "date_text": "Recurring",
   "location": "Bayside",
   "address": "",
   "price_text": "Free",
@@ -44,11 +40,9 @@
   "source_label": "bayside_archived"
  },
  {
-   "name": "Friday Night Reset",
-   "date_text": "Weekly",
-   "location": "Saint Pauls Community Hall",
-   "address": "Cnr Bay & High Street, Frankston VIC 3199",
-
+  "name": "Friday Night Reset",
+  "location": "Saint Pauls Community Hall",
+  "address": "Cnr Bay & High Street, Frankston VIC 3199",
   "price_text": "",
   "description": "Friday Night Reset is a weekly 5Rhythms class offering a dynamic way to move, breathe, and release the week.",
   "source": "https://whatsonfrankston.com/event/34282055-a/friday-night-reset",
@@ -56,11 +50,9 @@
   "source_label": "frankston_archived"
  },
  {
-   "name": "Trivia on Tap",
-   "date_text": "First Friday of each month",
-   "location": "Frankston Brewhouse",
-   "address": "10 New St, Frankston VIC 3199",
-
+  "name": "Trivia on Tap",
+  "location": "Frankston Brewhouse",
+  "address": "10 New St, Frankston VIC 3199",
   "price_text": "",
   "description": "Gather your mates, brush up on your knowledge, and mark your calendars for Trivia on Tap! Join us on the first Friday of each month.",
   "source": "https://whatsonfrankston.com/event/34924224-a/trivia-on-tap",
@@ -69,7 +61,6 @@
  },
  {
   "name": "Lyrebird Yoga",
-  "date_text": "Weekly",
   "location": "Carrum Downs, VIC",
   "address": "",
   "price_text": "",
@@ -80,7 +71,6 @@
  },
  {
   "name": "Justice of the Peace Saturdays",
-  "date_text": "Weekly",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "Free",
@@ -91,7 +81,6 @@
  },
  {
   "name": "Weekend Board Games at Carrum Downs",
-  "date_text": "Weekly",
   "location": "Carrum Downs, VIC",
   "address": "",
   "price_text": "",
@@ -102,7 +91,6 @@
  },
  {
   "name": "Bush Regeneration",
-  "date_text": "Weekly",
   "location": "Frankston South, VIC",
   "address": "",
   "price_text": "",
@@ -113,7 +101,6 @@
  },
  {
   "name": "Basic Tech Help",
-  "date_text": "Weekly",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "Free",
@@ -124,7 +111,6 @@
  },
  {
   "name": "Friday After School STEAM session",
-  "date_text": "Weekly",
   "location": "Carrum Downs, VIC",
   "address": "",
   "price_text": "",
@@ -135,7 +121,6 @@
  },
  {
   "name": "Creative Kids Club",
-  "date_text": "Weekly",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "",
@@ -146,7 +131,6 @@
  },
  {
   "name": "Sk8House Online Bookings",
-  "date_text": "Daily",
   "location": "Carrum Downs, VIC",
   "address": "",
   "price_text": "",
@@ -157,7 +141,6 @@
  },
  {
   "name": "MSO Classical Series - Season 2026",
-  "date_text": "Various dates",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "",
@@ -167,11 +150,9 @@
   "source_label": "frankston_archived"
  },
  {
-   "name": "Music at McClelland - 2026 Subscription tickets",
-   "date_text": "Third Sunday monthly",
-   "location": "McClelland Sculpture Park and Gallery",
-   "address": "390 McClelland Dr, Langwarrin VIC 3910",
-
+  "name": "Music at McClelland - 2026 Subscription tickets",
+  "location": "McClelland Sculpture Park and Gallery",
+  "address": "390 McClelland Dr, Langwarrin VIC 3910",
   "price_text": "",
   "description": "Music at McClelland is held on the third Sunday of the month, 2.30pm to 4pm, from February to November, and features exceptional performers from across Victoria and Australia.",
   "source": "https://whatsonfrankston.com/event/33861271-a/music-at-mcclelland-2026-subscription-tickets",
@@ -180,7 +161,6 @@
  },
  {
   "name": "Melbourne International Comedy Festival Roadshow",
-  "date_text": "Various dates",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "",
@@ -191,7 +171,6 @@
  },
  {
   "name": "Drum Tao: Samurai of the Drum",
-  "date_text": "Various dates",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "",
@@ -202,7 +181,6 @@
  },
  {
   "name": "Auto-Photo: A Life in Portraits",
-  "date_text": "Exhibition",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "",
@@ -213,7 +191,6 @@
  },
  {
   "name": "Artist Talk - Aleks Danko",
-  "date_text": "Various dates",
   "location": "Langwarrin, VIC",
   "address": "",
   "price_text": "",
@@ -224,7 +201,6 @@
  },
  {
   "name": "Creeklines by Naomi Woodward",
-  "date_text": "Various dates",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "",
@@ -235,7 +211,6 @@
  },
  {
   "name": "Body As Witness - meditation for letting go and reconnection",
-  "date_text": "Various dates",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "",
@@ -246,7 +221,6 @@
  },
  {
   "name": "Sing and Grow at Seaford Library",
-  "date_text": "Weekly",
   "location": "Seaford, VIC",
   "address": "",
   "price_text": "",
@@ -257,7 +231,6 @@
  },
  {
   "name": "2026 Builders & Trades Business Owners Conference",
-  "date_text": "Annual",
   "location": "Frankston, VIC",
   "address": "",
   "price_text": "",

@@ -230,7 +230,7 @@ def _seniors_assemble(venue):
     return location, address
 
 
-def fetch_kingston_seniors(session, cfg):
+def fetch_kingston_seniors(cfg, session=None):
     """Fetch the Kingston seniors festival guide.
 
     The PDF arrives whole, so there is no detail page to bound.

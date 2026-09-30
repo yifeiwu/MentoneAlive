@@ -1,15 +1,23 @@
 # Event source configurations.
-# PYTHON sources (fetched in GHA via fetch_events.py): kingston_hubs,
-# greater_dandenong, gd_libraries, chatty_cafe.
-# WEBFETCH sources (fetched in GHA via webfetch_sources.py using curl-cffi
-# Chrome impersonation, since plain Python gets WAF-blocked): kingston_council,
-# kingston_arts, bayside. Manual overflow snapshots (*_manual.json) are merged
-# too. Libraries (kingston_libraries, frankston_libraries) are future work.
+#
+# One list is fetched by one script, `scripts/fetch_sources.py`. `type:` is the
+# only dispatch key and must match an entry in that script's FETCHERS table.
+# `impersonate: true` means the source's host answers only to a curl-cffi
+# Chrome-TLS session rather than plain urllib -- it is a property of the host,
+# not of the source, and only four entries currently need it. The two lists
+# below (webfetch: / sources:) are kept separate only because a webfetch source
+# owns a committed snapshot file under scripts/webfetch_snapshots/ while the
+# others share data/raw_events.json.
+#
+# Manual overflow snapshots (*_manual.json) are merged by dedupe.py. Libraries
+# (kingston_libraries, frankston_libraries) are future work.
 
 webfetch:
   - name: "Kingston Council"
     id: "kingston_council"
     type: "granicus"
+    # 403 on plain urllib: the Granicus WAF.
+    impersonate: true
     url: "https://www.kingston.vic.gov.au/community/events/upcoming-events"
     base: "https://www.kingston.vic.gov.au"
     detail_cap: 12
@@ -20,6 +28,8 @@ webfetch:
   - name: "Kingston Arts"
     id: "kingston_arts"
     type: "granicus"
+    # 403 on plain urllib: the Granicus WAF.
+    impersonate: true
     url: "https://www.kingstonarts.com.au/whats-on"
     base: "https://www.kingstonarts.com.au"
     detail_cap: 12
@@ -32,14 +42,6 @@ webfetch:
     max_pages: 12
     detail_cap: 150
     snapshot: "bayside_auto.json"
-
-  - name: "Bayside Seniors Festival"
-    id: "bayside_seniors"
-    type: "bayside"
-    url: "https://www.bayside.vic.gov.au/seniorsfestival"
-    max_pages: 7
-    detail_cap: 90
-    snapshot: "bayside_seniors.json"
 
   - name: "Kingston Seniors Festival"
     id: "kingston_seniors"
@@ -75,7 +77,6 @@ sources:
   - name: "Kingston Hubs"
     id: "kingston_hubs"
     type: "api"
-    calendar_id: "021cdb47-f513-4102-a4f9-85220b5b38d8"
     calendars:
       - "a1bc2435-21cb-4d26-9b8a-80fc0a7a74df"  # Chelsea Activity Hub
       - "74480036-6bf3-4162-a0a2-63b4b6746dee"  # Patterson Lakes Community Centre
@@ -91,30 +92,37 @@ sources:
       "74480036-6bf3-4162-a0a2-63b4b6746dee":
         name: "Patterson Lakes Community Centre"
         address: "54-70 Thompson Rd, Patterson Lakes 3197"
-    base_url: "https://www.kingston.vic.gov.au"
     # Uses the OpenCities calendar API (ocapi)
     # POST /ocapi/calendars/getcalendaritems with JSON payload
     # GET /ocapi/get/contentinfo for event details
 
   - name: "Greater Dandenong"
     id: "greater_dandenong"
-    type: "html"
+    type: "greater_dandenong"
+    # The listing answers plain urllib; the event DETAIL pages -- the only place
+    # the suburb is stated, and so the only place the catchment below can be
+    # applied -- do not reliably.
+    impersonate: true
     url: "https://www.greaterdandenong.vic.gov.au/events"
-    paginate: true
-    page_param: "page"
     max_pages: 15
-    # Drupal platform - filter to Springvale + Keysborough only
+    # Drupal platform - filter to Springvale + Keysborough only. The suburb is
+    # only on the event detail page, which is why each event is opened.
     suburb_filter:
       - "Springvale"
       - "Keysborough"
 
   - name: "Greater Dandenong Libraries"
     id: "gd_libraries"
-    type: "html"
+    type: "gd_libraries"
+    impersonate: true
     url: "https://libraries.greaterdandenong.vic.gov.au/libraries/events"
-    paginate: true
-    page_param: "page"
     max_pages: 10
+    # Same CMS and the same catchment as greater_dandenong above, so the same
+    # filter. Without it this source published rows in Dandenong while its
+    # sibling silently dropped them.
+    suburb_filter:
+      - "Springvale"
+      - "Keysborough"
 
   - name: "Chatty Cafe"
     id: "chatty_cafe"
@@ -125,42 +133,34 @@ sources:
       - slug: "cheltenham-community-centre"
         name: "Cheltenham Community Centre"
         address: "8 Chesterville Rd, Cheltenham VIC 3192"
-        suburb: "Cheltenham"
         schedule: "Wednesdays & Thursdays at 10:30am during school term"
       - slug: "chelsea-activity-hub"
         name: "Chelsea Activity Hub"
         address: "3-5 Showers Ave, Chelsea VIC 3196"
-        suburb: "Chelsea"
         schedule: "Tuesday 10.00am - 11.30am (1st & 3rd Tuesdays)"
       - slug: "chelsea-heights-community-centre"
         name: "Chelsea Heights Community Centre"
         address: "160 Thames Promenade, Chelsea Heights VIC 3196"
-        suburb: "Chelsea Heights"
         schedule: "Wednesday 10am-12pm (school term only)"
       - slug: "matts-place-chelsea"
         name: "Matt's Place Chelsea"
         address: "12-14 Thames Promenade, Chelsea VIC 3196"
-        suburb: "Chelsea"
         schedule: "Tuesday 10.45am - 12.45pm"
       - slug: "matts-place-cheltenham"
         name: "Matt's Place Cheltenham"
         address: "161 Park Rd, Cheltenham VIC 3192"
-        suburb: "Cheltenham"
         schedule: "Thursday 10.30am - 1pm"
       - slug: "longbeach-place-inc"
         name: "Longbeach Learning and Activity Centre"
         address: "15 Chelsea Rd, Chelsea VIC 3196"
-        suburb: "Chelsea"
         schedule: "2nd Tuesday of the month at 11.00am"
       - slug: "dingley-village-neighbourhood-centre"
         name: "Dingley Village Neighbourhood Centre"
         address: "31B Marcus Rd, Dingley Village VIC 3172"
-        suburb: "Dingley Village"
         schedule: "Wednesday 10am - 12noon"
       - slug: "aspendale-gardens-community-service"
         name: "Aspendale Gardens Community Service"
         address: "103-105 Kearney Dr, Aspendale Gardens VIC 3195"
-        suburb: "Aspendale Gardens"
         schedule: "Friday (fortnightly) 10.30am-11.30am"
       # The slug must be this venue's own page. It was "eau-verte-cafe",
       # which is a different venue in Lake Wendouree (Ballarat), so every
@@ -169,60 +169,48 @@ sources:
       - slug: "eclair-boulangerie"
         name: "Eclair Boulangerie"
         address: "275 Hampton St, Hampton VIC 3188"
-        suburb: "Hampton"
         schedule: "Monday 10.30am to 11.30am"
       - slug: "bay-road-nursery-cafe"
         name: "Bay Road Nursery Cafe"
         address: "112-114 Bay Rd, Sandringham VIC 3191"
-        suburb: "Sandringham"
         schedule: "Tuesday 11am-1pm"
       - slug: "beaumaris-library"
         name: "Beaumaris Library"
         address: "96 Reserve Rd, Beaumaris VIC 3193"
-        suburb: "Beaumaris"
         schedule: "Every Thursday 11.30am"
       - slug: "highett-neighbourhood-community-house"
         name: "Highett Neighbourhood Community House"
         address: "2 Livingston St, Highett VIC 3190"
-        suburb: "Highett"
         schedule: "Tuesday 11:15am - 12:15pm"
       - slug: "bentleigh-library-and-youth-hub"
         name: "Bentleigh Library"
         address: "161 Jasper Rd, Bentleigh VIC 3204"
-        suburb: "Bentleigh"
         schedule: "Thursday 10.30am - 12.00pm"
       - slug: "brighton-library"
         name: "Brighton Library"
         address: "14 Wilson St, Brighton VIC 3186"
-        suburb: "Brighton"
         schedule: "Monday 10.30am (every second week)"
       - slug: "chatty-cafe-at-sandringham-library"
         name: "Sandringham Library"
         address: "2 Waltham St, Sandringham VIC 3191"
-        suburb: "Sandringham"
         schedule: "Every Tuesday 11.30am"
       - slug: "saska-cafe"
         name: "Saska Cafe"
         address: "359B Balcombe Rd, Beaumaris VIC 3193"
-        suburb: "Beaumaris"
         schedule: "Monday 9:00am - 11:00am"
       - slug: "sundowner-community-centre-2"
         name: "Sundowner Community Centre"
         address: "24 Sundowner Ave, Clarinda VIC 3169"
-        suburb: "Clarinda"
         schedule: "Monday 11am - 1pm"
       - slug: "st-aidans-parkdale"
         name: "St Aidan's Parkdale"
         address: "64 Robert St, Parkdale VIC 3195"
-        suburb: "Parkdale"
         schedule: "Thursday 12noon - 1.30pm"
       - slug: "tj-coffee-house"
         name: "TJ Coffee House"
         address: "220 Como Parade W, Parkdale VIC 3195"
-        suburb: "Parkdale"
         schedule: "First Thursday 10am - 11am"
       - slug: "the-timbuktu-cafe"
         name: "The Timbuktu Cafe"
         address: "36 Wilson St, Brighton VIC 3186"
-        suburb: "Brighton"
         schedule: "Tuesday 11am - 12:30pm"

@@ -1,26 +1,24 @@
-"""Multi-source event fetcher (PYTHON sources only for GHA).
+"""Source fetchers that reach their host with plain urllib.
 
-Reads sources.yaml, fetches from each PYTHON source, normalizes to a common
-schema, and writes raw_events.json. Webfetch sources (Kingston Council,
-Kingston Arts, Bayside live, Kingston/Frankston libraries) are snapshotted
-manually via browser into scripts/webfetch_snapshots/*.json and merged in
-dedupe.py — never fetched here (Python is WAF-blocked for those hosts).
+Every fetcher here takes `(cfg, session)` and returns snapshot rows. `session`
+is None for these: they use `urllib.request`, which answers their hosts
+directly. The two sources that do need a browser-impersonating session (Greater
+Dandenong's detail pages) call `make_session()` themselves -- see
+`docs/decisions.md` D2a for why impersonation is a per-source flag and not a
+script boundary.
+
+`fetch_sources.py` owns the entry point, config validation, snapshot writing and
+the failure rules. Nothing here writes a file.
 """
 import json
 import re
-import sys
 import time
 import urllib.request
 from datetime import datetime
-from pathlib import Path
 
-import yaml
 from bs4 import BeautifulSoup
 
-from jsonio import write_json
-from webfetch_http import month_number
-
-ROOT = Path(__file__).resolve().parent.parent
+from webfetch_http import enrich_details, make_row, month_number
 
 BASE = "https://www.kingston.vic.gov.au"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -137,8 +135,6 @@ def _price_sort(cost):
     return float(m.group(1)) if m else None
 
 
-def _fmt_dt(dt):
-    return dt.strftime("%a %d %b %Y, %I:%M %p").replace(" 0", " ")
 
 
 def _month_range(year, month, n_months):
@@ -239,17 +235,14 @@ def fetch_kingston_hubs(cfg):
                 # both read the same way.
                 if dt.hour == 0:
                     dt = dt.replace(minute=0)
-                rows.append({
-                    "name": name,
-                    "datetime_text": it.get("DateTime", ""),
-                    "datetime_iso": dt.isoformat(),
-                    "location": venue,
-                    "address": address,
-                    "price_text": "",
-                    "description": name,
-                    "source": BASE,
-                    "source_id": cfg["id"],
-                })
+                rows.append(make_row(
+                    cfg["id"], name, BASE,
+                    datetime_iso=dt.isoformat(),
+                    datetime_text=it.get("DateTime", ""),
+                    location=venue,
+                    address=address,
+                    description=name,
+                ))
     return rows
 
 
@@ -358,15 +351,18 @@ def _passes_suburb_filter(row, allowed):
     return not _classifiable(row)
 
 
-def _gd_session():
-    """A browser-impersonating session for Greater Dandenong.
+def _gd_session(shared=None):
+    """A browser-impersonating session for Greater Dandenong's detail pages.
 
-    The listing page answers plain urllib, but every event *detail* page
-    returns 403 to it, so the same fetcher that worked on the card is blocked
-    on the one page the suburb is actually on. curl_cffi with Chrome TLS
-    impersonation gets through both. webfetch_http is import-safe here: it
-    does not import this module.
+    The listing page answers plain urllib, but the event *detail* pages -- the
+    only place the suburb is stated -- do not reliably, so the fetcher that
+    worked on the card is blocked on the one page the catchment filter depends
+    on. Reuses the run's shared session when sources.yaml marked this source
+    `impersonate: true`, and builds its own otherwise, so `--source
+    greater_dandenong` still works if the flag is ever dropped.
     """
+    if shared is not None:
+        return shared
     from webfetch_http import make_session
     return make_session()
 
@@ -379,7 +375,7 @@ def _gd_fetch(session, url, timeout=15):
 
 
 def fetch_greater_dandenong(cfg):
-    session = _gd_session()
+    session = _gd_session(session)
     allowed = cfg.get("suburb_filter", [])
     max_pages = cfg.get("max_pages", 8)
     detail_cap = cfg.get("detail_cap", 150)
@@ -436,60 +432,50 @@ def fetch_greater_dandenong(cfg):
         time.sleep(0.2)
     print(f"  Greater Dandenong: {len(cards)} distinct events from the listing")
 
-    # Enrich with the venue, which is only on the detail page, then filter.
-    rows, placed, unplaced, dropped = [], 0, 0, 0
-    for i, link in enumerate(cards):
-        if i >= detail_cap:
-            print(f"  Greater Dandenong: detail_cap {detail_cap} reached, "
-                  f"{len(cards) - i} events left without a venue")
-            break
-        card = cards[link]
-        venue = address = ""
-        # A separate name, reset every iteration. Sharing the listing loop's
-        # `html` meant that when a detail fetch raised, the `if html` guard below
-        # still saw the *previous* card's markup and stamped that event's venue
-        # and address onto this one.
-        detail_html = None
-        try:
-            detail_html = _gd_fetch(session, link, timeout=12)
-        except Exception as e:
-            print(f"    detail FAILED {card['name']!r}: {e!r}")
-        if detail_html:
-            venue, address = _gd_detail_location(
-                BeautifulSoup(detail_html, "html.parser"))
-        row = {
-            "name": card["name"],
-            "datetime_text": card["datetime_text"],
-            # Deliberately empty: this source's date lives in the description,
-            # and stamping the fetch time here produced a bogus timestamp that
-            # dedupe.py then had to discard on every single run.
-            "datetime_iso": "",
-            "location": venue or card["location"] or "Greater Dandenong",
-            "address": ", ".join(p for p in (venue, address) if p),
-            "suburb": _suburb_from_address(address),
-            "price_text": "",
-            "description": card["description"],
-            "source": link,
-            "source_id": cfg["id"],
-        }
-        if row["suburb"]:
+    # Build every row from the card first, then open the detail pages in one
+    # shared loop. This used to fetch details inline with its own `continue` on
+    # failure, which bypassed enrich_details' PartialFetch guard entirely: a WAF
+    # block on the detail pages published a listing-only snapshot with every
+    # venue blank and the run stayed green.
+    rows = [make_row(
+        cfg["id"], card["name"], link,
+        datetime_text=card["datetime_text"],
+        location=card["location"] or "Greater Dandenong",
+        description=card["description"],
+    ) for link, card in list(cards.items())[:detail_cap]]
+    if len(cards) > len(rows):
+        print(f"  Greater Dandenong: detail_cap {detail_cap} reached, "
+              f"{len(cards) - len(rows)} events left without a venue")
+
+    def _apply_detail(row, html):
+        venue, address = _gd_detail_location(BeautifulSoup(html, "html.parser"))
+        if venue:
+            row["location"] = venue
+            row["address"] = ", ".join(p for p in (venue, address) if p)
+            row["suburb"] = _suburb_from_address(address)
+
+    enrich_details(session, rows, None, _apply_detail, sleep=0.15,
+                   label="greater_dandenong")
+
+    kept, placed, unplaced, dropped = [], 0, 0, 0
+    for row in rows:
+        if row.get("suburb"):
             placed += 1
         else:
             unplaced += 1
         if _passes_suburb_filter(row, allowed):
-            rows.append(row)
+            kept.append(row)
         else:
             dropped += 1
-        time.sleep(0.15)
 
-    kept_subs = sorted({r["suburb"] for r in rows if r["suburb"]})
     print(f"  Greater Dandenong: venue found for {placed}, "
           f"suburb unknown for {unplaced}")
-    print(f"  Greater Dandenong: catchment {list(allowed)} keeps {len(rows)}, "
+    print(f"  Greater Dandenong: catchment {list(allowed)} keeps {len(kept)}, "
           f"drops {dropped}")
+    kept_subs = sorted({r["suburb"] for r in kept if r["suburb"]})
     if kept_subs:
         print(f"    suburbs kept: {', '.join(kept_subs)}")
-    return rows
+    return kept
 
 
 # Frankston live (Everi) is WAF-blocked for Python; see webfetch snapshots.
@@ -499,7 +485,7 @@ def fetch_gd_libraries(cfg):
     # there is no pagination loop here.
     rows = []
     url = cfg["url"]
-    session = _gd_session()
+    session = _gd_session(session)
     try:
         html = _gd_fetch(session, url, timeout=12)
     except Exception as e:
@@ -522,17 +508,12 @@ def fetch_gd_libraries(cfg):
                 link = "https://libraries.greaterdandenong.vic.gov.au" + link
             date_el = card.select_one(".date")
             date_text = date_el.get_text(strip=True) if date_el else ""
-            rows.append({
-                "name": name,
-                "datetime_text": date_text,
-                "datetime_iso": "",
-                "location": "Greater Dandenong Libraries",
-                "address": "",
-                "price_text": "",
-                "description": card.get_text(" ", strip=True)[:300],
-                "source": link or cfg["url"],
-                "source_id": cfg["id"],
-            })
+            rows.append(make_row(
+                cfg["id"], name, link or cfg["url"],
+                datetime_text=date_text,
+                location="Greater Dandenong Libraries",
+                description=card.get_text(" ", strip=True)[:300],
+            ))
     except Exception as e:
         print(f"  GD Libraries: parse FAILED {e!r}")
         return rows
@@ -540,26 +521,28 @@ def fetch_gd_libraries(cfg):
     # Same platform as the council listing, so the venue is on the detail page
     # under a labelled Location field. Without it every row read "Greater
     # Dandenong Libraries" and no suburb could be told -- the same gap that
-    # made the council catchment filter a no-op.
-    detail_cap = cfg.get("detail_cap", 60)
-    placed = 0
-    for row in rows[:detail_cap]:
-        try:
-            detail = _gd_fetch(session, row["source"], timeout=12)
-        except Exception as e:
-            print(f"    detail FAILED {row['name']!r}: {e!r}")
-            continue
-        if not detail:
-            continue
-        venue, address = _gd_detail_location(
-            BeautifulSoup(detail, "html.parser"))
+    # made the council catchment filter a no-op. This uses the shared detail
+    # loop so a block on the detail pages raises rather than publishing a
+    # listing-only snapshot with every venue blank.
+    def _apply_detail(row, html):
+        venue, address = _gd_detail_location(BeautifulSoup(html, "html.parser"))
         if venue:
             row["location"] = venue
             row["address"] = ", ".join(p for p in (venue, address) if p)
             row["suburb"] = _suburb_from_address(address)
-            if row["suburb"]:
-                placed += 1
-        time.sleep(0.15)
+
+    enrich_details(session, rows, cfg.get("detail_cap", 60), _apply_detail,
+                   sleep=0.15, label="gd_libraries")
+    placed = sum(1 for r in rows if r.get("suburb"))
+
+    if allowed:
+        # Same catchment as greater_dandenong, so the same rule. Without it
+        # this source published rows in Dandenong while its sibling dropped
+        # them, and the two published different answers to one question.
+        before = len(rows)
+        rows = [r for r in rows if _passes_suburb_filter(r, allowed)]
+        print(f"  GD Libraries: {before - len(rows)} row(s) outside "
+              f"suburb_filter {allowed}")
     print(f"  GD Libraries: {len(rows)} events, venue resolved for {placed}")
     return rows
 
@@ -612,8 +595,8 @@ def _chatty_schedule_is_usable(schedule):
     The test is deliberately the real parser rather than a look of the string:
     a schedule that parses is one that will publish, and a schedule that does
     not is one that silently deletes a venue from the calendar. recurrence is
-    imported lazily because fetch_events.py runs before the scripts directory is
-    otherwise on the path in every entry point.
+    imported lazily so that this module has no dependency on the date parser,
+    which keeps the import graph one-directional.
     """
     try:
         from recurrence import build_spec
@@ -662,94 +645,13 @@ def fetch_chatty_cafe(cfg):
             # Keep the configured schedule rather than dropping the venue.
             print(f"  Chatty Cafe {venue['name']}: fetch FAILED {e!r}, "
                   f"using configured schedule")
-        rows.append({
-            "name": f"Chatty Cafe - {venue['name']}",
-            "datetime_text": schedule,
-            "datetime_iso": "",
-            "location": venue["name"],
-            "address": venue["address"],
-            "price_text": "Free",
-            "description": f"Chatty Cafe at {venue['name']}. {schedule}. "
-                           f"A welcoming space for conversation and connection.",
-            "source": url,
-            "source_id": cfg["id"],
-        })
+        rows.append(make_row(
+            cfg["id"], f"Chatty Cafe - {venue['name']}", url,
+            datetime_text=schedule,
+            location=venue["name"],
+            address=venue["address"],
+            price_text="Free",
+            description=f"Chatty Cafe at {venue['name']}. {schedule}. "
+                        f"A welcoming space for conversation and connection.",
+        ))
     return rows
-
-
-def fetch_source(cfg):
-    sid = cfg["id"]
-    if sid == "kingston_hubs":
-        return fetch_kingston_hubs(cfg)
-    if sid == "greater_dandenong":
-        return fetch_greater_dandenong(cfg)
-    if sid == "gd_libraries":
-        return fetch_gd_libraries(cfg)
-    if sid == "chatty_cafe":
-        return fetch_chatty_cafe(cfg)
-    # Webfetch-only sources are never fetched in GHA.
-    print(f"  skipped (webfetch-only): {sid}")
-    return []
-
-
-def main():
-    with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-
-    all_rows = []
-    failures = []
-    for cfg in config["sources"]:
-        print(f"Fetching {cfg['name']} ({cfg['id']})...")
-        try:
-            rows = fetch_source(cfg)
-        except Exception as e:
-            # A misconfigured source (e.g. a Kingston Hubs calendar with no
-            # venue/address) must not half-write raw_events.json: the previous
-            # good file is worth more than a partial one, and the run has not
-            # reached the dedupe step that would notice what is missing.
-            print(f"  FAIL: {cfg['id']}: {e}")
-            print("\nraw_events.json not written; the existing file is "
-                  "unchanged.")
-            sys.exit(1)
-        print(f"  -> {len(rows)} events")
-        if not rows:
-            # A WAF block or a markup change looks exactly like a source that
-            # genuinely has no events. Fail the run so CI goes red.
-            failures.append((cfg["id"], "returned 0 events"))
-        all_rows.extend(rows)
-
-    for r in all_rows:
-        # Use existing datetime_iso if valid; only parse from text if missing.
-        # Dateless rows keep datetime_iso=None (no fake now() stamps).
-        dt = None
-        has_real_date = False
-        if r.get("datetime_iso"):
-            try:
-                dt = datetime.fromisoformat(r["datetime_iso"])
-                has_real_date = True
-            except (ValueError, TypeError):
-                dt = None
-        if dt is None:
-            dt = _parse_date(r.get("datetime_text"))
-            if dt is not None:
-                has_real_date = True
-        r["datetime_iso"] = dt.isoformat() if dt else None
-        r["datetime_display"] = (_fmt_dt(dt) if dt
-                                  else (r.get("datetime_text") or "").strip())
-        r["price_sort"] = _price_sort(r.get("price_text"))
-        r["source_label"] = r.get("source_id", "unknown")
-        r["has_real_date"] = has_real_date
-
-    print(f"\nTotal raw events: {len(all_rows)}")
-    write_json(ROOT / "data" / "raw_events.json", all_rows)
-    print("Wrote data/raw_events.json")
-
-    if failures:
-        print(f"\n{len(failures)} source(s) returned nothing:")
-        for sid, reason in failures:
-            print(f"  FAIL: {sid}: {reason}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
