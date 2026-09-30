@@ -66,12 +66,35 @@ jobs:
         timeout-minutes: 5
         run: python scripts/status.py
 
+      # recurrence.py decides the day a reader turns up, so a wrong date is
+      # worse than a missing event: the row still renders and still looks
+      # bookable. Its cases are real listing text, and each was a live defect
+      # that shipped a correct-looking wrong date through a green build.
+      - name: Check date inference rules
+        timeout-minutes: 5
+        run: python scripts/recurrence.py
+
+      - name: Check commercial detection rules
+        timeout-minutes: 5
+        run: python scripts/commercial.py
+
+      - name: Check Granicus address parsing
+        timeout-minutes: 5
+        run: python scripts/webfetch_granicus.py
+
       # Nothing above can see a JavaScript error: compileall only reads
       # Python, and the other checks only read events.json. A syntax error in
       # the template therefore builds and passes, then publishes a blank
       # calendar. This renders the built page and asserts it has rows, so a
       # blank page fails the run before the commit below. Chrome is
       # preinstalled on ubuntu-latest; the check skips if none is found.
+      #
+      # It also measures the desktop column widths, which is the only check
+      # that can see the results grid overflowing its container. The price
+      # column was a third of the table because one row's price_text was a
+      # 58-character leaked button label and the cell was nowrap: the markup
+      # was correct and only the layout was wrong, and .tablewrap's
+      # overflow-x:auto turned it into a silent horizontal scroll.
       - name: Check the page renders results
         timeout-minutes: 5
         run: python scripts/render_check.py

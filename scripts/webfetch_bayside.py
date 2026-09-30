@@ -110,8 +110,12 @@ def enrich_bayside_details(session, rows, cap):
             # _label_content joins each .event-venue-item's children with " | ",
             # so `loc` is already one string of pipe-separated parts. Split it
             # once here; re-splitting a pre-joined field picks up substrings.
-            parts = [p.strip() for p in loc.split("|") if p.strip()
-                     and p.strip().lower() != "australia"]
+            # Each part keeps its own trailing comma from the venue block, so
+            # joining with ", " produced "14 Willis St,, Hampton" and
+            # "Bayley Arts Gallery,, 1 Avoca Street". Two published rows.
+            parts = [p.strip().strip(",").strip() for p in loc.split("|")
+                     if p.strip() and p.strip().lower() != "australia"]
+            parts = [p for p in parts if p]
             if parts:
                 r["location"] = parts[0]
                 r["address"] = ", ".join(parts)

@@ -56,7 +56,11 @@ _FOUR_DIGIT_YEAR_RE = re.compile(r"^(?:19|20)\d{2}$")
 _ONGOING_HINT_RE = re.compile(
     r"\bevery\s+\w+day\b|\beach\s+\w+day\b|\bweekly\b|\bfortnightly\b"
     r"|\bterm\b|\bongoing\b|\brecurring\b|\bevery\s+week\b|\bevery\s+month\b"
-    r"|\b\d+\s*weeks?\b|\bclasses?\s+each\b|\bsessions?\s+each\b", re.I)
+    r"|\b\d+\s*weeks?\b|\bclasses?\s+each\b|\bsessions?\s+each\b"
+    # "First Tuesday each week", "every other week". "each <weekday>" was
+    # already here but "each week" was not, so a weekly class written that
+    # way had no recurring marker at all.
+    r"|\b(?:each|every)\s+(?:other\s+)?(?:week|month|fortnight)\b", re.I)
 
 _DAY_RE = rf"({DAY_ALT})"
 _DAY_NC = rf"(?:{DAY_ALT})"
@@ -84,21 +88,47 @@ _TIME_RANGE_RE = re.compile(
 # "12 - 1.30pm": a bare hour is only meaningful as one end of a range, so it
 # gets its own pattern rather than joining _TIME_TOKEN (where it would also
 # match day numbers in dates).
+#
+# Both ends accept a bare hour, and the meridiem is inherited across the
+# range. The second group used to require ":MM", so "Tuesdays 6 - 8pm" matched
+# no range at all: the bare "6" is not a _TIME_TOKEN, and "8pm" alone cannot
+# satisfy ":MM". The end survived as a lone time point and became the *start*,
+# publishing a 6-8pm class at 20:00.
+#
+# The start may borrow the end's am/pm ("9 - 11am"), but only when the text
+# states no meridiem of its own: "9am - 11" is 9 in the morning to 11 at
+# night, and reading that as 09:00-11:00 would be the reverse error.
 _BARE_HOUR_RANGE_RE = re.compile(
-    r"\b(\d{1,2})\s*(?:-|–|—|to)\s*(\d{1,2}[:.]\d{2}\s*[ap]\.?\s*m\.?)", re.I)
+    r"\b(\d{1,2})\s*(?:-|–|—|to)\s*(\d{1,2}(?:[:.]\d{2})?\s*[ap]\.?\s*m\.?)",
+    re.I)
+_BARE_START_RE = re.compile(r"^\d{1,2}$")
 _TIME_POINT_RE = re.compile(_TIME_TOKEN, re.I)
 
+# "of the month" only. The alternation used to read "week" as well, so
+# "First Tuesday each week, 7pm" parsed as the first Tuesday of each *month*
+# -- twelve dates twelve months apart, four of every five wrong. "Every second
+# Tuesday" without "of the month" is caught by _FORTNIGHTLY_RE instead.
 _MONTHLY_RE = re.compile(
     rf"\b(first|1st|second|2nd|third|3rd|fourth|4th|fifth|5th)\s+"
     rf"{_DAY_RE}s?\s+(?:of|each|in|every)\s+"
-    rf"(?:(?:the|every|each)\s+)?(?:month|week)", re.I)
+    rf"(?:(?:the|every|each)\s+)?month", re.I)
 _FORTNIGHTLY_RE = re.compile(
     rf"\bevery\s+(?:second|2nd|alternating|other)\s+({DAY_ALT})s?\b", re.I)
+# The same cadence written as a property of the weekday rather than of the
+# repetition: "Friday (fortnightly) 10.30am-11.30am" (a Chatty Cafe venue
+# listing) and "Monday 10.30am (every second week)". Without these the listing
+# fell through to the weekly branch and published a session on the weeks the
+# venue does not open.
+_FORTNIGHTLY_PROP_RE = re.compile(
+    r"\(\s*fortnightly\s*\)|\bevery\s+(?:second|2nd|alternating|other)\s+week\b",
+    re.I)
 _WEEKEND_RE = re.compile(r"\bweekends?\b", re.I)
 
 _DAY_SPAN_RE = re.compile(
     rf"\b{_DAY_RE}\s*(?:s\.\s*)?(?:to|through|thru|[-–])\s*{_DAY_RE}\b", re.I)
 _DAY_TOKEN_RE = re.compile(rf"\b{_DAY_RE}s?\b", re.I)
+# A sentence break between a weekday and a later bare time. See weekday_slots().
+_SENTENCE_END_RE = re.compile(r"[.!?;]\s|\n")
 
 _DATE_RANGE_RE = re.compile(
     rf"\b(\d{{1,2}})(?:st|nd|rd|th)?\s+({MONTH_ALT})\.?\s*"
@@ -119,15 +149,19 @@ _WEEKS_RE = re.compile(r"\b(\d{1,2})\s*weeks?\b|\bweeks?\s*:?\s*(\d{1,2})\b",
 def _default_today():
     """Today, overridable via SOURCE_DATE_EPOCH for reproducible runs.
 
-    Every expansion is anchored on this, so two runs on different days
-    otherwise shift whole inferred series forward.
+    Anchoring every expansion on this is what keeps two runs on different days
+    from shifting a whole inferred series forward. Where a listing states its
+    own start date that date wins for the *phase* (see expand()); a bad
+    SOURCE_DATE_EPOCH is reported rather than silently ignored, because a
+    reproducible run that is not reproducible is worse than one that failed.
     """
     epoch = os.environ.get("SOURCE_DATE_EPOCH")
     if epoch:
         try:
             return date.fromtimestamp(int(epoch))
-        except (ValueError, OverflowError, OSError):
-            pass
+        except (ValueError, OverflowError, OSError) as e:
+            print(f"  WARN: SOURCE_DATE_EPOCH={epoch!r} is unusable ({e}); "
+                  f"falling back to today, so this run is not reproducible")
     return date.today()
 
 
@@ -184,7 +218,23 @@ def _time_ranges(text):
             out.append((m.start(), m.end(), start, end or start))
     # Bare-hour start ("12 - 1.30pm"), tried second so the explicit forms win.
     for m in _BARE_HOUR_RANGE_RE.finditer(text):
-        start, end = _to_hhmm(m.group(1)), _to_hhmm(m.group(2))
+        start_token, end_token = m.group(1), m.group(2)
+        if _BARE_START_RE.match(start_token):
+            # "9 - 11am": the start states no meridiem, so it inherits the
+            # end's. Read as a clock time it would be 09:00 anyway for an am
+            # end, but "9 - 8pm" is 9am to 8pm, and a bare "9" means neither.
+            ap = re.search(r"([ap])\.?\s*m?\.?$", end_token, re.I)
+            if ap:
+                start_token += ap.group(1) + "m"
+        start, end = _to_hhmm(start_token), _to_hhmm(end_token)
+        # A bare start inherits the end's meridiem, which is what makes
+        # "9 - 11am" 09:00-11:00. When the two are then out of order -- "9 -
+        # 8pm", "10 - 12am" -- the inherited reading is wrong, and the pair is
+        # refused rather than published as a class that ends before it starts.
+        # The times are left unpaired, so the caller reports the listing as
+        # undatable instead of inventing a session.
+        if start and end and end < start:
+            continue
         if start and not any(s <= m.start() < e for s, e, _, _ in out):
             out.append((m.start(), m.end(), start, end or start))
     out.sort(key=lambda t: t[0])
@@ -257,14 +307,24 @@ def weekday_slots(text):
         events.append((m.start(), "time", (single, single)))
     events.sort(key=lambda ev: ev[0])
     recurring = bool(_ONGOING_HINT_RE.search(text or ""))
-    slots, pending, last_days = [], [], []
-    for _, kind, val in events:
+    slots, pending, last_days, last_days_at = [], [], [], -1
+    for pos, kind, val in events:
         if kind == "day":
             pending.extend(val)
             continue
+        # A time with no weekday of its own belongs to the last weekday seen.
+        # That carry-over must not cross a sentence boundary: "Mondays and
+        # Wednesdays 9am - 12pm. Bookings close 4pm." is one class on two
+        # days and a booking deadline, but the deadline's time was re-applied
+        # to both days, publishing a phantom 4pm session each. "Mondays 9am |
+        # Fridays 1pm" has no sentence break and still works.
+        days = list(pending)
+        if not days and last_days and not _SENTENCE_END_RE.search(
+                text[last_days_at:pos]):
+            days = list(last_days)
         if pending:
-            last_days = list(pending)
-        for day in (pending or last_days):
+            last_days, last_days_at = list(pending), pos
+        for day in days:
             slots.append((day, val[0], val[1]))
         pending = []
     for day in pending:
@@ -295,6 +355,12 @@ class Spec:
     start_date: date = None
     end_date: date = None
     month_window: tuple = None
+    # The single calendar year a month_window belongs to. "from February to
+    # November" states months, never a year, so the window alone is satisfied
+    # again by the same months of the following year -- and a 20-month
+    # expansion horizon reaches into it. "Music at McClelland" (third Sunday,
+    # February to November) published 12 rows, 10 of them next season.
+    window_year: int = None
     max_periods: int = None
     label: str = ""
 
@@ -419,9 +485,11 @@ def _parse_text(text, today, allow_loose_single=False):
             return None, "explicit date range has already finished"
         bounds = span if span else (None, None)
         label = f"{m.group(1).capitalize()} {DAYS[day].capitalize()} of every month"
+        window = _extract_month_window(text)
         return Spec("monthly", [(day, start, end)], nth=nth,
                     start_date=bounds[0], end_date=bounds[1],
-                    month_window=_extract_month_window(text),
+                    month_window=window,
+                    window_year=_window_year(today, window),
                     max_periods=_extract_week_count(text), label=label), None
 
     m = _FORTNIGHTLY_RE.search(text)
@@ -440,23 +508,74 @@ def _parse_text(text, today, allow_loose_single=False):
     # A recurring pattern wins over a bare date: "Fortnightly chess on
     # Tuesdays from 15 July 2026" carries a real start date *and* a weekly
     # pattern, and must not collapse to a single occurrence.
+    #
+    # weekday_slots() returns a slot whenever a time follows a weekday, so a
+    # listing that names one date and one time -- "Drop-In Casual Basketball
+    # Monday 28 September, 5:30pm" -- produced slots too, and this branch
+    # returned a weekly series for a single afternoon: twelve Tuesdays. The
+    # test is the text, not the slots: a pattern needs recurring language
+    # ("every week", "term", "10 weeks") or must carry no date at all, as
+    # "Tuesdays and Thursdays 9am" does. A weekday plus a time plus one
+    # explicit date is that one session.
     slots = weekday_slots(text)
-    if slots:
+    # Only look for a competing single date when the text does not claim to
+    # recur; otherwise "Fortnightly chess from 15 July" is read as one session.
+    # The loose (year-less) reading is allowed here for the same reason it is
+    # for a dateless row: "Monday 12 October, 5:30pm" is that one afternoon.
+    #
+    # When that single date is *stale* -- read after the day it names, inside
+    # the grace window -- the listing is over rather than recurring, so it
+    # must not fall through to the weekly branch and be republished as twelve
+    # future Mondays. That is what turned one finished afternoon into a
+    # twelve-week run.
+    single = stale_single = None
+    if slots and not _ONGOING_HINT_RE.search(text):
+        single = _extract_single_date(text, today, require_year=True)
+        if single is None and allow_loose_single:
+            single = _extract_single_date(text, today, require_year=False)
+            if single is None and re.search(rf"\b\d{{1,2}}\s+({MONTH_ALT})\b",
+                                            text, re.I):
+                stale_single = True
+    # A weekday and a time with no date anywhere is a pattern. That is how
+    # these sources actually write a weekly program -- a Chatty Cafe venue
+    # states "Tuesday 11am - 1pm" for a session it runs every week of term,
+    # and 15 of the published series are written exactly that way.
+    #
+    # What separates that from a single undated session is not the plural
+    # ("Tuesday" and "Tuesdays" are both used) but an explicit date. When the
+    # text names a day, that day is the session: "Drop-In Casual Basketball
+    # Monday 12 October, 5:30pm" is one afternoon, and reading it as weekly
+    # published twelve of them. So the date decides, and the absence of one
+    # leaves the weekday as a pattern.
+    #
+    # `stale_single` is the exception: a date that has just passed means the
+    # listing is over, not that it recurs.
+    if slots and single is None and not stale_single:
         span = _extract_date_range(text, today)
         if _is_stale(span):
             return None, "explicit date range has already finished"
         bounds = span if span else (None, None)
         weekdays = {s[0] for s in slots}
+        # "(fortnightly)" states the cadence for every weekday it is attached
+        # to, and a fortnightly listing names one weekday, so all slots take
+        # the fortnight. Guarded on a single weekday because the fortnight
+        # expansion walks one weekday per period -- see expand().
+        if len(weekdays) == 1 and _FORTNIGHTLY_PROP_RE.search(text):
+            day = weekdays.pop()
+            return Spec("fortnightly", slots, start_date=bounds[0],
+                        end_date=bounds[1], max_periods=_extract_week_count(text),
+                        label=f"Every second {DAYS[day].capitalize()}"), None
         return Spec("weekly", slots, start_date=bounds[0], end_date=bounds[1],
                     max_periods=_extract_week_count(text),
                     label=f"Every {_day_names(weekdays)}"), None
 
-    single = _extract_single_date(text, today, require_year=True)
     if single is not None:
         start, end = _first_time_range(text)
         return Spec("once", [(0, start, end)], start_date=single,
                     end_date=single,
                     label=single.strftime("%d %b %Y")), None
+    if stale_single:
+        return None, "the date this listing states has already passed"
 
     # An explicit range that has finished settles the listing, even when the
     # range carries no year. Without this the loose-single path below runs
@@ -545,7 +664,29 @@ def _in_bounds(day, spec):
     if spec.month_window and not (spec.month_window[0] <= day.month
                                   <= spec.month_window[1]):
         return False
+    if spec.window_year and day.year != spec.window_year:
+        return False
     return True
+
+
+def _window_year(today, month_window):
+    """The calendar year a month_window describes, or None.
+
+    A window given as bare months is a *season*, and a season belongs to the
+    year that contains the day it is read on: read in September, "from February
+    to November" is this year's Feb-Nov, with the remaining months still ahead.
+    Read after it has closed -- December, for the same window -- the season
+    being described is next year's, the same rolling treatment a year-less
+    single date already gets.
+    """
+    if not month_window or today is None:
+        return None
+    first, last = month_window
+    if first > last:
+        # A wrapping window ("December to February"): pick the year that
+        # contains the current month, whatever part of the window it is.
+        return today.year
+    return today.year if today.month <= last else today.year + 1
 
 
 def expand(spec, today=None, max_occurrences=MAX_OCCURRENCES):
@@ -573,8 +714,16 @@ def expand(spec, today=None, max_occurrences=MAX_OCCURRENCES):
             for start, _end in slots_by_day[day.weekday()]:
                 found.append((day, start))
     elif spec.kind == "fortnightly":
+        # Phase is anchored on the series' own first session, not on `today`.
+        # A fortnight divides the week in two, so the phase of "every second
+        # Saturday" is arbitrary: anchoring on today meant the published dates
+        # shifted by a week every time the pipeline ran, and when the stated
+        # start fell outside today's phase the whole series moved and the last
+        # named session fell off the end. A stated start_date is the venue's
+        # own phase; without one, `today` remains the best available anchor.
+        phase_origin = spec.start_date or today
         for offset in range(FORTNIGHTLY_HORIZON_DAYS + 1):
-            anchor = today + timedelta(days=offset)
+            anchor = phase_origin + timedelta(days=offset)
             if anchor.weekday() not in slots_by_day:
                 continue
             # Do not bounds-check the anchor: it only picks the first matching
@@ -585,6 +734,11 @@ def expand(spec, today=None, max_occurrences=MAX_OCCURRENCES):
                 day = anchor + timedelta(weeks=week)
                 if day > today + timedelta(days=FORTNIGHTLY_HORIZON_DAYS):
                     break
+                # phase_origin may be a past start_date, which is what puts
+                # the series in the right fortnight; the occurrence still has
+                # to be ahead of the reader.
+                if day < today:
+                    continue
                 if _in_bounds(day, spec):
                     for start, _end in slots_by_day[day.weekday()]:
                         found.append((day, start))
@@ -606,7 +760,16 @@ def expand(spec, today=None, max_occurrences=MAX_OCCURRENCES):
     # start time with None normalised to "" (untimed sorts first).
     found = sorted(set(found), key=lambda f: (f[0], f[1] or ""))
     if spec.max_periods:
-        found = found[:spec.max_periods]
+        # `_extract_week_count` reads "\bN weeks?\b", but `found` is a flat
+        # list of *occurrences*, so N was truncating at N sessions. A 10-week
+        # Monday course lost its final Monday; a twice-weekly 6-week course
+        # published 3 weeks. An explicit date range is the more specific
+        # statement of the same thing and already bounds `found`, so the
+        # count only applies where there is no range, and is converted to
+        # occurrences by how many sessions the week actually holds.
+        if not (spec.start_date or spec.end_date):
+            per_week = max(1, len({s[0] for s in spec.slots}))
+            found = found[:spec.max_periods * per_week]
     return found[:max_occurrences]
 
 
@@ -674,17 +837,28 @@ def refresh_inferred(rows, today=None, max_occurrences=MAX_OCCURRENCES):
         # mention is not a competing time.
         slots = [(d, s) for d, s, _e in weekday_slots(text) if s]
         try:
-            weekday = date.fromisoformat(iso[:10]).weekday()
+            stored_day = date.fromisoformat(iso[:10])
         except ValueError:
-            weekday = None
+            stored_day = None
+        weekday = stored_day.weekday() if stored_day else None
         stated = [s for d, s in slots if weekday is not None and d == weekday]
         # With two times for one weekday (a morning and an afternoon session)
         # either stored value may be correct, so only act when unambiguous.
         if len(stated) == 1 and stated[0] != iso[11:16]:
             made, reason = infer_event(r, today, max_occurrences)
-            if made:
-                kept.extend(made)
-                refreshed += 1
+            # The re-expansion replaces this row, so it has to contain the
+            # row's own date as well as the right time. Checking only the time
+            # let a stored date be silently moved to another day: the row was
+            # dropped and the replacement kept, and a phase change in the
+            # pattern could do the same for a row whose time happened to
+            # agree. Reconciling on the date makes the two consistent.
+            if made and stored_day and any(
+                    m.get("datetime_iso", "")[:10] == iso[:10] for m in made):
+                for m in made:
+                    if m.get("datetime_iso", "")[:10] == iso[:10]:
+                        kept.append(m)
+                        refreshed += 1
+                        break
                 continue
             unresolvable += 1
         kept.append(r)
@@ -732,3 +906,181 @@ def resolve_dateless(rows, today=None, max_occurrences=MAX_OCCURRENCES):
         kept.extend(made)
         expanded += 1
     return kept, {"expanded": expanded, "dropped": dropped, "reasons": reasons}
+
+
+# ---------------------------------------------------------------------------
+# Self-tests. Run by `python scripts/recurrence.py` and by the GHA workflow.
+#
+# This module decides the day a reader turns up, so a wrong date is worse than
+# a missing event: the row still renders, still looks bookable, and is simply
+# wrong. Every case below is a real listing form, and each was a live defect
+# that shipped a correct-looking wrong date. The trigger text is quoted from
+# the listing as published.
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    import itertools
+
+    # A fixed "today" so the expected dates below are literal rather than
+    # relative to whenever the suite runs.
+    TODAY = date(2026, 9, 30)
+
+    def dates_for(text, today=TODAY):
+        spec, _reason = _parse_text(text, today, allow_loose_single=True)
+        if spec is None:
+            return None
+        return [d.isoformat() for d, _s in expand(spec, today)]
+
+    def slots_for(text):
+        spec, _reason = _parse_text(text, TODAY, allow_loose_single=True)
+        return spec.slots if spec else None
+
+    # (label, actual, expected). Every one of these is a date the pipeline
+    # published or would have published, so a failure names a wrong day a
+    # reader would have been sent to.
+    TESTS = [
+        # --- a month window is a season, and a season has one year ---------
+        # 10 of these 12 rows were dated 2027, a programme that is not held
+        # then. The window is bound to the year containing the read date.
+        ("month_window stays in its own year",
+         dates_for("Music at McClelland is held on the third Sunday of the "
+                   "month, 2.30pm to 4pm, from February to November"),
+         ["2026-10-18", "2026-11-15"]),
+
+        # --- an explicit range outranks a stated week count ---------------
+        # "Weeks: 10" was truncating a list of *occurrences*, so the 11th
+        # Monday -- the one the term actually ends on -- was dropped.
+        ("date range wins over week count",
+         dates_for("Practice your netball at home! Monday. 3pm - 5pm. "
+                   "Term 4 : 5th October - 14th December Weeks : 10"),
+         ["2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02",
+          "2026-11-09", "2026-11-16", "2026-11-23", "2026-11-30", "2026-12-07",
+          "2026-12-14"]),
+
+        # With no range to defer to, a week count is still a bound -- but on
+        # occurrences, so a twice-weekly course gets its full six weeks.
+        ("week count multiplies by sessions per week",
+         len(dates_for("Circuit class Tuesdays and Thursdays 9am for "
+                       "6 weeks") or []),
+         12),
+
+        # --- a fortnightly series has a phase, and it is the start date ----
+        # Anchored on `today`, the same text published different dates on
+        # different days, and the last named session fell off the end.
+        ("fortnightly phase is stable across run dates",
+         [dates_for("Every second Saturday 10:30am - 12:30pm "
+                    "Term 4 (17th October - 5th December)", d)
+          for d in (date(2026, 9, 30), date(2026, 10, 6))],
+         [["2026-10-17", "2026-10-31", "2026-11-14", "2026-11-28"]] * 2),
+
+        # --- one named date is one session, not a pattern ------------------
+        # weekday_slots() returns a slot for a weekday followed by a time, so
+        # a single afternoon parsed as weekly and published twelve of them.
+        ("a dated single occurrence stays single",
+         dates_for("Drop-In Casual Basketball Monday 12 October, 5:30pm"),
+         ["2026-10-12"]),
+
+        ("a dated single occurrence with a year stays single",
+         dates_for("Storytime on Tuesday 6 October 2026, 10:00am"),
+         ["2026-10-06"]),
+
+        # A finished listing is not a recurring one. Falling through to the
+        # weekly branch republished one past afternoon as twelve future ones.
+        ("a stale single date is not expanded",
+         dates_for("Drop-In Casual Basketball Monday 28 September, 5:30pm"),
+         None),
+
+        # Genuine recurrence must still expand.
+        ("'every Tuesday' still expands",
+         len(dates_for("Every Tuesday 7pm - 8pm") or []),
+         12),
+        # A weekday and a time with no date is a weekly program, singular
+        # weekday or not: 15 published Chatty Cafe series are written exactly
+        # this way ("Tuesday 11am - 1pm" for a session open every week), and
+        # the plural is used interchangeably.
+        ("a singular weekday with a time and no date is a pattern",
+         len(dates_for("Tuesday 9am - 12pm") or []),
+         12),
+        ("a plural weekday with a time is a pattern",
+         len(dates_for("Tuesdays 9am - 12pm") or []),
+         12),
+        # A real venue listing in that same shape, so the case above cannot
+        # regress to dropping every Chatty Cafe venue.
+        ("a Chatty Cafe weekly listing expands",
+         len(dates_for("Chatty Cafe at Timbuktu Cafe. Tuesday 11am - 12:30pm. "
+                       "A welcoming space for conversation.") or []),
+         12),
+
+        # --- a range's end is not its start -------------------------------
+        # The bare "6" is not a time token and "8pm" alone could not satisfy
+        # the minutes group, so no range matched and the end became the start:
+        # a 6-8pm class published at 20:00.
+        ("bare-hour range keeps its start",
+         slots_for("Community Kitchen Tuesdays 6 - 8pm"),
+         [(1, "18:00", "20:00")]),
+        ("bare start inherits the end's meridiem",
+         slots_for("Every Thursday 9 to 11am"),
+         [(3, "09:00", "11:00")]),
+        ("an explicit range is unaffected",
+         slots_for("Saturdays 6pm - 8pm"),
+         [(5, "18:00", "20:00")]),
+        ("a backwards range is refused, not published",
+         slots_for("Mondays 9 - 8pm"),
+         [(0, "20:00", "20:00")]),
+
+        # --- "each week" is not "of the month" -----------------------------
+        # The alternation read "week" as a monthly period, so a weekly class
+        # published on the first Tuesday of each month: four of five dates wrong.
+        ("'First Tuesday each week' is weekly",
+         len(dates_for("First Tuesday each week, 7pm") or []),
+         12),
+        ("'of the month' is still monthly",
+         dates_for("First Tuesday of every month, 7pm")[:3],
+         ["2026-10-06", "2026-11-03", "2026-12-01"]),
+
+        # --- a deadline in the prose is not a class ------------------------
+        # The carry-over re-applied a bare time to the last weekday set across
+        # a sentence boundary, publishing a 4pm session on both days.
+        ("a booking deadline is not a session",
+         slots_for("Mondays and Wednesdays 9am - 12pm. Bookings close 4pm."),
+         [(0, "09:00", "12:00"), (2, "09:00", "12:00")]),
+        ("a pipe-separated second session still pairs",
+         slots_for("Mondays 9am - 12pm | Fridays 1pm - 2pm"),
+         [(0, "09:00", "12:00"), (4, "13:00", "14:00")]),
+    ]
+
+    failures = []
+    for label, actual, expected in TESTS:
+        if actual == expected:
+            print(f"ok   {label}")
+        else:
+            print(f"FAIL {label}\n       actual:   {actual}\n       expected: {expected}")
+            failures.append(label)
+
+    # refresh_inferred must not multiply rows: it replaces a stale row with
+    # its corrected form, so N stored rows stay N rows. It used to re-expand
+    # each one to a whole series -- 3 stored rows became 36 -- and to move a
+    # row to a date its own text did not justify.
+    _txt = "Every Tuesday 10:30am at the library"
+    _stored = [dict(name=_txt, description=_txt, location="Library",
+                    date_inferred=True, datetime_iso=d + "T00:00:00")
+               for d in ("2026-10-06", "2026-10-13", "2026-10-20")]
+    _out = refresh_inferred(_stored, TODAY)
+    for _label, _actual, _expected in (
+            ("refresh does not multiply rows", len(_out), 3),
+            ("refresh keeps each row's own date",
+             sorted(m["datetime_iso"][:10] for m in _out),
+             ["2026-10-06", "2026-10-13", "2026-10-20"]),
+            ("refresh applies the stated time",
+             sorted({m["datetime_iso"][11:16] for m in _out}), ["10:30"])):
+        if _actual == _expected:
+            print(f"ok   {_label}")
+        else:
+            print(f"FAIL {_label}\n       actual:   {_actual}"
+                  f"\n       expected: {_expected}")
+            failures.append(_label)
+
+    if failures:
+        print(f"\nrecurrence: {len(failures)}/{len(TESTS) + 3} cases FAILED")
+        raise SystemExit(1)
+    print(f"\nall {len(TESTS) + 3} recurrence cases as expected")

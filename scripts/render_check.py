@@ -197,6 +197,123 @@ MOBILE_SIZE = "375,667"
 # 1.4.4 Resize Text. Nothing legible in a list of 2000 events is under this.
 MIN_LEGIBLE_PX = 12.0
 
+DESKTOP_SIZE = "1280,900"
+
+# The desktop grid's column allocation. table-layout:fixed takes these from
+# the <colgroup>, so the risk is not that they are ignored but that a column
+# gets no width at all (0 or NaN) or the grid overflows the viewport. The
+# price column is the one to watch: it was ~430px of a 1240px table because a
+# single 58-character price_text was nowrap, and .tablewrap's overflow-x:auto
+# absorbed the result as a horizontal scroll rather than a visible break, which
+# is why nothing caught it.
+_DESKTOP_PROBE = """
+<div id="desktopprobe">PENDING</div>
+<script>
+setTimeout(function(){
+  var L = [];
+  var table = document.querySelector('table');
+  var ths = document.querySelectorAll('thead th');
+  var cols = [];
+  for (var i = 0; i < ths.length; i++) {
+    cols.push(ths[i].textContent.replace(/\\s+/g, ' ').trim().slice(0, 12)
+              + '=' + Math.round(ths[i].getBoundingClientRect().width));
+  }
+  L.push('tableW=' + Math.round(table.getBoundingClientRect().width));
+  L.push('tableLayout=' + getComputedStyle(table).tableLayout);
+  L.push('cols=' + cols.join(','));
+  // The tallest rendered row, in lines of the clamped description. A clamp
+  // that is not applied leaves a 400-character description seven lines tall.
+  var d = document.querySelector('#rows .desc');
+  L.push('descH=' + (d ? Math.round(d.getBoundingClientRect().height) : -1));
+  L.push('descClamp=' + (d ? getComputedStyle(d).webkitLineClamp : 'none'));
+  var rowH = [];
+  var trs = document.querySelectorAll('#rows tr[role="row"]');
+  for (var j = 0; j < trs.length && j < 20; j++) {
+    rowH.push(Math.round(trs[j].getBoundingClientRect().height));
+  }
+  L.push('rowMaxH=' + Math.max.apply(null, rowH));
+  L.push('docScrollW=' + document.documentElement.scrollWidth);
+  L.push('clientW=' + document.documentElement.clientWidth);
+  document.getElementById('desktopprobe').textContent = L.join('|');
+}, 2000);
+</script>
+"""
+
+
+def measure_desktop(browser, profile):
+    """Column widths and row heights at desktop width, or {} if it did not run."""
+    with open(INDEX, encoding="utf-8") as f:
+        src = f.read()
+    src = src.replace("</body>", _DESKTOP_PROBE + "</body>", 1)
+    probe = os.path.join(profile, "desktop.html")
+    with open(probe, "w", encoding="utf-8") as f:
+        f.write(src)
+    dom = run_browser(browser, page_url(probe), os.path.join(profile, "pd"),
+                      size=DESKTOP_SIZE)
+    match = re.search(r'<div id="desktopprobe">(.*?)</div>', dom, re.S)
+    if not match:
+        return {}
+    out = {}
+    for pair in match.group(1).split("|"):
+        if "=" in pair:
+            key, _, value = pair.partition("=")
+            out[key.strip()] = value.strip()
+    return out
+
+
+def desktop_layout_errors(m):
+    """Turn the desktop-width measurements into failures."""
+    if not m:
+        return ["desktop layout probe did not run, so the column widths are "
+                "unverified"]
+
+    errors = []
+
+    if m.get("tableLayout") != "fixed":
+        errors.append(
+            "table-layout is %r, not fixed: the <colgroup> widths are only "
+            "honoured under a fixed layout, and under auto layout the widest "
+            "nowrap cell dictates its column's width"
+            % m.get("tableLayout"))
+
+    # Every column must have received a width. A colgroup whose order does not
+    # match the header order would show up here as a missing or absurd width.
+    for entry in (m.get("cols") or "").split(","):
+        if "=" not in entry:
+            continue
+        label, _, width = entry.rpartition("=")
+        if not width.isdigit() or int(width) < 40:
+            errors.append(
+                "column %r is %spx wide, so the <colgroup> order does not "
+                "match the header order" % (label.strip(), width))
+
+    # 1.4.10 Reflow. The grid must fit its container: a nowrap cell in a fixed
+    # table overflows rather than wraps, and .tablewrap would scroll.
+    scroll_w, client_w = m.get("docScrollW"), m.get("clientW")
+    if scroll_w and client_w and scroll_w.isdigit() and client_w.isdigit():
+        if int(scroll_w) > int(client_w) + 1:
+            errors.append(
+                "the results grid scrolls sideways on a desktop: %spx of "
+                "content in a %spx viewport (WCAG 1.4.10)"
+                % (scroll_w, client_w))
+
+    # The clamps. Without them a 400-character description is seven lines and
+    # every row is as tall as the longest one.
+    if m.get("descClamp") in (None, "none"):
+        errors.append("the description clamp is not applied on desktop, so a "
+                      "400-character description makes its row seven lines "
+                      "tall")
+    try:
+        if int(m.get("rowMaxH", 0)) > 400:
+            errors.append(
+                "the tallest rendered row is %spx: the text clamps are not "
+                "bounding it" % m.get("rowMaxH"))
+    except ValueError:
+        pass
+
+    return errors
+
+
 _MOBILE_PROBE = """
 <div id="mobileprobe">PENDING</div>
 <script>
@@ -405,6 +522,13 @@ def main():
         mobile = measure_mobile(browser, profile)
         errors.extend(mobile_a11y_errors(mobile))
 
+        # Desktop column widths. The price column was a third of the table
+        # because one row's price_text was a 58-character leaked button label
+        # and the cell was nowrap -- a defect no DOM check sees, because the
+        # markup is correct and only the layout is wrong.
+        desktop = measure_desktop(browser, profile)
+        errors.extend(desktop_layout_errors(desktop))
+
         if errors:
             print("FAIL: the built page did not render results")
             for e in errors:
@@ -437,6 +561,14 @@ def main():
                      mobile.get("desc"), mobile.get("controlsPos"),
                      mobile.get("controlsH"), mobile.get("sortVisible"),
                      mobile.get("docScrollW"), mobile.get("clientW")))
+        if desktop:
+            print("  desktop %s: layout %s, table %spx, clamp %s, "
+                  "tallest row %spx, width %s/%s"
+                  % (DESKTOP_SIZE, desktop.get("tableLayout"),
+                     desktop.get("tableW"), desktop.get("descClamp"),
+                     desktop.get("rowMaxH"), desktop.get("docScrollW"),
+                     desktop.get("clientW")))
+            print("    columns: %s" % desktop.get("cols"))
     finally:
         shutil.rmtree(profile, ignore_errors=True)
     return 0

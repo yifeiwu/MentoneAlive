@@ -235,6 +235,16 @@ def fetch_kingston_hubs(cfg):
                         f"CalendarId {cal_id!r}, which is not in "
                         f"calendar_venues ({sorted(venues)})")
                 venue, address = venues[cal_id]
+                # The API states a time in the small hours for a couple of
+                # listings -- "Social Jigsaw Group" comes back as 12:30:00 AM.
+                # That is a placeholder, not a 12:30am session, and publishing
+                # it as one is worse than publishing no time at all: the page
+                # renders an exact 00:00 as "all day" (the pipeline's marker
+                # for "date known, time not stated") but 00:30 as a real
+                # half-past-midnight start. Normalise the hour to the marker so
+                # both read the same way.
+                if dt.hour == 0:
+                    dt = dt.replace(minute=0)
                 rows.append({
                     "name": name,
                     "datetime_text": it.get("DateTime", ""),
@@ -560,31 +570,83 @@ def fetch_gd_libraries(cfg):
     return rows
 
 
+_CHATTY_DAY = r"(?:mon|tues|wednes|thurs|fri|satur|sun)day"
+# "Wednesdays & Thursdays", "Mondays, Wednesdays", "Every Thursday".
+_CHATTY_DAYLIST = (rf"(?:every\s+|each\s+)?{_CHATTY_DAY}s?"
+                   rf"(?:\s*(?:&|and|to|,|/)\s*{_CHATTY_DAY}s?)*")
+# A time, in every form these pages use: "10.30am", "10:30am", "12noon",
+# "11.30", and a range joined by -/–/to/until/till. Anchored so "20th" and
+# "17 December" in the surrounding prose cannot be read as an hour.
+_CHATTY_TIME_TOKEN = (r"(?:"
+                      r"\d{1,2}[:.]\d{2}\s*(?:[ap]\.?\s*m\.?)?"
+                      r"|\b\d{1,2}\s*(?:noon|midday)\b"
+                      r"|\b\d{1,2}\s*[ap]\.?\s*m\.?"
+                      r")")
+_CHATTY_TIME = (rf"{_CHATTY_TIME_TOKEN}"
+                rf"(?:\s*(?:-|–|—|to|until|till)\s*{_CHATTY_TIME_TOKEN})?")
+# Filler between the weekday and the time: "from", "at", "on", a colon, a
+# cadence note like "(fortnightly)". Deliberately cannot cross a digit, which
+# is what stops "Monday 20th April at 10.30am" from reading "20" as a time.
+_CHATTY_GAP = r"[^0-9\n]{0,24}?"
+# "2nd Tuesday of the month at 11.00am" is a monthly pattern, not a weekly one.
+# Matching it as weekday+time would turn it into every Tuesday, so the day list
+# must not be followed by a month qualifier.
+_CHATTY_NOT_MONTHLY = r"(?!\s+(?:of|each|in|on)\s+(?:the\s+|every\s+)?month)"
 CHATTY_DAYTIME_RE = re.compile(
-    r"\b((?:every\s+|each\s+)?(?:mon|tues|wednes|thurs|fri|satur|sun)day"
-    r"(?:\s*(?:and|to|,|/)\s*(?:mon|tues|wednes|thurs|fri|satur|sun)day)*)"
-    r"\W{0,12}(\d{1,2}(?::\d{2})?\s*(?:am|pm)?(?:\s*(?:-|–|to)\s*"
-    r"\d{1,2}(?::\d{2})?\s*(?:am|pm)?)?)", re.I)
-
+    rf"\b({_CHATTY_DAYLIST}){_CHATTY_NOT_MONTHLY}{_CHATTY_GAP}({_CHATTY_TIME})",
+    re.I)
 
 def _chatty_live_schedule(html):
-    """First '<weekday(s)> <time>' phrase on a Chatty Cafe venue page."""
+    """The '<weekday(s)> <time>' a Chatty Cafe venue page states for its table.
+
+    The whole matched phrase is returned, not a reassembly of the two groups,
+    so a cadence the source states inside the gap -- "Friday (fortnightly)
+    10.30am-11.30am" -- survives into the schedule text the date parser reads.
+    """
     if not html:
         return ""
     text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
     m = CHATTY_DAYTIME_RE.search(text)
     if not m:
         return ""
-    return re.sub(r"\s+", " ", f"{m.group(1)} {m.group(2)}").strip()[:80]
+    return re.sub(r"\s+", " ", m.group(0)).strip()[:80]
+
+
+def _chatty_schedule_is_usable(schedule):
+    """True when recurrence.py can turn `schedule` into dated occurrences.
+
+    The test is deliberately the real parser rather than a look of the string:
+    a schedule that parses is one that will publish, and a schedule that does
+    not is one that silently deletes a venue from the calendar. recurrence is
+    imported lazily because fetch_events.py runs before the scripts directory is
+    otherwise on the path in every entry point.
+    """
+    try:
+        from recurrence import build_spec
+    except ImportError:
+        return True  # cannot verify; trust the site as before
+    row = {"name": "Chatty Cafe", "datetime_text": schedule,
+           "description": schedule}
+    spec, _reason = build_spec(row)
+    return spec is not None and bool(spec.slots)
 
 
 def fetch_chatty_cafe(cfg):
     """Fetch Chatty Cafe venues.
 
     sources.yaml holds the venue list and a fallback schedule. The live page is
-    fetched anyway, so prefer a schedule it actually states and fall back to
-    the configured one -- previously the page was downloaded and discarded, so
-    a changed schedule on the site was invisible.
+    fetched anyway, so prefer a schedule it actually states -- previously the
+    page was downloaded and discarded, so a changed schedule on the site was
+    invisible.
+
+    The live value only wins when it is actually usable, which is checked by
+    asking whether the date parser can build a schedule from it. A previous
+    extractor truncated every time to its hour digits, so "Tuesday 10.00am -
+    11.30am" became "Tuesday 10": a weekday with no time, which the parser
+    cannot expand. Six of the twenty venues were then dropped entirely, because
+    the live value replaced a correct configured schedule with an unusable one
+    and the configured fallback could no longer be reached. Verifying the live
+    value before preferring it is what makes "prefer the site" safe.
     """
     rows = []
     for venue in cfg.get("venues", []):
@@ -594,9 +656,14 @@ def fetch_chatty_cafe(cfg):
             html = _get(url, timeout=10)
             live = _chatty_live_schedule(html)
             if live and live != schedule:
-                print(f"  Chatty Cafe {venue['name']}: schedule updated "
-                      f"from site")
-                schedule = live
+                if _chatty_schedule_is_usable(live):
+                    print(f"  Chatty Cafe {venue['name']}: schedule updated "
+                          f"from site ({live!r})")
+                    schedule = live
+                else:
+                    print(f"  Chatty Cafe {venue['name']}: site text {live!r} "
+                          f"is not a usable schedule, keeping configured "
+                          f"{schedule!r}")
         except Exception as e:
             # Keep the configured schedule rather than dropping the venue.
             print(f"  Chatty Cafe {venue['name']}: fetch FAILED {e!r}, "

@@ -237,7 +237,14 @@ def dedupe_by_source_url(rows):
             # the prose to match as well would miss these: the venue site and
             # the national directory write entirely different blurbs for the
             # same weekly session.
-            _merge_sources(hit, r)
+            # Rows are walked in order -- the stored rows first, then this
+            # run's -- so `r` is the later, fresher observation and its URL
+            # becomes the primary link. A Chatty Cafe venue was re-slugged, and
+            # without this the stored rows kept the dead page forever: this
+            # merge is the only place the two could ever be reconciled, because
+            # deduplicate() runs before inference and so never saw a dateless
+            # twin of an already-expanded stored series.
+            _merge_sources(hit, r, refresh_source=True)
             merged += 1
             continue
         index.setdefault(("url", url, name, stamp), r)
@@ -285,12 +292,25 @@ def drop_untimed_twins(rows):
     return kept
 
 
-def _merge_sources(existing, candidate):
+def _merge_sources(existing, candidate, refresh_source=False):
+    """Fold `candidate` into `existing`, keeping `existing` as the kept row.
+
+    `refresh_source` is set when `candidate` is a row this run just fetched,
+    which makes its `source` the URL the source publishes today. The kept row
+    can carry a dead one: a Chatty Cafe venue was re-slugged, and every
+    published row kept the old page as its primary link, because nothing here
+    overwrote a non-blank field. `source` is what the page's "source" link and
+    the CSV export point a reader at, so a stale one is as wrong as a stale
+    address. The superseded URL is kept in `sources`, which is also what
+    reconcile_store() checks, so nothing loses its justification.
+    """
     if not isinstance(existing.get("sources"), list):
         existing["sources"] = [existing.get("source", "")]
     cand_src = candidate.get("source", "")
     if cand_src and cand_src not in existing["sources"]:
         existing["sources"].append(cand_src)
+    if refresh_source and cand_src and cand_src != existing.get("source"):
+        existing["source"] = cand_src
     # Prefer keeping a real date over a dateless duplicate.
     if not existing.get("datetime_iso") and candidate.get("datetime_iso"):
         for k in ("datetime_iso", "datetime_display", "datetime_text",
@@ -312,6 +332,22 @@ def _merge_sources(existing, candidate):
     for k in ("location", "address", "suburb", "description", "price_text"):
         if not (existing.get(k) or "").strip() and (candidate.get(k) or "").strip():
             existing[k] = candidate[k]
+    # A blank field is filled from the twin, but a *less specific* one is
+    # replaced. `archived_events.json` was corrected to name venues it had
+    # previously left as a bare suburb ("Frankston, VIC" -> "Frankston
+    # Brewhouse"); the stored rows kept the old string forever, because the
+    # only path that writes a location is the fill-blank one above and these
+    # rows were not blank. reconcile_store() cannot catch it either: it judges
+    # the row against the source through _venue_compatible(), where
+    # venue_head("Frankston, VIC") is a prefix of venue_head("Frankston
+    # Brewhouse") and so counts as the same place. The narrower string is the
+    # one that has to go, so the upgrade is keyed on the venue head being a
+    # strict prefix -- an equal head, or an unrelated one, is left alone.
+    if (candidate.get("location") or "").strip():
+        old_head, new_head = venue_head(existing.get("location")), \
+            venue_head(candidate.get("location"))
+        if new_head and old_head and new_head != old_head and new_head.startswith(old_head):
+            existing["location"] = candidate["location"].strip()
 
 
 def _justification_keys(row, today):
@@ -391,7 +427,40 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     for name, url, stamp, venue in justified:
         by_slot.setdefault((name, url, stamp), set()).add(venue)
 
+    # The live row behind each slot, so a stored field the source has since
+    # *corrected* can be re-derived. _merge_sources() only fills blanks, by
+    # design -- a field the store already has wins -- which is right when the
+    # store's value is merely plainer but wrong when the source has since
+    # cleaned it up. 86 rows carried "14 Willis St,, Hampton, Victoria 3188"
+    # and 96 carried "$12 per session FIND OUT MORE BUTTON Find Out More",
+    # both from fetcher bugs fixed here, and no amount of re-crawling would
+    # have cleared them: the store is append-only by design.
+    #
+    # Two rules keep this from clobbering a good value with a worse one. An
+    # address is only replaced when the stored one is *malformed*; a price is
+    # only replaced when the live one is *shorter*, which for a cost field
+    # means the page furniture has been cut and a real amount removed with it.
+    # A long-but-clean value is left exactly as the store has it.
+    live_by_slot = {}
+    for src in live_rows:
+        iso = str(src.get("datetime_iso") or "")
+        if not iso:
+            continue
+        key = (normalize_name(src.get("name")),
+               (src.get("source") or "").rstrip("/"), iso[:16])
+        live_by_slot.setdefault(key, []).append(src)
+    # A dateless listing expands into many store rows -- a weekly course is
+    # one snapshot row and a dozen published ones -- so a store row has no
+    # single live row to match on its timestamp. Fall back to (name, url) for
+    # those, which is the same key _justification_keys() uses.
+    live_by_listing = {}
+    for src in live_rows:
+        key = (normalize_name(src.get("name")),
+               (src.get("source") or "").rstrip("/"))
+        live_by_listing.setdefault(key, []).append(src)
+
     kept, dropped = [], []
+    repaired = 0
     for r in rows:
         iso = str(r.get("datetime_iso") or "")
         if not iso or r.get("source_label") not in live_labels:
@@ -418,7 +487,41 @@ def reconcile_store(rows, live_rows, today=None, report=True):
             kept.append(r)
         else:
             dropped.append(r)
+        # A row the source vouches for, but whose address or location the
+        # source has since corrected into a well-formed value. Applied after
+        # the keep/drop decision so it cannot affect which rows survive.
+        for url in urls:
+            if not url:
+                continue
+            candidates = live_by_slot.get((name, url, iso[:16]))
+            if not candidates:
+                candidates = live_by_listing.get((name, url), ())
+            for live in candidates:
+                for field in ("address", "location"):
+                    stored = (r.get(field) or "").strip()
+                    fresh = (live.get(field) or "").strip()
+                    if stored and fresh and _malformed(stored) \
+                            and not _malformed(fresh):
+                        r[field] = fresh
+                        repaired += 1
+                # A price the source has since cleaned. The same
+                # never-overwrite rule applies: a fetcher that used to publish
+                # the page's call-to-action as a price ("\$12 per session FIND
+                # OUT MORE BUTTON Find Out More", 96 rows) leaves the store
+                # holding it, because _merge_sources() only fills blanks.
+                # Tested on the *live* value, not a pattern, so a genuinely
+                # long price is never truncated.
+                stored_price = (r.get("price_text") or "").strip()
+                fresh_price = (live.get("price_text") or "").strip()
+                if stored_price and fresh_price and len(fresh_price) < len(
+                        stored_price):
+                    r["price_text"] = fresh_price
+                    repaired += 1
+                break
 
+    if repaired and report:
+        print(f"  Repaired {repaired} stored field(s) the source has since "
+              f"corrected (malformed address, re-derived from the live row)")
     if dropped and report:
         print(f"  Dropped {len(dropped)} stored rows the sources no longer "
               f"publish (corrected time, or listing withdrawn)")
@@ -428,6 +531,21 @@ def reconcile_store(rows, live_rows, today=None, report=True):
         if len(dropped) > 10:
             print(f"    ... and {len(dropped) - 10} more")
     return kept, dropped
+
+
+def _malformed(value):
+    """True when an address string is visibly broken rather than merely terse.
+
+    Two shapes, both produced by joining pre-punctuated parts: an empty
+    segment ("14 Willis St,, Hampton") and a dangling separator at either end.
+    Checked on the stored value so only a broken one is replaced -- a terse or
+    unusual but well-formed address is left as the store has it, because the
+    store's value may have come from a second source that knew better.
+    """
+    v = (value or "").strip()
+    if not v:
+        return False
+    return ",," in v or v.startswith(",") or v.endswith(",")
 
 
 def _local(value):
@@ -468,7 +586,7 @@ def deduplicate(new_events, existing_events):
         # Pass 1: exact (name + date + location)
         hit = index.get(cand_hash)
         if hit is not None:
-            _merge_sources(hit, candidate)
+            _merge_sources(hit, candidate, refresh_source=True)
             continue
 
         found = False
@@ -494,7 +612,7 @@ def deduplicate(new_events, existing_events):
                         continue
                     if not _same_time_of_day(candidate, existing):
                         continue
-                    _merge_sources(existing, candidate)
+                    _merge_sources(existing, candidate, refresh_source=True)
                     index.setdefault(cand_hash, existing)
                     found = True
                     break
@@ -513,7 +631,7 @@ def deduplicate(new_events, existing_events):
                 if not time_matches(existing.get("datetime_iso", ""),
                                     candidate.get("datetime_iso", "")):
                     continue
-                _merge_sources(existing, candidate)
+                _merge_sources(existing, candidate, refresh_source=True)
                 found = True
                 break
 
@@ -576,7 +694,11 @@ def dedupe_exact(rows):
         key = slot_hash(r)
         hit = index.get(key)
         if hit is not None:
-            _merge_sources(hit, r)
+            # This is where an already-expanded stored series meets the fresh
+            # expansion of the same dateless listing, so it is also where a
+            # re-slugged source URL gets replaced. `_merge_sources` records
+            # the superseded URL in `sources` either way.
+            _merge_sources(hit, r, refresh_source=True)
             continue
         index[key] = r
         out.append(r)

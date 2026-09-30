@@ -17,18 +17,19 @@ then rejects.
 ONLINE_VENUE_WORDS = ("online", "zoom", "webinar", "virtual", "livestream",
                       "livestreamed", "remote", "teams")
 
-# ...and the ones that mean "we do not know yet", which are not a licence to
-# publish a venue-less row: an address-less listing is dropped or fixed, never
-# waved through.
-UNKNOWN_VENUE_WORDS = ("tbc", "tbd")
-
-
 def is_online(location):
     """True when the location says the event is not held in a physical room.
 
     Empty is deliberately *not* online. A blank location is a missing venue, and
     a missing venue is the thing this module exists to catch, so treating it as
     an exemption would hide the exact defect the check is for.
+
+    A placeholder venue ("TBC", "To be confirmed") is likewise *not* online.
+    It is also not a licence to publish: it falls through to `needs_address()`
+    returning True, so the row is held to the same address rule as any other.
+    That was the intent of a separate UNKNOWN_VENUE_WORDS tuple that nothing
+    ever read -- the behaviour was already right, by this route rather than by
+    the constant, so the constant has been deleted rather than wired up.
     """
     loc = (location or "").strip().lower()
     if not loc:

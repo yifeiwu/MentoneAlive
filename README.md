@@ -18,7 +18,7 @@ neighbourhood-house venues near Chelsea/Cheltenham/Mentone/Mordialloc.
 | Greater Dandenong (Springvale/Keysborough filter) | `greater_dandenong` | HTML + per-event detail pages (`fetch_events.py`) |
 | Greater Dandenong Libraries | `gd_libraries` | HTML (`fetch_events.py`) |
 | Chatty Cafe venue directory | `chatty_cafe` | Venue pages (`fetch_events.py`) |
-| Cheltenham Community Centre term classes | `ccc` | HTML + Humanitix dates |
+| Cheltenham Community Centre term classes | `ccc` | HTML + Humanitix term ranges |
 | Frankston / Bayside archived | `frankston_archived`, `bayside_archived` | Static snapshots (live pages WAF-blocked) |
 
 Plain `urllib`/`requests` gets HTTP 403 from the Granicus WAF, so the
@@ -90,6 +90,52 @@ correct — five of its events are the same events `greater_dandenong` lists,
 and `dedupe_by_source_url()` now merges them cleanly instead of leaving two
 projected series that only partly overlapped.
 
+## Chatty Cafe: a live schedule only wins if it parses
+
+`sources.yaml` carries a fallback schedule per venue, and the venue page is
+fetched anyway so a changed schedule on the site is visible. The live value is
+preferred — but only after `_chatty_schedule_is_usable()` asks
+`recurrence.build_spec()` whether the extracted text actually produces dated
+occurrences.
+
+That check is not defensive padding. The extractor used to return a
+reassembly of two groups, and the time group could not consume `.30am` or a
+bare `am`, so it stopped at the hour digits: `Tuesday 10.00am - 11.30am` came
+back as `Tuesday 10`. A bare weekday with no time is exactly what the date
+parser rejects, and because the *live* value replaced the configured one, the
+correct fallback could no longer be reached. Six of the twenty venues were
+dropped from the calendar entirely — Chelsea Activity Hub, both Matt's Place
+venues, Bentleigh Library, Brighton Library and St Aidan's Parkdale — with
+`chatty_cafe` still well above its floor of 10 rows, so nothing turned red.
+
+The extractor now returns the whole matched phrase, which also preserves a
+cadence stated inside the gap (`Friday (fortnightly) 10.30am-11.30am`), and it
+will not read a day-of-month as an hour: the gap between the weekday and the
+time cannot cross a digit, so `Monday 20th April at 10.30am` yields nothing and
+the configured schedule stands. `2nd Tuesday of the month at 11.00am` is
+likewise excluded, because matching it as weekday+time would turn a monthly
+session into every Tuesday.
+
+Each venue's slug must be **its own** page. `eau-verte-cafe` was configured
+with Eclair Boulangerie's name and Hampton address; that slug is a different
+venue, in Lake Wendouree. Every published row therefore carried a Ballarat
+link, and the live schedule was read from the wrong page.
+
+## Cheltenham Community Centre terms publish every session
+
+A Humanitix term link carries one JSON-LD block whose `startDate` is the first
+session and whose `endDate` is the end of the last. Reading `startDate` alone
+published an 11-week class as a single row, so the ten other sessions a member
+could attend were simply absent — while the same class *without* a booking link
+expanded to 12. `enrich_humanitix()` now walks the range weekly (same
+weekday, capped at 12 like every other expansion) and returns the extra rows
+for the caller to append.
+
+`startDate` is sometimes given with no time component (`T00:00:00`), which
+would publish a 9:30am class at midnight — and midnight is this pipeline's
+marker for "date known, time not stated", so the page would render it as
+*all day*. The time is taken from the listing's own stated schedule instead.
+
 ## Every event has an address, unless it is online
 
 A published row has to say where to go. The address is what the map link, the
@@ -137,11 +183,24 @@ Two listings needed that judgement rather than a lookup:
   five constituent events are at five different reserves and clubs, and the page
   carries no Location block at all. There is no address to publish, so
   `webfetch_granicus.py` drops venue-less listings rather than inventing one.
-- **Three `frankston_archived` programmes** published `location: "Frankston,
+- Three `frankston_archived` programmes published `location: "Frankston,
   VIC"` / `"Langwarrin, VIC"` with an empty address — a suburb in the venue
   field. The venues came from the listing pages and their own sites: Saint
-  Pauls Community Hall (confirmed on Frankston City Council's own event page),
-  Frankston Brewhouse, and McClelland Sculpture Park and Gallery.
+  Pauls Community Centre (confirmed on Frankston City Council's own event
+  page), Frankston Brewhouse, and McClelland Sculpture Park and Gallery.
+
+Filling a *blank* field is not the same as correcting a wrong one, and only the
+former was implemented. `_merge_sources()` kept the stored row's venue because
+it was non-empty, and `reconcile_store()` could not catch it either: it judges a
+row against its source through `_venue_compatible()`, where
+`venue_head("Frankston, VIC")` is a strict prefix of
+`venue_head("Frankston Brewhouse")` and so counts as the same place. The store
+published a suburb as a venue indefinitely. The merge now replaces a venue
+whose head is a strict prefix of the incoming one — the narrower string is the
+one that has to go — and `refresh_source` likewise lets a freshly fetched URL
+become the row's primary `source`, so a re-slugged venue stops publishing a
+dead link. Either way the superseded value is kept in `sources`, which is also
+what `reconcile_store()` checks, so nothing loses its justification.
 
 ## Pipeline
 
@@ -154,13 +213,21 @@ python scripts/build_site.py                  # types/commercial/status → rend
 python scripts/health_check.py                # fail loudly on bad output
 python scripts/activity_types.py              # assert the classifier rules
 python scripts/status.py                      # assert the sold-out / service rules
-python scripts/render_check.py                # prove index.html renders rows, not a blank page
+python scripts/recurrence.py                  # assert the date-inference rules
+python scripts/commercial.py                  # assert the commercial-detection rules
+python scripts/webfetch_granicus.py           # assert the Granicus address parsing
+python scripts/render_check.py                # prove index.html renders rows, and measure the grid
 ```
 
 The order matters in one place: `build_site.py` must run **before**
 `health_check.py`, because the health check verifies the status and
 default-hidden flags that `build_site.py` writes. Running it the other way
 round fails the build, which is the intended outcome.
+
+The five assertion scripts are pure: no network, no writes, and each exits
+non-zero with the actual value and the expected one. The GHA workflow runs
+all of them, so a rule change that alters a classification fails the build
+before it can reach the published page.
 
 `scripts/` layout: `fetch_events.py` (API/Drupal/venue sources),
 `webfetch_http.py` (shared session/date helpers, `PartialFetch`),
@@ -293,6 +360,36 @@ keep it from deleting good data:
 `health_check.py` re-runs the same function over the published store and fails
 if anything would be dropped, so a stale row cannot survive a green build.
 
+#### A field the source has *corrected* is re-derived too
+
+Deleting phantoms is only half of "a cache is re-derivable". `_merge_sources()`
+deliberately only fills a **blank** field — whatever the store already has
+wins — which is right when the store's value is merely plainer, and wrong when
+the fetcher that produced it was buggy. Two such defects persisted through
+repeated re-crawls of already-corrected sources:
+
+- 86 rows carrying `"14 Willis St,, Hampton, Victoria 3188"` — a `", "` join
+  applied to venue segments that already ended in commas;
+- 96 rows carrying `"$12 per session FIND OUT MORE BUTTON Find Out More"` — a
+  Weebly section span that ran into the next block's call to action.
+
+So a row that its own sources still justify is checked for a *malformed*
+stored field, and re-derived from the live row when there is one. The
+replacement is deliberately narrow, because the alternative is trading one
+wrong value for another:
+
+- an address is replaced only when the stored one is visibly broken (an empty
+  `,,` segment, a dangling leading or trailing comma) **and** the live one is
+  not. A terse but well-formed address is left alone — the store's value may
+  have come from a second source that knew better.
+- a price is replaced only when the live one is **shorter**, which for a cost
+  field means the page furniture has been cut. A long-but-clean price, like
+  `"$120 for 10 weeks class pass | $15 casual"`, is never truncated.
+
+A dateless listing expands into a dozen store rows, so the repair falls back
+from an exact timestamp match to `(name, url)` for those, which is the same
+key `_justification_keys()` uses.
+
 ### Inferred rows are refreshed, never frozen
 
 Inferred dates are written back into the store, so a row dated by an older,
@@ -302,6 +399,21 @@ buggier build keeps its old time indefinitely — nothing re-derives it.
 states **for that row's weekday**. It acts only when the weekday states
 exactly one time: `Cert III in EAL` runs twice on Mondays (09:00 and 12:30),
 so either stored value is legitimate and both are left alone.
+
+The replacement is matched on the **date** as well as the time, and the row is
+replaced in place rather than re-expanded. Two things follow from that, both
+of which were defects:
+
+- Re-expanding per row *multiplied* them. Three stored midnight copies of one
+  weekly series became 36 rows, because each row independently re-expanded to
+  the whole series and `dedupe_exact()` had to collapse the result afterwards.
+  A refresh corrects a row; it does not add occurrences.
+- A time-only check authorised a **date change**. The re-expansion dropped the
+  original row and kept its replacement, so a stored occurrence could be moved
+  to a day its own text never produced, and nothing noticed: a stored Friday
+  for `"Fifth Friday of every month"` was deleted and seven other Fridays
+  published. The stored date must appear in the re-expansion for the
+  substitution to be accepted.
 
 This is what clears two classes of stale row:
 
@@ -362,18 +474,24 @@ in prose instead ("Wednesdays. 2:00pm – 3:30pm", "on the fourth Saturday of
 every month"). Those are parsed into a recurrence spec and expanded into
 concrete dated rows.
 
-A bare weekday is **not** a pattern. `Friday 2 October, 11:00am` is one dated
-event; treating it as weekly would fabricate twelve. A weekday only becomes a
-recurring series when something marks it as ongoing — a time range
-(`Wednesdays 2:00pm - 3:30pm`) or recurring language (`every week`, `term`,
-`ongoing`).
+A weekday and a time with **no date at all** is a pattern — that is how these
+sources write a recurring program, and 15 published Chatty Cafe series say it
+exactly that way ("Tuesday 11am – 1pm" for a session open every week of term).
+A weekday **with** a date is that one session: `Friday 2 October, 11:00am` is
+one event, and reading it as weekly would fabricate twelve. A date that has
+just passed settles the listing rather than re-expanding it, so a finished
+afternoon is not republished as twelve future ones.
+
+The test is the presence of a date, not the plurality of the weekday:
+`Tuesdays 9am` and `Tuesday 9am` both mean a weekly class, while `Tuesday
+9am` next to a stated date means one session.
 
 Recognised patterns, in priority order:
 
 | Pattern | Example | Expansion |
 | --- | --- | --- |
 | Nth weekday of month | `1st Wednesday of every month` | 12 months |
-| Fortnightly | `Every second Saturday` | every 2nd week |
+| Fortnightly | `Every second Saturday`, `Friday (fortnightly)` | every 2nd week |
 | Explicit range | `Term 4 (17th October - 5th December)` | that window only |
 | Full date | `Thursday, May 25th, 2023` | single occurrence |
 | Weekday(s) + times | `Mondays and Thursdays 9am - 12pm` | 12 occurrences |
@@ -382,8 +500,22 @@ Recognised patterns, in priority order:
 Details worth knowing:
 
 - **12 occurrences max** per source event, earliest first, so a weekly class
-  covers ~3 months and a monthly one ~1 year. `Term 4 (10 weeks)` overrides
-  the cap with the stated session count.
+  covers ~3 months and a monthly one ~1 year. A stated `10 weeks` overrides
+  the cap, counted in **weeks**: it is multiplied by the sessions per week, so
+  a twice-weekly "6 weeks" course is 12 sessions. Where an explicit date range
+  is *also* given it wins and the week count is ignored, because it is the
+  more specific statement of the same thing — that is what stops a
+  "Weeks: 10" term running to 14 December losing its final Monday.
+- **A month window belongs to one year.** "from February to November" states
+  months, never a year, so on its own the window is satisfied again by the
+  same months of the following year. It is bound to the year that contains
+  the day the listing is read, which is what stops a Feb–Nov season
+  reappearing twelve months later.
+- **A fortnightly series has a phase, and it comes from the start date.** A
+  fortnight divides the week in two, so anchoring the phase on "today" made
+  the published dates shift by a week every time the pipeline ran. With a
+  stated start the phase is that start; without one, today remains the anchor
+  and the series is still weekly-shaped and reproducible.
 - **Explicit ranges resolve to the current year.** A window that has already
   finished is treated as stale and dropped rather than rolled forward, so
   2023 workshop write-ups and last year's terms do not reappear. A finished
@@ -419,10 +551,56 @@ label under the timestamp, and carries it into the `.ics` export as
 `X-COMMENTS-DERIVED-DATE`, so a derived date does not silently become a
 confirmed one once it leaves the page.
 
+### Nothing validates an inferred *date*
+
+A wrong date is the worst defect this pipeline can ship: the row renders, it
+looks bookable, and it is simply the wrong day. So two checks cover it, and
+the second exists because the first could not.
+
+The obvious one compares each stored timestamp against the time its own text
+states. That check compares the store against **the same parser that produced
+it**, so any parser bug is self-consistent and passes — every date defect
+below reached a green build through it. What is actually needed is a question
+the parser was not asked: *is this row's date still one the text produces at
+all?* `health_check.py` re-expands each inferred series and fails if a stored
+date is absent from the result. That is independent of how the time was
+parsed, so it catches a wrong day, a wrong phase and a series that no longer
+exists.
+
+The date defects it was written for, all of which had shipped:
+
+| Defect | Published | Correct |
+| --- | --- | --- |
+| A month window with no year | 12 rows, 10 of them next season | 2 rows, this season |
+| `Weeks: 10` counted as 10 sessions | 10 Mondays, last one 7 Dec | 11, ending 14 Dec as stated |
+| Fortnightly phase anchored on "today" | different dates each run | same dates, last named session kept |
+| A dated single session read as a pattern | 12 Tuesdays from one afternoon | 1 |
+| A bare-hour range read end-first | `Tuesdays 6 – 8pm` at 20:00 | 18:00–20:00 |
+| `First Tuesday each week` read as monthly | 12 dates 12 months apart | 12 consecutive Tuesdays |
+| A booking deadline read as a session | a phantom 4pm class each day | 2 sessions |
+
+`recurrence.py` asserts all of them on a fixed reference date, so the
+expected dates are literal rather than relative to whenever the suite runs.
+
 A midnight stamp is the pipeline's marker for "date known, time not stated",
 not a 00:00 start, so the table shows those as `all day`. Every inferred row
 that lands on `00:00` was checked: none of them state a time in their own
-text.
+text. A source that states a time in the small hours is normalised to the
+marker rather than published as one: the Kingston Hubs API returns
+`12:30:00 AM` for *Social Jigsaw Group*, and the page renders an exact `00:00`
+as *all day* but `00:30` as a real half-past-midnight start, so the fetcher
+floors the hour.
+
+## A cadence stated as a property, not a repetition
+
+`Every second Saturday` is recognised as fortnightly, but a venue can also
+state the cadence as a property of the weekday — `Friday (fortnightly)
+10.30am-11.30am` (a Chatty Cafe listing) or `Monday 10.30am (every second
+week)`. Neither matched, so both fell through to the weekly branch and
+published a session on the weeks the venue does not open: 12 weekly rows where
+the source says fortnightly. Both forms are recognised now, guarded on a
+single named weekday, because the fortnight expansion walks one weekday per
+period.
 
 ## Commercial events (`commercial.py`)
 
@@ -644,16 +822,58 @@ probe prints it, rather than against 375.
   stay `tabindex=0`, a `matchMedia` handler drops them to `-1` under the
   breakpoint and restores them above, so a keyboard user never tabs into an
   invisible control.
-- **`td.when` must repeat the element in the mobile override** (`td.when`, not
-  `.when`). The base `td.price,td.when{white-space:nowrap}` wins on
-  specificity, and the recurrence chip inside it then runs off the right edge
-  of the screen.
+- **Column widths come from `<colgroup>`, and the table is
+  `table-layout:fixed`.** Under auto layout the widest unbreakable value in a
+  column decides that column's width, and no later rule can lower it. The
+  price column was ~430px of a ~1240px table — a third of the viewport —
+  because the cell was `nowrap` and one CCC row's `price_text` was
+  `"Physiotherapy fees apply FIND OUT MORE BUTTON Find Out More"`, 59
+  characters of page furniture that a fetcher bug had put in a cost field.
+  Its own 90th percentile is 4 characters and 681 of 1522 rows have no price
+  at all. Fixed layout takes the widths from the `<colgroup>` instead, so
+  content wraps and the allocation is expressed in one place.
+
+  The widths are ordered by how much text a column carries and how much a
+  reader needs it, not by how it happened to come out:
+
+  | Column | Share | Why |
+  | --- | --- | --- |
+  | Event | 24% | most important field, p90 50 chars |
+  | Details | 20% | most verbose (p90 226, max 400) but least important to scan |
+  | Location | 16% | where to go; carries the address too |
+  | Date & time | 13% | the default sort key and what a reader scans for |
+  | Type | 10% | a filter facet, median 18 chars |
+  | Links | 10% | two fixed-width buttons |
+  | Price | 7% | rarely long, rarely important |
+
+- **`td.price` and `td.when` are `white-space:normal`, not `nowrap`.** Both were
+  nowrap, which is what let one long value dictate a column, and the date
+  cell's recurrence chip (`"Every Tuesday, Wednesday, Thursday and Friday"`,
+  45 characters) would overflow a 13% column. If a `nowrap` is ever restored
+  for a `td` selector, the mobile override has to repeat the element
+  (`td.when`, not `.when`) or the base rule wins on specificity and the chip
+  runs off the right edge of the screen.
+
+- **The two most verbose cells are clamped, and width alone does not bound a
+  row.** A 400-character description in a 20% column is still seven lines, and
+  a row is as tall as its worst cell, so `.desc` is `-webkit-line-clamp:3` and
+  the price 2, with the full value on `title` and still in the `.ics` and the
+  CSV. Both clamps are released under 768px, where the card layout has the
+  full width and the reader wants the whole text.
+
+- **`render_check.py` measures the desktop grid, not just the mobile one.**
+  The markup was correct in the broken case and only the layout was wrong, and
+  `.tablewrap{overflow-x:auto}` turned a 1435px table in a 1241px viewport into
+  a silent horizontal scroll rather than a visible break. The probe asserts
+  `table-layout:fixed`, that every column received a width (which catches a
+  `<colgroup>` whose order no longer matches the headers), that the grid fits,
+  and that the clamps are actually bounding the tallest row.
 - **Accessible names contain their visible text.** A voice-control user has to
   be able to say what they can see, so the calendar button is
   `aria-label="+ Calendar for <name>"`, not "Add to calendar". The outbound
   arrow is `aria-hidden` so it is not read as "north east arrow".
 - **The inferred-date note is real text, not a `title`.** A title needs a
-  hover, so the fact that 58% of published dates were derived rather than
+  hover, so the fact that 32% of published dates were derived rather than
   published was completely unreachable on a touch screen.
 
 ## Dependency upgrades

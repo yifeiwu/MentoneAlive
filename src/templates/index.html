@@ -42,12 +42,59 @@ header p{margin:2px 0;font-size:.85em}
 .count{padding:8px 20px;font-size:.9em;color:#444}
 .tablewrap{overflow-x:auto;padding:0 20px 40px}
 table{border-collapse:collapse;width:100%;font-size:.9em}
+/* Column real estate, in order of how much text a column carries and how much
+   a reader needs it. The price column was the widest thing on the page --
+   about 430px of a 1240px table -- because it was nowrap and one CCC row's
+   price_text was a 58-character string ("Physiotherapy fees apply FIND OUT
+   MORE BUTTON Find Out More"), which is the next section's button text leaked
+   into a cost field. Its own p90 is 4 characters and 693 of 1309 rows have no
+   price at all.
+
+   Auto table layout cannot express an allocation: any nowrap cell sets a
+   minimum width that no later rule can lower, so the widest single string in
+   the column decides its size. table-layout:fixed takes the widths from
+   <colgroup> instead, and content wraps.
+
+   Event      most important and the longest field (p90 50 chars, max 94)
+   Details    the most verbose column (p90 226, max 400) but the least
+              important -- it is read on demand, not scanned, so it is
+              allocated generously but clamped below
+   Location   where to go; carries the address too (p90 32 + 60)
+   Date&time  the default sort key and the thing a reader scans for; a fixed
+              ~22 characters plus the recurrence chip
+   Type       a filter facet, median 18
+   Links      two fixed-width buttons
+   Price      rarely long, rarely important */
+table{border-collapse:collapse;table-layout:fixed;width:100%;font-size:.9em}
+.col-name{width:24%}
+.col-when{width:13%}
+.col-type{width:10%}
+.col-price{width:7%}
+.col-loc{width:16%}
+.col-links{width:10%}
+.col-desc{width:20%}
 th,td{border:1px solid var(--border);padding:7px 9px;text-align:left;vertical-align:top}
 th{background:var(--primary);color:#fff;cursor:pointer;white-space:nowrap;user-select:none}
 th.nosort{cursor:default}
 th .arrow{font-size:.8em}
 tr:nth-child(even) td{background:#f7fafd}
-td.price,td.when{white-space:nowrap}
+/* Wrapping, not nowrap. A nowrap price cell is what let a 58-character cost
+   string dictate a third of the table width, and the date cell's recurrence
+   chip ("Every Tuesday, Wednesday, Thursday and Friday", 45 characters)
+   would overflow a 13% column. The chip is an inline-block inside a nowrap
+   cell, which is also what pushed the mobile page 72px off the right edge --
+   see the note in the 768px block below. */
+td.price,td.when{white-space:normal;overflow-wrap:break-word}
+/* A long unbroken token (a URL, a run of digits) still has to break rather
+   than widen the cell. */
+td{overflow-wrap:break-word}
+/* Bound the two most verbose cells. Width alone does not bound a row: a
+   400-character description in a 20% column is still seven lines, and the row
+   is as tall as its worst cell. The full text stays on the title attribute
+   (hover and long-press) and is still in the .ics export and the CSV. */
+.desc,.priceval{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+.desc{-webkit-line-clamp:3}
+.priceval{-webkit-line-clamp:2}
 /* The field name the card layout stacks above each value. Real text, not
    ::before content: generated content is absent from the accessibility tree,
    so VoiceOver and TalkBack read a stacked table as an unlabelled wall of
@@ -95,9 +142,6 @@ td.price,td.when{white-space:nowrap}
 .sortpick{display:none;align-items:center;gap:8px;font-size:1rem}
 .sortpick select{flex:1;min-width:0}
 .filterpanel{display:flex;flex-wrap:wrap;gap:12px;padding:12px 20px;background:#f8f9fa;border-bottom:1px solid var(--border)}
-.filtergroup{display:flex;flex-direction:column;gap:4px;flex:1;min-width:220px}
-.filtergroup label{font-weight:bold;font-size:.85em}
-.filtergroup select{width:100%;border:1px solid var(--control-border);border-radius:4px;padding:4px;font-size:1rem}
 .filterhint{width:100%;margin:0;font-size:.82em;color:#555}
 @media print{.controls,.filterpanel,.pagination{display:none}}
 .pagination{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 20px;flex-wrap:wrap}
@@ -133,7 +177,12 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
      out of the accessibility tree as well as off the screen; the sort
      headers are taken out of the tab order by matchMedia in the script, or
      they would be invisible tab stops. */
+  /* The card layout takes the table out of table layout entirely, so
+     table-layout:fixed and the <colgroup> widths do not apply here. A <col>
+     still generates a box, so it is dropped explicitly rather than left to
+     take a row of its own. */
   table,tbody,tr,td{display:block;width:100%}
+  colgroup,col{display:none}
   /* display:none on thead would remove the column names from the
      accessibility tree as well as from the screen, which is the whole
      reason the cells now carry their own .celllabel. Clipped instead, so a
@@ -148,16 +197,17 @@ footer{padding:12px 20px;font-size:.8em;color:#555;border-top:1px solid var(--bo
   td{border:none;border-bottom:1px solid var(--border)}
   td:last-child{border-bottom:none}
   .celllabel{display:block;font-size:.75rem;font-weight:bold;color:#666;text-transform:uppercase;margin-bottom:2px}
-  /* td.price,td.when are nowrap for the desktop grid, but the recurrence chip
-     inside .when is an inline-block whose label can run to "Every Monday,
-     Tuesday, Wednesday, Thursday and Friday". Kept on one line it pushed the
-     document wider than the screen (1.4.10). The selector has to repeat the
-     element: a bare .when loses to td.when on specificity and the chip runs
-     off the right edge anyway. */
-  td.when{white-space:normal}
-  .recur{white-space:normal;max-width:100%}
+  /* The clamps are a desktop-grid concession: on a phone the card has the
+     full width, so a 3-line description is three lines of real text rather
+     than three lines out of seven, and the full value is what the reader
+     wants. */
+  .desc,.priceval{-webkit-line-clamp:unset;display:block;overflow:visible}
   .badge{display:inline-block;margin:2px 0;font-size:.75rem}
   .desc{font-size:.875rem}
+  /* The recurrence chip is an inline-block whose label runs to "Every Tuesday,
+     Wednesday, Thursday and Friday". It must wrap on a phone: kept on one
+     line it pushed the document 72px off the right edge (1.4.10). */
+  .recur{white-space:normal;max-width:100%;display:inline-block}
   .addr{font-size:.8125rem}
   .recur{font-size:.8125rem}
   /* 44px targets, not the ~24px the 10px text produced (2.5.5). */
@@ -213,8 +263,15 @@ __TYPE_CHECKBOXES__
   <button class="pg-last" type="button" aria-label="Last page" title="Last page">&raquo;&raquo;</button>
 </nav>
 <div class="tablewrap">
-<table id="t" role="table">
+<table role="table">
 <caption class="visually-hidden">Community events matching the current filters</caption>
+<!-- Widths come from here, not from the content: see the .col-* rules above.
+     The order must match the <th> order below and the cell order in render(). -->
+<colgroup>
+<col class="col-name"><col class="col-when"><col class="col-type">
+<col class="col-price"><col class="col-loc"><col class="col-links">
+<col class="col-desc">
+</colgroup>
 <thead role="rowgroup"><tr role="row">
 <th data-k="name" role="columnheader" scope="col">Event <span class="arrow"></span></th>
 <th data-k="datetime_iso" role="columnheader" scope="col">Date &amp; time <span class="arrow"></span></th>
@@ -451,7 +508,11 @@ function render(){
    var nm=r.name||"this event";
    h+="<tr role='row'><td role='cell'>"+lbl("Event")+"<b>"+esc(r.name)+"</b>"+commercialBadge(r)+"</td><td role='cell' class='when'>"+lbl("Date &amp; time")+fmtDate(r.datetime_iso)+recurrenceNote(r)+"</td>"
     +"<td role='cell'>"+lbl("Type")+esc(typeStr(r))+"</td>"
-    +"<td role='cell' class='price'>"+lbl("Price")+esc(r.price_text||"")+"</td>"
+    // The price text is wrapped so the 2-line clamp has an element to apply
+    // to, and carries the full value on title for hover/long-press. It is
+    // also in the CSV export and the .ics, so the clamp hides nothing that
+    // is not recoverable.
+    +"<td role='cell' class='price'>"+lbl("Price")+"<span class='priceval' title='"+esc(r.price_text||"")+"'>"+esc(r.price_text||"")+"</span></td>"
     +"<td role='cell'>"+lbl("Location")+badge(r.source_label)+esc(r.location||"")+"<div class='addr'>"+esc(r.address||"")+"</div></td>"
     +"<td role='cell'>"+lbl("Links")+"<div class='linkcell'>"
     // Both accessible names contain their own visible text. An aria-label
@@ -462,7 +523,11 @@ function render(){
     +(r.datetime_iso?"<button class='ics-btn' onclick='icsDl("+i+")' aria-label='+ Calendar for "+esc(nm)+"'>+ Calendar</button>":"")
     +((!r.source&&!r.datetime_iso)?"&mdash;":"")
     +"</div></td>"
-    +"<td role='cell'>"+lbl("Details")+"<div class='desc'>"+esc(r.description||"")+"</div></td></tr>";}
+    // Clamped to 3 lines, with the full text on title. The description is the
+    // most verbose field in the dataset (p90 226 characters, max 400) and the
+    // least important to scan, so a fixed column width alone still left rows
+    // seven lines tall.
+    +"<td role='cell'>"+lbl("Details")+"<div class='desc' title='"+esc(r.description||"")+"'>"+esc(r.description||"")+"</div></td></tr>";}
   tb.innerHTML=h||"<tr class='emptyrow'><td colspan='7'>No events match your filters.<br><button class='reset-btn' onclick='resetFilters()' type='button'>Reset filters</button></td></tr>";
   var nComm=_commercialHidden;
   var totalFiltered=list.length;

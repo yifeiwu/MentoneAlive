@@ -24,7 +24,7 @@ import yaml
 from activity_types import TYPES
 from dedupe import (PRUNE_DAYS, load_live_inputs, name_head,
                     reconcile_store, reference_today, venue_head)
-from recurrence import weekday_slots
+from recurrence import infer_event, weekday_slots
 from status import STATUS_LABELS, event_status, is_ongoing_service
 from venues import is_online, needs_address
 
@@ -289,7 +289,7 @@ def a11y_errors(source, name):
     # alone let a rule fall back to --border, which is decorative table-grid
     # grey at 1.44:1, and the check stayed green.
     for selector in (r"\.qf-btn", r"\.src-link", r"\.ics-btn",
-                     r"\.filtergroup select", r"\.tcheck input"):
+                     r"\.tcheck input", r"\.sortpick select"):
         for body in re.findall(selector + r"[^{}]*\{([^}]*)\}", css):
             if "var(--border)" in body:
                 errors.append(
@@ -336,12 +336,17 @@ MIN_TOTAL = 700
 # gd_libraries is low because dedupe_by_source_url() collapses the listings
 # that greater_dandenong also scrapes from the same page; the four that remain
 # are the only events unique to that source.
+# ccc and chatty_cafe were both 10, which was below the noise: chatty_cafe lost
+# six of its twenty venues to a broken schedule extractor and still cleared 10
+# by a factor of 16, and ccc lost every session of a term but the first. Both
+# are ~12 rows per listing, so a floor under ~150 cannot see a handful of
+# listings disappear.
 MIN_SOURCE = {
     "kingston_hubs": 200,
     "bayside_live": 60,
     "greater_dandenong": 10,
-    "ccc": 10,
-    "chatty_cafe": 10,
+    "ccc": 150,
+    "chatty_cafe": 150,
     "kingston_council": 3,
     "kingston_arts": 3,
     "gd_libraries": 3,
@@ -432,6 +437,42 @@ def main():
         errors.append(
             f"{len(stale)} inferred rows whose stored time contradicts the "
             f"text: {', '.join(sorted(stale)[:5])}")
+
+    # The rule above compares the stored time against `weekday_slots()`, the
+    # same parser that produced the stored time, so a parser bug is
+    # self-validating: every one of these shipped a correct-looking wrong date
+    # through a green build.
+    #
+    # This one re-expands the *whole* series and asks a different question:
+    # is the row's own date still one the text produces at all? That is
+    # independent of how the time was parsed, so a wrong day, a wrong phase
+    # or a series that no longer exists all fail here. It is the only check
+    # in the pipeline that can see a date that is simply the wrong day.
+    today = reference_today()
+    orphan, by_series = [], {}
+    for r in rows:
+        if not r.get("date_inferred"):
+            continue
+        by_series.setdefault((r.get("name"), r.get("source")), []).append(r)
+    for (name, source), group in by_series.items():
+        # The series is identified by the text it was inferred from; any one
+        # of its rows carries it. Re-infer from the row itself so the check
+        # runs the same code the pipeline ran.
+        made, _reason = infer_event(group[0], today)
+        if not made:
+            orphan.append(f"{name!r} no longer expands from its own text")
+            continue
+        allowed = {str(m.get("datetime_iso") or "")[:10] for m in made}
+        for r in group:
+            day = str(r.get("datetime_iso") or "")[:10]
+            if day and day not in allowed:
+                orphan.append(f"{name!r} stored {day}, text yields "
+                              f"{sorted(allowed)[0]}..{sorted(allowed)[-1]}")
+    if orphan:
+        errors.append(
+            f"{len(orphan)} inferred rows sit on a date their own text does "
+            f"not produce: {', '.join(sorted(set(orphan))[:5])}. "
+            f"re-run scripts/dedupe.py to re-infer.")
 
     # One session, two sources, two titles. Sources style the same programme
     # differently ("Chatty Cafe - Cheltenham Community Centre" vs "Chatty

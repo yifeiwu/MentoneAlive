@@ -102,7 +102,16 @@ def main():
             continue
         if args.max_pages is not None:
             cfg = dict(cfg, max_pages=args.max_pages)
-        cap = args.detail_cap if args.detail_cap is not None else cfg.get("detail_cap", 15)
+        # detail_cap bounds per-detail-page fetches, so it only means anything
+        # for a source that opens one page per event. The seniors PDF arrives
+        # whole and has none, so --detail-cap is not passed to it rather than
+        # being passed and quietly ignored.
+        cap = args.detail_cap if args.detail_cap is not None \
+            else cfg.get("detail_cap", 15)
+        if cfg.get("type") == "kingston_seniors_pdf":
+            fetcher_args = (session, cfg)
+        else:
+            fetcher_args = (session, cfg, cap)
         fetcher = FETCHERS.get(cfg.get("type"))
         if fetcher is None:
             msg = f"unknown fetcher type {cfg.get('type')!r}"
@@ -111,7 +120,7 @@ def main():
             continue
         path = f"{SNAP_DIR}/{snapshot}"
         try:
-            rows = fetcher(session, cfg, cap)
+            rows = fetcher(*fetcher_args)
         except PartialFetch as e:
             # A crawl that stopped early yields a *subset*. Writing it would
             # replace a good snapshot with partial data, so keep the old one.

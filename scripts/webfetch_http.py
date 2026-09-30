@@ -50,7 +50,7 @@ def get(session, url, retries=2, min_len=1000):
 
 def parse_time(text):
     """Return (hour, minute) from strings like '07:30 PM', '12:00pm-01:30pm',
-    '9.30am'.
+    '9.30am', '9 - 11am'.
 
     The hour/minute separator is `:` or `.`. The previous pattern only
     accepted `:`, and because the minute group was optional it backtracked
@@ -59,17 +59,45 @@ def parse_time(text):
     1-2 digit hour and requiring a 2-digit minute when a separator is
     present fixes that, and the hour is rejected when implausible (>23) so a
     bare number before am/pm is never read as an hour.
+
+    A range that writes its meridiem once ('9 - 11am', '9:00 - 11:00am') is
+    read from its *start*. The meridiem is required on every candidate, so the
+    leading number could never satisfy it and `re.search` found the second
+    one instead: '9 - 11am' returned 11:00, publishing a 9am class at 11am.
+
+    A range with no meridiem at all ('9 - 8pm' is fine, '9 - 12' is not) is
+    rejected when inheriting the end's meridiem would run the clock backwards,
+    because a session that ends before it starts is not a session.
     """
-    m = re.search(r"\b(\d{1,2})\s*(?:[:.](\d{2}))?\s*(am|pm)\b", (text or "").lower())
-    if not m:
-        return None
-    h, mi, ap = int(m.group(1)), int(m.group(2) or 0), m.group(3)
+    raw = (text or "").lower()
+    # A range first. "10am - 11am" does not match this (its start carries its
+    # own meridiem) and falls through to the single-time form, which reads
+    # the start of either.
+    m = re.search(r"\b(\d{1,2})\s*(?:[:.](\d{2}))?\s*"
+                  r"(?:-|–|to|until|till)\s*"
+                  r"(\d{1,2})\s*(?:[:.](\d{2}))?\s*(am|pm)\b", raw)
+    _is_range = bool(m)
+    if m:
+        h, mi, ap = int(m.group(1)), int(m.group(2) or 0), m.group(5)
+    else:
+        m = re.search(r"\b(\d{1,2})\s*(?:[:.](\d{2}))?\s*(am|pm)\b", raw)
+        if not m:
+            return None
+        h, mi, ap = int(m.group(1)), int(m.group(2) or 0), m.group(3)
     if h > 23 or mi > 59:
         return None
     if ap == "pm" and h != 12:
         h += 12
     if ap == "am" and h == 12:
         h = 0
+    if _is_range and m:
+        end_h, end_mi, end_ap = int(m.group(3)), int(m.group(4) or 0), m.group(5)
+        if end_ap == "pm" and end_h != 12:
+            end_h += 12
+        if end_ap == "am" and end_h == 12:
+            end_h = 0
+        if (h, mi) > (end_h, end_mi):
+            return None
     return max(0, min(23, h)), max(0, min(59, mi))
 
 

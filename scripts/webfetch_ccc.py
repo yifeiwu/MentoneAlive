@@ -1,7 +1,7 @@
 """Cheltenham Community Centre (Weebly term classes + Humanitix)."""
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup, NavigableString
 
@@ -28,9 +28,23 @@ CCC_HALL_RE = re.compile(r"\bhall\b", re.I)
 
 
 def _ccc_clean_cost(c):
+    """A cost field, with the page's own furniture removed.
+
+    Weebly section spans run to the next heading, so a cost that is the last
+    labelled field in its section picks up the trailing call to action:
+    "Physiotherapy fees apply FIND OUT MORE BUTTON Find Out More". The button
+    label is page furniture, not a price, and it was being published as one --
+    which also made the price column the widest thing on the page, since the
+    cell was nowrap and that string is 59 characters.
+    """
     c = re.sub(r"\bBook here\b.*$", "", c or "")
+    # The button, its label repeated by Weebly for screen readers, and the
+    # "View & Book" style links that follow the same pattern.
+    c = re.sub(r"\bFIND OUT MORE BUTTON\b.*$", "", c, flags=re.I)
+    c = re.sub(r"\b(?:View\s*&\s*Book|Read more|More info|Enrol now|"
+               r"Book\s*now)\b.*$", "", c, flags=re.I)
     c = re.sub(r"=+", "", c)
-    c = re.sub(r"\s+", " ", c).strip(" -|;")
+    c = re.sub(r"\s+", " ", c).strip(" -|;,.")
     if len(c) > 60:
         c = c[:60].rsplit(" ", 1)[0]
     return c
@@ -70,7 +84,15 @@ def _ccc_section_starts(main):
         text = block.get_text(" ", strip=True)
         if len(text) < 40:
             continue
-        if not re.search(r"(Term|When|Where|Cost)\s*:", text):
+        # Matched case-insensitively, and against the module's own label set
+        # (CCC_LABELS) rather than a hand-copied subset. Both mattered: a
+        # paragraph labelled "time:" in lower case was skipped, and one whose
+        # only labels were "Time:"/"Instructor:" was skipped too. Either way
+        # the block was not a section start, so its content was absorbed into
+        # the *previous* class -- the next class's time published as this
+        # one's, and its title as this one's Cost.
+        if not re.search("|".join(rf"{lbl.strip(':')}\s*:" for lbl in CCC_LABELS),
+                         text, re.I):
             continue
         title = ""
         strong = block.select_one("strong, b, font")
@@ -133,6 +155,30 @@ WEEKDAY_RE = (r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)s?"
               r"|Every second Saturday|First Tuesday of every month|daily|weekly")
 TIME_RE = (r"\d{1,2}(?::\d{2})?\s*(?:am|pm)\s*(?:[-–]|to)\s*"
            r"\d{1,2}(?::\d{2})?\s*(?:am|pm)")
+
+
+_CCC_TIME_RE = re.compile(
+    r"\b(\d{1,2})[:.](\d{2})\s*([ap])\.?\s*m\.?"
+    r"|\b(\d{1,2})\s*([ap])\.?\s*m\.?"
+    r"|\b(\d{1,2})\s*(?:noon|midday)\b", re.I)
+
+
+def _ccc_first_time(text):
+    """'HH:MM' for the first time stated in `text`, or '' if it states none."""
+    m = _CCC_TIME_RE.search(text or "")
+    if not m:
+        return ""
+    if m.group(1):
+        hour, minute, ap = int(m.group(1)), int(m.group(2)), m.group(3).lower()
+    elif m.group(4):
+        hour, minute, ap = int(m.group(4)), 0, m.group(5).lower()
+    else:
+        return "12:00"
+    if ap == "p" and hour != 12:
+        hour += 12
+    elif ap == "a" and hour == 12:
+        hour = 0
+    return f"{hour:02d}:{minute:02d}"
 
 
 def _ccc_free_signals(text):
@@ -278,13 +324,45 @@ def fetch_ccc(session, cfg, detail_cap):
                 n += 1
         print(f"  ccc {page_url.split('/')[-1]}: {n} activities")
         time.sleep(0.2)
-    enrich_humanitix(session, rows, detail_cap)
+    rows.extend(enrich_humanitix(session, rows, detail_cap))
     return rows
 
 
+# One published row per weekly session, so a 10-week term does not become a
+# single event. Matches MAX_OCCURRENCES in recurrence.py, which caps the
+# inferred expansions this replaces.
+CCC_TERM_MAX_ROWS = 12
+
+
+def _ccc_weekly_term(start, end, cap=CCC_TERM_MAX_ROWS):
+    """Weekly start datetimes from `start` to `end` inclusive, same weekday.
+
+    A Humanitix term event carries one JSON-LD block whose startDate is the
+    first session and whose endDate is the end of the last. Publishing only the
+    startDate turned an 11-week class into a single row, so the other ten
+    sessions a member could attend were simply absent from the calendar.
+
+    Returns a single-element list when the range is under two weeks, so a
+    genuine one-off is untouched.
+    """
+    if end - start < timedelta(days=7):
+        return [start]
+    out, cur = [], start
+    while cur <= end and len(out) < cap:
+        out.append(cur)
+        cur += timedelta(days=7)
+    return out
+
+
 def enrich_humanitix(session, rows, cap):
+    """Attach Humanitix dates, and expand a term range into weekly rows.
+
+    Returns the extra rows a multi-week term expands into; the caller appends
+    them. `rows` is mutated in place as before.
+    """
     import json as _json
     n = 0
+    extra = []
     for r in rows:
         if n >= cap or "humanitix.com" not in (r.get("source") or ""):
             continue
@@ -315,7 +393,15 @@ def enrich_humanitix(session, rows, cap):
         except (ValueError, TypeError):
             n -= 1
             continue
-        r["datetime_iso"] = start.isoformat()
+        end = start
+        try:
+            end = datetime.fromisoformat(
+                str(data.get("endDate", "")).replace("Z", "+00:00"))
+            end = end.replace(tzinfo=None)
+        except (ValueError, TypeError):
+            pass
+        if end < start:
+            end = start
         # JSON-LD allows location to be an object, an array of objects, or a
         # string. Normalise to a dict before subscripting.
         loc = data.get("location")
@@ -330,5 +416,32 @@ def enrich_humanitix(session, rows, cap):
             addr = next((x for x in addr if isinstance(x, dict)), {})
         if isinstance(addr, dict) and addr.get("streetAddress"):
             r["address"] = str(addr["streetAddress"]).strip()
+
+        # Re-clean the cost here as well. A row that matched a heading rather
+        # than a labelled block gets its fields from the heading's own span, so
+        # the same button label reaches price_text by a second route, and
+        # re-running the section-start fix alone left it in place.
+        if r.get("price_text"):
+            r["price_text"] = _ccc_clean_cost(r["price_text"])
+
+        sessions = _ccc_weekly_term(start, end)
+        # Some listings give a startDate with no time component ("T00:00:00"),
+        # which would publish a 9:30am class as midnight -- and midnight is
+        # this pipeline's marker for "date known, time not stated", so the page
+        # would render it as all day. Take the time from the listing's own
+        # stated schedule instead of inventing or dropping one.
+        stated = _ccc_first_time(f"{r.get('datetime_text', '')} "
+                                 f"{r.get('description', '')}")
+        for i, when in enumerate(sessions):
+            row = r if i == 0 else dict(r)
+            if stated and (when.hour, when.minute) == (0, 0):
+                hh, mm = (int(x) for x in stated.split(":"))
+                when = when.replace(hour=hh, minute=mm)
+            row["datetime_iso"] = when.isoformat()
+            if i:
+                row.pop("date_inferred", None)
+                extra.append(row)
         time.sleep(0.2)
-    print(f"  humanitix enriched: {n}")
+    print(f"  humanitix enriched: {n}"
+          + (f" (+{len(extra)} term rows)" if extra else ""))
+    return extra

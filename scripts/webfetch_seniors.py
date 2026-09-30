@@ -19,9 +19,17 @@ SENIORS_CAT_RE = re.compile(
 SENIORS_CONTACT_RE = re.compile(
     r"@|www\.|https?://|^\d[\d\s()+.-]{6,}$|^(Contact|Bookings are essential|"
     r"For event inquiries)$")
+# Both ends accept an optional minutes field, and the meridiem is optional on
+# the end so "10:30-11:30am" parses. Requiring an explicit one on both ends
+# missed the shared form a printed guide actually uses, and the unparsed time
+# then fell through to whichever time the nearest line mentioned -- including
+# a neighbouring card's -- or to midnight.
 SENIORS_TIME_RE = re.compile(
-    r"(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)\s*(?:-|–|to)\s*"
+    r"(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)?\s*(?:-|–|to)\s*"
     r"(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)", re.I)
+# How far from a date line a time may be and still belong to the same event.
+# _seniors_pool_groups uses the same window for its own pairing.
+SENIORS_TIME_WINDOW_LINES = 6
 SENIORS_DAYLIST_RE = re.compile(
     r"(\d{1,2}(?:\s*,\s*\d{1,2})*)\s+(September|October|November)\b", re.I)
 SENIORS_STOP_RE = ("Bookings are essential", "For event inquiries", "Contact")
@@ -38,6 +46,12 @@ SENIORS_VENUE_WORDS = {"centre", "center", "community", "club", "house",
                        "hall", "hub", "service", "gardens", "library",
                        "libraries", "neighbourhood", "neighborhood"}
 
+# A line that begins a street address rather than continuing a venue name.
+# Used to tell "Aspendale Gardens" / "Community Service" (one name split over
+# two lines) from "Chelsea Library" / "12 Stanley Avenue" (name then street).
+_SENIORS_STREET_RE = re.compile(
+    r"^\s*(?:unit\s+\w+[\s,]*|corner\b|cnr\b|opposite\b|\d+\s*[A-Z-]|"
+    r"\d+\s*$|[A-Z]{1,2}\s*$)", re.I)
 SENIORS_ORG_END_RE = re.compile(
     r"(Centre|Center|Community|Club|Inc\.?|Group|Association|Choir|Council|"
     r"Australia|Ears|AccessCare|Hub|House|Hall|Service|Librar\w+|Arts|Theatre|"
@@ -152,11 +166,19 @@ def _seniors_expand(m, year):
 
 
 def _seniors_times(lines):
-    """All (line_idx, (h, mi)) time-range starts in lines."""
+    """All (line_idx, (h, mi)) time-range starts in lines.
+
+    The start's meridiem is optional, so a range written with a single
+    trailing one ("10:30-11:30am", "7.30 - 9.00pm") is read from its start
+    rather than skipped. Skipped is worse than it sounds: the caller then
+    picks the *nearest* time in the whole text, which on a two-card page is
+    the other event's, and publishes one event's start as another's.
+    """
     out = []
     for li, ln in enumerate(lines):
         for m in SENIORS_TIME_RE.finditer(ln):
-            h, mi, ap = int(m.group(1)), int(m.group(2) or 0), m.group(3).lower()
+            h, mi = int(m.group(1)), int(m.group(2) or 0)
+            ap = (m.group(3) or m.group(6) or "").lower()
             if ap == "pm" and h != 12:
                 h += 12
             if ap == "am" and h == 12:
@@ -165,7 +187,58 @@ def _seniors_times(lines):
     return out
 
 
-def fetch_kingston_seniors(session, cfg, detail_cap):
+def _seniors_assemble(venue):
+    """(location, address) from the venue lines a PDF card yields.
+
+    pypdf gives one line per visual line, each keeping its own trailing
+    punctuation, and a narrow column wraps a venue name across two of them
+    ("Aspendale Gardens" / "Community Service"). Two faults came from that:
+
+    * joining the segments with ", " produced "..., ,", because they already
+      ended in commas. 86 published rows.
+    * a name ending in a venue-tail word ("Gardens", "Library") was taken as
+      complete, so the rest of the name was demoted into the address and the
+      row published location="Aspendale Gardens" with "Community Service"
+      sitting in the address.
+
+    The prefixing of the venue into `address` is deliberate and matches the
+    other sources ("Chelsea Activity Hub, 3-5 Showers Ave, Chelsea 3196").
+    """
+    venue = [v.strip().strip(",").strip() for v in venue]
+    location = venue[0] if venue else ""
+    addr_from = 1
+    if len(venue) > 1 and venue[0].endswith("-"):
+        location = venue[0][:-1] + " " + venue[1]
+        addr_from = 2
+    elif len(venue) > 1 and len(venue[0]) < 40 and not \
+            SENIORS_VENUE_END_RE.search(venue[0]):
+        location = (venue[0] + " " + venue[1]).strip()
+        addr_from = 2
+    # A tail word ends a name only when the next line is not more of it. A
+    # street starts with a house number or a unit/cnr, and so does a suburb
+    # line the PDF puts on its own ("12 Stanley Avenue" / "Cheltenham").
+    if len(venue) > 1 and addr_from == 1:
+        nxt = venue[1]
+        if (SENIORS_VENUE_END_RE.search(location)
+                and not _SENIORS_STREET_RE.match(nxt)
+                and not re.match(r"^\d", nxt)
+                and len(nxt) < 40 and not nxt.endswith(".")):
+            location = (location + " " + nxt).strip()
+            addr_from = 2
+    address = re.sub(r"\s+", " ", ", ".join(
+        [location] + venue[addr_from:])).strip(" ,")[:160]
+    return location, address
+
+
+def fetch_kingston_seniors(session, cfg, detail_cap=None):
+    """Fetch the Kingston seniors festival guide.
+
+    `detail_cap` is accepted and unused: the PDF arrives whole, so there is no
+    detail page to bound. The other three fetchers take a cap that does apply
+    to them, and webfetch_sources.py passes one here from --detail-cap or the
+    source config, so the parameter used to look like it controlled something
+    and did not.
+    """
     from pypdf import PdfReader
     pdf_url = cfg["pdf_url"]
     info_url = cfg.get("info_url", pdf_url)
@@ -235,20 +308,10 @@ def fetch_kingston_seniors(session, cfg, detail_cap):
         except StopIteration:
             venue = lines[loc_i + 1:loc_i + 4]
             tail = lines[loc_i + 4:]
-        # Assemble venue: join a wrapped first line (narrow columns split
-        # names like "Mordialloc Community" / "Centre").
-        venue = [_seniors_fix_splits(v) for v in venue]
-        location = venue[0] if venue else ""
-        addr_from = 1
-        if venue and len(venue) > 1 and venue[0].rstrip().endswith("-"):
-            location = venue[0].rstrip()[:-1] + " " + venue[1]
-            addr_from = 2
-        elif venue and len(venue) > 1 and len(venue[0]) < 40 and not \
-                SENIORS_VENUE_END_RE.search(venue[0]):
-            location = (venue[0] + " " + venue[1]).strip()
-            addr_from = 2
-        address = re.sub(r"\s+", " ", ", ".join(
-            [location] + venue[addr_from:])).strip(" ,")[:160]
+        # Assemble venue and address: join a wrapped name, strip the per-line
+        # trailing commas pypdf keeps. See _seniors_assemble.
+        location, address = _seniors_assemble(
+            [_seniors_fix_splits(v) for v in venue])
         # Strip venue text accidentally captured in the title (pypdf merges
         # host/title lines in narrow columns): full-venue prefix, infix
         # cut ("Kingston Active (Waves ...) Tai Chi"), then leading
@@ -315,8 +378,17 @@ def fetch_kingston_seniors(session, cfg, detail_cap):
         def nearest_time(li):
             if not times:
                 return None
-            return min(times, key=lambda t: (abs(t[0] - li),
-                                             0 if t[0] <= li else 1))[1]
+            hit = min(times, key=lambda t: (abs(t[0]-li),
+                                            0 if t[0] <= li else 1))
+            # Bounded, because `times` is every time in the *chunk*, and a
+            # chunk on a two-card page holds the neighbouring event's times
+            # too. Unbounded, a card whose own time failed to parse took the
+            # other card's: verified, a 10.30am class published at 19:00 from
+            # the card below it. Six lines is close enough to be this event's
+            # own time and far enough to be a different event's.
+            if abs(hit[0] - li) > SENIORS_TIME_WINDOW_LINES:
+                return None
+            return hit[1]
 
         for li, m in direct:
             tm = nearest_time(li)
@@ -450,11 +522,13 @@ def _seniors_apply_overrides(rows, cfg):
         return " ".join((s or "").lower().split())
 
     def matches(r, ov):
+        # Name match, then venue. A stored `hit` flag was set in both branches
+        # and never read; the `else: return False` carried the control flow.
         if norm(r["name"]) == norm(ov["name"]):
-            hit = True
+            pass
         elif len(norm(ov["name"])) > 8 and norm(r["name"]).endswith(
                 norm(ov["name"])):
-            hit = True
+            pass
         else:
             return False
         return ov["venue"] in norm(
@@ -484,6 +558,16 @@ def _seniors_apply_overrides(rows, cfg):
             hm = re.match(r"^(\d{1,2}):(\d{2})$", tm)
             if hm:
                 hh, mm = int(hm.group(1)), int(hm.group(2))
+                # A well-formed but out-of-range time ("24:00", "10:75")
+                # passes the regex and then raises inside datetime.replace().
+                # The except below catches that and `continue`s, which
+                # silently dropped every session of the event with no warning
+                # at all -- the run still succeeded, because other events
+                # produced rows. Validate here so the fault is reported.
+                if not (0 <= hh <= 23 and 0 <= mm <= 59):
+                    print(f"  seniors override {ov['name']!r}: time {tm!r} is "
+                          f"out of range, using midnight")
+                    hh, mm = 0, 0
             else:
                 if tm:
                     print(f"  seniors override {ov['name']!r}: "
@@ -493,7 +577,9 @@ def _seniors_apply_overrides(rows, cfg):
                 try:
                     dt = datetime.strptime(d, "%Y-%m-%d").replace(
                         hour=hh, minute=mm)
-                except ValueError:
+                except ValueError as e:
+                    print(f"  seniors override {ov['name']!r}: date {d!r} "
+                          f"unusable ({e}), session skipped")
                     continue
                 row = dict(base) if base else {}
                 row.update({

@@ -162,7 +162,11 @@ sources:
         address: "103-105 Kearney Dr, Aspendale Gardens VIC 3195"
         suburb: "Aspendale Gardens"
         schedule: "Friday (fortnightly) 10.30am-11.30am"
-      - slug: "eau-verte-cafe"
+      # The slug must be this venue's own page. It was "eau-verte-cafe",
+      # which is a different venue in Lake Wendouree (Ballarat), so every
+      # published row carried this name and Hampton address but linked to
+      # the Ballarat cafe, and the live schedule was read from the wrong page.
+      - slug: "eclair-boulangerie"
         name: "Eclair Boulangerie"
         address: "275 Hampton St, Hampton VIC 3188"
         suburb: "Hampton"

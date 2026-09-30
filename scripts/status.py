@@ -78,8 +78,16 @@ def event_status(row):
                        (FULLY_BOOKED_RE, "fully_booked")):
         # Names are matched whole-phrase; a blurb is matched too, but a
         # cancelled word in one event's description does not cancel another.
-        if rx.search(name) or rx.search(desc):
-            return status, (m.group(0) if m else rx.search(name or desc).group(0))
+        #
+        # The detail is the phrase that actually matched. `rx.search(name or
+        # desc)` was re-run to get it, which reads the name when the match was
+        # in the description -- and raises AttributeError when `name` is empty
+        # and the match was only in the description, because `or` then picks
+        # the empty name. A real listing hit this: a fetched row with a blank
+        # name and "cancelled" in its description took down build_site.py.
+        hit = rx.search(name) or rx.search(desc)
+        if hit:
+            return status, hit.group(0)
     return "", ""
 
 
@@ -132,6 +140,13 @@ if __name__ == "__main__":
          "", False),
         ({"name": "Zumba Gold", "datetime_text": "Thursday 08 October, 11:30 AM"},
          "", False),
+        # A fetched row with no title and the word in its body. The detail
+        # was re-read from `name or desc`, which with an empty name is the
+        # empty name, and took build_site.py down with an AttributeError.
+        ({"name": "", "description": "This session has been cancelled."},
+         "cancelled", False),
+        ({"name": "", "description": "Now fully booked, sorry."},
+         "fully_booked", False),
     ]
     failures = []
     for row, expected_status, expected_service in TESTS:
