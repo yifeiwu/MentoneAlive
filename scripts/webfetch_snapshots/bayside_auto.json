@@ -9,9 +9,7 @@
   "description": "One-on-one Device Advice Series",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/one-one-device-advice-series",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Special display: fossil discoveries with Prehistoric Bayside",
@@ -23,9 +21,7 @@
   "description": "Special display: fossil discoveries with Prehistoric Bayside",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/special-display-fossil-discoveries-prehistoric-bayside",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Capture Wild Bayside and win",
@@ -37,9 +33,7 @@
   "description": "Capture Wild Bayside and win",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/capture-wild-bayside-and-win",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Kids School Holiday Art Workshops",
@@ -51,65 +45,7 @@
   "description": "Kids School Holiday Art Workshops",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/kids-school-holiday-art-workshops",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 45.0,
-  "source_label": "bayside_live"
- },
- {
-  "name": "Stop motion animation workshop for kids 5-10 yrs",
-  "datetime_text": "30 September 2026 10:00am-11:00am",
-  "datetime_iso": "2026-09-30T10:00:00",
-  "location": "Brighton Town Hall, corner of Carpenter and Wilson Streets",
-  "address": "Brighton Town Hall, corner of Carpenter and Wilson Streets, Brighton, Victoria 3186",
-  "price_text": "$20.00",
-  "description": "Stop motion animation workshop for kids 5-10 yrs",
-  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/stop-motion-animation-workshop-kids-5-10-yrs",
-  "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 20.0,
-  "source_label": "bayside_live"
- },
- {
-  "name": "Laraine Stephens - \"The Bathing Box Murders\" book launch",
-  "datetime_text": "30 September 2026 06:30pm-07:30pm",
-  "datetime_iso": "2026-09-30T18:30:00",
-  "location": "Beaumaris Library",
-  "address": "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193",
-  "price_text": "Free",
-  "description": "Laraine Stephens - \"The Bathing Box Murders\" book launch",
-  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/laraine-stephens-bathing-box-murders-book-launch",
-  "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
- },
- {
-  "name": "Fairies at Rippon Lea",
-  "datetime_text": "30 September 2026 1 October 2026 2 October 2026 3 October 2026 4 October 2026 10:00am-11:15am",
-  "datetime_iso": "2026-09-30T10:00:00",
-  "location": "192 Hotham St, Elsternwick",
-  "address": "192 Hotham St, Elsternwick, Victoria 3185",
-  "price_text": "$30.00",
-  "description": "Fairies at Rippon Lea",
-  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/fairies-rippon-lea",
-  "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 30.0,
-  "source_label": "bayside_live"
- },
- {
-  "name": "Spot the Clock competition",
-  "datetime_text": "30 September 2026 1 October 2026 2 October 2026 3 October 2026 4 October 2026 5 October 2026 12:00am-12:00pm",
-  "datetime_iso": "2026-09-30T00:00:00",
-  "location": "Black Rock Village",
-  "address": "Black Rock Village, Black Rock, Victoria",
-  "price_text": "",
-  "description": "Spot the Clock competition",
-  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/spot-clock-competition",
-  "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": 45.0
  },
  {
   "name": "Free counselling services - Highett Neighbourhood Community House",
@@ -121,9 +57,7 @@
   "description": "Free counselling services - Highett Neighbourhood Community House",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/free-counselling-services-highett-neighbourhood-community-house",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Centenarians Celebration: Celebrating 100 Years and Beyond",
@@ -135,9 +69,19 @@
   "description": "Centenarians Celebration: Celebrating 100 Years and Beyond",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/centenarians-celebration-celebrating-100-years-and-beyond",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
+ },
+ {
+  "name": "Fairies at Rippon Lea",
+  "datetime_text": "1 October 2026 2 October 2026 3 October 2026 4 October 2026 10:00am-11:15am",
+  "datetime_iso": "2026-10-01T10:00:00",
+  "location": "192 Hotham St, Elsternwick",
+  "address": "192 Hotham St, Elsternwick, Victoria 3185",
+  "price_text": "$30.00",
+  "description": "Fairies at Rippon Lea",
+  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/fairies-rippon-lea",
+  "source_id": "bayside_live",
+  "price_sort": 30.0
  },
  {
   "name": "Reflection by Playable Streets",
@@ -149,9 +93,19 @@
   "description": "Reflection by Playable Streets",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/reflection-playable-streets",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
+ },
+ {
+  "name": "Spot the Clock competition",
+  "datetime_text": "30 September 2026 1 October 2026 2 October 2026 3 October 2026 4 October 2026 5 October 2026 12:00am-12:00pm",
+  "datetime_iso": "2026-09-30T00:00:00",
+  "location": "Black Rock Village",
+  "address": "Black Rock Village, Black Rock, Victoria",
+  "price_text": "",
+  "description": "Spot the Clock competition",
+  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/spot-clock-competition",
+  "source_id": "bayside_live",
+  "price_sort": null
  },
  {
   "name": "Paul Gelsumini from the Ten Tenors",
@@ -163,9 +117,7 @@
   "description": "Paul Gelsumini from the Ten Tenors",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/paul-gelsumini-ten-tenors",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 10.0,
-  "source_label": "bayside_live"
+  "price_sort": 10.0
  },
  {
   "name": "Discover the Art of the Pencil",
@@ -177,9 +129,7 @@
   "description": "Discover the Art of the Pencil",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/discover-art-pencil",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Play Cards",
@@ -191,9 +141,7 @@
   "description": "Play Cards",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/play-cards",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Watercolour Painting - Starting with Basics",
@@ -205,9 +153,7 @@
   "description": "Watercolour Painting - Starting with Basics",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-painting-starting-basics",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Watercolour painting - starting with basics",
@@ -219,9 +165,7 @@
   "description": "Watercolour painting - starting with basics",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-painting-starting-basics-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Watercolour Mandala Workshop",
@@ -233,9 +177,7 @@
   "description": "Watercolour Mandala Workshop",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-mandala-workshop",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Colour your world art exhibition",
@@ -247,9 +189,7 @@
   "description": "Colour your world art exhibition",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/colour-your-world-art-exhibition",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Artists in Residence Exhibition",
@@ -261,9 +201,7 @@
   "description": "Artists in Residence Exhibition",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/artists-residence-exhibition",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Reflection by Playable Streets",
@@ -275,9 +213,7 @@
   "description": "Reflection by Playable Streets",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/reflection-playable-streets-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Dad's Playgroup",
@@ -289,9 +225,7 @@
   "description": "Dad's Playgroup",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dads-playgroup",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Acrylic Painting - Starting with Basics",
@@ -303,9 +237,7 @@
   "description": "Acrylic Painting - Starting with Basics",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/acrylic-painting-starting-basics",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Art Printing Methods - Starting with Basics",
@@ -317,9 +249,7 @@
   "description": "Art Printing Methods - Starting with Basics",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/art-printing-methods-starting-basics",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Write space at Sandringham Library",
@@ -331,9 +261,7 @@
   "description": "Write space at Sandringham Library",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/write-space-sandringham-library",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Reflection by Playable Streets",
@@ -345,9 +273,7 @@
   "description": "Reflection by Playable Streets",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/reflection-playable-streets-1",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Brighton Youth Art Fundraiser",
@@ -359,9 +285,7 @@
   "description": "Brighton Youth Art Fundraiser",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-youth-art-fundraiser",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Neighbourly Ride Hampton",
@@ -373,9 +297,7 @@
   "description": "Neighbourly Ride Hampton",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neighbourly-ride-hampton",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Devilbend Reservoir Loop Walk- Mornington Peninsula",
@@ -387,9 +309,7 @@
   "description": "Devilbend Reservoir Loop Walk- Mornington Peninsula",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/devilbend-reservoir-loop-walk-mornington-peninsula",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 5.0,
-  "source_label": "bayside_live"
+  "price_sort": 5.0
  },
  {
   "name": "Belly Dance and Baklava Afternoon tea",
@@ -401,9 +321,7 @@
   "description": "Belly Dance and Baklava Afternoon tea",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/belly-dance-and-baklava-afternoon-tea",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 18.0,
-  "source_label": "bayside_live"
+  "price_sort": 18.0
  },
  {
   "name": "Welcome the Waders at Rickett's Point",
@@ -415,9 +333,7 @@
   "description": "Welcome the Waders at Rickett's Point",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/welcome-waders-ricketts-point-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Talk: A history of Melbourne racewear",
@@ -429,9 +345,7 @@
   "description": "Talk: A history of Melbourne racewear",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/talk-history-melbourne-racewear",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "World Animal Day Celebration - Animal Blessings Fundraiser",
@@ -443,9 +357,7 @@
   "description": "World Animal Day Celebration - Animal Blessings Fundraiser",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/world-animal-day-celebration-animal-blessings-fundraiser",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "In conversation: Academy Award-winning filmmaker Adam Elliot",
@@ -457,9 +369,7 @@
   "description": "In conversation: Academy Award-winning filmmaker Adam Elliot",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/conversation-academy-award-winning-filmmaker-adam-elliot",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Discover the art of the pencil",
@@ -471,9 +381,7 @@
   "description": "Discover the art of the pencil",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/discover-art-pencil-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Bayside Art Babies",
@@ -485,9 +393,7 @@
   "description": "Bayside Art Babies",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bayside-art-babies-term42026",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Black gold! A composting and worm farming presentation",
@@ -499,9 +405,7 @@
   "description": "Black gold! A composting and worm farming presentation",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/black-gold-composting-and-worm-farming-presentation",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Table Tennis and Darts",
@@ -513,9 +417,7 @@
   "description": "Table Tennis and Darts",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-1",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Come and Try Line Dancing",
@@ -527,9 +429,7 @@
   "description": "Come and Try Line Dancing",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-line-dancing",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 20.0,
-  "source_label": "bayside_live"
+  "price_sort": 20.0
  },
  {
   "name": "Seniors Gymnastics Classes",
@@ -541,9 +441,7 @@
   "description": "Seniors Gymnastics Classes",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-gymnastics-classes-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Easy Walking",
@@ -555,9 +453,7 @@
   "description": "Easy Walking",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/easy-walking-1",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Ancestry - Library Edition For Beginners",
@@ -569,9 +465,7 @@
   "description": "Ancestry - Library Edition For Beginners",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ancestry-library-edition-beginners",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "First Nations Basket Weaving",
@@ -583,9 +477,7 @@
   "description": "First Nations Basket Weaving",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/first-nations-basket-weaving",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Works of Wonder Magic Show",
@@ -597,9 +489,7 @@
   "description": "Works of Wonder Magic Show",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/works-wonder-magic-show-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Rest and Restore: iRest Meditation and Soundbath",
@@ -611,9 +501,7 @@
   "description": "Rest and Restore: iRest Meditation and Soundbath",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/rest-and-restore-irest-meditation-and-soundbath",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Line Dancing For Beginners and Beyond",
@@ -625,9 +513,7 @@
   "description": "Line Dancing For Beginners and Beyond",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/line-dancing-beginners-and-beyond-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 5.0,
-  "source_label": "bayside_live"
+  "price_sort": 5.0
  },
  {
   "name": "Brighton Men’s Shed Open Day",
@@ -639,9 +525,7 @@
   "description": "Brighton Men’s Shed Open Day",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-mens-shed-open-day",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "It’s never too late to meditate - Session 1",
@@ -653,9 +537,7 @@
   "description": "It’s never too late to meditate - Session 1",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/its-never-too-late-meditate-session-1",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Silver Salties Yoga",
@@ -667,9 +549,7 @@
   "description": "Silver Salties Yoga",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-yoga",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Come and Try Croquet",
@@ -681,9 +561,7 @@
   "description": "Come and Try Croquet",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-croquet-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Riley James - \"The Wreck\" in conversation with Geoff Parkes",
@@ -695,9 +573,7 @@
   "description": "Riley James - \"The Wreck\" in conversation with Geoff Parkes",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/riley-james-wreck-conversation-geoff-parkes",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Melbourne Sculpture Biennale 2026: Soft Systems",
@@ -709,9 +585,7 @@
   "description": "Melbourne Sculpture Biennale 2026: Soft Systems",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/melbourne-sculpture-biennale-2026-soft-systems",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Victorian Bridge Centre  Open Day - Learn or play.",
@@ -723,9 +597,7 @@
   "description": "Victorian Bridge Centre  Open Day - Learn or play.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/victorian-bridge-centre-open-day-learn-or-play",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Play Mahjong",
@@ -737,9 +609,7 @@
   "description": "Play Mahjong",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/play-mahjong",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "The Roy Orbison Story with Glenn Douglas",
@@ -751,9 +621,7 @@
   "description": "The Roy Orbison Story with Glenn Douglas",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/roy-orbison-story-glenn-douglas-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 10.0,
-  "source_label": "bayside_live"
+  "price_sort": 10.0
  },
  {
   "name": "Citizen Science Nature Walk",
@@ -765,9 +633,7 @@
   "description": "Citizen Science Nature Walk",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/citizen-science-nature-walk",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Seniors Beginner Crochet Workshop",
@@ -779,9 +645,7 @@
   "description": "Seniors Beginner Crochet Workshop",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-beginner-crochet-workshop",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "ZOE Australia Melbourne Justice Walk 2026",
@@ -793,9 +657,7 @@
   "description": "ZOE Australia Melbourne Justice Walk 2026",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/zoe-australia-melbourne-justice-walk-2026",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Final Gala Day at Bayside Community Nursery",
@@ -807,9 +669,7 @@
   "description": "Final Gala Day at Bayside Community Nursery",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/final-gala-day-bayside-community-nursery",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "The Thin Blue Line - Police at the Brighton Cemetery",
@@ -821,9 +681,7 @@
   "description": "The Thin Blue Line - Police at the Brighton Cemetery",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/thin-blue-line-police-brighton-cemetery",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 15.0,
-  "source_label": "bayside_live"
+  "price_sort": 15.0
  },
  {
   "name": "Come and try Croquet",
@@ -835,9 +693,7 @@
   "description": "Come and try Croquet",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-croquet-3",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Destination Imagination - Community Festival & STEM Tournament",
@@ -849,9 +705,7 @@
   "description": "Destination Imagination - Community Festival & STEM Tournament",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/destination-imagination-community-festival-stem-tournament",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 10.0,
-  "source_label": "bayside_live"
+  "price_sort": 10.0
  },
  {
   "name": "Rebetiko festival celebration with Anatreptix",
@@ -863,9 +717,7 @@
   "description": "Rebetiko festival celebration with Anatreptix",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/rebetiko-festival-celebration-anatreptix",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Recording Life Stories",
@@ -877,9 +729,7 @@
   "description": "Recording Life Stories",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/recording-life-stories",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Bayside Art Babies",
@@ -891,9 +741,7 @@
   "description": "Bayside Art Babies",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bayside-art-babies-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Carers Week  Movie Event",
@@ -905,9 +753,7 @@
   "description": "Carers Week  Movie Event",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/carers-week-movie-event",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Table Tennis and Darts",
@@ -919,9 +765,7 @@
   "description": "Table Tennis and Darts",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Silver Salties Tai Chi",
@@ -933,9 +777,7 @@
   "description": "Silver Salties Tai Chi",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-tai-chi-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Do you like to sing in the shower?",
@@ -947,9 +789,7 @@
   "description": "Do you like to sing in the shower?",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/do-you-sing-shower",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Seniors Aikido Demonstration",
@@ -961,9 +801,7 @@
   "description": "Seniors Aikido Demonstration",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-aikido-demonstration",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 5.0,
-  "source_label": "bayside_live"
+  "price_sort": 5.0
  },
  {
   "name": "Vocally Wild Choir open rehearsal",
@@ -975,9 +813,7 @@
   "description": "Vocally Wild Choir open rehearsal",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/vocally-wild-choir-open-rehearsal",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Merry Melodies",
@@ -989,9 +825,7 @@
   "description": "Merry Melodies",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 10.0,
-  "source_label": "bayside_live"
+  "price_sort": 10.0
  },
  {
   "name": "Cycling",
@@ -1003,9 +837,7 @@
   "description": "Cycling",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cycling-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Come and Try Lawn Bowls",
@@ -1017,9 +849,7 @@
   "description": "Come and Try Lawn Bowls",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-lawn-bowls-4",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Dungeons and Dragons",
@@ -1031,9 +861,7 @@
   "description": "Dungeons and Dragons",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dungeons-and-dragons-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Death Café",
@@ -1045,9 +873,7 @@
   "description": "Death Café",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/death-cafe",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Merry Melodies",
@@ -1059,9 +885,7 @@
   "description": "Merry Melodies",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-4",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 10.0,
-  "source_label": "bayside_live"
+  "price_sort": 10.0
  },
  {
   "name": "Sing-a-long",
@@ -1073,9 +897,7 @@
   "description": "Sing-a-long",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sing-long",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Tricia Stringer - \"The Paradise Resort\"",
@@ -1087,9 +909,7 @@
   "description": "Tricia Stringer - \"The Paradise Resort\"",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/tricia-stringer-paradise-resort",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Support for carers webinar",
@@ -1101,9 +921,7 @@
   "description": "Support for carers webinar",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/support-carers-webinar",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Carers Week - High tea with Elton and Olivia",
@@ -1115,9 +933,7 @@
   "description": "Carers Week - High tea with Elton and Olivia",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/carers-week-high-tea-elton-and-olivia",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Home Energy Upgrades Program information session",
@@ -1129,9 +945,7 @@
   "description": "Home Energy Upgrades Program information session",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/home-energy-upgrades-program-information-session-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Seniors Walk and Talk",
@@ -1143,9 +957,7 @@
   "description": "Seniors Walk and Talk",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-walk-and-talk",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Cranbourne Gardens in late Spring",
@@ -1157,9 +969,7 @@
   "description": "Cranbourne Gardens in late Spring",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cranbourne-gardens-late-spring",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 5.0,
-  "source_label": "bayside_live"
+  "price_sort": 5.0
  },
  {
   "name": "Come and try: Rewire Choir",
@@ -1171,9 +981,7 @@
   "description": "Come and try: Rewire Choir",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-rewire-choir",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Neurodiversity in Kids Presentation 2",
@@ -1185,9 +993,7 @@
   "description": "Neurodiversity in Kids Presentation 2",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neurodiversity-kids-presentation-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Analog Art Club",
@@ -1199,9 +1005,7 @@
   "description": "Analog Art Club",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/analog-art-club-9",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Comedy Show with Brad Oakes",
@@ -1213,9 +1017,7 @@
   "description": "Comedy Show with Brad Oakes",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/comedy-show-brad-oakes",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Morning Tea with S.L.A.C.",
@@ -1227,9 +1029,7 @@
   "description": "Morning Tea with S.L.A.C.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/morning-tea-slac-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Let’s Connect through Community Singing",
@@ -1241,9 +1041,7 @@
   "description": "Let’s Connect through Community Singing",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/lets-connect-through-community-singing",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Karaoke Singing",
@@ -1255,9 +1053,7 @@
   "description": "Karaoke Singing",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/karaoke-singing",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Silver Salties Pilates",
@@ -1269,9 +1065,7 @@
   "description": "Silver Salties Pilates",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-pilates-1",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Timber Craft Workshop",
@@ -1283,9 +1077,7 @@
   "description": "Timber Craft Workshop",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/timber-craft-workshop",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 25.0,
-  "source_label": "bayside_live"
+  "price_sort": 25.0
  },
  {
   "name": "National Carers Week at Melbourne Sculpture Biennale",
@@ -1297,9 +1089,7 @@
   "description": "National Carers Week at Melbourne Sculpture Biennale",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/national-carers-week-melbourne-sculpture-biennale",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Graeme Simsion - \"The Novel Project\" writing event",
@@ -1311,9 +1101,7 @@
   "description": "Graeme Simsion - \"The Novel Project\" writing event",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/graeme-simsion-novel-project-writing-event",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 30.0,
-  "source_label": "bayside_live"
+  "price_sort": 30.0
  },
  {
   "name": "How to Preserve Your Harvest",
@@ -1325,9 +1113,7 @@
   "description": "How to Preserve Your Harvest",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/how-preserve-your-harvest",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Black Rock Life Saving Club: Open Day & Season Launch 2026!",
@@ -1339,9 +1125,7 @@
   "description": "Black Rock Life Saving Club: Open Day & Season Launch 2026!",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/black-rock-life-saving-club-open-day-season-launch-2026",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Celebrate Seniors Day with us including free BBQ",
@@ -1353,9 +1137,7 @@
   "description": "Celebrate Seniors Day with us including free BBQ",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/celebrate-seniors-day-us-including-free-bbq",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Sakura in Hampton",
@@ -1367,9 +1149,7 @@
   "description": "Sakura in Hampton",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sakura-hampton",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Birds in your neighbourhood with Kirsty Costa",
@@ -1381,9 +1161,7 @@
   "description": "Birds in your neighbourhood with Kirsty Costa",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/birds-your-neighbourhood-kirsty-costa",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Merry Melodies",
@@ -1395,9 +1173,7 @@
   "description": "Merry Melodies",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-3",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 25.0,
-  "source_label": "bayside_live"
+  "price_sort": 25.0
  },
  {
   "name": "Table Tennis and Darts",
@@ -1409,9 +1185,7 @@
   "description": "Table Tennis and Darts",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-3",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Healthy Tennis Workshops",
@@ -1423,9 +1197,7 @@
   "description": "Healthy Tennis Workshops",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/healthy-tennis-workshops",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Birdlife Bayside Monthly Meeting",
@@ -1437,9 +1209,7 @@
   "description": "Birdlife Bayside Monthly Meeting",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/birdlife-bayside-monthly-meeting",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 5.0,
-  "source_label": "bayside_live"
+  "price_sort": 5.0
  },
  {
   "name": "Ask about Aged Care: information session, Beaumaris Community Centre",
@@ -1451,9 +1221,7 @@
   "description": "Ask about Aged Care: information session, Beaumaris Community Centre",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ask-about-aged-care-information-session-beaumaris-community-centre",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Suzy Singer – Cabaret show",
@@ -1465,9 +1233,7 @@
   "description": "Suzy Singer – Cabaret show",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/suzy-singer-cabaret-show",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Dungeons and Dragons",
@@ -1479,9 +1245,7 @@
   "description": "Dungeons and Dragons",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dungeons-and-dragons-1",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Croquet - Come and try it",
@@ -1493,9 +1257,7 @@
   "description": "Croquet - Come and try it",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/croquet-come-and-try-it",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Stay Water-Wise for Life",
@@ -1507,9 +1269,7 @@
   "description": "Stay Water-Wise for Life",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/stay-water-wise-life",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "It’s never too late to  meditate - Session 2",
@@ -1521,9 +1281,7 @@
   "description": "It’s never too late to  meditate - Session 2",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/its-never-too-late-meditate-session-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Matthew Ricketson - \"Getting Murdoched\" in conversation with Jon Faine",
@@ -1535,9 +1293,7 @@
   "description": "Matthew Ricketson - \"Getting Murdoched\" in conversation with Jon Faine",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/matthew-ricketson-getting-murdoched-conversation-jon-faine",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "The Camino de Santiago - What it is and how it's done",
@@ -1549,9 +1305,7 @@
   "description": "The Camino de Santiago - What it is and how it's done",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/camino-de-santiago-what-it-and-how-its-done-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Making Healthy Dumplings Masterclass",
@@ -1563,9 +1317,7 @@
   "description": "Making Healthy Dumplings Masterclass",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/making-healthy-dumplings-masterclass",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 10.0,
-  "source_label": "bayside_live"
+  "price_sort": 10.0
  },
  {
   "name": "Bowls Technique and Wellbeing Sessions",
@@ -1577,9 +1329,7 @@
   "description": "Bowls Technique and Wellbeing Sessions",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bowls-technique-and-wellbeing-sessions",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Mature Rainbow Conversations",
@@ -1591,9 +1341,7 @@
   "description": "Mature Rainbow Conversations",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/mature-rainbow-conversations",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Connections: Art + Dementia",
@@ -1605,9 +1353,7 @@
   "description": "Connections: Art + Dementia",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/connections-art-dementia",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Fitness Class",
@@ -1619,9 +1365,7 @@
   "description": "Fitness Class",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/fitness-class",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Cards - canasta and 500",
@@ -1633,9 +1377,7 @@
   "description": "Cards - canasta and 500",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cards-canasta-and-500",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Come and celebrate Children's Week with us 🎉",
@@ -1647,9 +1389,7 @@
   "description": "Come and celebrate Children's Week with us 🎉",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-celebrate-childrens-week-us",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Hampton Sailing Club Open Day",
@@ -1661,9 +1401,7 @@
   "description": "Hampton Sailing Club Open Day",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/hampton-sailing-club-open-day",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Sandringham Band Rotunda -100 Year Community Celebration",
@@ -1675,9 +1413,7 @@
   "description": "Sandringham Band Rotunda -100 Year Community Celebration",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sandringham-band-rotunda-100-year-community-celebration",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Silver Screen Social",
@@ -1689,9 +1425,7 @@
   "description": "Silver Screen Social",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-screen-social",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Table Tennis and Darts",
@@ -1703,9 +1437,7 @@
   "description": "Table Tennis and Darts",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-4",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Positive Parenting Session, Raising Waste Wise Children",
@@ -1717,9 +1449,7 @@
   "description": "Positive Parenting Session, Raising Waste Wise Children",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/positive-parenting-session-raising-waste-wise-children",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Bag Sewing Day",
@@ -1731,9 +1461,7 @@
   "description": "Bag Sewing Day",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bag-sewing-day",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Gardiners Creek and  Anniversary Trail Loop Walk",
@@ -1745,9 +1473,7 @@
   "description": "Gardiners Creek and  Anniversary Trail Loop Walk",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/gardiners-creek-and-anniversary-trail-loop-walk",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 5.0,
-  "source_label": "bayside_live"
+  "price_sort": 5.0
  },
  {
   "name": "Vikki Petraitis - \"The Reckoning\" in conversation with Robert Gott",
@@ -1759,9 +1485,7 @@
   "description": "Vikki Petraitis - \"The Reckoning\" in conversation with Robert Gott",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/vikki-petraitis-reckoning-conversation-robert-gott",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Grant seekers guide to using AI",
@@ -1773,9 +1497,7 @@
   "description": "Grant seekers guide to using AI",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/grant-seekers-guide-using-ai",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "bayside_live"
+  "price_sort": null
  },
  {
   "name": "Tour the Wildflower Meadow at Yalukit Willam Nature Reserve",
@@ -1787,9 +1509,7 @@
   "description": "Tour the Wildflower Meadow at Yalukit Willam Nature Reserve",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/tour-wildflower-meadow-yalukit-willam-nature-reserve",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Beach Walk",
@@ -1801,9 +1521,7 @@
   "description": "Beach Walk",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/beach-walk-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Men’s Shed Open Day",
@@ -1815,9 +1533,7 @@
   "description": "Men’s Shed Open Day",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/mens-shed-open-day-2",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "From Brighton to Beaumaris: Pubs with a past",
@@ -1829,9 +1545,7 @@
   "description": "From Brighton to Beaumaris: Pubs with a past",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-beaumaris-pubs-past",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Spooky Sonantinas Halloween Spectacular",
@@ -1843,9 +1557,7 @@
   "description": "Spooky Sonantinas Halloween Spectacular",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/spooky-sonantinas-halloween-spectacular",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 10.0,
-  "source_label": "bayside_live"
+  "price_sort": 10.0
  },
  {
   "name": "Black Rock House of Horrors",
@@ -1857,9 +1569,7 @@
   "description": "Black Rock House of Horrors",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/black-rock-house-horrors",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Chris Macheras - \"Old Vintage Melbourne: A Culinary History\" in conversation with Jaclyn Crupi",
@@ -1871,9 +1581,7 @@
   "description": "Chris Macheras - \"Old Vintage Melbourne: A Culinary History\" in conversation with Jaclyn Crupi",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/chris-macheras-old-vintage-melbourne-culinary-history-conversation-jaclyn-crupi",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "A Simple Act of Kindness",
@@ -1885,9 +1593,7 @@
   "description": "A Simple Act of Kindness",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/simple-act-kindness",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 32.0,
-  "source_label": "bayside_live"
+  "price_sort": 32.0
  },
  {
   "name": "Sandringham Community Cup",
@@ -1899,9 +1605,7 @@
   "description": "Sandringham Community Cup",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sandringham-community-cup",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "National Recycling Week Storytime – with a visit from a waste collection truck",
@@ -1913,9 +1617,7 @@
   "description": "National Recycling Week Storytime – with a visit from a waste collection truck",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/national-recycling-week-storytime-visit-waste-collection-truck-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Brighton Art Society 47th Annual Art Exhibition",
@@ -1927,9 +1629,7 @@
   "description": "Brighton Art Society 47th Annual Art Exhibition",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-art-society-47th-annual-art-exhibition",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Neurodiversity In Kids Presentation 3",
@@ -1941,9 +1641,7 @@
   "description": "Neurodiversity In Kids Presentation 3",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neurodiversity-kids-presentation-3",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Ask about Aged Care: information session, Carnegie Library",
@@ -1955,9 +1653,7 @@
   "description": "Ask about Aged Care: information session, Carnegie Library",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ask-about-aged-care-information-session-carnegie-library-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Microbats at Cheltenham Park",
@@ -1969,9 +1665,7 @@
   "description": "Microbats at Cheltenham Park",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/microbats-cheltenham-park-0",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
   "name": "Self-publishing 101 workshop",
@@ -1983,9 +1677,7 @@
   "description": "Self-publishing 101 workshop",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/self-publishing-101-workshop",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 20.0,
-  "source_label": "bayside_live"
+  "price_sort": 20.0
  },
  {
   "name": "Jock Serong - \"A Suitable Man\" in conversation with Gideon Haigh",
@@ -1997,22 +1689,30 @@
   "description": "Jock Serong - \"A Suitable Man\" in conversation with Gideon Haigh",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/jock-serong-suitable-man-conversation-gideon-haigh",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": 0.0
  },
  {
-  "name": "Shelley Burr - \"Shot\" in conversation with Vikki Petraitis",
-  "datetime_text": "25 November 2026 06:00pm-07:00pm",
-  "datetime_iso": "2026-11-25T18:00:00",
-  "location": "Brighton Library",
-  "address": "Brighton Library, 14 Wilson Street, Brighton, Victoria 3186",
-  "price_text": "Free",
-  "description": "Shelley Burr - \"Shot\" in conversation with Vikki Petraitis",
-  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/shelley-burr-shot-conversation-vikki-petraitis",
+  "name": "Bayside Christmas Carols in the Park 2026",
+  "datetime_text": "8 December 2026 07:30pm-09:30pm",
+  "datetime_iso": "2026-12-08T19:30:00",
+  "location": "Dendy Park",
+  "address": "Dendy Park, Brighton East, Victoria 3186",
+  "price_text": "",
+  "description": "Bayside Christmas Carols in the Park 2026",
+  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bayside-christmas-carols-park-2026",
   "source_id": "bayside_live",
-  "has_real_date": true,
-  "price_sort": 0.0,
-  "source_label": "bayside_live"
+  "price_sort": null
+ },
+ {
+  "name": "Vocally Wild Choir Christmas singalong concert",
+  "datetime_text": "20 December 2026 04:00pm-05:30pm",
+  "datetime_iso": "2026-12-20T16:00:00",
+  "location": "Beaumaris Community Centre",
+  "address": "Beaumaris Community Centre, 96 Reserve Road, Beaumaris, Victoria 3193",
+  "price_text": "$10.00",
+  "description": "Vocally Wild Choir Christmas singalong concert",
+  "source": "https://www.bayside.vic.gov.au/explore-bayside/events/vocally-wild-choir-christmas-singalong-concert",
+  "source_id": "bayside_live",
+  "price_sort": 10.0
  }
 ]

@@ -9,6 +9,7 @@ recurrence spec and expands it into concrete dated occurrences.
 Unparseable listings are reported as unresolvable and dropped by the caller.
 Inference never overrides a date a source actually supplied.
 """
+import hashlib
 import os
 import re
 from copy import deepcopy
@@ -800,6 +801,40 @@ def expand(spec, today=None, max_occurrences=MAX_OCCURRENCES):
     return found[:max_occurrences]
 
 
+def series_id_for(row):
+    """A stable identity for the recurring series this row belongs to.
+
+    A series is materialised into up to MAX_OCCURRENCES independent rows, one
+    per occurrence, and until they carried an identity there was no way to ask
+    "is this series still published?" of any of them individually. dedupe.py
+    had to re-derive the series from its prose and compare timestamps instead,
+    and because the expansion window is anchored on the run date, that
+    comparison slid forward every run and declared correct rows unjustified
+    (97 rows 8 days after a build, 382 two months after).
+
+    Keyed on the source, the programme name and the venue head -- the three
+    fields the store carries identically on the dateless listing and on every
+    occurrence materialised from it, so both sides compute the same value.
+
+    Deliberately NOT keyed on `source`. Chatty Cafe re-slugged a venue page
+    once; a URL key would have re-identified every series that venue owns on
+    the next run, which is the opposite of what an identity is for. Nor is it
+    folded for accents, because the id is per-source by construction: it exists
+    to recognise one listing's own occurrences, never to merge two sources'
+    listings. Cross-source identity is dedupe.py's name/location match.
+
+    A fetcher that publishes its own series identity should use that instead of
+    this: webfetch_everi.py stamps the site's own `eventIdentifier` GUID, which
+    is authoritative where ours is inferred.
+    """
+    key = "|".join((
+        str(row.get("source_id") or "unknown"),
+        _norm(row.get("name")),
+        _norm((row.get("location") or "").split(",")[0]),
+    ))
+    return hashlib.sha1(key.encode("utf-8")).hexdigest()[:12]
+
+
 def _row_with_date(row, day, start, label):
     # deepcopy: a shallow dict() copy leaves every generated occurrence
     # aliasing the input's mutable `sources` list, so a later merge writing
@@ -808,9 +843,9 @@ def _row_with_date(row, day, start, label):
     stamp = _at(day, start) if start else datetime.combine(day, dt_time.min)
     out["datetime_iso"] = stamp.isoformat(timespec="seconds")
     out["datetime_text"] = label
-    out["has_real_date"] = True
     out["date_inferred"] = True
     out["recurrence"] = label
+    out["series_id"] = series_id_for(row)
     out.pop("date", None)
     return out
 
@@ -835,6 +870,56 @@ def infer_event(row, today=None, max_occurrences=MAX_OCCURRENCES):
         label = f"{label} ({spec.max_periods} weeks)"
     return [_row_with_date(row, day, start, label)
             for day, start in occurrences], label
+
+
+def materialise(row, schedule, today=None,
+                max_occurrences=MAX_OCCURRENCES):
+    """Expand an explicit schedule string into dated rows for `row`.
+
+    For a source that states a schedule in a structured form of its own rather
+    than in prose: a per-weekday hours table, say. The fetcher normalises that
+    table to the same wording the parser already understands
+    ("Every Sunday 7:00am - 10:00am, every Wednesday 6:00am - 8:00am") and hands
+    it here, so the occurrence maths stays in this module and a fetcher never
+    has to reimplement it -- the same reason webfetch_ccc._ccc_weekly_term()
+    exists, and the reason this is a function rather than a Spec the caller
+    assembles.
+
+    Returns (rows, spec, reason). `rows` is empty when the wording produced no
+    dated occurrence, which is the caller's signal to drop the listing.
+
+    The rows carry `series_id` like any inferred row, so reconcile_store() can
+    withdraw the whole series at once when the source stops publishing it. That
+    matters more for these than for prose-derived ones: a group's hours table is
+    the only statement of the schedule there is, so a series that is withdrawn
+    leaves nothing behind to justify its remaining occurrences.
+    """
+    today = today or _default_today()
+    text = (schedule or "").strip()
+    if not text:
+        return [], None, "no schedule supplied"
+    probe = dict(row)
+    probe["datetime_text"] = text
+    probe["description"] = text
+    spec, reason = build_spec(probe, today)
+    if spec is None:
+        return [], None, reason or f"schedule {text!r} is not a recognisable pattern"
+    # A weekday with no clock time is not a meeting a reader can turn up to, and
+    # an occurrence at midnight is a date with a time the source never stated.
+    # Callers that need a time (a group you join has to say when it meets) test
+    # for this rather than accepting the slot.
+    timed = [s for s in spec.slots if s[1] is not None]
+    if not timed:
+        return [], spec, f"schedule {text!r} names days but no start time"
+    occurrences = expand(spec, today, max_occurrences)
+    if not occurrences:
+        return [], spec, (reason or
+                          f"schedule '{spec.label}' has no upcoming occurrences")
+    label = spec.label
+    if spec.end_date:
+        label = f"{label} (to {spec.end_date.strftime('%d %b %Y')})"
+    return [_row_with_date(row, day, start, label)
+            for day, start in occurrences], spec, None
 
 
 def refresh_inferred(rows, today=None, max_occurrences=MAX_OCCURRENCES):
@@ -918,7 +1003,7 @@ def resolve_dateless(rows, today=None, max_occurrences=MAX_OCCURRENCES):
             continue
         # Key every reason on name *and* source, so two same-named events from
         # different sources do not collapse into a single report entry.
-        reason_key = f"{r.get('name')} [{r.get('source_label')}]"
+        reason_key = f"{r.get('name')} [{r.get('source_id')}]"
         key = (_norm(r.get("name")), _norm(r.get("location")))
         if key in dated_keys:
             dropped += 1

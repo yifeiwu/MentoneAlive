@@ -1,73 +1,51 @@
 [
  {
-  "name": "Biodiversity month",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Wednesday, 30 September 2026 | 11:59 PM",
-  "datetime_iso": "2026-09-30T21:00:00",
-  "location": "Sir William Fry Reserve, Nepean Highway",
-  "address": "Sir William Fry Reserve, Nepean Highway, Highett 3190",
-  "price_text": "",
-  "description": "September is Biodiversity Month, a time to celebrate Kingston’s unique flora and fauna and discover how we can help protect it for future generations.",
-  "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/biodiversity-month",
-  "source_id": "kingston_council",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_council"
- },
- {
   "name": "'Kingston Sounds' by Susannah Langley",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-  "datetime_iso": "2026-09-30T21:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+  "datetime_iso": "2026-10-01T12:00:00",
   "location": "Kingston Arts Centre, 979 Nepean Highway, Moorabbin 3189",
-  "address": "Kingston Arts Centre, 979 Nepean Highway, Moorabbin 3189",
+  "address": "979 Nepean Highway, Moorabbin 3189",
   "price_text": "",
   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
   "source_id": "kingston_council",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_council"
+  "price_sort": null
  },
  {
   "name": "'Refugia' by Kerri Wilson McConchie",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-  "datetime_iso": "2026-09-30T21:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+  "datetime_iso": "2026-10-01T12:00:00",
   "location": "Kingston City Hall, 979-985 Nepean Highway, Moorabbin 3189",
-  "address": "Kingston City Hall, 979-985 Nepean Highway, Moorabbin 3189",
+  "address": "979-985 Nepean Highway, Moorabbin 3189",
   "price_text": "",
   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
   "source_id": "kingston_council",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_council"
+  "price_sort": null
  },
  {
   "name": "School holidays at Waves",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\t - Friday, 2 October 2026",
-  "datetime_iso": "2026-09-30T21:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\t - Friday, 2 October 2026",
+  "datetime_iso": "2026-10-01T12:00:00",
   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
   "address": "111 Chesterville Road, Highett 3190",
   "price_text": "",
   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
   "source_id": "kingston_council",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_council"
+  "price_sort": null
  },
  {
   "name": "Mental Health Month",
-  "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-  "datetime_iso": "2026-10-01T00:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+  "datetime_iso": "2026-10-01T12:00:00",
   "location": "70 Thompson Road",
   "address": "54-70 Thompson Road, Patterson Lakes 3197",
   "price_text": "",
   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
   "source_id": "kingston_council",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_council"
+  "price_sort": null
  },
  {
   "name": "Community Connections Program",
@@ -79,9 +57,7 @@
   "description": "Providing access to services to overcome and avoid homelessness.",
   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/community-connections",
   "source_id": "kingston_council",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_council"
+  "price_sort": null
  },
  {
   "name": "Gumnuts Program",
@@ -93,9 +69,7 @@
   "description": "A pre kinder program for 3 and 4 year olds.",
   "source": "https://www.kingston.vic.gov.au/community/events/community-events/Gumnuts-Program-1",
   "source_id": "kingston_council",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_council"
+  "price_sort": null
  },
  {
   "name": "Koala Program",
@@ -107,8 +81,18 @@
   "description": "Occasional child care for children aged 6 weeks to 3 years.",
   "source": "https://www.kingston.vic.gov.au/community/events/community-events/Koala-Program-1",
   "source_id": "kingston_council",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_council"
+  "price_sort": null
+ },
+ {
+  "name": "Holmesglen Westall Job Club",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 09:30 AM \r\n\tto 03:00 PM",
+  "datetime_iso": "2026-10-01T09:30:00",
+  "location": "Westall Community Hub, 35 Fairbank Road, Clayton South 3169",
+  "address": "35 Fairbank Road, Clayton South 3169",
+  "price_text": "",
+  "description": "Job Club can help you with career advice, skills assessment and training advice, one-on-one consultations, free workshops and follow up support. Get job ready.",
+  "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/holmesglen-westall-job-club-westall",
+  "source_id": "kingston_council",
+  "price_sort": null
  }
 ]

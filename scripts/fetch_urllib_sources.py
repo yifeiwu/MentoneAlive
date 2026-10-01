@@ -18,8 +18,9 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from webfetch_http import (PartialFetch, enrich_details, make_row, month_number,
-                           parse_day_month_year, report)
+from venues import extract_suburb, is_online
+from webfetch_http import (PartialFetch, enrich_details, make_row,
+                           month_number, parse_day_month_year, report)
 
 BASE = "https://www.kingston.vic.gov.au"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -293,19 +294,6 @@ def _gd_detail_location(soup):
     return "", ""
 
 
-def extract_suburb(address):
-    """Suburb from a street address, validated against the gazetted list.
-
-    build_site owns the rule, because it also owns publishing the value; this
-    used to be a second reader here that took the last comma segment and
-    returned it unchecked, so a detail page stating only a street published
-    "1218 Nepean Highway" as the suburb and counted as placed. Imported
-    lazily: build_site is a rendering module and this is a fetching one.
-    """
-    from build_site import extract_suburb as _extract
-    return _extract(address)
-
-
 def _classifiable(row, known=GD_CATCHMENT):
     """True when the row names a suburb we recognise, in or out of area."""
     blob = " ".join([row.get("name", ""), row.get("location", ""),
@@ -314,25 +302,47 @@ def _classifiable(row, known=GD_CATCHMENT):
 
 
 def _passes_suburb_filter(row, allowed):
-    """Keep a row when it is in area, or when its suburb is unknown.
+    """Keep a row only when its own suburb is inside the configured catchment.
 
-    With the detail page fetched, `suburb` is known for every event, so this
-    is now a real filter rather than a pass-everything: the listing cards
-    carried no venue, so before enrichment every row fell through to
-    "unclassifiable, keep it" and the configured catchment did nothing.
+    This is also the rule health_check.py asserts with, and it is the strict
+    reading on purpose. The two were written independently and disagreed about
+    exactly the case that mattered -- a row whose suburb cannot be extracted.
+    The fetcher kept it ("cannot place it, so do not throw it away") and the
+    checker failed the build on it ("cannot place it, so it is outside the
+    catchment"), which meant "Mount Cannibal Hike and Barbeque" -- a reserve
+    some forty kilometres from Springvale, named after the place it is in --
+    was published by one module and rejected by the other, and the build went
+    red.
+
+    One rule, and it is the strict one. An event the pipeline cannot place in
+    the catchment is not published, because the alternative is that the filter
+    publishes the whole city whenever the detail-page suburb extraction misses.
+    A row that names an in-area suburb anywhere in its own text is kept, since
+    that is a positive signal and costs nothing. Online events are exempt: there
+    is no suburb for them to be outside of.
     """
     if not allowed:
         return True
     allowed_lower = {a.lower() for a in allowed}
-    suburb = (row.get("suburb") or "").lower()
-    if suburb:
-        return suburb in allowed_lower
-    # A venue we could not place: fall back to the whole blob, then to keep.
+    if is_online(row.get("location")):
+        return True
+    for candidate in (row.get("suburb"),
+                      extract_suburb(row.get("address")
+                                     or row.get("location") or "")):
+        named = (candidate or "").strip().lower()
+        if named:
+            if named in allowed_lower:
+                return True
+            report(f"dropping {row.get('name')!r}: suburb {named!r} is "
+                   f"outside {sorted(allowed)}", level="debug")
+            return False
     blob = " ".join([row.get("name", ""), row.get("location", ""),
                      row.get("address", ""), row.get("description", "")]).lower()
     if any(a in blob for a in allowed_lower):
         return True
-    return not _classifiable(row)
+    report(f"dropping {row.get('name')!r}: no suburb could be read and "
+           f"nothing names {sorted(allowed)}", level="debug")
+    return False
 
 
 def _gd_session(shared=None):

@@ -47,9 +47,12 @@ from fetch_urllib_sources import (fetch_chatty_cafe,  # noqa: E402
 from jsonio import read_json, write_json  # noqa: E402
 from webfetch_bayside import fetch_bayside  # noqa: E402
 from webfetch_ccc import fetch_ccc  # noqa: E402
+from webfetch_directory import fetch_directory  # noqa: E402
+from webfetch_everi import fetch_everi  # noqa: E402
 from webfetch_granicus import fetch_granicus  # noqa: E402
 from webfetch_http import (PartialFetch, parse_day_month_year,  # noqa: E402
-                           report, set_reporting_source)
+                           price_sort as _price_sort, report,
+                           set_reporting_source)
 from webfetch_seniors import fetch_kingston_seniors  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -59,7 +62,8 @@ SNAP_DIR = ROOT / "scripts" / "webfetch_snapshots"
 # sources, because each one's rows are also committed and a single overwritten
 # file would lose the per-source view. The plain sources share raw_events.json,
 # which is gitignored and is a scratch file for dedupe.py.
-SNAPSHOT_TYPES = {"bayside", "granicus", "ccc", "kingston_seniors_pdf"}
+SNAPSHOT_TYPES = {"bayside", "granicus", "ccc", "kingston_seniors_pdf",
+                 "oc_directory", "everi"}
 
 # One entry per `type:` in sources.yaml. The type is the ONLY dispatch key --
 # it used to be dispatched on here and on `id` in the other script, so adding a
@@ -73,6 +77,8 @@ FETCHERS = {
     "bayside": (fetch_bayside, True),
     "granicus": (fetch_granicus, True),
     "ccc": (fetch_ccc, True),
+    "oc_directory": (fetch_directory, True),
+    "everi": (fetch_everi, True),
     # The seniors PDF arrives whole, so it has no detail pages and takes no cap.
     "kingston_seniors_pdf": (fetch_kingston_seniors, False),
 }
@@ -89,6 +95,8 @@ REQUIRED_KEYS = {
     "bayside": ("url",),
     "granicus": ("url",),
     "ccc": (),  # `pages` or `url`; checked separately
+    "oc_directory": ("url",),
+    "everi": ("sitemap",),
     "kingston_seniors_pdf": ("pdf_url", "year"),
 }
 
@@ -129,11 +137,24 @@ def validate_config(entries):
                 if not cfg.get(key):
                     errors.append(f"source {sid!r} (type {ftype}): missing "
                                   f"required key {key!r}")
-            if ftype == "ccc" and not (cfg.get("pages") or cfg.get("url")):
-                # This one silently produced 0 rows and a "returned 0 events"
-                # failure, which reads like a dead scraper rather than a typo.
-                errors.append(f"source {sid!r} (type ccc): needs 'pages' or "
-                              f"'url'")
+            if ftype == "ccc":
+                # D21: a source config holds the venue, never a guess. A CCC row
+                # is filed at one of two venues and both addresses used to be
+                # constants inside the fetcher, so a stale address could not be
+                # seen or corrected without reading Python.
+                if not cfg.get("pages") and not cfg.get("url"):
+                    # This one silently produced 0 rows and a "returned 0 events"
+                    # failure, which reads like a dead scraper rather than a typo.
+                    errors.append(f"source {sid!r} (type ccc): needs 'pages' or "
+                                  f"'url'")
+                venues = cfg.get("venues") or {}
+                for key in ("default", "hall"):
+                    v = venues.get(key) or {}
+                    if not v.get("name") or not v.get("address"):
+                        errors.append(
+                            f"source {sid!r} (type ccc): venue {key!r} needs a "
+                            f"name AND an address, or its rows publish with no "
+                            f"place to go")
             if ftype == "api":
                 cals = cfg.get("calendars") or []
                 unmapped = [
@@ -207,21 +228,20 @@ def _count_change(previous, new_count):
 
 
 def price_sort(cost):
-    if not cost:
-        return None
-    if re.search(r"\bfree\b", cost, re.I):
-        return 0.0
-    if re.search(r"gold coin", cost, re.I):
-        return 1.0
-    m = re.search(r"\$\s*(\d+(?:\.\d+)?)", cost)
-    return float(m.group(1)) if m else None
+    """Sortable number for a price string.
+
+    Delegated to webfetch_http, which owns it: it is a rule about a row's
+    fields, and dedupe.py needs the same rule to repair rows stored before the
+    field existed.
+    """
+    return _price_sort(cost)
 
 
 def normalize(rows):
-    """The five derived fields every snapshot row carries.
+    """The two derived fields every snapshot row carries.
 
     Both former fetchers did this, in two near-identical passes. It lives here
-    now so a row cannot get a `source_label` in one script and not the other.
+    now so a row cannot get a `price_sort` in one script and not the other.
     """
     out = []
     for r in rows:
@@ -241,13 +261,8 @@ def normalize(rows):
                 dt = parse_day_month_year(r["datetime_text"])
             except Exception:
                 dt = None
-        # A date is "real" when the source itself supplied one (via either
-        # field). Never infer this from the value we just wrote back -- that
-        # field is non-empty by construction at this point.
-        r["has_real_date"] = dt is not None
         r["datetime_iso"] = dt.isoformat() if dt else None
         r["price_sort"] = price_sort(r.get("price_text"))
-        r["source_label"] = r.get("source_id", "unknown")
         out.append(r)
     return out
 

@@ -24,17 +24,24 @@ ROOT = Path(__file__).resolve().parent.parent
 # Each suite is a module in scripts/ whose __main__ block asserts its rules and
 # exits non-zero on failure. Order is only for readable output.
 SUITES = (
-    ("activity_types", "56 name/description -> tags cases"),
+    ("activity_types", "64 name/description -> tags cases"),
     ("status", "10 sold-out / service cases"),
     ("recurrence", "the date-inference table, on a fixed reference date"),
+    ("dedupe", "name, venue and series-key normalisation"),
     ("commercial", "commercial detection rules"),
     ("webfetch_granicus", "Granicus address parsing"),
+    ("webfetch_directory", "directory cards, addresses and hours tables"),
+    ("webfetch_everi", "Everi detail pages: dates, venues, series GUID"),
     ("webfetch_http", "shared time/month/row parsing"),
     ("build_site", "suburb extraction"),
     ("fetchers", "the fetch call convention, without a network"),
     ("failure_signals", "config validation and the do-not-publish signal"),
     ("fetcher_equivalence", "the fetchers extract the same rows they used to"),
 )
+
+# Modules that are both a pipeline stage and a suite. Running one as a suite must
+# not perform its stage, so checks.py passes `--test`.
+TEST_ONLY_MODULES = {"build_site", "dedupe"}
 
 
 def check(label, actual, expected, failures):
@@ -61,10 +68,14 @@ def run_suite(name, note):
     imports cleanly and then raises should not take the runner down with it.
     """
     print(f"== {name}: {note}")
-    # build_site.py builds the page by default; its cases run under --test
-    # so the check does not rebuild (and rewrite) the site as a side effect.
+    # Two modules have a real entry point as well as a suite, so running them
+    # must not have the side effect: `build_site.py` would rebuild (and rewrite)
+    # the site, and `dedupe.py` would re-run the whole merge and rewrite
+    # data/events.json. Both take `--test` to run their cases instead, which is
+    # the same convention and the reason it is a flag rather than a second
+    # module.
     args = [sys.executable, f"scripts/{name}.py"]
-    if name == "build_site":
+    if name in TEST_ONLY_MODULES:
         args.append("--test")
     proc = subprocess.run(args,
                           cwd=ROOT, capture_output=True, text=True)

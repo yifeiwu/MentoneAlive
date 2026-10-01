@@ -29,7 +29,9 @@ from zoneinfo import ZoneInfo
 from rapidfuzz import fuzz
 
 from jsonio import read_json, write_json
-from recurrence import infer_event, refresh_inferred, resolve_dateless
+from recurrence import (infer_event, refresh_inferred, resolve_dateless,  # noqa: F401
+                        series_id_for)
+from webfetch_http import price_sort
 
 PRUNE_DAYS = 90
 ROOT = Path(__file__).resolve().parent.parent
@@ -50,7 +52,21 @@ def reference_today():
 
 
 def normalize_name(name):
-    return fold_accents(" ".join((name or "").lower().strip().split()))
+    """The normalised programme name every identity comparison runs on.
+
+    Accents folded, trademark marks dropped, and a trailing qualifier removed --
+    so "Zumba® Gold", "Zumba Gold" and "Zumba Gold (Mondays)" are one string.
+    The qualifier is stripped *here* rather than only in `name_head()` because
+    the fuzzy pass compares `name_similarity()`, which uses this function: left
+    on, the qualified name scored 0.84 against the bare one and the class
+    published twice at the same hall, hour and date.
+    """
+    return _NAME_NOISE_RE.sub("", fold_accents(_subtitle_split(name)))
+
+
+def _subtitle_split(name):
+    s = " ".join((name or "").lower().strip().split())
+    return _SUBTITLE_SPLIT_RE.split(s)[0].strip()
 
 
 def fold_accents(text):
@@ -58,9 +74,18 @@ def fold_accents(text):
 
     One source copies 'Chatty Café' from the venue's own site while the
     national directory writes 'Chatty Cafe' unaccented.
+
+    Also drops the trademark marks, which are noise in a programme name: the CCC
+    site titles a class 'Zumba® Gold' where the Kingston Seniors guide writes
+    'Zumba Gold (Mondays)', and 0.65 similarity kept the two apart even though
+    they are the same class at the same hall on the same day at the same hour.
+    A symbol that carries no identifying information is not part of the identity.
     """
     decomposed = unicodedata.normalize("NFKD", text or "")
-    return "".join(c for c in decomposed if not unicodedata.combining(c))
+    stripped = "".join(c for c in decomposed
+                       if not unicodedata.combining(c)
+                       and c not in "®™©")
+    return unicodedata.normalize("NFKC", stripped)
 
 
 # A subtitle or qualifier after a separator: "Chatty Cafe - Connect over a
@@ -68,8 +93,20 @@ def fold_accents(text):
 _SUBTITLE_SPLIT_RE = re.compile(r"\s+[-|:–—]\s+")
 
 # Generic trailing tags that carry no programme identity.
+#
+# The weekday qualifier is here because sources add one to the same class on
+# different days: the Seniors guide writes "Zumba Gold (Mondays)" and "Zumba Gold
+# (Fridays)" where the CCC site writes plain "Zumba® Gold". Those are one
+# programme, and with the suffix left on, the qualified name scored 0.65 against
+# the bare one -- below the fuzzy threshold -- so Monday's class published
+# twice at the same hall, hour and date. They still do not merge with each
+# other: two sessions of one class are on different days, and the merge also
+# requires the same day.
 _NAME_NOISE_RE = re.compile(
-    r"\s*\((?:new|sessions?|series|class|term \d+)\)\s*$", re.I)
+    r"\s*\((?:new|sessions?|series|class|term \d+"
+    r"|mon|tues|wednes|thurs|fri|satur|sun)days?"
+    r"(?:\s*(?:&|and|,|/)\s*(?:mon|tues|wednes|thurs|fri|satur|sun)days?)*"
+    r"\)\s*$", re.I)
 
 
 def name_head(name):
@@ -78,8 +115,7 @@ def name_head(name):
     'Chatty Cafe - Connect over a Cuppa' -> 'chatty cafe'
     'Love to Live - Gentle Chair-Based Exercise' -> 'love to live'
     """
-    s = _NAME_NOISE_RE.sub("", normalize_name(name))
-    return fold_accents(_SUBTITLE_SPLIT_RE.split(s)[0].strip())
+    return normalize_name(name)
 
 
 def normalize_location(loc):
@@ -334,7 +370,7 @@ def _merge_sources(existing, candidate, refresh_source=False):
         existing["source"] = cand_src
     # Prefer keeping a real date over a dateless duplicate.
     if not existing.get("datetime_iso") and candidate.get("datetime_iso"):
-        for k in ("datetime_iso", "datetime_text", "has_real_date"):
+        for k in ("datetime_iso", "datetime_text"):
             # `is not None` would skip a genuine empty string, leaving the
             # dateless row with a blank display after gaining a real date.
             if candidate.get(k):
@@ -344,6 +380,7 @@ def _merge_sources(existing, candidate, refresh_source=False):
         # dateless twin is never suppressed in favour of it.
         existing.pop("date_inferred", None)
         existing.pop("recurrence", None)
+        existing.pop("series_id", None)
     # Fill in fields the kept row was missing rather than the better row.
     # `suburb` is in the list because build_site.py writes a derived value into
     # the store: when an address carries no "VIC ####" for extract_suburb() to
@@ -370,31 +407,6 @@ def _merge_sources(existing, candidate, refresh_source=False):
             existing["location"] = candidate["location"].strip()
 
 
-def _justification_keys(row, today):
-    """The (name, url, timestamp, venue) tuples `row` justifies in the store.
-
-    A source-supplied dated row stands for exactly one slot. A dateless row
-    stands for whatever recurrence.py expands it into, which is computed here
-    with the same function the pipeline uses so the two cannot drift.
-    """
-    name = normalize_name(row.get("name"))
-    url = (row.get("source") or "").rstrip("/")
-    if not name:
-        return set()
-    iso = str(row.get("datetime_iso") or "")
-    if iso and row.get("has_real_date", True):
-        return {(name, url, iso[:16], venue_head(row.get("location")))}
-    keys = set()
-    try:
-        made, _reason = infer_event(row, today)
-    except Exception:
-        return keys
-    for made_row in made:
-        keys.add((name, url, str(made_row.get("datetime_iso"))[:16],
-                  venue_head(made_row.get("location"))))
-    return keys
-
-
 def reconcile_store(rows, live_rows, today=None, report=True):
     """Drop stored rows that this run's sources no longer justify.
 
@@ -415,37 +427,53 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     has a *different* timestamp or venue from the row that replaced it --
     that difference is the whole point.
 
+    Two ways to be judged, and a row needs only one of them:
+
+    * A **series** row is justified while its series is still published. This is
+      a set membership test, which is why it is stable: the older test
+      re-expanded the listing's prose with the *current* run date and compared
+      timestamps, so the window slid forward every run and dropped correct rows
+      in bulk (97 eight days after a build, 382 two months after).
+    * A **one-off** has no series and corresponds to exactly one slot, so it is
+      matched on (name, url, timestamp, venue).
+
+    The series test is computed rather than read, so it also covers the rows
+    that have no `series_id` written on them -- notably a one-off that was a
+    dated listing when the store was built and whose source has since switched
+    to publishing a dateless recurring schedule. Those rows were justified by
+    the old code through `infer_event`, and would otherwise be dropped for
+    having no live row to match a timestamp against.
+
     A row is judged only against the sources it claims (`source` plus every
-    URL merged into `sources`), so a row is kept as long as one source still
-    vouches for it. And it is only dropped when its own source_label was
-    crawled successfully this run: a source that is absent entirely (a
+    URL merged into `sources`), and it is only dropped when its own source_id
+    was crawled successfully this run: a source that is absent entirely (a
     seasonal festival out of season, a fetcher that failed) must not take its
     existing rows down with it, so those rows are left for the 90-day prune.
     """
     today = today or reference_today()
-    live_labels = {r.get("source_label") for r in live_rows if r.get("source_label")}
+    live_labels = {r.get("source_id") for r in live_rows if r.get("source_id")}
 
-    # Only expand the dateless listings the store actually references, so the
-    # cost is bounded by the store rather than by the whole crawl.
-    referenced = set()
-    for r in rows:
-        for url in [r.get("source")] + list(r.get("sources") or []):
-            if url:
-                referenced.add((normalize_name(r.get("name")),
-                                url.rstrip("/")))
-    justified = set()
-    for src in live_rows:
-        key = (normalize_name(src.get("name")),
-               (src.get("source") or "").rstrip("/"))
-        if key not in referenced:
-            continue
-        justified |= _justification_keys(src, today)
+    # One call per live row rather than one per stored row it might justify,
+    # and no expansion: the id is computed from fields the listing already
+    # carries, so a dateless listing and its twelve materialised occurrences
+    # agree without anything being re-parsed. A row's own stamped id wins,
+    # because a source that publishes one is authoritative where ours is
+    # inferred (webfetch_everi.py stamps the site's eventIdentifier GUID).
+    live_series = set()
+    for r in live_rows:
+        if r.get("source_id"):
+            live_series.add(r.get("series_id") or series_id_for(r))
 
     # venue compatibility, so a venue string enriched from a sibling source
     # does not read as a contradiction.
     by_slot = {}
-    for name, url, stamp, venue in justified:
-        by_slot.setdefault((name, url, stamp), set()).add(venue)
+    for src in live_rows:
+        iso = str(src.get("datetime_iso") or "")
+        if not iso:
+            continue
+        key = (normalize_name(src.get("name")),
+               (src.get("source") or "").rstrip("/"), iso[:16])
+        by_slot.setdefault(key, set()).add(venue_head(src.get("location")))
 
     # The live row behind each slot, so a stored field the source has since
     # *corrected* can be re-derived. _merge_sources() only fills blanks, by
@@ -469,10 +497,10 @@ def reconcile_store(rows, live_rows, today=None, report=True):
         key = (normalize_name(src.get("name")),
                (src.get("source") or "").rstrip("/"), iso[:16])
         live_by_slot.setdefault(key, []).append(src)
-    # A dateless listing expands into many store rows -- a weekly course is
-    # one snapshot row and a dozen published ones -- so a store row has no
-    # single live row to match on its timestamp. Fall back to (name, url) for
-    # those, which is the same key _justification_keys() uses.
+    # A series is one snapshot row and a dozen published ones, so a store row
+    # has no single live row to match on its timestamp. Fall back to
+    # (name, url), which is the coarse key, and only for reading -- deciding
+    # survival is the series_id test above.
     live_by_listing = {}
     for src in live_rows:
         key = (normalize_name(src.get("name")),
@@ -480,38 +508,59 @@ def reconcile_store(rows, live_rows, today=None, report=True):
         live_by_listing.setdefault(key, []).append(src)
 
     kept, dropped = [], []
+    series_kept = slot_kept = 0
     repaired = 0
     for r in rows:
         iso = str(r.get("datetime_iso") or "")
-        if not iso or r.get("source_label") not in live_labels:
+        if not iso or r.get("source_id") not in live_labels:
             kept.append(r)
             continue
-        name = normalize_name(r.get("name"))
-        venue = venue_head(r.get("location"))
-        urls = [(r.get("source") or "").rstrip("/")] + \
-               [u.rstrip("/") for u in (r.get("sources") or []) if u]
-        ok = False
-        for url in urls:
-            if not url:
-                continue
-            venues = by_slot.get((name, url, iso[:16]))
-            if venues is None:
-                continue
-            if not venue or venue in venues:
-                ok = True
-                break
-            if any(_venue_compatible(v, venue) for v in venues if v):
-                ok = True
-                break
-        if ok:
+        if (r.get("series_id") or series_id_for(r)) in live_series:
+            # A live listing publishes this programme at this venue. The row's
+            # timestamps are a materialisation of that listing's schedule, not
+            # a claim about what the source publishes today, so they are not
+            # compared: doing so only measured how far the run date had moved
+            # since they were written, which slid the window forward every run
+            # and dropped correct rows in bulk. Deliberately not `continue`:
+            # the repair pass below runs for every kept row, and skipping it
+            # here is what left 344 directory rows holding the venue's street
+            # address and the words "View Map" at the end of their description,
+            # forever, because a live row had corrected them and nothing
+            # downstream ever overwrites a field the store already has.
             kept.append(r)
+            series_kept += 1
         else:
-            dropped.append(r)
-            continue
+            # Otherwise the row stands for exactly one slot, so it needs a live
+            # row stating that slot. This is what covers a one-off whose source
+            # has since switched to publishing a dateless recurring schedule.
+            name = normalize_name(r.get("name"))
+            venue = venue_head(r.get("location"))
+            urls = [(r.get("source") or "").rstrip("/")] + \
+                   [u.rstrip("/") for u in (r.get("sources") or []) if u]
+            ok = False
+            for url in urls:
+                if not url:
+                    continue
+                venues = by_slot.get((name, url, iso[:16]))
+                if venues is None:
+                    continue
+                if not venue or venue in venues:
+                    ok = True
+                    break
+                if any(_venue_compatible(v, venue) for v in venues if v):
+                    ok = True
+                    break
+            if not ok:
+                dropped.append(r)
+                continue
+            slot_kept += 1
+            kept.append(r)
         # A row the source vouches for, but whose address or location the
         # source has since corrected into a well-formed value. Applied after
         # the keep/drop decision so it cannot affect which rows survive.
-        for url in urls:
+        name = normalize_name(r.get("name"))
+        for url in [(r.get("source") or "").rstrip("/")] + \
+                [u.rstrip("/") for u in (r.get("sources") or []) if u]:
             if not url:
                 continue
             candidates = live_by_slot.get((name, url, iso[:16]))
@@ -527,7 +576,7 @@ def reconcile_store(rows, live_rows, today=None, report=True):
                         repaired += 1
                 # A price the source has since cleaned. The same
                 # never-overwrite rule applies: a fetcher that used to publish
-                # the page's call-to-action as a price ("\$12 per session FIND
+                # the page's call-to-action as a price ("$12 per session FIND
                 # OUT MORE BUTTON Find Out More", 96 rows) leaves the store
                 # holding it, because _merge_sources() only fills blanks.
                 # Tested on the *live* value, not a pattern, so a genuinely
@@ -539,6 +588,20 @@ def reconcile_store(rows, live_rows, today=None, report=True):
                         or "BUTTON" in stored_price or "FIND OUT" in stored_price.upper()):
                     r["price_text"] = fresh_price
                     repaired += 1
+                # A description carrying page furniture rather than prose. The
+                # same never-overwrite rule: only the stored value is judged, so
+                # a terse or unusual but well-formed description is left alone.
+                # 344 rows held the group's own street address and the words
+                # "View Map" at the end of the description, which a directory
+                # fetcher produced by reading every paragraph in a column
+                # instead of stopping at the Location heading -- shown to a
+                # reader, and fed to the classifier as text about a road.
+                stored_desc = (r.get("description") or "").strip()
+                fresh_desc = (live.get("description") or "").strip()
+                if stored_desc and fresh_desc and len(fresh_desc) < len(stored_desc) \
+                        and _page_furniture(stored_desc) and not _page_furniture(fresh_desc):
+                    r["description"] = fresh_desc
+                    repaired += 1
                 break
 
     if repaired and report:
@@ -546,13 +609,30 @@ def reconcile_store(rows, live_rows, today=None, report=True):
               f"corrected (malformed address, re-derived from the live row)")
     if dropped and report:
         print(f"  Dropped {len(dropped)} stored rows the sources no longer "
-              f"publish (corrected time, or listing withdrawn)")
+              f"publish; kept {series_kept} on their series' identity and "
+              f"{slot_kept} on a source-stated slot")
         for r in dropped[:10]:
             print(f"    {r.get('name')!r} {str(r.get('datetime_iso'))[:16]} "
-                  f"[{r.get('source_label')}] {r.get('location')!r}")
+                  f"[{r.get('source_id')}] {r.get('location')!r}")
         if len(dropped) > 10:
             print(f"    ... and {len(dropped) - 10} more")
     return kept, dropped
+
+
+def _page_furniture(value):
+    """True when a description ends in layout the page printed, not prose.
+
+    A map link, or an address tail with the line breaks still in it. Both are
+    what a fetcher that read the whole content column instead of the
+    description produced, and both survive in the store because
+    `_merge_sources()` never overwrites a field the store already has.
+    """
+    v = (value or "").strip()
+    if not v:
+        return False
+    if re.search(r"\bview map\b", v, re.I):
+        return True
+    return bool(re.search(r"\n\s*\S+,\s*\n", v))
 
 
 def _malformed(value):
@@ -672,24 +752,38 @@ def deduplicate(new_events, existing_events):
 
 def _normalize_raw(row, quiet=False):
     """Backfill fields for archived/webfetch rows lacking fetch normalization."""
-    row.setdefault("source_label", row.get("source_id", "unknown"))
+    row["source_id"] = row.get("source_id") or "unknown"
+    # Two fields that were pure duplicates of others, retired rather than kept
+    # in step. `source_label` was `source_id` in all 1531 rows under a second
+    # name, and `has_real_date` read True for all 1531 because recurrence.py set
+    # it on every row it *inferred* -- so a field documented as "the source
+    # supplied this date" discriminated nothing, and the self-contradiction
+    # check that used to read it could never fire. Popping them here rather than
+    # in each reader is what retires them from the store: dedupe.py normalises
+    # the canonical rows on every run, so they disappear without a migration.
+    row.pop("source_label", None)
+    row.pop("has_real_date", None)
     # Normalise first: " " and "None" are both truthy but carry no date, and
     # would otherwise build a bogus content hash off a whitespace day-part.
     iso = (row.get("datetime_iso") or "").strip() \
         if isinstance(row.get("datetime_iso"), str) else row.get("datetime_iso")
     row["datetime_iso"] = iso or None
-    if "has_real_date" not in row:
-        row["has_real_date"] = bool(iso)
-    # A row that carries a date but is flagged as not having a real one is
-    # self-contradictory: an old bug stamped such rows with the fetch time, so
-    # the published date silently became the day the pipeline ran. Trust the
-    # flag -- without a real date the row goes back to recurrence.py, which
-    # re-derives it from the text or drops it.
-    if row["datetime_iso"] and not row["has_real_date"]:
-        if not quiet:
-            print(f"  discarding unstamped date for {row.get('name')!r} "
-                  f"({row['datetime_iso']}); will re-derive from text")
-        row["datetime_iso"] = None
+    # Same repair for `price_sort`. `_merge_sources()` fills blanks only, by
+    # design -- a field the store already has wins -- so a row stored before the
+    # field existed keeps None indefinitely and the page's "free only" filter
+    # misses it. 56 rows carried a price_text with no price_sort, 19 of them
+    # reading "Free", so the filter disagreed with the price beside it.
+    if row.get("price_sort") is None:
+        row["price_sort"] = price_sort(row.get("price_text"))
+    # A materialised series row needs its identity, or reconcile_store() falls
+    # back to matching its timestamp -- which slides with the run date and
+    # drops correct rows in bulk. Rows written before series_id existed have no
+    # id, and a series is exactly one (source, name, venue), so deriving it
+    # here is a lossless migration rather than a guess: the same listing's
+    # twelve occurrences all derive the same value, and so does the live
+    # dateless row they came from.
+    if row.get("date_inferred") and not row.get("series_id"):
+        row["series_id"] = series_id_for(row)
     if not isinstance(row.get("sources"), list):
         row["sources"] = [row.get("source", "")]
     # Two fields no consumer reads: `datetime_display` (a formatted copy of
@@ -700,6 +794,13 @@ def _normalize_raw(row, quiet=False):
     # whatever the last fetch happened to emit.
     row.pop("datetime_display", None)
     row.pop("date_text", None)
+    # `_hours_schedule` is scratch space inside webfetch_directory.py: the
+    # fetcher carries the page's hours table on the row because that is the only
+    # thing both its prose test and its hours test read. It is not part of the
+    # row schema, and `_merge_sources()` will not clear a field the store
+    # already has, so rows already in the store kept it. Stripped here, with the
+    # other pipeline-internal keys, rather than in the fetcher alone.
+    row.pop("_hours_schedule", None)
     # Dedupe sources list
     seen, uniq = set(), []
     for s in row["sources"]:
@@ -756,6 +857,38 @@ def prune_old(rows, days=PRUNE_DAYS, today=None):
     return kept, pruned
 
 
+_ARCHIVED_REQUIRED = ("name", "source", "source_id")
+
+
+def _malformed_archived(archived):
+    """Problems with `archived_events.json`, as readable lines.
+
+    This file bypasses every other source mechanism: it is not in
+    sources.yaml, so `validate_config()` never sees it, it cannot be run with
+    `--source`, and no floor or snapshot rule covers it. Nothing enforced its
+    shape either -- all 24 rows happen to carry the same eight keys, and a row
+    missing `address` or with a mistyped `source_id` would fail much later and
+    name a file nobody suspects, in a message about a missing address or a
+    missing badge rather than about a typo in the archive.
+    """
+    problems = []
+    if not isinstance(archived, list):
+        return problems
+    for i, row in enumerate(archived):
+        if not isinstance(row, dict):
+            problems.append(f"row {i} is a {type(row).__name__}, not an object")
+            continue
+        for key in _ARCHIVED_REQUIRED:
+            if not (row.get(key) or "").strip():
+                problems.append(f"row {i} ({row.get('name')!r}) has no {key!r}")
+        if row.get("source_id") != row.get("source_label"):
+            problems.append(
+                f"row {i} ({row.get('name')!r}) source_label "
+                f"{row.get('source_label')!r} != source_id "
+                f"{row.get('source_id')!r}")
+    return problems
+
+
 def load_live_inputs(quiet=False):
     """Every row the sources published this run, normalised.
 
@@ -782,8 +915,21 @@ def load_live_inputs(quiet=False):
         if not quiet:
             print(f"Archived events: {len(archived)}")
         raw.extend(archived)
-    elif not quiet:
-        print("No archived events file found")
+    elif archived is None:
+        if not quiet:
+            print("No archived events file found")
+    else:
+        # A dict-shaped file was previously reported as "no archived events file
+        # found", which is false and silent under `quiet` -- so a config mistake
+        # read as an absence, and every archived row quietly stopped publishing.
+        print(f"FAIL: scripts/archived_events.json is a "
+              f"{type(archived).__name__}, not a list of rows")
+        if not quiet:
+            sys.exit(1)
+    if not quiet:
+        bad = _malformed_archived(archived)
+        for line in bad:
+            print(f"  archived_events.json: {line}")
 
     snap_count = 0
     snapshot_failures = []
@@ -817,6 +963,89 @@ def load_live_inputs(quiet=False):
               f"{snapshot_failures}")
         sys.exit(1)
     return [_normalize_raw(r, quiet=quiet) for r in raw if isinstance(r, dict)]
+
+
+def _self_test():
+    """The name and venue normalisation the merge decides on.
+
+    These had no suite of their own, which is how `dedupe.py` came to hold two
+    separate readers of the same idea and a threshold that quietly excluded a
+    class it was meant to catch. Run by `checks.py`.
+    """
+    import sys
+
+    from checks import check as _check
+
+    failures = []
+
+    def check(label, actual, expected):
+        return _check(label, actual, expected, failures)
+
+    for label, actual, expected in [
+        # Two sources styling the same programme differently.
+        ("accented and unaccented are one programme",
+         name_similarity("Chatty Café", "Chatty Cafe"), 1.0),
+        ("a trademark mark is not part of the identity",
+         name_similarity("Zumba® Gold", "Zumba Gold (Mondays)"), 1.0),
+        # Two sessions of one class on different days stay distinct, because the
+        # merge also requires the same day -- the name is allowed to collapse.
+        ("a weekday qualifier does not merge two different days",
+         name_head("Zumba Gold (Mondays)") == name_head("Zumba Gold (Fridays)"),
+         True),
+        ("a subtitle is not part of the identity",
+         name_head("Chatty Cafe - Connect over a Cuppa"), "chatty cafe"),
+        ("a weekday qualifier is not part of the identity",
+         name_head("Zumba Gold (Mondays)"), "zumba gold"),
+        ("a two-day qualifier is stripped whole",
+         name_head("Line Dancing (Tuesdays & Thursdays)"), "line dancing"),
+        # ...but a bracketed word that IS the programme must survive, and so must
+        # a bracketed qualifier that is not at the end.
+        ("a bracketed name that is the programme survives",
+         name_head("Yoga (Gentle)"), "yoga (gentle)"),
+        ("a bracketed qualifier mid-name is not stripped",
+         name_head("Reading Group (Mornings) at Noon"),
+         "reading group (mornings) at noon"),
+        # The venue head is what decides whether two sources mean the same place.
+        ("a venue and its full address are one venue",
+         venue_head("Cheltenham Hall, 1218 Nepean Highway"),
+         venue_head("Cheltenham Hall")),
+        ("two different venues are not one venue",
+         venue_head("Cheltenham Hall") == venue_head("Cheltenham Community Centre"),
+         False),
+        # slot_hash must keep the start time, or two sessions of one class in
+        # one day collapse into one event.
+        ("the dedupe key keeps the start time",
+         slot_hash({"name": "EAL", "datetime_iso": "2026-10-07T09:00:00",
+                    "location": "Hall"})
+         == slot_hash({"name": "EAL", "datetime_iso": "2026-10-07T12:30:00",
+                       "location": "Hall"}), False),
+        ("the dedupe key ignores fetch-time microseconds",
+         slot_hash({"name": "EAL", "datetime_iso": "2026-10-07T09:00:00",
+                    "location": "Hall"})
+         == slot_hash({"name": "EAL", "datetime_iso": "2026-10-07T09:00:00.123",
+                       "location": "Hall"}), True),
+        # A series identity must survive a source re-slugging a venue page, which
+        # is why it is keyed on the venue and not on the URL.
+        ("the series id ignores the source URL",
+         series_id_for({"source_id": "s", "name": "N", "location": "V",
+                        "source": "https://x.invalid/old-slug"})
+         == series_id_for({"source_id": "s", "name": "N", "location": "V",
+                           "source": "https://x.invalid/new-slug"}), True),
+        ("the series id separates different sources",
+         series_id_for({"source_id": "a", "name": "N", "location": "V"})
+         != series_id_for({"source_id": "b", "name": "N", "location": "V"}),
+         True),
+        ("the series id separates different venues",
+         series_id_for({"source_id": "s", "name": "N", "location": "V1"})
+         != series_id_for({"source_id": "s", "name": "N", "location": "V2"}),
+         True),
+    ]:
+        check(label, actual, expected)
+
+    if failures:
+        print(f"\ndedupe: {len(failures)} case(s) FAILED")
+        sys.exit(1)
+    print("\nall dedupe normalisation cases as expected")
 
 
 def main():
@@ -887,4 +1116,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # `python scripts/dedupe.py` runs the merge; `--test` runs the cases instead,
+    # which is what checks.py needs so that checking dedupe does not rewrite
+    # data/events.json as a side effect. Same convention as build_site.py.
+    if "--test" in sys.argv:
+        _self_test()
+    else:
+        main()

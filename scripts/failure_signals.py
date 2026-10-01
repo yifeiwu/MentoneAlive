@@ -6,14 +6,18 @@ rows" and letting a good snapshot be overwritten.
 """
 import copy
 import sys
+from datetime import date, timedelta
 
 sys.path.insert(0, "scripts")
 
+import jsonio  # noqa: E402
 import yaml  # noqa: E402
-
 from checks import check as _check  # noqa: E402
+from dedupe import (_normalize_raw, load_live_inputs,  # noqa: E402
+                    reconcile_store)
 from fetch_sources import (_count_change, _previous_count,  # noqa: E402
                            validate_config)
+from jsonio import write_json  # noqa: E402
 from webfetch_http import (PartialFetch, enrich_details, make_row,  # noqa: E402
                            set_reporting_source)
 
@@ -157,7 +161,6 @@ from pathlib import Path  # noqa: E402
 
 with tempfile.TemporaryDirectory() as _tmp:
     snap = Path(_tmp) / "snap.json"
-    from jsonio import write_json  # noqa: E402
 
     write_json(snap, [{"name": f"row {i}"} for i in range(100)])
     before = _previous_count(snap)
@@ -172,6 +175,55 @@ with tempfile.TemporaryDirectory() as _tmp:
           "smaller" in _count_change(None, 10), False)
     check("an unreadable previous snapshot does not raise",
           _count_change(None, 10), "10 rows (no previous snapshot)")
+
+
+# --- a store row's justification must not depend on the run date ----------
+# The failure this pins is not a wrong value, it is a correct one that goes
+# wrong on its own. A weekly series publishes its next 12 occurrences *from the
+# run date*, so the stored rows are a snapshot of a rolling window.
+# reconcile_store() used to re-expand each listing's prose with the CURRENT run
+# date and compare timestamps against the stored ones, which meant the window it
+# compared against had slid forward since the rows were written: 97 rows were
+# reported unjustified 8 days after a build, 130 after 15, 382 after two months,
+# and health_check.py fails the build on any drop. So the build was a time bomb
+# with a seven-day fuse, and the run date is not a thing a correct reconciliation
+# may read.
+#
+# series_id made the test a set membership instead, and these cases assert the
+# two properties that fix has to have: stable across every future run date, and
+# still actually able to notice a withdrawal.
+_STORE = [_normalize_raw(dict(r), quiet=True)
+          for r in jsonio.read_json("data/events.json")["rows"]]
+_LIVE = [_normalize_raw(dict(r), quiet=True) for r in load_live_inputs(quiet=True)]
+_TODAY = date(2026, 10, 1)
+
+
+def dropped_on(day):
+    return len(reconcile_store(list(_STORE), list(_LIVE), today=day,
+                               report=False)[1])
+
+
+check("the committed store is reconciled clean today", dropped_on(_TODAY), 0)
+# One week, one month, one quarter, one year out: the answer must not move.
+check("reconciliation does not drift with the run date",
+      [dropped_on(_TODAY + timedelta(days=d))
+       for d in (7, 30, 91, 365)], [0, 0, 0, 0])
+
+# ...and the check must not have been defanged to achieve that. Withdrawing a
+# single series from the live set must take exactly that series' rows down.
+_target = next(r for r in _LIVE if r.get("name", "").startswith("Bayside Farmers"))
+_without = [r for r in _LIVE if r is not _target]
+_lost = reconcile_store(list(_STORE), _without, today=_TODAY, report=False)[1]
+check("a withdrawn series is noticed", len(_lost), 12)
+check("and only that series goes", sorted({r["name"] for r in _lost}),
+      [_target["name"]])
+
+# A source that is absent entirely is out of season or broken, not withdrawn,
+# and must not take its existing rows down with it.
+_absent = [r for r in _LIVE if r.get("source_id") != "kingston_seniors"]
+check("an absent source does not withdraw its rows",
+      len(reconcile_store(list(_STORE), _absent, today=_TODAY,
+                          report=False)[1]), 0)
 
 
 if failures:

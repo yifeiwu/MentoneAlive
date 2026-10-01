@@ -71,7 +71,7 @@ def _check_impersonation(failures):
     """
     curl = {c["id"] for c in fetch_sources.load_config()
             if c.get("impersonate")}
-    expected = {"kingston_council", "kingston_arts",
+    expected = {"kingston_council", "kingston_arts", "kingston_groups",
                 "greater_dandenong", "gd_libraries"}
     checks.check("impersonate sources", curl, expected, failures)
 

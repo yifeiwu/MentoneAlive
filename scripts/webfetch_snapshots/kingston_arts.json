@@ -1,31 +1,27 @@
 [
  {
   "name": "'Kingston Sounds' by Susannah Langley",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-  "datetime_iso": "2026-09-30T21:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+  "datetime_iso": "2026-10-01T12:00:00",
   "location": "Kingston Arts Centre",
-  "address": "Kingston Arts Centre",
+  "address": "979 Nepean Highway, Moorabbin 3189",
   "price_text": "",
   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "'Refugia' by Kerri Wilson McConchie",
-  "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-  "datetime_iso": "2026-09-30T21:00:00",
+  "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+  "datetime_iso": "2026-10-01T12:00:00",
   "location": "Kingston City Hall",
-  "address": "Kingston City Hall",
+  "address": "979-985 Nepean Highway, Moorabbin 3189",
   "price_text": "",
   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "'Hand me down' by Andrew Duong",
@@ -37,9 +33,7 @@
   "description": "Exhibiting a series of paintings exploring inherited items and their cultural significance through an Australian-Cambodian-Chinese lens. Paintings reference stories of second-generation migrants and people born in the 90's, through a playful tone that speaks to values of sharing, appreciation and family.",
   "source": "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "'Rendered Other and Cast Out' by Elizabeth Cole",
@@ -51,9 +45,7 @@
   "description": "A multi-disciplinary exhibition that reworks Antarctic and personal archival materials to warn of our uncertain future due to human-caused global warming. The five-part installation references the historic age of polar exploration, colonial-era whaling and the possible post-human consequences of inaction.",
   "source": "https://www.kingstonarts.com.au/whats-on/rendered-other-and-cast-out",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "Stitch with Sappho: Community Textile Installation by Juliet D Collins",
@@ -65,9 +57,7 @@
   "description": "A collaborative textile and mixed media installation created with community participants; weaving together stitched fragments to reimagine Ancient Greek poet Sappho’s legacy and enduring presence through collective making.",
   "source": "https://www.kingstonarts.com.au/whats-on/stitch-with-sappho-by-juliet-d-collins",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "Drag Bingo with Gabriella Labucci and Abra KaDebra",
@@ -79,9 +69,7 @@
   "description": "Get ready for a night of absolute chaos, comedy, and camp as Gabriella Labucci joins forces with the dazzling Abra KaDebra for Drag Bingo!",
   "source": "https://www.kingstonarts.com.au/whats-on/drag-bingo",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "VR workshop: Your sounds of Kingston",
@@ -93,9 +81,7 @@
   "description": "Explore a virtual reality artwork inspired by sounds of Kingston and try your hand at making your own.",
   "source": "https://www.kingstonarts.com.au/whats-on/Your-sounds-of-kingston",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "Exhibition celebration for 'Stitch with Sappho' exhibition",
@@ -107,9 +93,7 @@
   "description": "Please join us to celebrate an exhibition of a large-scale collaborative textile installation created by artist Juliet D Collins and participants in her Stitch with Sappho workshops during 2026.",
   "source": "https://www.kingstonarts.com.au/whats-on/exhibition-celebration-for-stitch-with-sappho-exhibition",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "Kings of the Gypsies",
@@ -121,9 +105,7 @@
   "description": "Rosita’s Flamenco Centre returns with the story, Kings of the Gypsies.",
   "source": "https://www.kingstonarts.com.au/whats-on/kings-of-the-gypsies",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  },
  {
   "name": "Lush Paper Flowers",
@@ -135,8 +117,6 @@
   "description": "Fully booked. Dive into a vibrant world of colours and textures as you learn the art of crafting blooms from delicate crepe paper.",
   "source": "https://www.kingstonarts.com.au/whats-on/laneway-learning/lush-paper-flowers",
   "source_id": "kingston_arts",
-  "has_real_date": true,
-  "price_sort": null,
-  "source_label": "kingston_arts"
+  "price_sort": null
  }
 ]

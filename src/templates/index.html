@@ -147,6 +147,7 @@ td{overflow-wrap:break-word}
 .badge-service{background:#5a6672}
 .badge-status{background:#8a4b00}
 .badge-kingston_arts{background:#ad1457}
+.badge-kingston_groups{background:#35522b}
 .ics-btn{background:#fff;border:1px solid var(--primary);color:var(--primary);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:.8125rem;white-space:nowrap}
 .ics-btn:hover{background:var(--primary);color:#fff}
 .src-link{display:inline-block;background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:4px;padding:6px 10px;font-size:.8125rem;text-decoration:none;white-space:nowrap}
@@ -474,7 +475,7 @@ function typeStr(r){return getTypes(r).join(", ");}
 // `[,]<label>:` scan finds each name here. The keys are valid identifiers, so
 // dropping the quotes is free; keeping one map is what stops a new source from
 // needing a second list that can drift out of sync with this one.
-function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors"};
+function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",kingston_groups:"Kingston Groups",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",frankston_live:"Frankston"};
 return '<span class="badge badge-'+(src||"unknown")+'">'+esc(m[src]||src||"unknown")+'</span>'}
 function commercialBadge(r){var h='';if(r.is_commercial)h+='<span class="badge badge-commercial">COMMERCIAL</span>';if(r.is_service)h+='<span class="badge badge-service">DROP-IN SERVICE</span>';if(r.status)h+='<span class="badge badge-status">'+esc(r.status_label||r.status.toUpperCase())+'</span>';return h;}
 // A large share of published rows are date_inferred: recurrence.py derived
@@ -674,7 +675,7 @@ function render(){
     // also in the CSV export and the .ics, so the clamp hides nothing that
     // is not recoverable.
     +"<td role='cell' class='price'>"+lbl("Price")+"<span class='priceval' title='"+esc(r.price_text||"")+"'>"+esc(r.price_text||"")+"</span></td>"
-    +"<td role='cell'>"+lbl("Location")+badge(r.source_label)+esc(r.location||"")+"<div class='addr'>"+esc(r.address||"")+"</div></td>"
+    +"<td role='cell'>"+lbl("Location")+badge(r.source_id)+esc(r.location||"")+"<div class='addr'>"+esc(r.address||"")+"</div></td>"
     +"<td role='cell'>"+lbl("Links")+"<div class='linkcell'>"
     // Both accessible names contain their own visible text. An aria-label
     // that replaced "+ Calendar" with "Add ... to calendar" would leave a

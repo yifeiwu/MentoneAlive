@@ -1,0 +1,725 @@
+"""OpenCities local directories (Kingston's community groups).
+
+One fetcher for the platform rather than for the council, the same way
+`webfetch_granicus.py` serves both kingston_council and kingston_arts: adding a
+second council's directory is a `sources.yaml` entry, not a second scraper. The
+platform is OpenCities / Granicus "Seamless CMS" -- an ASP.NET WebForms page
+whose listing is server-rendered inside a Telerik search control.
+
+What this source is for
+-----------------------
+
+A community group is not an event. It has no date; it has a *schedule* --
+"every third Monday at 10am" -- and the calendar needs it as twelve dated rows.
+So the listing, which states no time at all, is only half the crawl: every
+entry's own page has to be opened, because that is the only place the schedule
+is written down. See `_apply_directory_detail`.
+
+Two ways a group states when it meets, and they are not equally trustworthy:
+
+* The **description prose**, which the group itself writes and which often says
+  exactly the right thing ("monthly meetings ... on the third Monday of each
+  month starting at 10.00am"). Preferred, because it is the group's own claim
+  about its own schedule.
+* A per-weekday **Hours** table, present on roughly half the directory. It is
+  the venue's opening hours more often than it is a meeting, and the two are
+  indistinguishable by shape -- the golf club lists 07:00-18:00 seven days a
+  week. `_schedule_from_hours` is where that is filtered.
+
+A group with a place but no time, or a time but no place, is dropped. Neither
+half is actionable on a calendar, and the alternative is a row a reader cannot
+act on -- the same reasoning as `webfetch_granicus.drop_venueless()` and D20.
+
+The pagination trap
+-------------------
+
+This listing is 12 pages deep and paginates by **ASP.NET postback only**.
+`?page=2` and `?oc_page=2` are both accepted and both ignored: the server
+returns page 1. Only a POST carrying `__SEAMLESSVIEWSTATE` (a ~46 KB gzipped
+blob, reissued on every response) plus the pager's own control names moves the
+page. The control names are `ctl10$ctl00$ctl07` and so on, which are generated
+by the template and change when a control is added above the pager -- so they
+are discovered from the markup rather than hard-coded.
+
+The failure this has to catch: a POST with a wrong field name is *accepted* and
+returns page 1 again, silently. So the collected URLs are counted against the
+"N Result(s) Found" total the listing prints, and a shortfall is a PartialFetch
+rather than a snapshot of the first ten groups.
+"""
+import re
+import time
+from datetime import date
+
+from bs4 import BeautifulSoup
+
+from recurrence import materialise
+from webfetch_http import (PartialFetch, get, make_row, report,
+                           set_reporting_source)
+from venues import needs_address
+
+# --- listing markup --------------------------------------------------------
+CARD = "div.list-item-container article"
+CARD_NAME = "h2.list-item-title"
+CARD_ADDRESS = "p.list-item-address"
+CARD_TAGS = "div.tagged-as-list div.text li span"
+
+# The card's summary is a bare `<p>` with no class attribute at all -- not
+# `class=""`, the attribute is absent, and the template even emits it with a
+# stray space (`<p >`). So it cannot be selected by name and is found by
+# elimination: the only direct-child <p> of the card's link with no class.
+SUMMARY_CLASSES = ("list-item-address", "oc-thumbnail-image")
+
+# "117 Result(s) Found"
+RESULTS_RE = re.compile(r"(\d[\d,]*)\s*Result")
+# "Page 1 of 12"
+PAGE_INFO_RE = re.compile(r"Page\s+(\d+)\s+of\s+(\d+)")
+
+# --- detail markup ---------------------------------------------------------
+DETAIL_COLUMN = "div.grid.obj-directory > div.col-m-8"
+LOCATION_HEADING = "h2.sub-title"
+LOCATION_CLASS = "sub-title"
+HOURS_BLOCK = ".side-box-section.hours-details"
+HOURS_DAY = "span.hours-day"
+# "07:00 AM-10:00 AM" -- the dash is U+2013 on the page and can arrive as a
+# replacement character through some encodings, so both are accepted.
+HOURS_RANGE_RE = re.compile(
+    r"(\d{1,2}):(\d{2})\s*([AaPp])\.?[Mm]\.?"
+    r"\s*[\u2013\u2014\ufffd-]\s*"
+    r"(\d{1,2}):(\d{2})\s*([AaPp])\.?[Mm]\.?")
+
+DAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday",
+        "sunday")
+_DAY_INDEX = {d: i for i, d in enumerate(DAYS)}
+
+# How long a stated meeting may run before it reads as the venue's opening
+# hours rather than a session: the church hall's 07:00-18:00 is not a meeting
+# anyone attends for eleven hours.
+MAX_MEETING_HOURS = 6
+# ...and a "meeting" on this many days is a venue, not a group.
+MAX_MEETING_DAYS = 4
+
+
+def _page_hidden_fields(soup):
+    """The form's hidden inputs, which carry the postback state."""
+    return {i.get("name"): i.get("value", "")
+            for i in soup.select("form#mainForm input[type=hidden]")
+            if i.get("name")}
+
+
+def _pager_control_names(soup):
+    """The page-number select and its Go button, found rather than assumed.
+
+    ASP.NET generates these names from the control tree, so `ctl10$ctl00$ctl07`
+    is a property of this page's markup today and not a fact about the platform.
+    A hard-coded name is a silent failure: the POST is still accepted, and the
+    server answers with page 1 -- which is why the result count is checked.
+    """
+    select_name = None
+    for sel in soup.select(".seamless-pagination-data select"):
+        options = [o.get("value", "") for o in sel.select("option")]
+        if len(options) > 1 and all(v.strip().isdigit() for v in options):
+            select_name = sel.get("name")
+            break
+    go_name = None
+    for btn in soup.select(".seamless-pagination-controls input[type=submit]"):
+        if (btn.get("value") or "").strip().lower() == "go":
+            go_name = btn.get("name")
+            break
+    return select_name, go_name
+
+
+def _fetch_listing_pages(session, cfg):
+    """Every listing card on every page, plus the total the site claims.
+
+    Walks the postback pager, re-reading the viewstate from each response,
+    because every response issues a fresh one and the previous is spent.
+    """
+    url = cfg["url"]
+    first = get(session, url, retries=3)
+    if not first:
+        raise PartialFetch(f"directory listing {url} failed to load")
+
+    cards, seen, claimed = [], set(), None
+    soup = BeautifulSoup(first, "html.parser")
+    page_nums = PAGE_INFO_RE.search(soup.get_text(" ", strip=True))
+    if page_nums:
+        report(f"listing claims {page_nums.group(2)} pages", level="debug")
+    select_name, go_name = _pager_control_names(soup)
+    if not (select_name and go_name):
+        raise PartialFetch(
+            f"{url} has no usable pagination controls -- the pager markup "
+            f"changed, and this fetcher cannot enumerate past the first page")
+
+    def take(soup_or_html):
+        page = BeautifulSoup(soup_or_html, "html.parser") \
+            if isinstance(soup_or_html, str) else soup_or_html
+        new = 0
+        for card in page.select(CARD):
+            link = card.select_one("a[href]")
+            title = card.select_one(CARD_NAME)
+            if not link or not title:
+                continue
+            href = link["href"]
+            if href in seen:
+                continue
+            seen.add(href)
+            cards.append((href, card))
+            new += 1
+        return new
+
+    take(soup)
+    page = 1
+    max_pages = int(cfg.get("max_pages") or 40)
+    while page < max_pages:
+        page += 1
+        data = _page_hidden_fields(soup)
+        data[select_name] = str(page)
+        data[go_name] = "Go"
+        response = session.post(url, data=data)
+        html = getattr(response, "text", "") or ""
+        if getattr(response, "status_code", 0) != 200 or len(html) < 1000:
+            report(f"page {page} did not load "
+                   f"(HTTP {getattr(response, 'status_code', '?')})",
+                   level="warn")
+            break
+        if page == 2:
+            got = PAGE_INFO_RE.search(BeautifulSoup(html, "html.parser")
+                                      .get_text(" ", strip=True))
+            if got and got.group(1) == "1":
+                # The POST was accepted and the server re-served page 1, which
+                # is what a wrong control name looks like. Everything below
+                # would otherwise quietly publish ten groups.
+                raise PartialFetch(
+                    f"paging {url} did not advance: POST returned page 1 "
+                    f"again, so the pager control name or the viewstate is "
+                    f"wrong -- refusing to publish the first page as if it "
+                    f"were the whole directory")
+        added = take(html)
+        soup = BeautifulSoup(html, "html.parser")
+        if not added:
+            break
+        if page % 5 == 0:
+            report(f"  page {page}: {len(cards)} entries", level="debug")
+    total = RESULTS_RE.search(soup.get_text(" ", strip=True))
+    claimed = int(total.group(1).replace(",", "")) if total else None
+    if claimed is not None and len(cards) < claimed:
+        raise PartialFetch(
+            f"collected {len(cards)} of the {claimed} entries {url} says it "
+            f"lists -- the walk stopped early, so publishing would replace a "
+            f"good snapshot with a fraction of the directory")
+    report(f"listing: {len(cards)} entries"
+           + (f" of {claimed} claimed" if claimed else ""))
+    return cards
+
+
+def _card_summary(card):
+    """The card's free-text summary.
+
+    The only classless <p> among the card's own paragraphs, and the only way to
+    tell it from the address line: selecting `p` and taking the first would
+    return the street address, which then reads as the description and reaches
+    the classifier as prose about a road.
+    """
+    for p in card.select("p"):
+        if not (p.get("class") or []):
+            text = p.get_text(" ", strip=True)
+            if text:
+                return text
+    return ""
+
+
+def _card_address(card):
+    el = card.select_one(CARD_ADDRESS)
+    return el.get_text(" ", strip=True) if el else ""
+
+
+def _split_address(text):
+    """(venue, street, suburb, postcode) from the detail page's Location block.
+
+    Read line by line rather than with one pattern over the block, because the
+    page does not write the address in a single fixed shape and a pattern that
+    fits one loses the rest. What is actually constant is the *order*: a venue
+    name, then the street, then a line ending in the suburb and postcode -- and
+    the last line is the only reliable anchor on all three, because the street
+    is sometimes two lines joined by a comma ("Unit 8, 19-23 Kylie Place") and
+    sometimes has no house number at all ("Fraser Ave").
+
+    Anything in brackets is cut from the street: it is a landmark description,
+    not part of the address, and publishing it would send a reader looking for a
+    road that does not exist.
+
+    Returns None when there is no street, or no suburb to go with a postcode. A
+    location stated as a postcode alone ("6-7/556 North Road, 3204") is not a
+    place to send anyone, which is D20 -- and dropping it here is preferable to
+    publishing an address the suburb filter cannot place.
+    """
+    lines = [" ".join(ln.split()) for ln in (text or "").splitlines()]
+    lines = [ln for ln in lines if ln and ln.lower() != "view map"]
+    if not lines:
+        return None
+
+    tail = None
+    for i in range(len(lines) - 1, -1, -1):
+        m = re.search(r"(?:VIC\.?\s*)?(3\d{3})\s*$", lines[i])
+        if m:
+            # The suburb is only the last comma-segment before the postcode.
+            # On the detail page that is the whole line; on a listing card the
+            # same line also carries the venue and street, and reading the lot
+            # as a suburb would fail on the comma alone.
+            prefix = lines[i][:m.start()].strip(" ,")
+            tail = (i, m.start(), prefix, prefix.rsplit(",", 1)[-1].strip(),
+                    m.group(1))
+            break
+    if tail is None:
+        return None
+    idx, at, prefix, suburb, postcode = tail
+    if not re.fullmatch(r"[A-Za-z][A-Za-z .'-]*", suburb or ""):
+        return None
+
+    if idx == 0:
+        # Everything on one line: "Venue, 12 Katoomba Street, Hampton East,
+        # 3188". The suburb has already been taken off the end, so what remains
+        # is a venue and a street separated by a comma -- or a bare street, when
+        # the listing gave no venue name.
+        segments = [s.strip() for s in prefix.split(",")]
+        rest = ", ".join(segments[:-1]).strip() if len(segments) > 1 else prefix
+        if "," in rest:
+            venue, street = rest.rsplit(",", 1)
+            venue, street = venue.strip(), street.strip()
+        else:
+            venue, street = "", rest
+    else:
+        head = lines[:idx]
+        venue = head[0].rstrip(" ,") if head else ""
+        street = ", ".join(ln.rstrip(" ,") for ln in head[1:])
+        if not street:
+            # No venue line: the first line is the street itself.
+            street, venue = venue, ""
+    street = re.split(r"\s*\(", street)[0].strip(" ,")
+    if not street:
+        return None
+    return venue, street, suburb, postcode
+
+
+def _schedule_from_hours(hours_html):
+    """A schedule string from the detail page's per-weekday hours table.
+
+    What the table actually holds is not one weekly window per day but a list of
+    individual sessions -- Chelsea Sports Club lists seven separate Sunday
+    entries, 4-9pm and 4-8pm repeated, plus one 12pm-10pm -- with no date on
+    any of them. So the table states the window a group is active on a weekday,
+    not what a single session is.
+
+    That makes aggregation the only honest reading, and it is also what
+    distinguishes a meeting from opening hours: take the earliest start and the
+    latest end across a day's sessions, and reject the whole day when that
+    window is longer than MAX_MEETING_HOURS. Radio Carrum's Sunday is 09:00,
+    12:00-21:00 five times over and 19:00-21:00, which aggregates to twelve
+    hours and is the station's opening hours, not a meeting. Chelsea Sports
+    Club's aggregates to five (16:00-21:00), which is a match.
+
+    Returning None when nothing survives is the case this exists for: the
+    Australasian Golf Club's 07:00-18:00 daily table would otherwise publish as
+    a daily eleven-hour "group meeting", which is worse than publishing nothing.
+
+    Individual sessions already over MAX_MEETING_HOURS are dropped before the
+    aggregate is taken, so one long outlier (a festival session, a late hire)
+    does not make an otherwise ordinary day fail.
+    """
+    soup = BeautifulSoup(hours_html, "html.parser")
+    by_day = {}
+    for item in soup.select(".hours-list > li"):
+        day_el = item.select_one(HOURS_DAY)
+        if not day_el:
+            continue
+        day = _DAY_INDEX.get(day_el.get_text(" ", strip=True).lower()[:9])
+        if day is None or item.select_one(".hours-status.closed"):
+            continue
+        for entry in item.select("ul.hours-time-list li"):
+            m = HOURS_RANGE_RE.search(entry.get_text(" ", strip=True))
+            if not m:
+                continue
+            start, start_m = _hhmm(m.group(1), m.group(2), m.group(3))
+            end, end_m = _hhmm(m.group(4), m.group(5), m.group(6))
+            if start is None or end is None:
+                continue
+            if (end_m - start_m) % (24 * 60) > MAX_MEETING_HOURS * 60:
+                continue
+            by_day.setdefault(day, []).append((start_m, start, end_m, end))
+
+    days = []
+    for day in sorted(by_day):
+        sessions = by_day[day]
+        low = min(s[0] for s in sessions)
+        high = max(s[2] for s in sessions)
+        if high - low > MAX_MEETING_HOURS * 60:
+            report(f"  {DAYS[day]}: {(high - low) // 3600}h window -- "
+                   f"opening hours, not a meeting", level="debug")
+            continue
+        start = next(s[1] for s in sessions if s[0] == low)
+        end = next(s[3] for s in sessions if s[2] == high)
+        days.append(f"every {DAYS[day].capitalize()} {start} - {end}"
+                    if start != end else
+                    f"every {DAYS[day].capitalize()} {start}")
+    if not days or len(days) > MAX_MEETING_DAYS:
+        return None
+    return ", ".join(days)
+
+
+def _hhmm(hour, minute, meridiem):
+    """("HH:MM", minutes-past-midnight) for a 12-hour clock time, else Nones.
+
+    Both because the schedule text needs the string and the plausibility test
+    needs the number, and the conversion is the part that can silently produce
+    "20:00" from a page that said "8pm".
+    """
+    try:
+        h, m = int(hour), int(minute)
+    except (TypeError, ValueError):
+        return None, None
+    if not 0 <= h <= 23 or not 0 <= m <= 59:
+        return None, None
+    ap = (meridiem or "").strip().lower().replace(".", "")
+    if ap == "p" and h < 12:
+        h += 12
+    elif ap == "a" and h == 12:
+        h = 0
+    return f"{h:02d}:{m:02d}", h * 60 + m
+
+
+def _apply_directory_detail(row, html):
+    """Fill a group row from its own page. The schedule lives here, nowhere else."""
+    soup = BeautifulSoup(html, "html.parser")
+    column = soup.select_one(DETAIL_COLUMN) or soup
+
+    # The description is the paragraphs *before* the Location heading. Taking
+    # every <p> in the column instead would add the venue's street address and
+    # the words "View Map" to the description, which is both shown to a reader
+    # and fed to the classifier.
+    prose = []
+    for el in column.find_all(["p", "h2"]):
+        # Compare against the class, not the selector: `el.get("class")` is
+        # ["sub-title"], and testing the "h2.sub-title" selector string against
+        # that list is always False, so the loop never stopped and every
+        # description ended with the venue's street address and the words
+        # "View Map" -- shown to a reader and fed to the classifier.
+        if el.name == "h2" and LOCATION_CLASS in (el.get("class") or []):
+            break
+        if el.name == "p":
+            text = el.get_text(" ", strip=True)
+            if text:
+                prose.append(text)
+    if prose:
+        row["description"] = " ".join(prose)
+
+    heading = column.select_one(LOCATION_HEADING)
+    if heading:
+        block = heading.find_next("p")
+        parts = _split_address(block.get_text("\n", strip=True)
+                               if block else "")
+        if parts:
+            venue, street, suburb, postcode = parts
+            row["location"] = venue or street
+            row["address"] = f"{street}, {suburb} {postcode}"
+
+    hours = soup.select_one(HOURS_BLOCK)
+    if hours:
+        schedule = _schedule_from_hours(str(hours))
+        if schedule:
+            row["_hours_schedule"] = schedule
+
+
+def _usable_schedule(row):
+    """(schedule_text, from_hours) when this group states a time, else None.
+
+    Prose first, then the hours table. The test is the real parser rather than a
+    look for a digit: a schedule that parses is one that will publish, and one
+    that does not is one that silently deletes a group from the calendar.
+
+    Two rejections beyond the parser's own:
+
+    * **No start time.** `materialise` accepts a days-only schedule and would
+      return midnight rows -- "every Sunday morning" is not an event a reader can
+      turn up to.
+    * **Nothing in the future.** A church whose description mentions "Sunday 22
+      December" gets that occurrence dated 2024-12-22, two years in the past,
+      because the year is inferred rather than stated. Publishing that puts a
+      2024 row in a 2026 calendar; `prune_old` would remove it later and the
+      health check would read it first. The run date is not a thing this source
+      is entitled to compare against -- but a *past* date is never a meeting
+      anyone can attend.
+    """
+    today = date.today()
+    probe = dict(row)
+    probe["datetime_text"] = ""
+
+    def publishable(made):
+        return bool(made) and any(
+            r["datetime_iso"][11:16] != "00:00"
+            and date.fromisoformat(r["datetime_iso"][:10]) >= today
+            for r in made)
+
+    made, _spec, _reason = materialise(probe, row.get("description", ""))
+    if publishable(made):
+        return row.get("description", ""), False
+    hours = row.get("_hours_schedule")
+    if hours:
+        made, _spec, _reason = materialise(probe, hours)
+        if publishable(made):
+            return hours, True
+    return None
+
+
+def fetch_directory(cfg, session, detail_cap=None):
+    """Fetch an OpenCities local directory as recurring meetings.
+
+    `detail_cap` bounds how many of the entries' own pages are opened, because
+    that is one request per group and the directory's size is not ours to
+    choose. Reaching the cap is reported, since a directory that grew past it
+    would otherwise publish a fraction of itself without saying so.
+    """
+    sid = cfg["id"]
+    set_reporting_source(sid)
+    cards = _fetch_listing_pages(session, cfg)
+
+    rows, dropped, attempted, opened = [], {"no place": 0, "no time": 0,
+                                            "fetch failed": 0}, 0, 0
+    for href, card in cards:
+        if detail_cap is not None and opened >= detail_cap:
+            report(f"detail cap {detail_cap} reached; "
+                   f"{len(cards) - len(rows) - sum(dropped.values())} "
+                   f"entries left unopened", level="warn")
+            break
+        name = card.select_one(CARD_NAME).get_text(" ", strip=True)
+        tags = [t.get_text(" ", strip=True) for t in card.select(CARD_TAGS)]
+        row = make_row(sid, name, href,
+                       location=_card_address(card),
+                       address=_card_address(card),
+                       description=_card_summary(card))
+        row["source_types"] = [t for t in tags if t]
+
+        attempted += 1
+        html = get(session, href, retries=2, min_len=2000)
+        if not html:
+            dropped["fetch failed"] += 1
+            report(f"{name!r}: detail page did not load", level="warn")
+            continue
+        opened += 1
+        _apply_directory_detail(row, html)
+
+        # Eleven of the 117 detail pages carry no Location block at all, so the
+        # listing card's own address is the fallback. The card states a street
+        # rather than a venue name, which is the opposite trade from the Granicus
+        # source -- there the card holds only a venue and the detail page holds
+        # the street -- so neither source is usable without the other.
+        if not _split_address(row.get("address") or ""):
+            card_parts = _split_address(_card_address(card))
+            if card_parts:
+                venue, street, suburb, postcode = card_parts
+                row["location"] = row["location"] or venue or street
+                row["address"] = f"{street}, {suburb} {postcode}"
+
+        if not (row.get("address") or "").strip() and needs_address(row):
+            dropped["no place"] += 1
+            continue
+        found = _usable_schedule(row)
+        if not found:
+            dropped["no time"] += 1
+            report(f"dropped {name!r}: states a place but no meeting time",
+                   level="debug")
+            continue
+        schedule, from_hours = found
+        if from_hours:
+            made, _spec, reason = materialise(row, schedule)
+            if not made:
+                dropped["no time"] += 1
+                report(f"dropped {name!r}: {reason}", level="warn")
+                continue
+            rows.extend(made)
+            report(f"  {name}: dated from the hours table "
+                   f"({len(made)} occurrences)", level="debug")
+        else:
+            # Dateless, with the schedule left in `description` where
+            # recurrence.py looks for it first. Deliberately NOT copied into
+            # `datetime_text`: fetch_sources.normalize() runs
+            # parse_day_month_year() over that field, and a church whose
+            # description mentions "Sunday 22 December" had that read as a
+            # date in the year the text implied -- 2024-12-22, two years stale
+            # in a 2026 calendar. The description already carries the schedule,
+            # so the copy bought nothing.
+            rows.append(row)
+        time.sleep(0.15)
+
+    # `_hours_schedule` is scratch space for _usable_schedule, carried on the row
+    # because that is the only thing both the prose test and the hours test read.
+    # It is not part of the row schema, and left on the row it reaches the
+    # committed store and then the page, which is where an internal key belongs
+    # least.
+    for r in rows:
+        r.pop("_hours_schedule", None)
+
+    if not rows:
+        raise PartialFetch(
+            f"{sid}: no group survived the place-and-time filter "
+            f"({attempted} entries opened, {dropped}) -- the markup or the "
+            f"schedule wording has probably changed")
+    report(f"{sid}: {len(rows)} rows from {attempted} entries "
+           f"({opened} pages opened)")
+    if dropped:
+        report(f"  dropped {dropped}")
+    return rows
+
+
+def _self_test():
+    """The three decisions that are this module's, run over the real markup."""
+    import sys
+
+    failures = []
+
+    def check(label, actual, expected):
+        ok = actual == expected
+        print("  %s %s%s" % ("ok  " if ok else "FAIL", label,
+                             "" if ok else
+                             "\n         actual:   %r\n         expected: %r"
+                             % (actual, expected)))
+        if not ok:
+            failures.append(label)
+
+    # A bare <p> with no class attribute, alongside a classed address line.
+    card = BeautifulSoup(
+        '<div class="list-item-container"><article><a href="/x">'
+        '<h2 class="list-item-title">G</h2>'
+        '<p class="oc-thumbnail-image"><img></p>'
+        '<p class="list-item-address">1 St Rd, Cheltenham 3192</p>'
+        '<p >We meet on Fridays.</p>'
+        '<div class="tagged-as-list"><div class="text"><ul><li>'
+        '<span>Probus</span></li></ul></div></div></a></article></div>',
+        "html.parser")
+    check("the summary is the classless paragraph",
+          _card_summary(card.select_one(CARD)), "We meet on Fridays.")
+    check("the card address is not read as the summary",
+          _card_address(card.select_one(CARD)), "1 St Rd, Cheltenham 3192")
+    check("the card's taxonomy terms are collected",
+          [t.get_text(strip=True)
+           for t in card.select(CARD_TAGS)], ["Probus"])
+
+    for label, text, expected in [
+        ("venue / street / suburb / postcode",
+         "National Water Sports Centre\n5 Riverend Road\nBangholme 3175",
+         ("National Water Sports Centre", "5 Riverend Road",
+          "Bangholme", "3175")),
+        # The street is two comma-joined lines here, and the first is the
+        # group's own registered name, which is also the venue.
+        ("a two-line street with the group name as venue",
+         "Austin 7 Club Inc\nUnit 8, 19-23 Kylie Place\nCheltenham 3192",
+         ("Austin 7 Club Inc", "Unit 8, 19-23 Kylie Place", "Cheltenham",
+          "3192")),
+        # No house number at all: a golf course is addressed by its name.
+        ("a street with no house number",
+         "Edithvale Public Golf Course\nFraser Ave\nEdithvale 3196",
+         ("Edithvale Public Golf Course", "Fraser Ave", "Edithvale", "3196")),
+        ("an address with a comma-separated aside",
+         "Cheltenham Hall\n1218 Nepean Hwy Service Rd, (South corner of "
+         "Nepean Highway service Road and Charman Road)\nCheltenham 3192",
+         ("Cheltenham Hall", "1218 Nepean Hwy Service Rd", "Cheltenham",
+          "3192")),
+        # A postcode with no suburb names no place a reader can find.
+        ("a postcode with no suburb is not a place",
+         "Ormond Arcade - A Path To Follow\n6-7/556 North Road\n3204", None),
+        ("a missing suburb mid-block is not a place",
+         "6-7/556 North Road,\n 3204", None),
+        # The listing card's own form, used as the fallback for the eleven
+        # detail pages with no Location block.
+        ("a one-line card address with a venue",
+         "BayCISS - Bayside Community Information & Support Service, "
+         "12 Katoomba Street, Hampton East, 3188",
+         ("BayCISS - Bayside Community Information & Support Service",
+          "12 Katoomba Street", "Hampton East", "3188")),
+        ("a one-line card address that is just a street",
+         "5 Riverend Road, Bangholme 3175",
+         ("", "5 Riverend Road", "Bangholme", "3175")),
+        ("no location block at all", "", None),
+    ]:
+        check(f"address: {label}", _split_address(text), expected)
+
+    hours = """<div class="hours-list">
+      <li><span class='hours-day'> Sunday </span>
+        <ul class="hours-time-list"><li>07:00 AM&#8211;10:00 AM</li></ul></li>
+      <li><span class='hours-day'> Monday </span>
+        <span class="hours-status closed">Closed</span></li>
+      <li><span class='hours-day'> Thursday </span>
+        <ul class="hours-time-list"><li>04:00 PM&#8211;06:00 PM</li></ul></li>
+    </div>"""
+    check("a plausible hours table becomes a schedule",
+          _schedule_from_hours(hours),
+          # Monday-indexed, so Thursday sorts before Sunday.
+          "every Thursday 16:00 - 18:00, every Sunday 07:00 - 10:00")
+
+    # One weekday, many sessions: the table lists dated occurrences, not one
+    # window, so the seven Chelsea Sports Club entries have to become one clause
+    # rather than seven "every Sunday" ones.
+    check("repeated sessions on one day aggregate to one clause",
+          _schedule_from_hours(
+              "<div class='hours-list'><li><span class='hours-day'>Sunday"
+              "</span><ul class='hours-time-list'>"
+              "<li>04:00 PM&#8211;09:00 PM</li><li>04:00 PM&#8211;08:00 PM</li>"
+              "<li>12:00 PM&#8211;10:00 PM</li></ul></li></div>"),
+          "every Sunday 16:00 - 21:00")
+    # ...and the day is refused when the aggregate is longer than a meeting.
+    check("a day whose sessions span the day is refused",
+          _schedule_from_hours(
+              "<div class='hours-list'><li><span class='hours-day'>Sunday"
+              "</span><ul class='hours-time-list'>"
+              "<li>07:00 AM&#8211;12:00 PM</li><li>05:00 PM&#8211;09:00 PM</li>"
+              "</ul></li></div>"), None)
+    check("an all-day, seven-day table is refused as opening hours",
+          _schedule_from_hours(
+              "<div class='hours-list'>" + "".join(
+                  f"<li><span class='hours-day'>{d}</span>"
+                  f"<ul class='hours-time-list'><li>07:00 AM&#8211;06:00 PM"
+                  f"</li></ul></li>"
+                  for d in ("Sunday", "Monday", "Tuesday", "Wednesday",
+                            "Thursday", "Friday", "Saturday"))
+              + "</div>"), None)
+    check("a day marked closed is not read as a session",
+          _schedule_from_hours(
+              "<div class='hours-list'><li><span class='hours-day'>Sunday"
+              "</span><span class='hours-status closed'>Closed</span>"
+              "<ul class='hours-time-list'><li>10:00 AM&#8211;11:30 AM</li>"
+              "</ul></li></div>"), None)
+    check("an all-closed table yields no schedule",
+          _schedule_from_hours(
+              "<div class='hours-list'><li><span class='hours-day'>Sunday"
+              "</span><span class='hours-status closed'>Closed</span></li>"
+              "</div>"), None)
+
+    row = make_row("t", "G", "https://example.invalid/g")
+    made, _s, _r = materialise(row, "every Sunday 07:00 - 10:00")
+    check("a schedule materialises into a weekly series",
+          len(made), 12)
+    check("every occurrence is at the stated time",
+          sorted({r["datetime_iso"][11:16] for r in made}), ["07:00"])
+    check("and every occurrence is a Sunday",
+          sorted({date.fromisoformat(r["datetime_iso"][:10]).weekday()
+                  for r in made}), [6])
+    check("and the rows carry a series id", bool(made[0].get("series_id")), True)
+    check("and all twelve share it",
+          len({r["series_id"] for r in made}), 1)
+    made, _s, reason = materialise(row, "every Sunday morning")
+    check("a days-only schedule states no time", (bool(made), reason is not None),
+          (False, True))
+    # normalize() parses a date out of datetime_text, so a prose description
+    # left in that field became a date in the year the text implied. This is the
+    # shape that produced a 2024-12-22 row in a 2026 calendar.
+    check("a prose description left in datetime_text is the fetcher's "
+          "decision, not make_row's",
+          make_row("t", "G", "https://example.invalid/g")["datetime_text"], "")
+
+    if failures:
+        print(f"\nwebfetch_directory: {len(failures)} case(s) FAILED")
+        sys.exit(1)
+    print("\nall directory-reader cases as expected")
+
+
+if __name__ == "__main__":
+    _self_test()

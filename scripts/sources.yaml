@@ -53,11 +53,68 @@ webfetch:
     year: 2026
     snapshot: "kingston_seniors.json"
 
+  - name: "Kingston Community Groups"
+    id: "kingston_groups"
+    type: "oc_directory"
+    # 403 on plain urllib: the Granicus/OpenCities WAF, same host as the two
+    # kingston_council / kingston_arts entries above.
+    impersonate: true
+    url: "https://www.kingston.vic.gov.au/community/get-involved/community-groups"
+    max_pages: 20
+    # 117 entries, one detail page each. The cap is a bound, not a budget: the
+    # listing states its own total and the fetcher refuses to publish a
+    # fraction of it, so reaching this cap is a reported warning rather than a
+    # silent truncation.
+    detail_cap: 150
+    snapshot: "kingston_groups.json"
+    # An OpenCities local directory. The listing states no meeting time at all
+    # -- it carries only a name, a street address, a summary and a curated Type
+    # tag -- so every entry's own page must be opened, and that page is the only
+    # place the schedule exists. Pagination is an ASP.NET postback: ?page=2 is
+    # accepted and ignored. See webfetch_directory.py for both traps.
+
+  # NOT YET ACTIVE. webfetch_everi.py is written and its suite passes, but the
+  # first snapshot has never been taken: the host rate-limits by IP and answers
+  # "Your IP has been temporarily blocked, please try again later" (HTTP 409) to
+  # every page including the homepage. Enabling the entry before a snapshot
+  # exists turns the next scheduled run red by design (D3), so it stays
+  # commented until one fetch succeeds. Uncomment, run
+  # `python scripts/fetch_sources.py --source frankston_live`, and check the
+  # count before committing.
+  #
+  # - name: "Frankston"
+  #   id: "frankston_live"
+  #   type: "everi"
+  #   # HTTP 409 on plain urllib: the host answers only to a browser
+  #   # impersonating session.
+  #   impersonate: true
+  #   url: "https://whatsonfrankston.com/"
+  #   sitemap: "https://whatsonfrankston.com/sitemap.xml"
+  #   # 876 occurrence URLs, some reaching a year out. Bounded by the horizon
+  #   # rather than by a cap, so the fetcher reports what it chose not to
+  #   # publish instead of silently publishing a fraction.
+  #   horizon_days: 120
+  #   detail_cap: 900
+  #   # 0.35s over 876 pages is ~5 minutes of deliberate waiting. Faster earns
+  #   # an IP block that outlives the run.
+  #   crawl_delay: 0.35
+  #   snapshot: "frankston_auto.json"
+
   - name: "Cheltenham Community Centre"
     id: "ccc"
     type: "ccc"
     detail_cap: 30
     snapshot: "ccc.json"
+    # D21: the venue is config, not a guess. These two addresses were four
+    # constants inside webfetch_ccc.py until this moved them here; a wrong
+    # address publishes silently and nothing downstream can detect it.
+    venues:
+      default:
+        name: "Cheltenham Community Centre"
+        address: "8 Chesterville Road, Cheltenham VIC 3192"
+      hall:
+        name: "Cheltenham Hall"
+        address: "1218 Nepean Highway, Cheltenham VIC 3192"
     pages:
       - "https://www.chelt.com.au/free-activities.html"
       - "https://www.chelt.com.au/exercise-dance-yoga.html"

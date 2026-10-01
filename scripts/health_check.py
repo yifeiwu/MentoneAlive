@@ -27,7 +27,7 @@ import yaml
 
 from activity_types import TYPES
 from dedupe import (PRUNE_DAYS, load_live_inputs, name_head,
-                    reconcile_store, reference_today, venue_head)
+                    reconcile_store, reference_today, slot_hash, venue_head)
 from recurrence import infer_event, weekday_slots
 from status import STATUS_LABELS, event_status, is_ongoing_service
 from venues import is_online, needs_address
@@ -132,24 +132,19 @@ def _weekday_of(iso):
 
 
 def _suburb_in(row, allowed):
-    """True when the row's own suburb is inside the configured catchment.
+    """True when the row is inside the configured catchment.
 
-    Prefers the fetcher's `suburb`, which was taken from the event detail
-    page's address; falls back to the last comma segment of the address, and
-    finally to a scan of the whole row, so a source that publishes the suburb
-    some other way is not failed spuriously.
+    Deliberately the fetcher's own function, not a second reading of the rule.
+    health_check used to carry a private copy, and the two disagreed about the
+    case that mattered: a row whose suburb cannot be extracted was *kept* by
+    the fetcher ("cannot place it, so do not discard it") and *failed* by the
+    checker ("cannot place it, so it is out of area"). So the fetcher published
+    'Mount Cannibal Hike and Barbeque' -- a reserve forty kilometres from
+    Springvale -- and the check then failed the build on it. Calling the
+    fetcher's function is what makes "inside the catchment" mean one thing.
     """
-    suburb = (row.get("suburb") or "").strip().lower()
-    if suburb:
-        return suburb in allowed
-    from build_site import extract_suburb
-    derived = (extract_suburb(row.get("address") or row.get("location") or "")
-               or "").strip().lower()
-    if derived:
-        return derived in allowed
-    blob = " ".join(str(row.get(k) or "") for k in
-                    ("name", "location", "address", "description")).lower()
-    return any(a in blob for a in allowed)
+    from fetch_urllib_sources import _passes_suburb_filter
+    return _passes_suburb_filter(row, {a.lower() for a in allowed})
 
 
 # --- mobile accessibility invariants -------------------------------------
@@ -196,7 +191,8 @@ MIN_FORM_FONT_PX = 16.0
 DEFAULT_FONT_PX = 16.0
 
 # WCAG 2.2 SC 2.5.8 Target Size (Minimum). Every filter is a checkbox, and
-# there are 31 suburbs and 18 activity types, so this is the check that matters
+# there are dozens of suburbs and as many activity types, so this is the check
+# that matters
 # for this page.
 MIN_TARGET_PX = 24.0
 
@@ -269,7 +265,7 @@ def _rules_for(css, selector):
     """Bodies of every rule whose selector list contains `selector` as a whole.
 
     The lookahead is what makes this correct, twice over. `.badge` must not
-    match the fifteen `.badge-*` colour rules, which carry no font-size of their
+    match the `.badge-*` colour rules, which carry no font-size of their
     own, and `.addr` must not match a `.addrlocation` -- renaming a selector to
     dodge the check would otherwise pass it silently. And `.tcheck` must not
     match `.tcheck input`, which is a descendant selector about the box rather
@@ -545,17 +541,21 @@ def _rem_floor_errors(css, name):
 def _target_size_errors(css, name):
     """Filter checkboxes must have a target of at least 24x24 (WCAG 2.5.8).
 
-    Every filter on this page is a checkbox -- 31 suburbs and 18 activity types
-    -- so the native 13px box was the whole hit target. The label wraps each
-    one, and the label is what a click lands on, so the rule that matters is
-    the label's min-height; the box size is checked too so that a label which
-    later loses its wrapper is caught.
+    Every filter on this page is a checkbox -- one per suburb and one per
+    activity type -- so the native 13px box was the whole hit target. The label
+    wraps each one, and the label is what a click lands on, so the rule that
+    matters is the label's min-height; the box size is checked too so that a
+    label which later loses its wrapper is caught.
     """
     errors = []
     labels = _rules_for(_strip_media(css), ".tcheck")
     if not labels:
-        errors.append(f"{name}: no .tcheck rule, so the 49 filter checkboxes "
-                      "have no declared target size")
+        # Not a count: it was 49 (31 suburbs + 18 types) when written, which is
+        # wrong the moment a suburb or a type is added, and a number in an
+        # error message is a number that lies.
+        errors.append(f"{name}: no .tcheck rule, so none of the "
+                      "suburb and activity-type filter checkboxes have a "
+                      "declared target size")
         return errors
     for body in labels:
         m = re.search(r"min-height\s*:\s*([\d.]+)px", body)
@@ -573,8 +573,13 @@ def _target_size_errors(css, name):
 MIN_TOTAL = 700
 # Generous floors (~25-50% of normal) for always-on sources.
 # gd_libraries is low because dedupe_by_source_url() collapses the listings
-# that greater_dandenong also scrapes from the same page; the thirteen that
-# remain are the only events unique to that source.
+# that greater_dandenong also scrapes from the same page, leaving only the
+# events unique to that source.
+# greater_dandenong itself was 10 against 16 published, which fails in November
+# for working correctly: its listing rotates its events in and out, and the
+# source is not broken when it has four of a season's sixteen still to run. The
+# floor is here to catch a dead scraper, not a quiet week, so it is set well
+# under one listing's worth of rows.
 # ccc and chatty_cafe were both 10, which was below the noise: chatty_cafe lost
 # six of its twenty venues to a broken schedule extractor and still cleared 10
 # by a factor of 16, and ccc lost every session of a term but the first. Both
@@ -582,15 +587,35 @@ MIN_TOTAL = 700
 # listings disappear.
 MIN_SOURCE = {
     "kingston_hubs": 200,
+    "kingston_groups": 40,
     "bayside_live": 60,
-    "greater_dandenong": 10,
+    "greater_dandenong": 6,
     "ccc": 150,
     "chatty_cafe": 150,
     "kingston_council": 3,
     "kingston_arts": 3,
     "gd_libraries": 3,
 }
-WARN_ONLY = {"kingston_seniors", "bayside_archived", "frankston_archived"}
+WARN_ONLY = {"kingston_seniors", "bayside_archived", "frankston_archived",
+             "frankston_live"}
+
+
+def _undeclared_source_floors():
+    """Configured sources that no floor set accounts for.
+
+    A source id absent from both MIN_SOURCE and WARN_ONLY gets no check at all,
+    so it can quietly reach zero rows and the build stays green -- which is
+    exactly what would have happened to kingston_groups had it not been added to
+    one of them. The floor number itself is a judgement call; whether a source
+    has one is not, so that part is asserted rather than remembered.
+    """
+    configured = set()
+    with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+    for entry in (config.get("webfetch") or []) + (config.get("sources") or []):
+        if entry.get("id"):
+            configured.add(entry["id"])
+    return sorted(configured - set(MIN_SOURCE) - set(WARN_ONLY))
 
 
 def main():
@@ -602,7 +627,14 @@ def main():
     if len(rows) < MIN_TOTAL:
         errors.append(f"total {len(rows)} < floor {MIN_TOTAL}")
 
-    labels = Counter(r.get("source_label", "unknown") for r in rows)
+    labels = Counter(r.get("source_id", "unknown") for r in rows)
+    undeclared = _undeclared_source_floors()
+    if undeclared:
+        errors.append(
+            f"{len(undeclared)} configured source(s) have no row floor: "
+            f"{', '.join(undeclared)} -- add each to MIN_SOURCE (year-round) "
+            f"or WARN_ONLY (seasonal/static), or it can reach zero rows "
+            f"without failing the build")
     for src, floor in MIN_SOURCE.items():
         if labels.get(src, 0) < floor:
             errors.append(f"source {src}: {labels.get(src, 0)} < floor {floor}")
@@ -618,13 +650,13 @@ def main():
     # Start time is part of the key: a venue can legitimately run the same
     # class twice in one day ('Cert II in EAL' Wed 9am and 12:30pm), so
     # collapsing on the date alone would report real sessions as duplicates.
+    # This is dedupe.slot_hash() rather than a third transcription of it: the
+    # check and the merge that enforces it must agree on what "the same slot"
+    # means, or the check reports duplicates the merge considers distinct (or
+    # the reverse) and neither names the disagreement.
     seen, dups = set(), 0
     for r in rows:
-        iso = str(r.get("datetime_iso") or "").replace("Z", "")
-        stamp = iso[:16] if "T" in iso else ""
-        key = (" ".join((r.get("name") or "").lower().split()),
-               stamp,
-               " ".join((r.get("location") or "").lower().split()))
+        key = slot_hash(r)
         if key in seen:
             dups += 1
         seen.add(key)
@@ -635,15 +667,18 @@ def main():
     # name the venue, so the exact check above cannot see them. The description
     # must agree, which keeps genuinely distinct events that share a page (two
     # STEADYstrength classes at two different halls on one CCC page).
+    # The key is dedupe's own (name, url, stamp) -- the one
+    # dedupe_by_source_url() merges on -- so this reports what that pass would
+    # actually collapse rather than a near neighbour of it.
     listing_seen, listing_dups = {}, 0
     for r in rows:
         url = (r.get("source") or "").rstrip("/")
         stamp = str(r.get("datetime_iso") or "")[:16]
-        name = " ".join((r.get("name") or "").lower().split())
+        name = name_head(r.get("name"))
         if not url or "T" not in stamp or not name:
             continue
         desc = " ".join((r.get("description") or "").lower().split())
-        key = (url, name, stamp)
+        key = (name, url, stamp)
         prev = listing_seen.get(key)
         if prev is not None and prev == desc:
             listing_dups += 1
@@ -752,7 +787,7 @@ def main():
                   if not (r.get("address") or "").strip()
                   and needs_address(r)]
     if no_address:
-        by_source = Counter(r.get("source_label", "unknown")
+        by_source = Counter(r.get("source_id", "unknown")
                             for r in no_address)
         sample = ", ".join(
             f"{r.get('name')!r} @ {(r.get('location') or '').strip()!r}"
@@ -782,7 +817,7 @@ def main():
     # real venue: the listing cards carry none, so a regression that drops the
     # detail fetch leaves every row at the generic "Greater Dandenong" location
     # and the configured suburb_filter silently admits the whole city again.
-    gd = [r for r in rows if r.get("source_label") == "greater_dandenong"]
+    gd = [r for r in rows if r.get("source_id") == "greater_dandenong"]
     if gd:
         generic = sum(1 for r in gd
                       if (r.get("location") or "").strip().lower()

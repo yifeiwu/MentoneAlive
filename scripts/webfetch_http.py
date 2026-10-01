@@ -150,6 +150,27 @@ def make_session():
     return s
 
 
+def price_sort(cost):
+    """Sortable number for a `price_text`, or None when it states no amount.
+
+    0.0 for anything reading as free, 1.0 for a gold coin donation, otherwise
+    the first dollar amount found. Lives here rather than in fetch_sources.py
+    because it is a rule about a *row's* fields, and dedupe.py needs it too:
+    `_merge_sources()` only fills blanks, so a stored row that predates
+    `price_sort` keeps None forever and the page's free filter misses it --
+    56 rows carried a price_text with no price_sort, including 19 that said
+    "Free". The derived value belongs next to the row shape it is derived from.
+    """
+    if not cost:
+        return None
+    if re.search(r"\bfree\b", cost, re.I):
+        return 0.0
+    if re.search(r"gold coin", cost, re.I):
+        return 1.0
+    m = re.search(r"\$\s*(\d+(?:\.\d+)?)", cost)
+    return float(m.group(1)) if m else None
+
+
 class _Response:
     """What the fetch layer reads off a response: status, text, bytes."""
 
@@ -168,10 +189,25 @@ class PlainSession:
     because a WAF blocks them. Handing a source None because it is not
     impersonated is a failure mode that only appears on the sources which
     happen to be fine.
+
+    `post()` exists because a source needs to, not because anything else does:
+    the Kingston directory paginates by ASP.NET postback, carrying a ~46 KB
+    `__SEAMLESSVIEWSTATE` blob plus a pager control name that changes with the
+    template. A source that needs a POST should not have to demand a
+    browser-impersonating session for it, which is what omitting this would
+    force -- `impersonate` is meant to declare a property of the host's TLS, not
+    of the HTTP verbs its controls happen to use.
     """
 
     UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
           "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
+
+    HEADERS = {
+        "User-Agent": UA,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                  "*/*;q=0.8",
+        "Accept-Language": "en-AU,en;q=0.9",
+    }
 
     def __init__(self, timeout=15):
         self.timeout = timeout
@@ -179,12 +215,7 @@ class PlainSession:
     def get(self, url, timeout=None, **kwargs):
         import urllib.request
 
-        req = urllib.request.Request(url, headers={
-            "User-Agent": self.UA,
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
-                      "*/*;q=0.8",
-            "Accept-Language": "en-AU,en;q=0.9",
-        })
+        req = urllib.request.Request(url, headers=dict(self.HEADERS))
         try:
             with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
                 return _Response(r.status, r.read())
@@ -194,6 +225,22 @@ class PlainSession:
             # curl_cffi raises on a connection error, and `get()` above turns
             # that into "HTTP 0", so match it rather than letting a different
             # exception type escape from under the shared retry loop.
+            return _Response(0, str(e).encode())
+
+    def post(self, url, data=None, timeout=None, **kwargs):
+        import urllib.parse
+        import urllib.request
+
+        body = urllib.parse.urlencode(data or {}).encode()
+        headers = dict(self.HEADERS)
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
+        req = urllib.request.Request(url, data=body, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
+                return _Response(r.status, r.read())
+        except urllib.error.HTTPError as e:
+            return _Response(e.code, e.read())
+        except Exception as e:
             return _Response(0, str(e).encode())
 
 

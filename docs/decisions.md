@@ -461,7 +461,7 @@ generic `Greater Dandenong` location).
 
 ### D23. An event collects every type it matches — **Hold**
 
-Rule-based classifier over 17 types, multi-tag: children/family is orthogonal
+Rule-based classifier over 18 types, multi-tag: children/family is orthogonal
 to market/musical, so a kids' market is both `Children & Families` and
 `Market & Exhibition`. Title (plus any source-supplied category) and free-text
 description are matched as a union, results are returned in `TYPES` order, and
@@ -668,6 +668,159 @@ uniform default.
 the column wraps to four or five lines. Truncating to a primary tag needs a real
 notion of primary, which `classify_types()` does not have — and D23 removed the
 thing that would have supplied one, by making rule order not load-bearing.
+
+---
+
+## 6a. Series identity
+
+### D38. A recurring series carries a stable identity - **Hold**
+
+`series_id_for()` is `sha1(source_id | normalised name | venue head)`, stamped on
+every row a dateless listing is materialised into, and it is what `reconcile_store()`
+judges a series row on: a set membership, not a timestamp comparison.
+
+The alternative was a window. A weekly series publishes its next 12 occurrences
+**from the run date**, so its stored rows are a snapshot of a rolling window.
+The old test re-expanded each listing's prose with the *current* run date and
+compared timestamps against the stored ones, which meant it was comparing rows
+written on one date against an expansion computed on another. The window slid
+forward every run, so reconciliation drifted with the calendar rather than with
+any source: 97 rows reported unjustified eight days after a build, 130 after
+fifteen, 382 after two months, and `health_check.py` fails the build on any
+drop. The build was correct on the day it was committed and wrong the following
+week, from no change in any input.
+
+Keyed on the venue rather than the URL, because Chatty Cafe re-slugged a venue
+page once and a URL key would have re-identified every series that venue owns on
+the next run. Not folded for accents, because the id is per-source by
+construction: it exists to recognise one listing's own occurrences, never to
+merge two sources' listings, which is `dedupe.py`'s name/location match.
+
+A source that publishes its own identity should use that instead: `webfetch_everi.py`
+stamps the site's `eventIdentifier` GUID, which is authoritative where ours is
+inferred. A row's own stamped value always wins over the computed one.
+
+`series_id` does not replace D9. It answers *"is this listing still published?"*;
+`refresh_inferred()` answers *"is this row's stored time still what the listing
+says?"*. A Chatty Cafe venue that moves from Wednesday to Thursday keeps its
+identity and still needs refreshing, so both remain.
+
+### D39. `has_real_date` is removed, not repaired - **Hold**
+
+The field was documented as "true only when the source supplied a date", and
+`recurrence._row_with_date()` set it `True` on every row it *inferred*. It
+therefore read `True` for all 1531 rows and discriminated nothing, while
+`dedupe.py:688`'s self-contradiction check — the safety net for a real
+fetch-time-stamp bug — could never fire on any row the pipeline produced.
+
+`date_inferred` already separates the two cases and is what `resolve_dateless()`
+and `refresh_inferred()` read, so the field was pure redundancy carrying a
+misleading name. Removing it rather than fixing its meaning was the smaller
+change: fixing it would have meant a data migration to restate 501 rows, to
+protect a check that `date_inferred` performs anyway.
+
+### D40. A group publishes only if it states both a place and a time - **Hold**
+
+Kingston's community-groups directory lists 117 groups. A group is not an event:
+it has a schedule, not a date. The listing states no time at all, so the crawl
+opens every entry's own page, and that page is the only place a schedule is
+written down. A group stating a place but no meeting time is dropped, and so is
+one stating a time but no place.
+
+Neither half is actionable on its own, and the alternative is a calendar row a
+reader cannot act on -- the same reasoning as D20 and as
+`webfetch_granicus.drop_venueless()`. Eleven of the 117 state no address
+anywhere on the site, listing card or detail page, and are therefore not
+published at all.
+
+Where the schedule comes from, in order:
+
+1. **The group's own prose.** Preferred, because it is the group describing its
+   own meetings. "monthly meetings ... on the third Monday of each month
+   starting at 10.00am" resolves to a monthly series on the third Monday at
+   10:00.
+2. **A per-weekday hours table**, present on 14 of the 117. This is *not* a
+   weekly window but a list of individual sessions with no dates, so it is
+   aggregated per weekday into the window the group is active in, and a day
+   whose aggregate runs longer than six hours is refused as the venue's opening
+   hours rather than a meeting. That test is what keeps the Australasian Golf
+   Club's 07:00-18:00 daily table out of the calendar, and it is a judgement
+   about what a group "having a schedule" means, which is why it is stated here
+   rather than buried in the fetcher.
+
+A schedule that names days but no start time is refused, and so is one whose
+every occurrence is in the past -- the last of those caught a church whose
+description mentions "Sunday 22 December", which the date parser resolved to
+2024-12-22 and published into a 2026 calendar.
+
+### D41. A group's tags come from the taxonomy it publishes - **Hold**
+
+Kingston states a curated category on every directory entry -- `Probus`,
+`Seniors`, `Sports and recreation`, `Men's sheds` -- and `SOURCE_TAXONOMY` maps
+those fourteen terms onto `TYPES`.
+
+This is preferred to matching the description, because the description is a
+field the classification did badly. `r"probis"` matches only the plural, so
+"Aspendale Probus Club" -- one of the most common group types in the directory,
+because Kingston has three Probus clubs -- fell through to `["Other"]`. A
+vintage car club came out as `Children & Families` + `Food & Drink` + `Info
+Session` and a church as `Children & Families` + `Food & Drink`, from a mean of
+2.9 tags per group. The prose regexes still run and still union on top, because
+a group's subject and what its description mentions are different facts.
+
+`Community Group` is keyed on the source id, as `Seniors Festival` is on
+`kingston_seniors`, so a future directory of joinable groups inherits the tag
+rather than needing its own wording.
+
+### D42. "Inside the catchment" is one function, and it is the strict one - **Hold**
+
+`suburb_filter` was implemented twice, and the two disagreed about exactly the
+case that mattered. `fetch_urllib_sources._passes_suburb_filter()` ended
+`return not _classifiable(row)`: a row whose suburb could not be extracted was
+*kept*, on the reasoning that an extraction gap should not throw a real event
+away. `health_check._suburb_in()` ended `return any(a in blob for a in
+allowed)`: the same row was *rejected*, on the reasoning that an event which
+cannot be placed is not in the catchment.
+
+So the fetcher published "Mount Cannibal Hike and Barbeque" -- a reserve some
+forty kilometres from Springvale, named after the place it is in -- and the
+check then failed the build on it. Two modules, one invariant, opposite
+answers, and a build that went red on a row a module had just created.
+
+There is now one function, `fetch_urllib_sources._passes_suburb_filter()`, and
+`health_check` calls it rather than carrying a copy. The strict reading wins:
+an event the pipeline cannot place in the catchment is not published, because
+the alternative is that the filter admits the whole city whenever the
+detail-page suburb extraction misses. A row naming an in-area suburb anywhere in
+its own text is still kept, since that is a positive signal and costs nothing,
+and online events are exempt because they have no suburb to be outside of.
+
+### D43. A weekday qualifier is not part of a programme's identity - **Hold**
+
+Sources style one class differently: the Seniors guide writes "Zumba Gold
+(Mondays)", the CCC site writes "Zumba® Gold". Those were 0.84 similar, below the
+fuzzy threshold, so Monday's class published twice at the same hall, hour and
+date.
+
+`_NAME_NOISE_RE` already stripped a trailing "(new)", "(series)", "(term 4)".
+The qualifier is now stripped in `normalize_name()` rather than only in
+`name_head()`, because the fuzzy pass compares `name_similarity()`, which uses
+`normalize_name()` -- stripping it in `name_head()` alone left the similarity
+untouched and the duplicate standing.
+
+Trademark marks are folded out for the same reason: `®`, `™` and `©` carry no
+identifying information and one source's use of one should not create a second
+row for a class.
+
+Stripping the qualifier does merge "Zumba Gold (Mondays)" and "Zumba Gold
+(Fridays)" as far as the *name* is concerned, which is safe because a merge also
+requires the same day and the same venue: they are one programme on two days,
+and the sessions stay distinct rows.
+
+`dedupe.py` had no suite of its own, which is how it came to hold two readers of
+one idea and a threshold that quietly excluded a class it was meant to catch.
+It has one now, and `checks.py` passes `--test` to it — as it already did to
+`build_site.py` — so running the suite does not re-run the merge.
 
 ---
 

@@ -13,6 +13,7 @@ TYPES = [
     "Art & Craft",
     "Books & Reading",
     "Children & Families",
+    "Community Group",
     "Dance",
     "Exercise & Fitness",
     "Food & Drink",
@@ -36,6 +37,12 @@ TYPES = [
 # Rule order is no longer load-bearing for correctness (union collects all
 # matches); TYPES order determines display order.
 RULES = [
+    # A recurring group someone can join is a different thing from a one-off
+    # event that happens to be social, and the distinction is the reason a
+    # reader would filter for it. Keyed on the source id, as kingston_seniors is
+    # below, so any future directory of joinable groups inherits the tag rather
+    # than each source needing its own wording.
+    ("Community Group", [r"kingston_groups"]),
     ("Seniors Festival", [r"seniors? festival", r"senior'?s? festival", r"kingston_seniors"]),
     ("Movies & Cinema", [r"movie", r"film", r"cinema", r"screening", r"pinocchio"]),
     ("Dance", [r"ballroom danc", r"belly danc", r"line danc", r"\bdanc(e|ing|ers)\b",
@@ -198,9 +205,83 @@ RULES = [
 
 _COMPILED = [(t, [re.compile(p, re.I) for p in pats]) for t, pats in RULES]
 
+# --- taxonomies a source publishes about itself ---------------------------
+# Kingston's community-groups directory states a curated category on every entry
+# ("Probus", "Sports and recreation", "Men's sheds"). That is the council's own
+# classification of its own listing, which is worth more than anything this
+# module can infer from the prose -- and inference on that prose is demonstrably
+# poor: the entry for Aspendale Probus Club reads "We are a local Probus club
+# which is an association of retired and semi-retired professionals", and
+# r"probis" (plural only, activity_types.py) does not match it, so one of the
+# most common group types in the directory filed as ["Other"]. The same prose
+# tagged a vintage car club Children & Families + Food & Drink + Info Session
+# and a church Children & Families + Food & Drink, averaging 2.9 tags per group.
+#
+# So the taxonomy is used where the source publishes one, and the regexes still
+# run on top: a group's subject ("Sports and recreation") is a facet the council
+# chooses, while its description may mention a Thursday-night dance that is also
+# true of what the group does.
+SOURCE_TAXONOMY = {
+    "arts and culture": ("Art & Craft", "Music & Performance"),
+    # The facet says "activity hub" and the card says "activity hubs"; both are
+    # listed rather than plural-stripped, because stripping the trailing "s"
+    # generically would also turn "Probus" into "probu".
+    "community centres neighbourhood houses and activity hub": ("Social & Community",),
+    "community centres neighbourhood houses and activity hubs": ("Social & Community",),
+    "environmental": ("Nature & Environment",),
+    "faith": ("Social & Community",),
+    "family youth and children": ("Children & Families",),
+    "men's sheds": ("Social & Community", "Sport & Outdoors"),
+    "multicultural": ("Social & Community",),
+    "probus": ("Social & Community",),
+    "seniors": ("Social & Community",),
+    "people with disabilities": ("Health & Wellbeing", "Social & Community"),
+    "service clubs": ("Social & Community",),
+    "sports and recreation": ("Sport & Outdoors",),
+    "welfare and community support services": ("Health & Wellbeing",
+                                               "Social & Community"),
+    # "Other" is the council saying it has no better term, which is not a tag.
+    "other": (),
+}
+
+
+def _taxonomy_key(term):
+    """Normalise a published taxonomy term to a SOURCE_TAXONOMY key.
+
+    Commas are dropped rather than stripped from the ends, because the facet
+    list and the card labels disagree about them as well as about plurality
+    ("Family, youth, and children" in the facet, "Family, youth and children" on
+    the card). Only case and spacing vary after that, and neither should be able
+    to miss a lookup.
+    """
+    return " ".join((term or "").lower().replace(",", " ").split())
+
+
+def classify_from_taxonomy(terms):
+    """Types named by the taxonomy a source published about this row itself.
+
+    Returns an empty set for a row with no published terms, so a caller can union
+    it unconditionally. Unrecognised terms are ignored rather than guessed at: a
+    term the council adds later is not an error in this row, and the test suite
+    pins the known vocabulary so a new one is noticed there.
+    """
+    found = set()
+    for term in terms or ():
+        found.update(SOURCE_TAXONOMY.get(_taxonomy_key(term), ()))
+    return found
+
+
+def unmapped_taxonomy(terms):
+    """Published terms with no entry in SOURCE_TAXONOMY. Empty is good."""
+    return sorted({t for t in terms or ()
+                   if _taxonomy_key(t) not in SOURCE_TAXONOMY})
+
+
 # Every rule must name a real type, or the UI renders a filter checkbox for a
-# category that can never be selected.
-_BAD_TYPES = sorted({t for t, _ in RULES} - set(TYPES))
+# category that can never be selected. The same for the taxonomy.
+_BAD_TYPES = sorted(({t for t, _ in RULES}
+                     | {t for tags in SOURCE_TAXONOMY.values() for t in tags})
+                    - set(TYPES))
 assert not _BAD_TYPES, f"rules reference undeclared types: {_BAD_TYPES}"
 
 
@@ -215,16 +296,18 @@ def _all_matches(text):
     return found
 
 
-def classify_types(name, description="", category=""):
+def classify_types(name, description="", category="", source_types=None):
     """Return every applicable type for one event, in TYPES order.
 
-    Union of title (+ category) and description matches, so orthogonal
-    facets compose: a kids market is both Children & Families and
-    Market & Exhibition; a musical for families is both Music and Children.
+    Union of title (+ category) and description matches, plus whatever the
+    row's own source said it is (see SOURCE_TAXONOMY), so orthogonal facets
+    compose: a kids market is both Children & Families and Market &
+    Exhibition; a musical for families is both Music and Children.
     ["Other"] iff nothing matches.
     """
     title = (name or "") + "\n" + (category or "")
     matched = _all_matches(title) | _all_matches(description or "")
+    matched |= classify_from_taxonomy(source_types)
     if not matched:
         return ["Other"]
     order = {t: i for i, t in enumerate(TYPES)}
@@ -378,7 +461,69 @@ if __name__ == "__main__":
         ("Belly Dance and Baklava Afternoon tea", "Bring the whole family.", "",
          ["Dance", "Food & Drink", "Social & Community"]),
     ]
+
+    # The taxonomy vocabulary the directory actually publishes. Taken from both
+    # places it appears, because they disagree: `kingston_groups` renders these
+    # from the entry's card tags, and the facet list offers the same terms with
+    # different punctuation and plurality. A new term the council adds should
+    # fail here rather than silently tag nothing.
+    KNOWN_TAXONOMY = [
+        "Arts and culture",
+        "Community Centres, neighbourhood houses, and activity hub",
+        "Environmental", "Faith", "Family, youth, and children", "Men's sheds",
+        "Multicultural", "Probus", "Seniors", "People with disabilities",
+        "Service clubs", "Sports and recreation",
+        "Welfare and community support services", "Other",
+        # ...and the plural / comma-less spellings the card labels use instead.
+        "Community Centres, neighbourhood houses, and activity hubs",
+        "Family, youth and children",
+    ]
+
     failures = []
+    for label, actual, expected in [
+        ("every published taxonomy term maps",
+         unmapped_taxonomy(KNOWN_TAXONOMY), []),
+        ("a row with no published terms is not Other by accident",
+         classify_from_taxonomy([]), set()),
+        ("the council's own terms outrank the prose (Probus Club)",
+         classify_types("Aspendale Probus Club",
+                        "We are a local Probus club which is an association of "
+                        "retired and semi-retired professionals.",
+                        "kingston_groups", ["Probus", "Seniors"]),
+         ["Community Group", "Social & Community"]),
+        # A golf club is a group you join and a sport you play. Both.
+        ("sports groups are both (golf club)",
+         classify_types("Australasian Golf Club Inc",
+                        "Manages the Edithvale Public Golf Course.",
+                        "kingston_groups", ["Sports and recreation"]),
+         ["Community Group", "Sport & Outdoors"]),
+        # The taxonomy adds a facet the description never mentions.
+        ("the taxonomy can add what the prose does not (men's shed)",
+         classify_types("Mordialloc Men's Shed",
+                        "Come and join us for a chat and a project.",
+                        "kingston_groups", ["Men's sheds"]),
+         ["Community Group", "Social & Community", "Sport & Outdoors"]),
+        ("the plural hub spelling and the singular one agree",
+         classify_from_taxonomy(
+             ["Community Centres, neighbourhood houses, and activity hubs"]),
+         classify_from_taxonomy(
+             ["Community Centres, neighbourhood houses, and activity hub"])),
+        # "Other" is the council admitting it has no term, not a tag.
+        ("the council's 'Other' adds nothing",
+         classify_from_taxonomy(["Other"]), set()),
+        # Without the source label there is no Community Group tag, so this
+        # measures the prose alone: r"probis" is plural-only and this is the
+        # singular, which is why the taxonomy exists.
+        ("without a taxonomy the singular Probus matches nothing",
+         classify_types("Aspendale Probus Club", "", ""), ["Other"]),
+    ]:
+        if actual == expected:
+            print("ok   %s" % label)
+        else:
+            print("FAIL %s\n         actual:   %r\n         expected: %r"
+                  % (label, actual, expected))
+            failures.append(label)
+
     for n, d, c, expected in tests:
         got = classify_types(n, d, c)
         flag = "ok " if got == expected else "BAD"
@@ -387,7 +532,7 @@ if __name__ == "__main__":
         print("%s %-45s -> %s" % (flag, n, got))
     if failures:
         print("\n%d classification failure(s):" % len(failures))
-        for n, expected, got in failures:
-            print(f"  {n!r}: expected {expected!r}, got {got!r}")
+        for f in failures:
+            print(f"  {f!r}")
         raise SystemExit(1)
-    print(f"\nall {len(tests)} classifications as expected")
+    print(f"\nall {len(tests) + 8} classifications as expected")

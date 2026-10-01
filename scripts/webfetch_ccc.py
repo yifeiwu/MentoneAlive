@@ -12,11 +12,6 @@ from webfetch_http import (DETAIL_MIN_SUCCESS_RATIO, PartialFetch, _hhmm, get,
 # Cheltenham Community Centre (Weebly term classes + Humanitix bookings)
 # ---------------------------------------------------------------------------
 
-CCC_DEFAULT_VENUE = "Cheltenham Community Centre"
-CCC_DEFAULT_ADDR = "8 Chesterville Road, Cheltenham VIC 3192"
-CCC_HALL_VENUE = "Cheltenham Hall"
-CCC_HALL_ADDR = "1218 Nepean Highway, Cheltenham VIC 3192"
-
 CCC_LABELS = ("Term:", "When:", "Time:", "Where:", "Cost:",
               "Instructor:", "Facilitator:")
 
@@ -298,10 +293,24 @@ def fetch_ccc(cfg, session=None, detail_cap=None):
                 # "shall" and "shallot", which then filed a Cheltenham
                 # Community Centre class at the Hall. Only a real mention of
                 # the hall selects the hall venue.
+                # Both venues come from `venues:` in sources.yaml rather than
+                # from constants here, which is what D21 says: a source config
+                # holds the venue, never a guess. They were the clearest breach
+                # of that in the tree -- four addresses in a fetcher module, with
+                # no way to see or change them without reading Python.
+                venues = cfg.get("venues") or {}
+                default = venues.get("default") or {}
+                venue = default.get("name") or ""
+                addr = default.get("address") or ""
                 if CCC_HALL_RE.search(span_text):
-                    venue, addr = CCC_HALL_VENUE, CCC_HALL_ADDR
-                else:
-                    venue, addr = CCC_DEFAULT_VENUE, CCC_DEFAULT_ADDR
+                    hall = venues.get("hall") or {}
+                    venue = hall.get("name") or venue
+                    addr = hall.get("address") or addr
+                if not venue or not addr:
+                    raise PartialFetch(
+                        f"no venues configured for {cfg['id']}: every CCC row "
+                        f"is filed at a venue, and guessing one publishes a "
+                        f"wrong address silently")
                 m_addr = re.search(r"(.+?VIC\s*\d{4})", where if kind == "labels"
                                   else span_text)
                 if m_addr:

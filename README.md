@@ -20,6 +20,7 @@ observation, not a standing total. Read the live number from the store.
 |--------|-------|------|--------|
 | Kingston Hubs (OpenCities calendar API) | `kingston_hubs` | 523 | JSON API, `urlopen`. Venue per calendar id in `sources.yaml` |
 | Cheltenham Community Centre | `ccc` | 390 | HTML + Humanitix term ranges |
+| Kingston Community Groups | `kingston_groups` | 342 | OpenCities local directory, ASP.NET postback paging + one detail page per group |
 | Chatty Cafe venue directory | `chatty_cafe` | 234 | Venue pages, fallback schedule in config |
 | Kingston Seniors Festival | `kingston_seniors` | 159 | Annual PDF guide + hand-checked overrides |
 | Bayside Council events | `bayside_live` | 142 | HTML, full `?page=` pagination |
@@ -48,7 +49,15 @@ python scripts/build_site.py              # types/commercial/status -> render in
 python scripts/health_check.py            # fail loudly on bad output
 python scripts/checks.py                  # all rule assertions (exit non-zero on failure)
 python scripts/render_check.py            # render index.html in headless Chrome, measure it
+python scripts/quality_audit.py           # report duplication and data quality (no gate)
 ```
+
+`quality_audit.py` is a report rather than a gate, on purpose: the other two
+assert invariants, and a number that moves as the sources move is information
+rather than a failure. It exists for the class of defect no gate covers — a
+description that is the page's address block, an internal scratch field that
+reached the store, two sources styling one class differently and producing two
+rows for it. Run it after `build_site.py`, which writes the artefact it reads.
 
 Useful flags:
 
@@ -189,11 +198,14 @@ A bare second time inherits the weekday before it — `Mondays 9am-12pm,
 
 ## Classification
 
-`activity_types.py` classifies over 17 types, multi-tag, from the title (plus any
-source-supplied category) and the description as a union. Results come back in
-`TYPES` order with `["Other"]` only when nothing matched. Because tags compose,
-rule order is not load-bearing for correctness. The UI filter is OR: an event
-stays visible while any of its tags is ticked. See
+`activity_types.py` classifies over 18 real types (plus `Other`), multi-tag, from
+the title (plus any source-supplied category) and the description as a union.
+Results come back in `TYPES` order with `["Other"]` only when nothing matched.
+Because tags compose, rule order is not load-bearing for correctness. The UI
+filter is OR: an event stays visible while any of its tags is ticked. Where a
+source publishes its own taxonomy of what a listing is (`SOURCE_TAXONOMY` —
+Kingston's community-groups directory states a curated category per entry), that
+is used in preference to matching the prose, and unioned with it. See
 [D23](docs/decisions.md).
 
 `commercial.py` flags pub/meal-deal promos and priced-or-pub trivia as
@@ -226,16 +238,23 @@ the build before it can reach the published page. The suites are:
 
 | Suite | Pins |
 | --- | --- |
-| `activity_types` | 56 name/description → tags cases |
+| `activity_types` | 64 name/description → tags cases |
 | `status` | 10 sold-out / service cases |
 | `recurrence` | the date-inference table, on a fixed reference date |
+| `dedupe` | name, venue and series-key normalisation |
 | `commercial` | commercial detection rules |
 | `webfetch_granicus` | Granicus address parsing |
+| `webfetch_directory` | directory cards, addresses and hours tables |
+| `webfetch_everi` | Everi detail pages: dates, venues, series GUID |
 | `webfetch_http` | shared time/month/row parsing |
 | `build_site` | suburb extraction |
 | `fetchers` | the fetch call convention, without a network |
-| `failure_signals` | config validation and the "do not publish" signal |
+| `failure_signals` | config validation, the do-not-publish signal, and store stability across run dates |
 | `fetcher_equivalence` | the fetchers extract the same rows they used to |
+
+`build_site.py` and `dedupe.py` are both pipeline stages and suites, so
+`checks.py` passes `--test` to them: running either from the runner does not
+rebuild the site or re-run the merge.
 
 `health_check.py` then verifies the *published output*: a total floor, per-source
 floors, zero duplicates on all three keys, no inferred row whose stored date or
