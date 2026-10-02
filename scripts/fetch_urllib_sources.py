@@ -227,7 +227,15 @@ def fetch_kingston_hubs(cfg, session=None):
                     datetime_text=it.get("DateTime", ""),
                     location=venue,
                     address=address,
-                    description=name,
+                    # The calendar API returns no prose at all -- an item is
+                    # CalendarId, Id, MainContentId, Name and DateTime, and
+                    # nothing else. This used to pass `description=name`, so
+                    # all 524 rows of this source published with their own title
+                    # in the description column: the page printed the name
+                    # twice, the search haystack counted it twice, and the
+                    # classifier read the title as the listing's description.
+                    # A source that states no description gets none.
+                    description="",
                 ))
     return rows
 

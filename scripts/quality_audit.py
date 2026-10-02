@@ -38,7 +38,7 @@ import collections
 import json
 import re
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 sys.path.insert(0, "scripts")
 from rapidfuzz import fuzz

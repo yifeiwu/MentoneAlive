@@ -27,7 +27,7 @@ from datetime import date
 from bs4 import BeautifulSoup
 
 from webfetch_http import (PartialFetch, combine, get, make_row,
-                           parse_day_month_year, range_start_time, report)
+                           parse_day_month_year, report)
 
 # ---------------------------------------------------------------------------
 # Frankston City Libraries
@@ -205,14 +205,16 @@ def fetch_frankston_libraries(cfg, session=None, detail_cap=None):
                 location=(addr or d_addr).split(",")[0],
                 price_text=d_price or ("Free" if "free" in (d_desc + desc).lower()
                                        else ""),
-                description=desc or d_desc or name,
+                # No `or name`: a programme with no prose of its own gets no
+                # description, rather than one restating its own title.
+                description=desc or d_desc,
             ))
         report(f"{name}: {len(dates)} date(s)")
 
     if not rows:
         raise PartialFetch(
-            f"ten library pages read and none produced a dated row -- the "
-            f"detail markup has probably changed")
+            f"all {len(cards)} library pages read and none produced a dated "
+            f"row -- the detail markup has probably changed")
     report(f"{len(rows)} rows from {opened} of {len(cards)} listed programmes")
     return rows
 

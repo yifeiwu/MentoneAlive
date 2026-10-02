@@ -169,14 +169,14 @@ Full rules in [D3](docs/decisions.md). In short:
 7. **Untimed twins** (`drop_untimed_twins`): a listing stating only "Wednesday"
    yields an occurrence at 00:00. When a timed occurrence of the same programme
    exists, the midnight row restates that session rather than adding an event.
-8. **A listing re-dated by a later fetch** (`drop_superseded_range_rows`): a
+8. **A listing re-dated by a later fetch** (`drop_superseded_listing_rows`): a
    listing that runs for weeks states its *next* occurrence, which advances
-   while the run's closing date does not — so every fetch returns it at a new
-   start time and the store keeps a copy per run. Rows of one listing that
-   share a closing date, and that the sources no longer state as a slot, are
-   collapsed onto the current one. The closing date is what identifies a run;
-   a materialised series states its own date and no span, so the 58 stored
-   `Mahjong` occurrences are untouched. See [D46](docs/decisions.md).
+   while the run does — so every fetch returns it at a new start time and the
+   store keeps a copy per run. Rows of one listing that name a next occurrence,
+   and that the sources no longer state as a slot, collapse onto the current one.
+   A listing is only treated this way when it says so: a multi-day listing
+   materialised one row per day (`Fairies at Rippon Lea`) is indistinguishable
+   by shape, and is left alone. See [D46](docs/decisions.md).
 
 Two orderings that are load-bearing:
 

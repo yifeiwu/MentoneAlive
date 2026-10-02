@@ -81,6 +81,23 @@ def _strip_build_comments(source):
     return re.sub(r"<!--.*?-->", "", source, flags=re.S)
 
 
+def on_page(row):
+    """True when a store row belongs on the page.
+
+    Archived rows are the delisted series kept in data/events.json as the record
+    that they ever existed -- a weekly farmers' market is worth keeping -- but
+    they are not events anybody can attend, so they stay off the list.
+
+    `is not True`, not a truth test: the flag is written by dedupe.py as a
+    boolean, and an unconfirmed or confirmed-live series is carried by `False`
+    or by the flag's absence. A truth test would withhold a row whose `archived`
+    happened to be a non-empty string or a non-zero number, and none of the
+    three readers of this rule (this function, the count below, and the test)
+    should be able to disagree about which rows that is.
+    """
+    return row.get("archived") is not True
+
+
 def main():
     with open(ROOT / "data" / "events.json", encoding="utf-8") as f:
         data = json.load(f)
@@ -91,7 +108,6 @@ def main():
     # is made after every row is annotated, so the store is a uniform set and
     # an archived row is described in the same terms as a live one.
     every_row = data.get("rows", [])
-    _n_conf = sum(1 for r in every_row if r.get("live_confirmed"))
     print(f"Building site with {len(every_row)} events...")
 
     for r in every_row:
@@ -147,7 +163,7 @@ def main():
     # Withheld before the page's own counts are taken, so the filter list and
     # the source list describe what a reader can actually act on. An archived
     # source contributing checkboxes would offer filters that match nothing.
-    rows = [r for r in every_row if r.get("archived") is not True]
+    rows = [r for r in every_row if on_page(r)]
     print(f"  {len(rows)} rows on the page"
           + (f", {len(every_row) - len(rows)} archived rows withheld"
              if len(every_row) != len(rows) else ""))
@@ -237,8 +253,12 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys as _sys
-    if "--test" in _sys.argv:
+    if "--test" in sys.argv:
+        # Imported here, not at module scope: `dedupe` pulls in rapidfuzz and
+        # recurrence, and a suburb-extraction case should not need them to
+        # import. Only the store-flag case below does.
+        from dedupe import _normalize_raw
+
         # Suburb extraction cases. Run by `python scripts/build_site.py
         # --test` and by checks.py, so a change to the address patterns
         # fails the build before a venue name or a year can publish as a
@@ -297,10 +317,12 @@ if __name__ == "__main__":
               "Cheltenham"),
         ]
 
-        # Which rows reach the page. Archived ones are the delisted series kept
-        # as a record; they stay in data/events.json and off the list.
+        # Which rows reach the page. Calls the same `on_page()` the build does,
+        # so the suite cannot assert about a predicate no code runs -- the two
+        # were written differently here (`not r.get(...)`) and in main()
+        # (`is not True`), which is a divergence a test exists to prevent.
         def _on_page(rows):
-            return [r for r in rows if not r.get("archived")]
+            return [r for r in rows if on_page(r)]
 
         _TESTS += [
             ("an archived row is withheld from the page",
@@ -319,11 +341,21 @@ if __name__ == "__main__":
                  {"name": "Market", "source_id": "bayside_archived",
                   "archived": False, "live_confirmed": True}])),
              1),
+            # The predicate itself, which is what makes the three cases above
+            # mean anything: only the literal True withholds a row.
+            ("only archived: True is withheld",
+             [len(_on_page([{"archived": v}]))
+              for v in (True, False, None, 0, "")],
+             [0, 1, 1, 1, 1]),
             # The check that matters: the flag is provenance, and the only place
             # that knows it is the file the row was read from. If it is lost,
-            # delisted programmes are quietly published again.
+            # delisted programmes are quietly published again. Asserted through
+            # `_normalize_raw`, which is the function that has to carry it -- a
+            # dict literal can only ever agree with itself, which is what the
+            # previous version of this case did.
             ("an archived row keeps its flag through the store",
-             [{"name": "Delisted", "archived": True}][0].get("archived"),
+             _normalize_raw({"name": "Delisted", "archived": True},
+                            quiet=True).get("archived"),
              True),
         ]
         _failures = []

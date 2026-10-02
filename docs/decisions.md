@@ -944,15 +944,17 @@ since it is the expected outcome of every run but the last.
 
 
 
-### D46. A listing's closing date identifies it, not its next date — **Hold**
+### D46. A listing that names its *next* occurrence is one event — **Hold**
 
 `'Kingston Sounds' by Susannah Langley` was on the page eight times. One
 exhibition, one URL, one description — and eight different start times:
 21:00 on 30 September, 11:00 and 12:00 on 1 October, then 08:00, 09:00, 14:00,
 18:00 and 19:00 on 2 October. One row per pipeline run, and the store grew by
-one every day. Three more listings were doing the same thing at the same rate
-(`'Refugia' by Kerri Wilson McConchie`, `School holidays at Waves`, `Mental
-Health Month`), 31 rows between them.
+one every day. Six more listings were doing the same thing at the same rate:
+`'Refugia' by Kerri Wilson McConchie`, `School holidays at Waves` and
+`Mental Health Month` reached seven or eight rows each, and `'Hand me down' by
+Andrew Duong`, `'Rendered Other and Cast Out' by Elizabeth Cole` and `Stitch
+with Sappho` reached three — 33 rows in all.
 
 The cause is one word on the page. Granicus writes the *next* occurrence, not
 the start of the run:
@@ -994,38 +996,50 @@ prevent — a listing publishes a rolling window, so an occurrence that has aged
 out of the window fails the slot test and vanishes. D38 measured that at 97 rows
 eight days after a build and 382 after two months.
 
-What separates the two is the **closing date**. A listing re-read on another day
-still states the same run, so its rows share one closing date; a materialised
-occurrence states *its own* date and no span at all — `4/09/2026 9:30:00 AM` —
-which is why 58 `Mahjong` rows are not eight copies of each other. So
-`drop_superseded_range_rows()` groups stored rows by
-`(name, url, closing date)` and drops the ones the sources no longer state.
+What separates the two is that the listing *says* it is naming a cursor. This
+cannot be read off the data — a listing re-dated per run and a listing that
+genuinely runs every day are identical in name, URL, consecutive dates and time
+of day. `Fairies at Rippon Lea` is a real run on 30 September to 4 October and
+is stored as one row per day; `Holiday Activities` says `daily. 8:45am-4:15pm`
+and is stored as three rows. Neither would survive a rule that read "several
+rows of one listing, so they are duplicates".
+
+The discriminator has to be the source's own label, and it is unambiguous: a
+listing that writes `Next date:` is naming a cursor. So
+`drop_superseded_listing_rows()` groups stored rows by `(name, url)`, keeps
+only the rows carrying that label, and drops those the sources no longer state
+as a slot.
 
 The pass is narrow on purpose, and each narrowing is a case in `dedupe --test`:
 
-* `range_end()` reads nothing unless the text states a span *and* what follows
-  the connector is a written date with a year. `11:00 AM to 04:00 PM` is one
-  session's duration; a list of the dates still to come is a different listing
-  per row; `17th October - 5th December` is a term, not a run.
+* The label is read with a word boundary rather than anchored to the front,
+  because the same field leads with the venue's status when there is one
+  (`Sold out: Next date: ...`) — `status.py` reads that prefix rather than
+  writing it, so a row can arrive with both.
 * Inside such a group a row is only dropped when no live row states its slot,
   so a page that really does publish two sessions at two times keeps both.
 * An absent source and a source mid-crawl are both spared, on D3's reasoning
-  that silence is not a withdrawal. The mid-crawl case writes its own progress
-  file into a temp dir rather than leaning on the committed `frankston_auto`
-  one, which has been parked since D45 and would keep passing either way.
+  that silence is not a withdrawal. `crawling` is a parameter so that guard can
+  be exercised without a progress file having to exist on disk.
 
-27 rows went, one per stale copy, and nothing else in the store changed: the
-control run against `HEAD` differs only by those 27, and the 17 rows whose
-build-site fields move are pre-existing churn the unmodified pipeline produces
-too. 2190 rows, zero duplicates.
+The first version keyed the group on the *closing date* instead, on the theory
+that a run's end is what identifies it. It was withdrawn: it is a strictly
+narrower reading of the same thing (it cannot see `'Hand me down'`, whose text
+ends in an end *time* rather than an end date), and standing alone it is
+**wrong** — five `bayside_live` rows state two real date ranges on one page
+(`28 September 2026 to 2 October 2026  29 September 2026 to 3 October 2026`)
+and are genuine sessions, not readings of a cursor. The label subsumes it and
+has no such counterexample, so the closing-date reader and its two regexes went
+with it.
 
-`_live_slot_index()` and `_slot_is_stated()` are shared with `reconcile_store()`
-rather than written a second time, for the reason `health_check.py` uses
-`dedupe.slot_hash()`: the pass that drops and the pass that judges have to
-compute the same thing, or one of them reports a duplicate the other considers
-distinct and neither names the disagreement.
+33 rows went, one per stale copy, and nothing was added or altered. 2184 rows,
+zero duplicates. `_live_slot_index()` and `_slot_is_stated()` are shared with
+`reconcile_store()` rather than written a second time, for the reason
+`health_check.py` uses `dedupe.slot_hash()`: the pass that drops and the pass
+that judges have to compute the same thing, or one of them reports a duplicate
+the other considers distinct and neither names the disagreement.
 
-*Owner:* `dedupe.drop_superseded_range_rows`, `dedupe.range_end`.
+*Owner:* `dedupe.drop_superseded_listing_rows`, `dedupe.names_next_occurrence`.
 
 ## 7. Things that are not decisions, but look like they were
 

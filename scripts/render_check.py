@@ -520,7 +520,6 @@ def main():
     if not os.path.isfile(INDEX):
         print(f"FAIL: {INDEX} not found - run scripts/build_site.py first")
         return 1
-    html = open(INDEX, encoding="utf-8").read()
 
     # Unsubstituted placeholders are health_check's job, and it checks all five
     # PLACEHOLDERS against this same file before this runs. An unbuilt page then

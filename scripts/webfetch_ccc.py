@@ -244,7 +244,6 @@ def fetch_ccc(cfg, session=None, detail_cap=None):
                 if len(title) < 3 or re.match(r"^\w+ \d{1,2} \w+ \d{4}$",
                                               title):
                     continue  # pure-date heading, not an activity
-                key = title.lower()
                 next_el = starts[i + 1][0] if i + 1 < len(starts) else None
                 span_text, span_links = _ccc_section_span(el, next_el)
                 span_text = re.sub(r"[\u200b\xa0]+", " ", span_text)
@@ -333,7 +332,12 @@ def fetch_ccc(cfg, session=None, detail_cap=None):
                     location=venue,
                     address=addr,
                     price_text=cost,
-                    description=desc[:400] or title,
+                    # No `or title`: a listing that states no prose gets no
+                    # description. Falling back to the heading wrote the name
+                    # into the description column, which the page then printed
+                    # twice. `make_row` drops that case too, so this is belt
+                    # and braces -- but the fetcher should not be asking for it.
+                    description=desc[:400],
                 ))
                 n += 1
         report(f"{page_url.split('/')[-1]}: {n} activities")

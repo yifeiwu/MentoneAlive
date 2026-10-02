@@ -712,9 +712,6 @@ def main():
         errors.append(
             f"rows from {', '.join(stale)} are marked live_confirmed but "
             f"withheld from the page")
-    n_hidden = sum(1 for r in rows
-                   if r.get("source_id") in ARCHIVED_SOURCES
-                   and r.get("archived") is True)
     if not any(r.get("live_confirmed") for r in rows) and listed == []:
         warnings.append("no archived series is confirmed live - if the "
                         "liveness check has not been run, "

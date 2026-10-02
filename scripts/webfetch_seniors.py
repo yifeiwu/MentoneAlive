@@ -322,9 +322,9 @@ def fetch_kingston_seniors(cfg, session=None):
     # rather than returned as an empty source.
     if "year" not in cfg or cfg.get("year") is None:
         raise PartialFetch(
-            f"kingston_seniors: sources.yaml has no 'year', so the festival "
-            f"guide is skipped entirely. health_check.seniors_config_errors() "
-            f"reports the same fault.")
+            "kingston_seniors: sources.yaml has no 'year', so the festival "
+            "guide is skipped entirely. health_check.seniors_config_errors() "
+            "reports the same fault.")
     try:
         year = int(cfg["year"])
     except (ValueError, TypeError):
@@ -422,7 +422,7 @@ def fetch_kingston_seniors(cfg, session=None):
         # the two datetime keys are empty here and filled in per session.
         base = make_row(cfg["id"], title, source,
                         location=location, address=address,
-                        price_text=cost, description=desc or title)
+                        price_text=cost, description=desc)
         # Date matches with line numbers (line numbers relative to chunk).
         matches = [(li, m) for li, m in _seniors_day_lists(lines)]
         direct, pooled = [], []
@@ -670,8 +670,10 @@ def _seniors_apply_overrides(rows, cfg):
                     address=ov.get("address") or (base or {}).get(
                         "address", ""),
                     price_text=sess.get("cost", ov.get("cost", "")),
+                    # No name fallback here either: an override with no prose
+                    # gets no description rather than one restating the title.
                     description=(base or {}).get("description")
-                    or ov.get("description", ov["name"]),
+                    or ov.get("description", ""),
                 )
                 kept.append(row)
                 applied += 1

@@ -34,7 +34,6 @@ Failure behaviour, in full:
   refusal, because a term genuinely ending does shrink a source.
 """
 import argparse
-import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -231,14 +230,27 @@ def _count_change(previous, new_count):
             f"source is not truncated before trusting the calendar)")
 
 
-def price_sort(cost):
-    """Sortable number for a price string.
+def plain_sources_missing(plain_ids, plain_ok, only_source=None):
+    """Plain sources that owe rows to data/raw_events.json but did not deliver.
 
-    Delegated to webfetch_http, which owns it: it is a rule about a row's
-    fields, and dedupe.py needs the same rule to repair rows stored before the
-    field existed.
+    The file holds *all* of the plain sources or it is misleading, so it may
+    only be written when every one of them fetched cleanly. The check used to
+    be `if plain_rows:`, which is true as soon as one of them succeeds -- so a
+    kingston_hubs failure wrote a raw_events.json holding chatty_cafe alone, and
+    the next stage could not tell that from a complete fetch. It reads the file,
+    finds a source that no longer states its rows, and `reconcile_store()`
+    withdraws that source's 524 rows: the calendar quietly loses a third of
+    itself over one failed request.
+
+    A `--source` run is a deliberate single-source fetch and the run summary
+    already says the file now holds that source alone, so only the requested
+    one is required. Intersecting with `plain_ids` is what keeps a snapshot
+    source run (`--source ccc`) from being read as a plain source that failed
+    to arrive -- a check that would have turned every snapshot debug run into a
+    non-zero exit.
     """
-    return _price_sort(cost)
+    required = (set(plain_ids) & {only_source}) if only_source else set(plain_ids)
+    return sorted(required - set(plain_ok))
 
 
 def normalize(rows):
@@ -266,7 +278,11 @@ def normalize(rows):
             except Exception:
                 dt = None
         r["datetime_iso"] = dt.isoformat() if dt else None
-        r["price_sort"] = price_sort(r.get("price_text"))
+        # webfetch_http owns the price rule; it is imported here rather than
+        # wrapped, so there is one reader of it. (This module used to re-export
+        # a `price_sort()` that only forwarded, which was a second name for a
+        # rule nothing fetched through.)
+        r["price_sort"] = _price_sort(r.get("price_text"))
         out.append(r)
     return out
 
@@ -345,6 +361,12 @@ def main():
 
     failures = []
     plain_rows = []
+    # Every plain source configured, so the shared file can be written only when
+    # all of them actually contributed. `raw_events.json` holds *all* of them or
+    # it is misleading: a file holding one source's rows is not "the plain
+    # sources' output", and the next stage cannot tell the difference.
+    plain_ids = {c.get("id") for c in entries if c.get("group") != "snapshot"}
+    plain_ok = set()
     for cfg in entries:
         if args.source and cfg.get("id") != args.source:
             continue
@@ -393,6 +415,7 @@ def main():
             continue
         if ftype not in SNAPSHOT_TYPES:
             plain_rows.extend(rows)
+            plain_ok.add(sid)
             continue
         path = _snapshot_path(cfg)
         # Read the old size before the write; after it, the file is the new one.
@@ -402,10 +425,19 @@ def main():
 
     set_reporting_source(None)
 
-    # One file for the plain sources. Written last, and only when every source
-    # that contributes to it succeeded, so a partial run cannot half-replace it.
+    # One file for the plain sources, and only when every one of them ran.
+    # Written last, so a partial run cannot half-replace it.
+    # plain_sources_missing() carries the rule, and the reason.
     raw_path = ROOT / "data" / "raw_events.json"
-    if plain_rows:
+    missing = plain_sources_missing(plain_ids, plain_ok, args.source)
+    if missing:
+        report(f"not writing {raw_path.name}: no clean fetch for "
+               f"{', '.join(sorted(missing))}, so it would hold those sources' "
+               f"rows absent. Existing file left alone.", level="error")
+        failures.append(("raw_events.json",
+                         f"incomplete plain fetch, missing "
+                         f"{', '.join(sorted(missing))}"))
+    elif plain_rows:
         previous = _previous_count(raw_path)
         write_json(raw_path, plain_rows)
         report(f"wrote {raw_path} "

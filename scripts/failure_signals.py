@@ -15,6 +15,7 @@ import yaml  # noqa: E402
 from checks import check as _check  # noqa: E402
 from dedupe import (_normalize_raw, load_live_inputs,  # noqa: E402
                     reconcile_store)
+import fetch_sources  # noqa: E402
 from fetch_sources import (_count_change, _previous_count,  # noqa: E402
                            validate_config)
 from jsonio import write_json  # noqa: E402
@@ -25,8 +26,14 @@ set_reporting_source("test")
 
 with open("scripts/sources.yaml", encoding="utf-8") as f:
     CONFIG = yaml.safe_load(f)
-GOOD = [{**c, "group": "snapshot" if c in CONFIG["webfetch"] else "shared"}
-        for c in CONFIG["webfetch"] + CONFIG["sources"]]
+# `load_config()` is the one reader of sources.yaml's two lists, and it is what
+# tags each entry with the group that decides snapshot ownership. This used to
+# rebuild that mapping here with `"webfetch" if c in CONFIG["webfetch"]`, which
+# is a list membership test -- dict equality, not identity -- so it was quadratic
+# and would have tagged two identical entries as belonging to the first list
+# either appeared in. The two can no longer disagree about what is configured.
+GOOD = fetch_sources.load_config()
+del CONFIG
 
 failures = []
 

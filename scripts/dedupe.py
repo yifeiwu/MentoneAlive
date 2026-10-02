@@ -1,9 +1,10 @@
 """Deduplicate events across sources.
 
 Passes:
-   1. Exact hash on (normalized_name, date_part, normalized_location).
-   Date part (not full timestamp) collapses fetch-time microsecond stamps.
-   Dateless rows (iso=None/'') hash with '' and CAN merge.
+   1. Exact hash on (normalized_name, start time, normalized_location).
+   The start time, not the date: a venue can legitimately run the same class
+   twice in one day, and a date-only key erased the second session. Seconds are
+   dropped, so a fetch-time difference between two reads is not a difference.
 2. Same name+location across different sources (user rule): if normalized
    name and location are equal but dates differ/empty, merge sources and
    keep the dated version. Collapses cross-source duplicates.
@@ -14,6 +15,14 @@ Prunes rows older than 90 days. Merges raw + archived +
 scripts/webfetch_snapshots/*.json. Rows still lacking a date afterwards are
 resolved by scripts/recurrence.py, which infers them from the description and
 drops whatever it cannot date — every published event carries a real date.
+
+reconcile_store() then drops any stored row that none of its own recorded
+sources still justify, and repairs the fields a source has since corrected.
+The store is append-only by design, so that repair pass is the only thing that
+can clear a value a fixed fetcher used to write: it replaces a field only when
+the stored one is known to be wrong (a malformed address, a description that
+restates the row's own name), never merely because the store's value is
+plainer than the source's.
 """
 import glob
 import hashlib
@@ -31,13 +40,49 @@ from rapidfuzz import fuzz
 from jsonio import read_json, write_json
 from recurrence import (infer_event, refresh_inferred, resolve_dateless,  # noqa: F401
                         series_id_for)
-from webfetch_http import month_number, price_sort
+from webfetch_http import price_sort
 
 PRUNE_DAYS = 90
 ROOT = Path(__file__).resolve().parent.parent
 # All published times are Melbourne local. Aware source stamps are converted
 # to this zone rather than having their offset stripped.
 LOCAL_TZ = ZoneInfo("Australia/Melbourne")
+
+
+def _slot_stamp(value):
+    """A stamp to the minute, Melbourne local, or "" when it states none.
+
+    The one reader of "what slot is this row in". `slot_hash()` and
+    `dedupe_by_source_url()` each had their own copy and they disagreed: the
+    fallback for a stamp too malformed to convert tested for a "T" in one copy
+    and not the other, so a timestamp that was unreadable *and* date-shaped
+    produced "" from one and a garbage 16-character key from the other -- and
+    the caller's own `if "T" not in stamp` guard, which is there to skip
+    undated rows, then waved that garbage through as a real slot.
+
+    An aware stamp is converted rather than stripped, and microseconds are
+    dropped, so a fetch-time difference between two reads of one listing is not
+    a difference of slot.
+    """
+    raw = str(value or "")
+    if "T" not in raw:
+        return ""
+    try:
+        return _local(raw).strftime("%Y-%m-%dT%H:%M")
+    except (ValueError, TypeError):
+        return raw.replace("Z", "")[:16]
+
+
+def _slot_key(row):
+    """The (name, url, start) tuple every live-slot index is keyed on.
+
+    Used by both the index that says whether a slot is stated and the one that
+    supplies a live row to repair against, so the two cannot index the same
+    listing two different ways.
+    """
+    return (normalize_name(row.get("name")),
+            (row.get("source") or "").rstrip("/"),
+            _slot_stamp(row.get("datetime_iso")))
 
 
 def reference_today():
@@ -177,14 +222,8 @@ def slot_hash(event):
     12:30pm-3:30pm), so collapsing on the date alone would erase the
     second session.
     """
-    raw = event.get("datetime_iso") or ""
-    try:
-        stamp = _local(raw).strftime("%Y-%m-%dT%H:%M") if "T" in str(raw) else ""
-    except (ValueError, TypeError):
-        iso = str(raw).replace("Z", "")
-        stamp = iso[:16] if "T" in iso else ""
     key = (f"{normalize_name(event.get('name', ''))}|"
-           f"{stamp}|"
+           f"{_slot_stamp(event.get('datetime_iso'))}|"
            f"{normalize_location(event.get('location', ''))}")
     return hashlib.md5(key.encode()).hexdigest()
 
@@ -255,13 +294,9 @@ def dedupe_by_source_url(rows):
     prog_index = {}
     out, merged = [], 0
     for r in rows:
-        raw_stamp = r.get("datetime_iso") or ""
-        try:
-            stamp = _local(raw_stamp).strftime("%Y-%m-%dT%H:%M") if "T" in str(raw_stamp) else ""
-        except (ValueError, TypeError):
-            stamp = str(raw_stamp).replace("Z", "")[:16]
+        stamp = _slot_stamp(r.get("datetime_iso"))
         name = normalize_name(r.get("name", ""))
-        if "T" not in stamp or not name:
+        if not stamp or not name:
             out.append(r)
             continue
         # Two keys: the exact (url, name) pair, and the looser programme key
@@ -367,12 +402,10 @@ def _live_slot_index(live_rows):
     """
     index = {}
     for src in live_rows:
-        iso = str(src.get("datetime_iso") or "")
-        if not iso:
+        if not src.get("datetime_iso"):
             continue
-        key = (normalize_name(src.get("name")),
-               (src.get("source") or "").rstrip("/"), iso[:16])
-        index.setdefault(key, set()).add(venue_head(src.get("location")))
+        index.setdefault(_slot_key(src), set()).add(
+            venue_head(src.get("location")))
     return index
 
 
@@ -386,7 +419,7 @@ def _slot_is_stated(row, by_slot):
     """
     name = normalize_name(row.get("name"))
     venue = venue_head(row.get("location"))
-    iso = str(row.get("datetime_iso") or "")[:16]
+    iso = _slot_stamp(row.get("datetime_iso"))
     for url in _slot_urls(row):
         if not url:
             continue
@@ -400,45 +433,32 @@ def _slot_is_stated(row, by_slot):
     return False
 
 
-# A listing that runs for a while states its span, and the span is what
-# identifies it: "Next date: Friday, 02 October 2026 | 07:00 PM  to Saturday,
-# 31 October 2026 | 11:59 PM". The opening date is a *cursor* -- the next
-# occurrence -- and it advances as the run does, while the closing date does
-# not. Split on the connector so only the far end is read.
-_RANGE_SPLIT_RE = re.compile(r"\s+(?:to|-|–|—)\s+")
-# A date as these sites write it out: "31 October 2026". Requires a year, so a
-# connector followed by a day and a month ("Term 4 (17th October - 5th
-# December)") is not read as the end of a run.
-_WRITTEN_DATE_RE = re.compile(r"\b(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})\b")
+# The CMS's own label for the fact that a listing names its *next* occurrence
+# rather than this event: "Next date: Saturday, 03 October 2026 | 11:00 AM  to
+# 04:00 PM". Matched anywhere in the field, not only at the front, because the
+# same field leads with the venue's status when there is one ("Sold out: Next
+# date: ..." -- status.py reads that prefix, it does not write it).
+_NEXT_DATE_RE = re.compile(r"\bNext date:", re.I)
 
 
-def range_end(text):
-    """The closing date of a span a listing states, as an ISO day.
+def names_next_occurrence(text):
+    """True when a listing's date field names its next occurrence, not its date.
 
-    None whenever the text states no span, and whenever what follows the
-    connector is not a date: "11:00 AM to 04:00 PM" is one session's duration
-    rather than a run of days, and a list of the dates still to come is not a
-    span either. Both are load-bearing -- the sources publish each of those
-    shapes, and a row whose text merely mentions two dates is not a listing
-    seen on two different days.
+    This is the whole discriminator between one listing restated by later
+    fetches and a listing that genuinely runs many times. It has to be read off
+    the source's own words because the two are otherwise identical: a
+    multi-day listing materialised one row per day looks exactly like a listing
+    re-dated per run -- same name, same URL, consecutive days, same time of
+    day. `Fairies at Rippon Lea` is one row per day of a run that really does
+    happen on each of them, `Holiday Activities` says `daily. 8:45am-4:15pm`,
+    and both list their own dates rather than pointing at a cursor. The
+    difference is that neither says "Next date".
     """
-    parts = _RANGE_SPLIT_RE.split(text or "")
-    if len(parts) < 2:
-        return None
-    m = _WRITTEN_DATE_RE.search(parts[-1])
-    if not m:
-        return None
-    month = month_number(m.group(2))
-    if not month:
-        return None
-    try:
-        return date(int(m.group(3)), month, int(m.group(1))).isoformat()
-    except ValueError:
-        return None
+    return bool(_NEXT_DATE_RE.search(text or ""))
 
 
-def drop_superseded_range_rows(rows, live_rows, crawling=None):
-    """Drop the copies of one listing that later runs replaced.
+def drop_superseded_listing_rows(rows, live_rows, crawling=None):
+    """Drop the copies of one listing that later fetches replaced.
 
     A listing that runs for weeks is re-read every day, and its date text leads
     with the *next* occurrence rather than the start of the run. So each fetch
@@ -450,11 +470,12 @@ def drop_superseded_range_rows(rows, live_rows, crawling=None):
     published -- which is the right rule for a materialised series and the wrong
     one here, where the rows carry real source-stated times that disagree.
 
-    What separates the two is the closing date. A listing re-read on another day
-    still states the same run, so its rows share one closing date; the rows of a
-    materialised series each state *their own* date and no span at all
-    (`'4/09/2026 9:30:00 AM'`), which is why this leaves the 58 stored Mahjong
-    occurrences and the 35 it publishes alone.
+    What separates the two is `names_next_occurrence()`: a listing that names
+    its next occurrence is naming a cursor, so several rows of it at different
+    times are several readings of one event. The rows of a materialised series
+    state *their own* date and no cursor (`'4/09/2026 9:30:00 AM'`), which is why
+    this leaves the 58 stored Mahjong occurrences and the 35 it publishes
+    alone, and why the rolling window behind them never slides.
 
     Even inside such a group a row is only dropped when the source no longer
     states its slot, so a page that really does publish two sessions at two
@@ -469,32 +490,40 @@ def drop_superseded_range_rows(rows, live_rows, crawling=None):
     if crawling is None:
         crawling = _unfinished_crawl_sources()
 
+    # Only the rows that name a cursor are judged, and only where a listing has
+    # more than one of them: one reading of a cursor is not a superseded copy,
+    # it is just the listing. Keyed on name and URL alone, so a re-slugged page
+    # and a second listing at the same venue stay apart.
     groups = {}
-    ends = []
     for r in rows:
-        end = range_end(r.get("datetime_text"))
-        ends.append(end)
-        if end:
-            groups.setdefault((normalize_name(r.get("name")),
-                               (r.get("source") or "").rstrip("/"), end),
-                              []).append(r)
-    # One row per key is the ordinary case and cannot be superseded.
+        if not names_next_occurrence(r.get("datetime_text")):
+            continue
+        groups.setdefault((normalize_name(r.get("name")),
+                           (r.get("source") or "").rstrip("/")), []).append(r)
     crowded = {key for key, grp in groups.items() if len(grp) > 1}
 
-    kept, dropped = [], []
-    for i, r in enumerate(rows):
-        if ends[i]:
-            key = (normalize_name(r.get("name")),
-                   (r.get("source") or "").rstrip("/"), ends[i])
-            judged = (key in crowded and r.get("source_id") not in crawling
-                      and r.get("source_id") in live_labels)
-            if judged and not _slot_is_stated(r, by_slot):
-                dropped.append(r)
+    stale = set()
+    for key, grp in groups.items():
+        if key not in crowded:
+            continue
+        for r in grp:
+            # Same guards as reconcile_store: a source that did not report, or
+            # whose crawl is unfinished, cannot say which reading is current.
+            if (r.get("source_id") in crawling
+                    or r.get("source_id") not in live_labels
+                    or _slot_is_stated(r, by_slot)):
                 continue
+            stale.add(id(r))
+
+    kept, dropped = [], []
+    for r in rows:
+        if id(r) in stale:
+            dropped.append(r)
+            continue
         kept.append(r)
     if dropped:
         print(f"  Dropped {len(dropped)} row(s) restating one listing a later "
-              f"fetch re-dated (same run, a moved next-occurrence date)")
+              f"fetch re-dated (the listing names its next occurrence)")
         for r in dropped[:10]:
             print(f"    {r.get('name')!r} {str(r.get('datetime_iso'))[:16]} "
                   f"[{r.get('source_id')}]")
@@ -728,13 +757,9 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     # A long-but-clean value is left exactly as the store has it.
     live_by_slot = {}
     for src in live_rows:
-        iso = str(src.get("datetime_iso") or "")
-        if not iso:
+        if not src.get("datetime_iso"):
             continue
-        key = (normalize_name(src.get("name")),
-               (src.get("source") or "").rstrip("/"), iso[:16])
-        live_by_slot.setdefault(key, []).append(src)
-    # A series is one snapshot row and a dozen published ones, so a store row
+        live_by_slot.setdefault(_slot_key(src), []).append(src)    # A series is one snapshot row and a dozen published ones, so a store row
     # has no single live row to match on its timestamp. Fall back to
     # (name, url), which is the coarse key, and only for reading -- deciding
     # survival is the series_id test above.
@@ -748,7 +773,7 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     series_kept = slot_kept = 0
     repaired = 0
     for r in rows:
-        iso = str(r.get("datetime_iso") or "")
+        iso = _slot_stamp(r.get("datetime_iso"))
         if r.get("source_id") in crawling:
             # Mid-crawl. Kept, and not judged: this run read only part of the
             # source, so it cannot say whether a stored row is still published.
@@ -811,15 +836,15 @@ def reconcile_store(rows, live_rows, today=None, report=True):
         for url in _slot_urls(r):
             if not url:
                 continue
-            candidates = live_by_slot.get((name, url, iso[:16]))
+            candidates = live_by_slot.get((name, url, iso))
             if not candidates:
                 candidates = live_by_listing.get((name, url), ())
             for live in candidates:
                 for field in ("address", "location"):
                     stored = (r.get(field) or "").strip()
                     fresh = (live.get(field) or "").strip()
-                    if stored and fresh and _malformed(stored) \
-                            and not _malformed(fresh):
+                    if stored and fresh and _malformed_address(stored) \
+                            and not _malformed_address(fresh):
                         r[field] = fresh
                         repaired += 1
                 # A price the source has since cleaned. The same
@@ -846,7 +871,23 @@ def reconcile_store(rows, live_rows, today=None, report=True):
                 # reader, and fed to the classifier as text about a road.
                 stored_desc = (r.get("description") or "").strip()
                 fresh_desc = (live.get("description") or "").strip()
-                if stored_desc and fresh_desc and len(fresh_desc) < len(stored_desc) \
+                if stored_desc and _restates_name(stored_desc,
+                                                  r.get("name")):
+                    # The stored description is the row's own title, not prose.
+                    # Take the source's text where it has one, and clear the
+                    # field where it does not -- which is the correct end state
+                    # for a listing that states no description, and what
+                    # `make_row` now emits for it. Every other rule in this pass
+                    # is a never-overwrite rule; this is the one case where the
+                    # stored value is known to be wrong rather than merely
+                    # plainer, so a blank from the source is the improvement.
+                    if fresh_desc and not _restates_name(fresh_desc,
+                                                         r.get("name")):
+                        r["description"] = fresh_desc
+                    else:
+                        r["description"] = ""
+                    repaired += 1
+                elif stored_desc and fresh_desc and len(fresh_desc) < len(stored_desc) \
                         and _page_furniture(stored_desc) and not _page_furniture(fresh_desc):
                     r["description"] = fresh_desc
                     repaired += 1
@@ -883,14 +924,68 @@ def _page_furniture(value):
     return bool(re.search(r"\n\s*\S+,\s*\n", v))
 
 
-def _malformed(value):
+def _restates_name(description, name):
+    """True when a description is just the row's own title.
+
+    Five fetchers reached for `description=<the page's prose> or name` so the
+    column would never be empty, and for every listing that states no prose of
+    its own that wrote the title into the description. 667 rows -- all 524 of
+    kingston_hubs and all 143 of bayside_live, 30% of the store. The page
+    printed each event's name twice, the search haystack counted it twice, and
+    `classify_types` read the title as if it were the listing's description.
+
+    `make_row` now refuses to store one, so this cannot recur; the rows already
+    written cannot be un-written, because `_merge_sources()` only ever fills a
+    blank. This is the test the store's repair pass uses to recognise one.
+
+    The length floor keeps a short generic title ("Trivia", "Yoga") from
+    condemning an unrelated description that happens to share the word: a
+    restatement is a copy of the whole title, and a title long enough to
+    identify a listing is a title worth checking.
+    """
+    d = " ".join((description or "").split()).casefold()
+    n = " ".join((name or "").split()).casefold()
+    return bool(n) and len(n) >= 8 and d == n
+
+
+def _malformed_address(value):
     """True when an address string is visibly broken rather than merely terse.
 
-    Two shapes, both produced by joining pre-punctuated parts: an empty
-    segment ("14 Willis St,, Hampton") and a dangling separator at either end.
-    Checked on the stored value so only a broken one is replaced -- a terse or
-    unusual but well-formed address is left as the store has it, because the
-    store's value may have come from a second source that knew better.
+    Three shapes. Two come from joining pre-punctuated parts: an empty segment
+    ("14 Willis St,, Hampton") and a dangling separator at either end. The third
+    is a segment repeated immediately after itself, which is what Bayside's own
+    venue block renders -- Location is
+    `['84 Reserve Road', 'Beaumaris', 'Beaumaris', 'Victoria 3193', 'Australia']`
+    -- and ten of its rows were published as
+    "84 Reserve Road, Beaumaris, Beaumaris, Victoria 3193".
+
+    The repeat is the one that mattered most and was hardest to see: it is
+    well-formed punctuation and a real suburb, so it passed every eyeball and
+    every earlier check, and it survived a live re-crawl because nothing
+    recognised it as wrong. Checked on the stored value so only a broken one is
+    replaced -- a terse or unusual but well-formed address is left as the store
+    has it, because the store's value may have come from a second source that
+    knew better.
+
+    Deliberately separate from `_malformed`, which is also applied to
+    `price_text`: a cost is never a comma-separated address, so the two shapes
+    must not share one rule.
+    """
+    v = (value or "").strip()
+    if not v:
+        return False
+    if ",," in v or v.startswith(",") or v.endswith(","):
+        return True
+    parts = [p.strip().casefold() for p in v.split(",")]
+    return any(p and p == parts[i - 1] for i, p in enumerate(parts) if i)
+
+
+def _malformed(value):
+    """True when a value is visibly broken rather than merely terse.
+
+    The address shapes, applied where a price is the field under test: an empty
+    segment or a dangling separator. A price like "$12 per session FIND OUT
+    MORE BUTTON" is caught by the longer rules at the call site, not here.
     """
     v = (value or "").strip()
     if not v:
@@ -1106,12 +1201,17 @@ def prune_old(rows, days=PRUNE_DAYS, today=None):
 
 
 _ARCHIVED_REQUIRED = ("name", "source", "source_id")
+# The three values `_apply_archived_flags()` knows how to act on. It reads
+# `status` directly, so a fourth spelling is not a warning about the file -- it
+# is a series that silently stops publishing, because anything that is not
+# literally "live" is withheld.
+_ARCHIVED_STATUSES = ("live", "unverified", "finished")
 
 # Source ids that exist only in scripts/archived_events.json, which is not in
 # sources.yaml and so is not in the loaded config. Named here because a
 # snapshot's rows are checked against the set of ids any input may claim, and
 # the archive's own ids would otherwise read as unconfigured.
-ARCHIVED_SOURCE_IDS = {"bayside_archived", "frankston_archived", "ccc_archived"}
+ARCHIVED_SOURCE_IDS = {"bayside_archived", "frankston_archived"}
 
 
 def _malformed_archived(archived):
@@ -1120,10 +1220,20 @@ def _malformed_archived(archived):
     This file bypasses every other source mechanism: it is not in
     sources.yaml, so `validate_config()` never sees it, it cannot be run with
     `--source`, and no floor or snapshot rule covers it. Nothing enforced its
-    shape either -- all 24 rows happen to carry the same eight keys, and a row
-    missing `address` or with a mistyped `source_id` would fail much later and
-    name a file nobody suspects, in a message about a missing address or a
-    missing badge rather than about a typo in the archive.
+    shape either -- a row missing `address` or with a mistyped `source_id`
+    would fail much later and name a file nobody suspects, in a message about a
+    missing address or a missing badge rather than about a typo in the archive.
+
+    `status` is checked because it is the one field here that decides whether a
+    series reaches the page: only the literal "live" is listed, and anything
+    else -- including a typo, or a value nobody has written yet -- is withheld.
+    So a misspelling is not a cosmetic fault in this file, it is a listing that
+    quietly disappeared.
+
+    It used to check that `source_label` equalled `source_id` instead, which no
+    row in the file could satisfy: the field was retired (`_normalize_raw` pops
+    it, D39) and 24 problems were printed on every single run, describing a file
+    that was in fact fine.
     """
     problems = []
     if not isinstance(archived, list):
@@ -1135,11 +1245,18 @@ def _malformed_archived(archived):
         for key in _ARCHIVED_REQUIRED:
             if not (row.get(key) or "").strip():
                 problems.append(f"row {i} ({row.get('name')!r}) has no {key!r}")
-        if row.get("source_id") != row.get("source_label"):
+        if row.get("source_id") not in ARCHIVED_SOURCE_IDS:
             problems.append(
-                f"row {i} ({row.get('name')!r}) source_label "
-                f"{row.get('source_label')!r} != source_id "
-                f"{row.get('source_id')!r}")
+                f"row {i} ({row.get('name')!r}) source_id "
+                f"{row.get('source_id')!r} is not an archived source "
+                f"({', '.join(sorted(ARCHIVED_SOURCE_IDS))}), so its rows are "
+                f"treated as unconfigured and skipped")
+        status = row.get("status")
+        if status not in _ARCHIVED_STATUSES:
+            problems.append(
+                f"row {i} ({row.get('name')!r}) status {status!r} is not one of "
+                f"{', '.join(_ARCHIVED_STATUSES)}; the series is withheld from "
+                f"the page unless it reads 'live'")
     return problems
 
 
@@ -1368,76 +1485,87 @@ def _self_test():
     ]:
         check(label, actual, expected)
 
-    # What identifies a listing that runs for weeks is its *closing* date: the
-    # opening one is a cursor that advances on every fetch, so the store ends up
-    # holding the same run once per run. These are the two halves of that
-    # claim -- reading the closing date, and refusing to read one where there
-    # is no span -- because a reader that over-matches would collapse the 58
-    # stored Mahjong occurrences into one.
-    granicus_range = ("Next date:\xa0Friday, 02 October 2026 | 07:00 PM "
-                      "\r\n\tto Saturday, 31 October 2026 | 11:59 PM")
+    # What tells one listing restated by later fetches apart from a listing that
+    # genuinely runs many times is the source's own label for a cursor. These
+    # are both halves of that claim -- reading the label, and not reading a shape
+    # that merely looks like one -- because the second group is indistinguishable
+    # from the first by name, URL, date and time alone.
+    granicus_next = "Next date:\xa0Saturday, 03 October 2026 | 11:00 AM \r\n\tto 04:00 PM"
     for label, actual, expected in [
-        ("a run's closing date is read past the connector",
-         range_end(granicus_range), "2026-10-31"),
-        ("a dash separates a run as well as the word to",
-         range_end("Next date:\xa0Wednesday, 30 September 2026 | 09:00 PM "
-                   "\r\n\t - Friday, 2 October 2026"), "2026-10-02"),
-        # A session's own duration is not a run of days.
-        ("an end time is not a closing date",
-         range_end("Next date:\xa0Saturday, 03 October 2026 | 11:00 AM "
-                   "\r\n\tto 04:00 PM"), None),
-        ("a month with no day is not a closing date",
-         range_end("Term 4 (17th October - 5th December)"), None),
-        # A materialised series states its own date and no span, which is
-        # exactly why 58 stored Mahjong rows are not duplicates of each other.
-        ("a single stated date is not a run",
-         range_end("4/09/2026 9:30:00 AM"), None),
-        ("a list of the dates still to come is not a run",
-         range_end("30 September 2026 1 October 2026 2 October 2026 "
-                   "10:00am-11:15am"), None),
+        ("a cursor is read from the source's own label",
+         names_next_occurrence(granicus_next), True),
+        # The status leads the same field, and status.py reads that prefix rather
+        # than writing it, so the label is not always the first word.
+        ("a status in front of the label does not hide it",
+         names_next_occurrence("Sold out: " + granicus_next), True),
+        # A materialised series states its own date, which is exactly why the 58
+        # stored Mahjong rows are not copies of each other.
+        ("a stated date is not a cursor",
+         names_next_occurrence("4/09/2026 9:30:00 AM"), False),
+        ("a cadence is not a cursor",
+         names_next_occurrence("Every Wednesday (10 weeks)"), False),
+        # The counterexample that keeps this rule from being written as "two
+        # dates in the text": a page listing two real date ranges, one row each.
+        ("two real date ranges on one page are not a cursor",
+         names_next_occurrence("28 September 2026 to 2 October 2026 "
+                               "29 September 2026 to 3 October 2026 "
+                               "10:00am-11:15am"), False),
+        ("a daily programme is not a cursor",
+         names_next_occurrence("daily. 8:45am-4:15pm"), False),
     ]:
         check(label, actual, expected)
 
     # The pass itself, on the shape that actually reached eight rows.
     arts_url = "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
 
-    def arts_row(stamp, text=granicus_range, source_id="kingston_arts",
-                  url=arts_url, name="'Kingston Sounds' by Susannah Langley"):
+    def arts_row(stamp, text=granicus_next, source_id="kingston_arts",
+                 url=arts_url, name="'Kingston Sounds' by Susannah Langley",
+                 venue="Kingston Arts Centre"):
         return {"name": name, "datetime_iso": stamp, "datetime_text": text,
-                "location": "Kingston Arts Centre", "source": url,
+                "location": venue, "source": url,
                 "source_id": source_id, "sources": [url]}
 
     live_arts = [arts_row("2026-10-02T19:00:00")]
-    check("a run re-dated by every fetch leaves one row",
-          len(drop_superseded_range_rows(
+    check("a listing re-dated by every fetch leaves one row",
+          len(drop_superseded_listing_rows(
               [arts_row("2026-10-02T19:00:00"), arts_row("2026-10-01T11:00:00"),
                arts_row("2026-10-02T08:00:00")], live_arts)), 1)
     # Two sessions one page really does publish, both stated by the source, are
     # two events -- the pass may only drop what the source has stopped saying.
     check("two sessions the source still states both survive",
-          len(drop_superseded_range_rows(
+          len(drop_superseded_listing_rows(
               [arts_row("2026-10-02T19:00:00"), arts_row("2026-10-03T11:00:00")],
               [arts_row("2026-10-02T19:00:00"),
                arts_row("2026-10-03T11:00:00")])), 2)
+    # The same-day shape, which is the one a closing-date reader cannot see at
+    # all: "Next date: Saturday, 03 October 2026 | 11:00 AM to 04:00 PM" states
+    # a session's duration, not a run of days. Three exhibitions reached this.
+    same_day = "Next date:\xa0%s | 11:00 AM \r\n\tto 04:00 PM"
+    duong = "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong"
+    check("a same-day listing re-dated by every fetch leaves one row",
+          len(drop_superseded_listing_rows(
+              [arts_row("2026-10-03T11:00:00", same_day % "Saturday, 03 October 2026", url=duong),
+               arts_row("2026-10-02T11:00:00", same_day % "Friday, 02 October 2026", url=duong),
+               arts_row("2026-10-01T11:00:00", same_day % "Thursday, 01 October 2026", url=duong)],
+              [arts_row("2026-10-03T11:00:00", same_day % "Saturday, 03 October 2026", url=duong)])), 1)
     # A source that did not report this run cannot say which copy is current,
     # so it does not get to take any of them down. Nor does one whose crawl is
     # still in progress: it has reported rows, but has not read the whole
     # listing, so its silence is not a withdrawal.
     check("a source absent from this run keeps its copies",
-          len(drop_superseded_range_rows(
+          len(drop_superseded_listing_rows(
               [arts_row("2026-10-01T11:00:00"), arts_row("2026-10-02T08:00:00")],
               [])), 2)
     check("a mid-crawl source keeps its copies",
-          len(drop_superseded_range_rows(
+          len(drop_superseded_listing_rows(
               [arts_row("2026-10-01T11:00:00"), arts_row("2026-10-02T08:00:00")],
               [{"source_id": "kingston_arts"}],
               crawling={"kingston_arts"})), 2)
-    # And the materialised series this pass must not touch, at the size that
-    # would show it had regressed into them. Each row states its own date and
-    # no span, which is the whole reason the closing date identifies a run.
+    # And the two shapes this pass must not touch, each of which looks exactly
+    # like a listing re-dated per run: a materialised series, and a multi-day
+    # listing materialised one row per day of dates it lists itself.
     mahjong = [{"name": "Mahjong", "location": "Chelsea Activity Hub",
-                "datetime_text": text,
-                "datetime_iso": stamp,
+                "datetime_text": text, "datetime_iso": stamp,
                 "source": "https://www.kingston.vic.gov.au",
                 "source_id": "kingston_hubs"}
                for stamp, text in (
@@ -1446,7 +1574,22 @@ def _self_test():
                    ("2026-09-11T09:30:00", "11/09/2026 9:30:00 AM"),
                    ("2026-09-14T10:00:00", "14/09/2026 10:00:00 AM"))]
     check("a materialised series is left alone",
-          len(drop_superseded_range_rows(mahjong, [])), 4)
+          len(drop_superseded_listing_rows(mahjong, [])), 4)
+
+    fairies = "https://www.bayside.vic.gov.au/explore-bayside/events/fairies-rippon-lea"
+    multi_day = [{"name": "Fairies at Rippon Lea", "location": "192 Hotham St",
+                  "datetime_iso": stamp, "source": fairies,
+                  "source_id": "bayside_live", "sources": [fairies],
+                  "datetime_text": text}
+                 for stamp, text in (
+                     ("2026-09-30T10:00:00", "30 September 2026 1 October 2026 "
+                      "2 October 2026 3 October 2026 4 October 2026 10:00am-11:15am"),
+                     ("2026-10-01T10:00:00", "1 October 2026 2 October 2026 "
+                      "3 October 2026 4 October 2026 10:00am-11:15am"),
+                     ("2026-10-02T10:00:00", "2 October 2026 3 October 2026 "
+                      "4 October 2026 10:00am-11:15am"))]
+    check("a multi-day listing keeps a row per day",
+          len(drop_superseded_listing_rows(multi_day, [])), 3)
 
     if failures:
         print(f"\ndedupe: {len(failures)} case(s) FAILED")
@@ -1591,7 +1734,7 @@ def main():
     # what reconcile_store() cannot do for them: its series test keeps a row
     # whose (source, name, venue) is still published, and these rows disagree on
     # the one field that key ignores.
-    merged = drop_superseded_range_rows(merged, live)
+    merged = drop_superseded_listing_rows(merged, live)
     # Everything the sources still publish has now been merged in, so the
     # store can be held against them: a row none of its own sources justify is
     # a leftover from a listing that was corrected or withdrawn.

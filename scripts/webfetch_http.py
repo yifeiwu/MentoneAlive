@@ -124,18 +124,68 @@ def make_row(source_id, name, source, datetime_iso="", datetime_text="",
     with the fetch time: a made-up timestamp is discarded again downstream, and
     while it is in the file it looks like a real date to anything that reads
     it. dedupe.py/recurrence.py derive the date from the text.
+
+    A description that restates the row's own name is dropped rather than
+    stored. Five fetchers reach for `description=<whatever the page gave me>
+    or name` so the column is never empty, and for every listing that states no
+    prose of its own that writes the title into the description -- 667 rows,
+    30% of the store. The page then prints the name twice, the search haystack
+    counts it twice, and the classifier reads the title as if it were the
+    listing's description. None of those is visible in a row that looks
+    well-formed, and each fetcher's fallback is defensible on its own, so the
+    rule belongs here: one owner of the row shape decides what a description is
+    allowed to be. A row that genuinely has no description has none, which is
+    what the page has always rendered for a blank one.
     """
+    name = name or ""
+    description = description or ""
+    if description.strip().casefold() == name.strip().casefold() and name.strip():
+        description = ""
     return {
-        "name": name or "",
+        "name": name,
         "datetime_text": datetime_text or "",
         "datetime_iso": datetime_iso or "",
         "location": location or "",
         "address": address or "",
         "price_text": price_text or "",
-        "description": description or "",
+        "description": description,
         "source": source or "",
         "source_id": source_id,
     }
+
+
+def join_address(parts):
+    """Join an address's pre-split segments into one clean string.
+
+    The venue blocks these sites print are a list of fields, not one address,
+    and two things go wrong when they are concatenated naively.
+
+    A trailing "Australia" is a country, not part of a street address, so it
+    is dropped -- alongside the blank separators the markup leaves between the
+    fields, which is where the published "14 Willis St,, Hampton" came from.
+
+    The suburb is sometimes listed twice, because that is what the source's own
+    page says: Bayside renders Location as
+    `['84 Reserve Road', 'Beaumaris', 'Beaumaris', 'Victoria 3193', 'Australia']`
+    and ten of its rows were published with the suburb repeated. A repeated
+    adjacent segment is never meaningful in a street address, so it collapses
+    here rather than being detected downstream -- dedupe.py's `_malformed()`
+    only recognised ",," and a dangling separator, and a well-formed-looking
+    duplicate segment is exactly what it could not see.
+
+    Segment order is preserved, and only *adjacent* repeats collapse, so a
+    genuine "Sandringham, Sandringham" pair of distinct fields is unaffected
+    only where it is actually a repeat -- see the case above.
+    """
+    out = []
+    for raw in parts or []:
+        seg = (raw or "").strip().strip(",").strip()
+        if not seg or seg.lower() == "australia":
+            continue
+        if out and seg.casefold() == out[-1].casefold():
+            continue
+        out.append(seg)
+    return ", ".join(out)
 
 
 def make_session():
@@ -248,42 +298,46 @@ def make_plain_session():
     return PlainSession()
 
 
-def get(session, url, retries=2, min_len=1000):
-    last = None
-    for attempt in range(retries + 1):
-        try:
-            r = session.get(url)
-            if r.status_code == 200 and len(r.text) >= min_len:
-                return r.text
-            last = f"HTTP {r.status_code} ({len(r.text)} bytes)"
-        except Exception as e:
-            last = repr(e)[:120]
-        if attempt < retries:
-            time.sleep(1.5 * (attempt + 1))
-    report(f"GET failed {url}: {last}", level="warn")
-    return None
+def _retry(session, url, accept, retries=2):
+    """One retry loop, shared by the text and the binary readers.
 
+    `accept` is the predicate a body has to satisfy to count as a good
+    response, and it is handed the response so a caller can judge length on
+    whichever field it actually reads -- `get` on `.text`, `fetch_bytes` on
+    `.content`. The policy is one place: the attempt count, the backoff, and
+    the "a short body means something went wrong" guard.
 
-def fetch_bytes(session, url, min_len, retries=2):
-    """Binary body of `url`, or None. The PDF path; get() is the text one.
-
-    Same retry policy as get(), and the same "small body means something went
-    wrong" guard, so the seniors guide's download loop is not a second copy of
-    it.
+    These were two hand-written loops until now, and `fetch_bytes`' docstring
+    claimed it existed precisely so the seniors guide's download would not be
+    "a second copy" of `get` -- which it was, retry for retry.
     """
     last = None
     for attempt in range(retries + 1):
         try:
             r = session.get(url)
-            if r.status_code == 200 and len(r.content) >= min_len:
-                return r.content
-            last = f"HTTP {r.status_code} ({len(r.content)} bytes)"
+            if r.status_code == 200:
+                body = accept(r)
+                if body:
+                    return body
+            last = f"HTTP {r.status_code} ({len(getattr(r, 'content', b''))} bytes)"
         except Exception as e:
             last = repr(e)[:120]
         if attempt < retries:
             time.sleep(1.5 * (attempt + 1))
     report(f"GET failed {url}: {last}", level="warn")
     return None
+
+
+def get(session, url, retries=2, min_len=1000):
+    """Response text, or None. The page reader."""
+    return _retry(session, url, lambda r: r.text if len(r.text) >= min_len
+                  else None, retries)
+
+
+def fetch_bytes(session, url, min_len, retries=2):
+    """Binary body of `url`, or None. The PDF path; get() is the text one."""
+    return _retry(session, url, lambda r: r.content
+                  if len(r.content) >= min_len else None, retries)
 
 
 # A detail crawl that opened *some* pages but almost none of them is a broken
