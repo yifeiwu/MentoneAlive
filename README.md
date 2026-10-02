@@ -18,21 +18,57 @@ observation, not a standing total. Read the live number from the store.
 
 | Source | Label | Rows | Method |
 |--------|-------|------|--------|
-| Kingston Hubs (OpenCities calendar API) | `kingston_hubs` | 523 | JSON API, `urlopen`. Venue per calendar id in `sources.yaml` |
+| Kingston Hubs (OpenCities calendar API) | `kingston_hubs` | 524 | JSON API, `urlopen`. Venue per calendar id in `sources.yaml` |
 | Cheltenham Community Centre | `ccc` | 390 | HTML + Humanitix term ranges |
 | Kingston Community Groups | `kingston_groups` | 342 | OpenCities local directory, ASP.NET postback paging + one detail page per group |
 | Chatty Cafe venue directory | `chatty_cafe` | 234 | Venue pages, fallback schedule in config |
-| Kingston Seniors Festival | `kingston_seniors` | 159 | Annual PDF guide + hand-checked overrides |
+| Kingston Seniors Festival | `kingston_seniors` | 158 | Annual PDF guide + hand-checked overrides |
 | Bayside Council events | `bayside_live` | 142 | HTML, full `?page=` pagination |
-| Frankston archived programmes | `frankston_archived` | 26 | Static snapshot (live pages WAF-blocked) |
-| Greater Dandenong | `greater_dandenong` | 16 | HTML + per-event detail pages, `suburb_filter` applied |
-| Bayside archived programmes | `bayside_archived` | 12 | Static snapshot |
-| Kingston Arts | `kingston_arts` | 10 | HTML, same platform as `kingston_council` |
-| Kingston Council upcoming events | `kingston_council` | 6 | HTML, page 1 only (Granicus pager is a JS postback) |
-| Greater Dandenong Libraries | `gd_libraries` | 13 | HTML, same CMS and detail treatment |
+| Greater Dandenong | `greater_dandenong` | 108 | HTML + per-event detail pages, `suburb_filter` applied |
+| Greater Dandenong Libraries | `gd_libraries` | 36 | HTML, same CMS and detail treatment |
+| Frankston City Libraries | `frankston_libraries` | 89 | Ten listed programmes, each expanded to every date its own page states |
+| Frankston archived programmes | `frankston_archived` | 26 | `archived_events.json`; withheld from the page, and the live site's config entry is commented out (see below) |
+| Bayside archived programmes | `bayside_archived` | 12 | `archived_events.json`, series the live feed no longer carries; withheld from the page |
+| Kingston Arts | `kingston_arts` | 19 | HTML, same platform as `kingston_council` |
+| Kingston Council upcoming events | `kingston_council` | 12 | HTML, page 1 only (Granicus pager is a JS postback) |
 
-Two hosts 403 a plain `urllib` request outright and so need browser TLS
-impersonation: `kingston_council` and `kingston_arts`. The two Greater Dandenong
+Frankston has a written and tested fetcher (`scripts/webfetch_everi.py`) and is
+not yet active: the host blocks an IP that asks for too much, and 876 pages in
+one run is too much. The crawl is now resumable — `slice_size` pages per run,
+with the pages read *and the rows they yielded* cached in a gitignored
+`*.progress.json` — so it completes across several scheduled runs instead of
+inside one. Until it does, `frankston_live` stays commented out and
+`frankston_archived` carries the 26 rows. A partial crawl publishes nothing:
+the fetcher refuses it, `dedupe.py` skips the progress file, and it skips a
+snapshot whose source still has one.
+
+Rows in `scripts/archived_events.json` are what is left of sources this project
+could not crawl, and each carries a `status` recording whether its series is
+still running:
+
+| `status` | Meaning | On the page? |
+|----------|---------|--------------|
+| `live` | confirmed still running; the organiser's own site is in `live_url` | yes |
+| `unverified` | not checked, or the owner could not be reached | no |
+| `finished` | checked and gone | no |
+
+Withheld rows stay in `data/events.json` as a record — a weekly market is worth
+keeping — but off the list, since an unconfirmed series is the one whose dates
+are most likely to have moved, and a stale date is worse than no listing. The
+status is recomputed every run, so relisting a programme brings it back with no
+migration. `python scripts/archived_coverage.py` reports which archived series
+a live feed still publishes; `scripts/apply_archive_fixes.py` is the one-off
+that recorded the hand-checked statuses.
+
+This matters more than it sounds: writing `frankston_archived` off as
+unreachable also wrote off ten series that were still running on their
+organisers' own sites, and one of them published a market on 26 December that
+the organiser states does not happen.
+
+Four hosts 403 a plain `urllib` request outright and so need browser TLS
+impersonation: `kingston_council` and `kingston_arts`, the OpenCities directory
+behind `kingston_groups`, and the libraries CMS behind
+`frankston_libraries`. The two Greater Dandenong
 sources need it for their event **detail** pages only — the listing answers
 plain HTTP, and the suburb that the catchment filter depends on is on the detail
 page. Everything else is plain HTTP. That is four `impersonate: true` entries in

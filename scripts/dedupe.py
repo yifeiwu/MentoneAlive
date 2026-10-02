@@ -363,6 +363,12 @@ def _merge_sources(existing, candidate, refresh_source=False):
     """
     if not isinstance(existing.get("sources"), list):
         existing["sources"] = [existing.get("source", "")]
+    # A delisted series stops being archived the moment a live source publishes
+    # it again. Without this, re-listing a programme leaves it hidden forever:
+    # the archive is the older row, so it is the one kept, and the flag set at
+    # load time survives every run.
+    if refresh_source:
+        existing.pop("archived", None)
     cand_src = candidate.get("source", "")
     if cand_src and cand_src not in existing["sources"]:
         existing["sources"].append(cand_src)
@@ -405,6 +411,42 @@ def _merge_sources(existing, candidate, refresh_source=False):
             venue_head(candidate.get("location"))
         if new_head and old_head and new_head != old_head and new_head.startswith(old_head):
             existing["location"] = candidate["location"].strip()
+
+
+def _cadence_label(label):
+    """A schedule label with the run-date-dependent parenthetical removed.
+
+    `infer_event` labels a run as "Every Monday (to 14 Dec 2026)" or "Every
+    Tuesday (6 weeks)", both of which read differently as the run date moves:
+    the end date is fixed but "(N weeks)" shrinks every day. Comparing those
+    labels whole therefore reintroduced exactly the sliding window this
+    function's series test exists to avoid -- 48 rows dropped seven days after a
+    build. What identifies the schedule is the cadence itself, so the
+    parenthetical is dropped and "Every Monday" is compared with "Every Monday"
+    whatever the term looks like today.
+    """
+    return re.sub(r"\s*\([^)]*\)\s*$", "", label or "").strip().lower()
+
+
+def _unfinished_crawl_sources():
+    """Sources with a crawl in progress, from the progress files on disk.
+
+    Read from the filesystem rather than passed in, because the two are the
+    same fact and this is where the store decides what a source justifies. The
+    rows are already in the store when this runs -- a progress file holding real
+    rows was merged once, and 16 of them survived every later run because a
+    configured source that produced nothing this run is indistinguishable from
+    a source that is merely quiet, which is the rule that keeps a failed fetch
+    from withdrawing good rows. A progress file is the one thing that says
+    "this source has not finished being crawled", so it has to be consulted
+    there or the distinction is lost.
+    """
+    out = set()
+    for p in glob.glob(str(ROOT / "scripts" / "webfetch_snapshots"
+                           / "*.progress.json")):
+        sid = Path(p).name[:-len(".progress.json")]
+        out.add(sid)
+    return out
 
 
 def reconcile_store(rows, live_rows, today=None, report=True):
@@ -452,6 +494,11 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     """
     today = today or reference_today()
     live_labels = {r.get("source_id") for r in live_rows if r.get("source_id")}
+    # A source mid-crawl is judged against nothing: its rows are not yet
+    # justified by a complete read, and equally not refuted by an incomplete
+    # one. Kept as a separate set rather than removed from live_labels so the
+    # distinction survives into the row loop, where it decides what happens.
+    crawling = _unfinished_crawl_sources()
 
     # One call per live row rather than one per stored row it might justify,
     # and no expansion: the id is computed from fields the listing already
@@ -463,6 +510,49 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     for r in live_rows:
         if r.get("source_id"):
             live_series.add(r.get("series_id") or series_id_for(r))
+
+    # Series membership alone is not enough to justify an inferred row, because
+    # the membership test ignores *what* the series says now. A venue that
+    # changes its schedule keeps its series id -- that is the point of the id,
+    # and it is why the series test replaced the windowed one -- so a store
+    # holding "every Tuesday" occurrences is still justified by a series whose
+    # listing now says "1st & 3rd Tuesdays of the Month", and the six weekly
+    # rows live alongside the nine monthly ones for one venue.
+    #
+    # So for a dateless listing the dates it currently produces are computed and
+    # an inferred row has to be one of them. Only listings with stored inferred
+    # rows are expanded: doing it for every live row would re-parse the whole
+    # catalogue on every run to check rows that were never inferred.
+    stored_series = {r.get("series_id") or series_id_for(r) for r in rows
+                     if r.get("date_inferred") and r.get("source_id")}
+    # The label the listing's current text expands to, NOT its dates. Comparing
+    # dates is what this function used to do and it is the exact failure
+    # series_id was introduced to fix: a weekly series publishes its next twelve
+    # occurrences from the run date, so a stored row is a snapshot of a window
+    # that has moved on, and comparing dates slid the window with it -- 97 rows
+    # dropped eight days after a build, 382 after two months. The label is
+    # date-independent, so it answers the question actually being asked ("is this
+    # row an occurrence of the schedule the source states now?") without reading
+    # the run date at all.
+    label_of = {}
+    for r in live_rows:
+        sid = r.get("series_id") or series_id_for(r)
+        if sid not in stored_series or sid in label_of:
+            continue
+        if str(r.get("datetime_iso") or "") and not r.get("date_inferred"):
+            # A dated listing publishes its own slots; by_slot judges it.
+            label_of[sid] = None
+            continue
+        # A listing whose only occurrence has passed yields a "label" that is
+        # actually a refusal string -- infer_event returns the reason as the
+        # second element when it expanded nothing. That is not a cadence, and
+        # comparing a stored row against it would drop every row of a series the
+        # moment its last date went by, which is the 48-at-seven-days result:
+        # 36 gd_libraries rows and 12 greater_dandenong ones, all correct when
+        # written. So a non-cadence label means "no opinion" and the series test
+        # alone decides, exactly as it did before.
+        made, label = infer_event(r, today)
+        label_of[sid] = _cadence_label(label) if made and label else None
 
     # venue compatibility, so a venue string enriched from a sibling source
     # does not read as a contradiction.
@@ -512,16 +602,45 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     repaired = 0
     for r in rows:
         iso = str(r.get("datetime_iso") or "")
+        if r.get("source_id") in crawling:
+            # Mid-crawl. Kept, and not judged: this run read only part of the
+            # source, so it cannot say whether a stored row is still published.
+            # Dropping here would withdraw a source's rows every scheduled run
+            # until its crawl completed, which is the reverse error and just as
+            # wrong.
+            kept.append(r)
+            continue
         if not iso or r.get("source_id") not in live_labels:
             kept.append(r)
             continue
-        if (r.get("series_id") or series_id_for(r)) in live_series:
+        sid = r.get("series_id") or series_id_for(r)
+        if sid in live_series:
             # A live listing publishes this programme at this venue. The row's
             # timestamps are a materialisation of that listing's schedule, not
             # a claim about what the source publishes today, so they are not
             # compared: doing so only measured how far the run date had moved
             # since they were written, which slid the window forward every run
-            # and dropped correct rows in bulk. Deliberately not `continue`:
+            # and dropped correct rows in bulk.
+            #
+            # The one comparison that does hold is against the *label* the
+            # series' current text expands to, and only for a row the pipeline
+            # inferred. That is what stops a changed schedule from accumulating:
+            # a venue whose listing moves from "every Tuesday" to "1st & 3rd
+            # Tuesdays of the Month" keeps its series id, so membership alone
+            # cannot see that six weekly rows were written from a schedule the
+            # source no longer states. The label carries no date, so this does
+            # not reintroduce the sliding window; and a row the pipeline did not
+            # infer is left to the slot test, which is about real timestamps.
+            expected_label = label_of.get(sid)
+            if (expected_label is not None and r.get("date_inferred")
+                    and _cadence_label(r.get("recurrence")) != expected_label):
+                # Not an occurrence of the schedule the source states now.
+                # Dropped rather than re-dated, because resolve_dateless() has
+                # already expanded the current schedule into fresh rows this
+                # run; re-dating would invent a second set.
+                dropped.append(r)
+                continue
+            # Deliberately not `continue`:
             # the repair pass below runs for every kept row, and skipping it
             # here is what left 344 directory rows holding the venue's street
             # address and the words "View Map" at the end of their description,
@@ -859,6 +978,12 @@ def prune_old(rows, days=PRUNE_DAYS, today=None):
 
 _ARCHIVED_REQUIRED = ("name", "source", "source_id")
 
+# Source ids that exist only in scripts/archived_events.json, which is not in
+# sources.yaml and so is not in the loaded config. Named here because a
+# snapshot's rows are checked against the set of ids any input may claim, and
+# the archive's own ids would otherwise read as unconfigured.
+ARCHIVED_SOURCE_IDS = {"bayside_archived", "frankston_archived", "ccc_archived"}
+
 
 def _malformed_archived(archived):
     """Problems with `archived_events.json`, as readable lines.
@@ -914,6 +1039,14 @@ def load_live_inputs(quiet=False):
     if isinstance(archived, list):
         if not quiet:
             print(f"Archived events: {len(archived)}")
+        # Tagged `archived` to say where the row came from, and `status` to say
+        # whether its series is still running -- two different facts, and only
+        # this file knows either. `archived` alone was the mistake: it made
+        # every row in a source delisted, so writing off a source as
+        # unreachable also wrote off ten series that were still running.
+        for r in archived:
+            if isinstance(r, dict):
+                r["archived"] = True
         raw.extend(archived)
     elif archived is None:
         if not quiet:
@@ -933,11 +1066,75 @@ def load_live_inputs(quiet=False):
 
     snap_count = 0
     snapshot_failures = []
+    # Every source_id any input may legitimately carry: the raw fetch's rows,
+    # the archive's own ids, and every configured source. Snapshot-only sources
+    # matter -- a --source run leaves raw_events.json holding one source, so the
+    # other snapshots' ids are absent from `raw` and would read as unconfigured.
+    # Reading the set from the config is also what stops it drifting.
+    known_source_ids = {r.get("source_id") for r in raw if isinstance(r, dict)}
+    known_source_ids |= set(ARCHIVED_SOURCE_IDS)
+    try:
+        import yaml as _yaml
+        _cfg = _yaml.safe_load(
+            (ROOT / "scripts" / "sources.yaml").read_text(encoding="utf-8"))
+        for _e in (_cfg.get("webfetch") or []) + (_cfg.get("sources") or []):
+            if _e.get("id"):
+                known_source_ids.add(_e["id"])
+    except (OSError, ValueError, AttributeError):
+        # Without the config the check is toothless rather than wrong: every
+        # snapshot is skipped and the run reports nothing, which fails loudly
+        # in health_check rather than publishing a fraction.
+        if not quiet:
+            print("WARNING: sources.yaml unreadable; snapshot source ids "
+                  "cannot be verified")
     for path in sorted(glob.glob(str(ROOT / "scripts" / "webfetch_snapshots" / "*.json"))):
         try:
             snap = read_json(path)
             if isinstance(snap, dict):
                 snap = snap.get("rows", [])
+            if isinstance(snap, list):
+                # A *.progress.json is crawl bookkeeping, not source rows, and
+                # merging one publishes whatever it happens to hold as a source
+                # named after the fetcher's own test fixture. It reached the
+                # built page once ("Event 0", source_id "t") because the file
+                # was in a real directory and nothing checked what was in it.
+                # The shape check below cannot catch it -- it is a valid list --
+                # so it is excluded by name, and a source_id that no configured
+                # or archived source claims is refused as well.
+                if path.endswith(".progress.json"):
+                    if not quiet:
+                        print(f"Skipping crawl progress file "
+                              f"{Path(path).name}")
+                    continue
+                # A partially-crawled source is not a source. The Frankston
+                # progress file holds 36 real rows from the 12 pages read so
+                # far, and the fetcher correctly refuses to publish them --
+                # except this loop reads the file itself, so the guard upstream
+                # never applied. Merging them puts a sixth of a directory on
+                # the page with nothing recording that it is a sixth.
+                claimed = {r.get("source_id") for r in snap if isinstance(r, dict)}
+                unknown = claimed - known_source_ids
+                if unknown:
+                    if not quiet:
+                        print(f"Skipping {Path(path).name}: rows from "
+                              f"unconfigured source(s) {', '.join(sorted(unknown))}")
+                    continue
+                # Known source, but its crawl may be unfinished. A progress
+                # file is skipped by name above; a *snapshot* is not, and the
+                # first 12 pages of the Frankston crawl were written to one by an
+                # earlier run, leaving 16 rows of a 856-page directory in the
+                # store with nothing recording the crawl is 1% done. So a
+                # snapshot whose source has a progress file is skipped too --
+                # the fetcher refuses to publish a partial crawl, and this is
+                # the same refusal, applied where the file landed.
+                partial = {s for s in claimed
+                           if (ROOT / "scripts" / "webfetch_snapshots" /
+                               ("%s.progress.json" % s)).exists()}
+                if partial:
+                    if not quiet:
+                        print(f"Skipping {Path(path).name}: crawl unfinished "
+                              f"for {', '.join(sorted(partial))}")
+                    continue
             if not isinstance(snap, list):
                 # list.extend() on a string would append one garbage row per
                 # character.
@@ -1048,6 +1245,90 @@ def _self_test():
     print("\nall dedupe normalisation cases as expected")
 
 
+def _apply_archived_flags(rows, live_rows):
+    """Set or clear `archived` on every row, from what the sources published.
+
+    Recomputed rather than stamped once, because a stamp cannot survive the
+    store: the canonical row is the *older* of a stored expansion and the
+    dateless fixture it came from, so it is the stored row that gets kept, it
+    was written before the flag existed, and the flag set on the fixture this
+    run is discarded with it. Deriving it each run is also the only version
+    that heals in both directions -- a delisted series is hidden, and a series
+    a council starts publishing again reappears -- without a migration.
+    """
+    # Only rows that are still in the *archive file* carry a status. A stored
+    # occurrence has `archived` set but no `status`, and a row that has been
+    # materialised is no longer the dateless listing the id was derived from --
+    # so the status is looked up by series, not read off the row.
+    archived_sources = {r.get("source_id") for r in live_rows
+                        if r.get("archived") and r.get("source_id")}
+    # A source id in the archive that something else is *also* publishing means
+    # the programme is listed again; the live row must win, so the archive is
+    # not treated as authoritative for it.
+    live_sources = {r.get("source_id") for r in live_rows
+                    if r.get("source_id") and not r.get("archived")}
+    hidden = archived_sources - live_sources
+    # Per-series liveness, from the fixture's own `status`. This is what a
+    # per-source flag could not express: a source is not live or delisted, its
+    # series are individually one or the other. Ten of Frankston's were still
+    # running when the whole source was written off as unreachable, and
+    # hiding the source hid them too.
+    #
+    # Only "live" keeps a row on the page. "unverified" is withheld as well,
+    # because an unconfirmed series is exactly the one whose dates may have
+    # moved -- and publishing a stale date for a farmers' market is worse than
+    # publishing nothing. Withheld is reversible: adding a `status` is a
+    # one-word edit, and the row keeps its justification meanwhile.
+    #
+    # Computed from the dateless fixture, because series_id_for() reads the
+    # source_url fields a *fetched* row carries and the fixture rows do not
+    # have. The store's occurrences are stamped from the row that reached
+    # materialise(), so matching the same way is what makes the two agree --
+    # a lookup keyed any other way silently misses every occurrence and hides
+    # the whole series.
+    status_of = {}
+    for r in live_rows:
+        if r.get("archived") and r.get("status"):
+            status_of[series_id_for(r)] = r["status"]
+    n_flagged = 0
+    for r in rows:
+        # Looked up under both the row's own stamped id and one derived from
+        # the row as it stands. A stored occurrence is stamped at materialise()
+        # time from the dateless listing, while the fixture row is still that
+        # listing -- so for every row with a real date the two ids differ, and
+        # matching on the stamped id alone finds nothing and silently withholds
+        # every series in the file. Both keys, so the lookup works whichever
+        # side of materialise() the row is on.
+        keys = {series_id_for(r)}
+        if r.get("series_id"):
+            keys.add(r["series_id"])
+        status = next((status_of[k] for k in keys if k in status_of), None)
+        if r.get("source_id") in hidden and status is not None:
+            wanted = status == "live"
+        else:
+            # No status on file for this series. Withheld, because an
+            # unconfirmed series is the one whose dates may have moved -- and a
+            # stale farmers' market is worse than no market. This is the
+            # reversible direction: adding `status` to the fixture row is a
+            # one-word edit and the series comes back.
+            wanted = False if r.get("source_id") in hidden else None
+        if wanted is True:
+            if not r.get("archived"):
+                n_flagged += 1
+            r["archived"] = False
+            r["live_confirmed"] = True
+        elif wanted is False:
+            if r.get("archived") is not True:
+                n_flagged += 1
+            r["archived"] = True
+        else:
+            if r.get("archived"):
+                n_flagged += 1
+            r.pop("archived", None)
+            r.pop("live_confirmed", None)
+    return n_flagged
+
+
 def main():
     # Already normalised by load_live_inputs. Snapshot what the sources
     # justify *before* the merge mutates them: _merge_sources() fills a kept
@@ -1101,6 +1382,12 @@ def main():
     # a leftover from a listing that was corrected or withdrawn.
     merged, stale_stored = reconcile_store(merged, live, today)
     merged, pruned = prune_old(merged, PRUNE_DAYS, today)
+    # Last, so it sees the rows that survived: a series withdrawn and expanded
+    # over several runs leaves stored occurrences that no fixture names
+    # directly, and they are the ones that would otherwise stay on the page.
+    flagged = _apply_archived_flags(merged, live)
+    if flagged:
+        print(f"Archived (delisted, withheld from the page): {flagged} row(s)")
     # No local "nothing publishes without a date" filter here: resolve_dateless
     # keeps a row only when it already has a datetime_iso or infer_event dated
     # it, and everything between here and there only ever drops rows. So such a

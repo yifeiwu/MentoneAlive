@@ -554,7 +554,7 @@
  {
   "name": "Holiday Activities",
   "datetime_text": "daily. 8:45am-4:15pm",
-  "datetime_iso": "2026-10-01T08:45:00",
+  "datetime_iso": "2026-09-21T08:45:00",
   "location": "Cheltenham Community Centre",
   "address": "8 Chesterville Rd, Cheltenham VIC 3192, Australia",
   "price_text": "",
@@ -2314,6 +2314,18 @@
   "source": "https://events.humanitix.com/2026-mosaic-for-all-term-4",
   "source_id": "ccc",
   "price_sort": 150.0
+ },
+ {
+  "name": "Holiday Activities",
+  "datetime_text": "daily. 8:45am-4:15pm",
+  "datetime_iso": "2026-09-28T08:45:00",
+  "location": "Cheltenham Community Centre",
+  "address": "8 Chesterville Rd, Cheltenham VIC 3192, Australia",
+  "price_text": "",
+  "description": "Action-packed programs for primary school children in the school holidays daily 8:45am-4:15pm. • January • April • June • September-October Watch this page for full details of each program as we approach the school holidays. Book now. daily. 8:45am-4:15pm",
+  "source": "https://events.humanitix.com/2026-sep-oct-holiday-program-cheltenham-community-centre",
+  "source_id": "ccc",
+  "price_sort": null
  },
  {
   "name": "Music for Tots",

@@ -464,7 +464,32 @@ def parse_day_month_year(text):
 # whose failure mode was a plausible-looking wrong hour, not a crash.
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# The self-test above exercises this, so it has to be defined before the
+# `__main__` block runs. It used to be defined after it, which meant the three
+# combine() cases raised NameError and the suite could not be run at all until
+# they were added.
+# ---------------------------------------------------------------------------
+
+def combine(dt_day, time_text):
+    """`dt_day` at the time `time_text` states, or unchanged if it states none.
+
+    Takes a `date` as well as a `datetime`, because a card that states only a
+    calendar day has one and the caller still wants an ISO string out. Before
+    this, a fetcher holding a plain `date` reached `dt_day.replace(hour=...)`
+    and got "TypeError: 'hour' is an invalid keyword argument for replace()".
+    """
+    tm = parse_time(time_text)
+    if not tm:
+        return dt_day
+    if isinstance(dt_day, datetime):
+        return dt_day.replace(hour=tm[0], minute=tm[1])
+    return datetime(dt_day.year, dt_day.month, dt_day.day,
+                    tm[0], tm[1])
+
+
 if __name__ == "__main__":
+    from datetime import date as _date
     # (label, actual, expected)
     TESTS = [
         # parse_time: the four regressions its docstring records.
@@ -521,6 +546,19 @@ if __name__ == "__main__":
         ("mixed case with a full stop", month_number("OCTOBER."), 10),
         ("an unknown word is not a month", month_number("Term"), None),
         ("empty is not a month", month_number(""), None),
+        # combine() must take a plain date as well as a datetime: a fetcher
+        # reading a card that states only a calendar day has a date, and
+        # dt_day.replace(hour=...) then raised "TypeError: 'hour' is an invalid
+        # keyword argument for replace()" from inside the fetcher, naming
+        # neither the field nor the row.
+        ("combine takes a date and a time",
+         combine(_date(2026, 10, 2), "10:00 AM").isoformat(),
+         "2026-10-02T10:00:00"),
+        ("combine takes a datetime too",
+         combine(datetime(2026, 10, 2, 9, 0), "10:00 AM").isoformat(),
+         "2026-10-02T10:00:00"),
+        ("combine leaves a day alone when no time is stated",
+         combine(_date(2026, 10, 2), "").isoformat(), "2026-10-02"),
     ]
 
     failures = []
@@ -538,8 +576,3 @@ if __name__ == "__main__":
     print(f"\nall {len(TESTS)} webfetch_http cases as expected")
 
 
-def combine(dt_day, time_text):
-    tm = parse_time(time_text)
-    if tm:
-        return dt_day.replace(hour=tm[0], minute=tm[1])
-    return dt_day

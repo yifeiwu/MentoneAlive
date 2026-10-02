@@ -595,9 +595,28 @@ MIN_SOURCE = {
     "kingston_council": 3,
     "kingston_arts": 3,
     "gd_libraries": 3,
+    # Ten listed programmes, of which four are recurring runs of a dozen or more
+    # dates and the rest are one-offs -- 89 rows today. The listing page is ten
+    # cards deep and does not paginate, so the floor is a count of what is
+    # there, not a fraction of a longer list: a drop to 40 means half the term's
+    # dates stopped being found, which is the failure this catches.
+    "frankston_libraries": 40,
 }
-WARN_ONLY = {"kingston_seniors", "bayside_archived", "frankston_archived",
-             "frankston_live"}
+# Sources whose row count is reported but not failed on: seasonal and archived
+# ones legitimately reach zero. Only sources that are actually configured are
+# checked -- a name here for a source that is not in sources.yaml would warn
+# about zero rows forever, which is the noise a warn list should not produce.
+# (frankston_live was here while its config entry was commented out, so every
+# build printed "source frankston_live: 0 rows" for a source that did not exist.)
+WARN_ONLY = {"kingston_seniors"}
+
+# Sources that only exist in scripts/archived_events.json. They are not in
+# sources.yaml, so _undeclared_source_floors() never sees them, and their rows
+# are withheld from the page by build_site.py -- so a count check against the
+# store would be checking rows nobody can reach, and a floor would fail the
+# build the day the last of them is retired, which is the goal rather than a
+# regression. Reported, never enforced.
+ARCHIVED_SOURCES = {"bayside_archived", "frankston_archived"}
 
 
 def _undeclared_source_floors():
@@ -641,6 +660,11 @@ def main():
     for src in WARN_ONLY:
         if labels.get(src, 0) == 0:
             warnings.append(f"source {src}: 0 rows (seasonal/static, ok)")
+    for src in sorted(ARCHIVED_SOURCES):
+        mine = [r for r in rows if r.get("source_id") == src]
+        live_n = sum(1 for r in mine if r.get("archived") is False)
+        print(f"archived source {src}: {len(mine)} row(s) in the store, "
+              f"{live_n} listed (confirmed live), {len(mine) - live_n} withheld")
 
     # Warn-only above covers "out of season". A stale *config* is a different
     # fault and has to fail the build, or the whole festival disappears without
@@ -662,6 +686,47 @@ def main():
         seen.add(key)
     if dups:
         errors.append(f"{dups} exact (name, start, location) duplicates")
+
+    # An archived row must be flagged and must be in the store; a live row must
+    # not be flagged. Asserted rather than assumed because the flag is the only
+    # thing keeping delisted programmes off the page: set wrongly it hides a
+    # bookable event, and missing it publishes an event no council admits to.
+    # A row from an archived source is listed only when the fixture says the
+    # series was confirmed still running, and must agree on both: `archived`
+    # False without `live_confirmed` would mean a relisted live source, and
+    # `live_confirmed` without `archived` False would mean the flag was computed
+    # and then ignored by the build.
+    listed = [r for r in rows
+              if r.get("source_id") in ARCHIVED_SOURCES
+              and r.get("archived") is False]
+    for r in listed:
+        if not r.get("live_confirmed"):
+            errors.append(
+                f"row from {r.get('source_id')} is on the page without "
+                f"live_confirmed ({r.get('name')!r}) - an archived series is "
+                f"listed only when the fixture marks it status: live")
+    confirmed = [r for r in rows if r.get("live_confirmed")]
+    stale = sorted({r.get("source_id") for r in confirmed
+                    if r.get("archived") is not False})
+    if stale:
+        errors.append(
+            f"rows from {', '.join(stale)} are marked live_confirmed but "
+            f"withheld from the page")
+    n_hidden = sum(1 for r in rows
+                   if r.get("source_id") in ARCHIVED_SOURCES
+                   and r.get("archived") is True)
+    if not any(r.get("live_confirmed") for r in rows) and listed == []:
+        warnings.append("no archived series is confirmed live - if the "
+                        "liveness check has not been run, "
+                        "scripts/apply_archive_fixes.py is the place to say so")
+    stale_flag = [r for r in rows
+                  if r.get("archived") is not False and "T" not in str(
+                      r.get("datetime_iso") or "")]
+    if stale_flag:
+        errors.append(
+            f"{len(stale_flag)} withheld row(s) with no date - every row on "
+            f"the page is an event at a time, and an undated one is both "
+            f"unlistable and the sign of a broken archive")
 
     # Same listing page reported by two scrapers. These differ only in how they
     # name the venue, so the exact check above cannot see them. The description
@@ -725,6 +790,17 @@ def main():
     orphan, by_series = [], {}
     for r in rows:
         if not r.get("date_inferred"):
+            continue
+        # A row that has already happened is not a wrong date, it is a date
+        # that has gone by, and the 90-day prune is deliberately far too slow to
+        # notice. Comparing yesterday's session against a fresh expansion of
+        # "every Tuesday, Wednesday and Thursday" always mismatches, because
+        # yesterday is not in next week's run -- so this reported 18 rows that
+        # were correct when they were written and are merely finished. The
+        # check is about a row claiming a day its text cannot produce, which a
+        # past day does not claim.
+        stored = str(r.get("datetime_iso") or "")[:10]
+        if stored and stored < today.isoformat():
             continue
         by_series.setdefault((r.get("name"), r.get("source")), []).append(r)
     for (name, source), group in by_series.items():

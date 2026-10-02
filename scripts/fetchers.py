@@ -64,15 +64,18 @@ def _check_config_shape(failures):
 def _check_impersonation(failures):
     """Impersonation is declared where the transport needs it, and nowhere else.
 
-    The two Greater Dandenong fetchers are the ones that reach a browser-
-    impersonating session for their detail pages; the Granicus host needs one
-    for the listing. Everyone else is plain urllib. A flag moved to the wrong
-    source is a silent TLS failure, not a crash, so it is worth pinning.
+    The Greater Dandenong fetchers reach a browser-impersonating session for
+    their detail pages; the Granicus host needs one for the listing; so do the
+    OpenCities directory and the libraries CMS, which both answer a plain
+    request with 403. Everyone else is plain urllib. A flag moved to the wrong
+    source is a silent TLS failure, not a crash, so it is worth pinning -- and
+    a flag left off a host that needs one fails the fetch rather than degrading,
+    which is the better of the two failure modes but still a failure.
     """
     curl = {c["id"] for c in fetch_sources.load_config()
             if c.get("impersonate")}
     expected = {"kingston_council", "kingston_arts", "kingston_groups",
-                "greater_dandenong", "gd_libraries"}
+                "greater_dandenong", "gd_libraries", "frankston_libraries"}
     checks.check("impersonate sources", curl, expected, failures)
 
     # And the two GD fetchers must accept a session, since that is how they get

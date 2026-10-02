@@ -73,6 +73,84 @@ SENIORS_MOJIBAKE = (("CafAc", "Caf\u00e9"), ("SeA\ufffdor", "Se\u00f1or"),
                     ("SeAor", "Se\u00f1or"), ("you\ufffd?Tre", "you're"),
                     ("\ufffd?", "-"), ("\ufffd", ""))
 
+# Tokens that can only be a URL continuation (a TLD or the start of a path),
+# not ordinary prose. Used by _seniors_extract_url() to decide whether the
+# whitespace after a URL fragment is a PDF line-break inside the URL.
+_URL_TLD = frozenset({
+    "au", "com", "org", "net", "edu", "gov", "co", "io", "com.au", "org.au",
+    "net.au", "edu.au", "gov.au", "vic.gov.au", "com.au/",
+})
+
+
+def _seniors_extract_url(raw, info_url):
+    """First URL in `raw`, with PDF line-break splits rejoined.
+
+    pypdf gives one line per visual line and the card text is joined with
+    " ", so a URL the guide prints across two lines arrives with a space in
+    it: "www.socialplanet.\\ncom.au/activity/..." becomes
+    "www.socialplanet. com.au/activity/...", and
+    "www.chelseaheights\\ncommunitycentre\\n.com.au" becomes three tokens.
+    The old ``(?:https?://|www\\.)\\S+`` stopped at that space and published
+    73 dead DNS links ("https://www.socialplanet",
+    "https://www.mordihouse.com", ...).
+
+    Rejoin up to 4 following tokens while they look like URL continuation
+    (start with "." or "/", contain "." or "/", or are a bare word followed
+    by such a token). A trailing "-" also continues, for hyphenated paths
+    split as "comedy-at-\\nthe-shirley". Anything else stops, so prose after
+    a bare homepage ("www.chelt.com.au/ Join us...") is not swallowed.
+    Falls back to `info_url` when nothing URL-like is found.
+    """
+    m = re.search(r"(?:https?://|www\.)\S+", raw)
+    if not m:
+        return info_url
+    url = m.group(0)
+    rest = raw[m.end():]
+    for _ in range(4):
+        nxt = re.match(r"\s+(\S+)", rest)
+        if not nxt:
+            break
+        tok = nxt.group(1)
+        # A start time is not a URL tail: the card prints the booking link
+        # then the session time ("...view?id=50242 1.00pm-2.00pm"), and the
+        # dot in "1.00pm" otherwise reads as URL continuation.
+        if re.match(r"^\d{1,2}[:.]\d{2}", tok):
+            break
+        after = rest[nxt.end():]
+        nxt2_m = re.match(r"\s+(\S+)", after)
+        nxt2 = nxt2_m.group(1) if nxt2_m else ""
+        # A trailing "/" alone does not justify consuming prose: after a bare
+        # homepage ("www.chelt.com.au/ Join us") the next word is prose, while
+        # a hyphenated path tail (".../whats-on/ events-activities") carries
+        # a "-" (or a query char). Only those continue; a bare word like
+        # "kogo" after "www.agcsinc.org.au/" stops, leaving a valid domain
+        # link rather than a 404 with prose appended.
+        slash_cont = url.endswith("/") and (
+            "-" in tok or "?" in tok or "&" in tok or "=" in tok)
+        continues = (
+            tok.startswith((".", "/"))
+            or "." in tok
+            or "/" in tok
+            or "?" in tok
+            or "&" in tok
+            or "=" in tok
+            or tok.lower().rstrip(".,)") in _URL_TLD
+            or url.endswith("-")
+            or slash_cont
+            or (nxt2 and (nxt2.startswith((".", "/"))
+                          or "." in nxt2 or "/" in nxt2))
+        )
+        if not continues:
+            break
+        url += tok
+        rest = after
+    url = re.sub(r"\s+", "", url).rstrip(".,)")
+    if not url.startswith("http"):
+        url = "https://" + url
+    if len(url) <= 12:
+        return info_url
+    return url
+
 
 def _seniors_fix_splits(text):
     text = re.sub(r"[\u2013\u2014]", "-", text or "")
@@ -336,14 +414,7 @@ def fetch_kingston_seniors(cfg, session=None):
                 cost = _seniors_cost_value(tail, ci)
                 break
         raw = " ".join(lines)
-        source = info_url
-        sm = re.search(r"(?:https?://|www\.)\S+", raw)
-        if sm:
-            url = re.sub(r"\s+", "", sm.group(0)).rstrip(".,)")
-            if not url.startswith("http"):
-                url = "https://" + url
-            if len(url) > 12:
-                source = url
+        source = _seniors_extract_url(raw, info_url)
         desc = _seniors_clean_desc(lines, footer_re)
         if host:
             desc = (desc + f" Hosted by {host}.").strip()[:500]

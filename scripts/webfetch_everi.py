@@ -68,12 +68,15 @@ import json
 import re
 import time
 from datetime import date, timedelta
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 
 from webfetch_http import (PartialFetch, get, make_row, report,
                            set_reporting_source)
 from venues import needs_address
+
+_ROOT = Path(__file__).resolve().parent.parent
 
 # --- sitemap ---------------------------------------------------------------
 SITEMAP_INDEX = re.compile(r"<loc>\s*([^<\s]+?)\s*</loc>")
@@ -119,7 +122,29 @@ DEFAULT_HORIZON_DAYS = 120
 # at 0.35s is about five minutes of deliberate waiting, which is cheaper than
 # the crawl being refused. Configurable because a host under less pressure
 # should not pay for another host's patience.
+#
+# That 0.35s was measured, and it is not enough for a whole crawl. A run at
+# 0.35s over all 876 pages was still refused partway through, having opened no
+# usable pages, and the block then held for hours -- so the number that avoids
+# a block on a handful of requests is not the number that survives nine hundred
+# of them. Activation needs a resumable crawl doing a bounded slice per run, so
+# no single run is ever the 876-request run. See the commented entry in
+# sources.yaml. The delay stays at the measured value because a resumable crawl
+# is what has to change, not this.
 DEFAULT_CRAWL_DELAY = 0.35
+# Occurrence pages read per run. 876 pages at the host's tolerated rate is the
+# run that gets an IP blocked, and the block outlives the run, so no slice size
+# makes one pass safe. This one is deliberately small: at 0.35s it is ~70s of
+# requests, well inside what the host tolerates, and the crawl completes over a
+# scheduled run's lifetime instead of inside one.
+DEFAULT_SLICE = 150
+# Consecutive unreadable pages that mean "blocked", not "some pages are broken".
+BLOCK_STREAK_LIMIT = 5
+# Report progress this often. At the host's rate this is roughly every 20s.
+PROGRESS_EVERY = 25
+# Shortest acceptable occurrence page. A block returns 61 bytes, so anything
+# under this is refused rather than parsed into an empty row.
+DETAIL_MIN_LEN = 3000
 
 
 def _text(node):
@@ -293,18 +318,80 @@ def fetch_everi(cfg, session, detail_cap=None):
     delay = cfg.get("crawl_delay")
     delay = float(delay) if delay is not None else DEFAULT_CRAWL_DELAY
 
-    rows, opened, seen_series = [], 0, set()
+    # Resumable. The host refuses an IP that asks for too much, and the refusal
+    # lasts hours -- so a run that tries all 876 pages never finishes, and the
+    # attempts that do get through are lost because a partial crawl is refused
+    # downstream (correctly: publishing eight of nine ninths of a directory
+    # would be silently wrong). The progress file is what makes the crawl
+    # incremental: each run takes one bounded slice from wherever the last one
+    # stopped, and the rows it has already read are not fetched again.
+    cache_path = _cache_path(cfg)
+    cache = _load_cache(cache_path)
+    done = set(cache.get("done", []))
+    # The rows from earlier runs are republished as well as this run's, so a
+    # page read on Monday still appears on Saturday's snapshot.
+    rows = list(cache.get("rows") or [])
+    remaining = [u for u in urls if u not in done]
+    slice_size = cfg.get("slice_size") or DEFAULT_SLICE
+    slice_size = int(detail_cap if detail_cap is not None else slice_size)
+    todo = remaining[:slice_size]
+
+    opened, seen_series = 0, set()
     beyond_horizon = failed = 0
-    for url in urls:
-        if opened >= cap:
-            report(f"detail cap {cap} reached with {len(urls) - opened} "
-                   f"pages unopened", level="warn")
-            break
-        html = get(session, url, retries=2, min_len=3000)
+    report(f"{sid}: {len(done)} of {len(urls)} occurrence pages already read, "
+           f"fetching {len(todo)} this run"
+           + (f" (slice_size {slice_size})" if len(todo) < len(remaining)
+              else ""))
+    # This host answers every page -- homepage and sitemap.xml included -- with
+    # HTTP 409 once it decides an IP is over budget, and holds that for hours.
+    # So a block is detected on its first few pages and the crawl stops there,
+    # rather than issuing 876 more requests that are all certain to fail. The
+    # streak has to be consecutive: a handful of genuinely broken occurrence
+    # pages mid-sitemap is normal and must not end the run.
+    blocked_streak = 0
+    newly_read = []
+    for url in todo:
+        html = get(session, url, retries=2, min_len=DETAIL_MIN_LEN)
         if not html:
             failed += 1
+            blocked_streak += 1
+            if blocked_streak >= BLOCK_STREAK_LIMIT:
+                # The pages this run did read are recorded before the raise.
+                # They were paid for, and raising first threw them away: a run
+                # that read 31 pages before being blocked advanced the crawl by
+                # zero, so the next run re-read the same 31 and got blocked at
+                # the same place. On a host that allows ~30 pages per session,
+                # that is the difference between finishing in a few dozen runs
+                # and never finishing.
+                done |= set(newly_read)
+                _save_cache(cache_path, cache, done, rows)
+                report(f"{sid}: {blocked_streak} pages in a row unreadable, "
+                       f"stopping at {opened} of {len(urls)}. This host blocks "
+                       f"by IP with HTTP 409 and does not unblock quickly. The "
+                       f"{len(done)} pages read so far are cached, so the next "
+                       f"run resumes from here rather than re-reading them.",
+                       level="error")
+                raise PartialFetch(
+                    f"{sid}: aborted after {blocked_streak} consecutive "
+                    f"unreadable pages ({opened} of {len(urls)} opened; "
+                    f"{len(done)} recorded)")
             continue
+        blocked_streak = 0
         opened += 1
+        # A crawl this long is silent for minutes at a time otherwise, so a run
+        # that dies halfway looks identical to one that is working.
+        if opened % PROGRESS_EVERY == 0:
+            report(f"{sid}: {opened}/{len(todo)} pages this run "
+                   f"({len(done) + opened}/{len(urls)} overall), {len(rows)} "
+                   f"rows, {failed} unreadable, {beyond_horizon} beyond "
+                   f"horizon", level="info")
+        # Recorded as read the moment it is read, and written out at the end of
+        # the run -- not once per page, which would rewrite a 900-line file 900
+        # times, and not at the end only, which would lose the whole slice to a
+        # crash or a kill. A page that read but held nothing publishable is
+        # still recorded: it was fetched, and re-fetching it would be the 876
+        # requests this design exists to avoid.
+        newly_read.append(url)
         soup = BeautifulSoup(html, "html.parser")
         if not soup.select_one(DETAIL):
             continue
@@ -355,14 +442,236 @@ def fetch_everi(cfg, session, detail_cap=None):
             f"{sid}: {len(urls)} occurrence pages read and none carried a "
             f"name, a date and an address -- the detail markup has probably "
             f"changed")
-    report(f"{sid}: {len(rows)} rows from {opened} pages, "
+
+    # The cache is only advanced for pages that actually read, and it is written
+    # before the return rather than after, so a run that dies in the caller
+    # still keeps what it spent requests on.
+    done |= set(newly_read)
+    _save_cache(cache_path, cache, done, rows)
+    left = len(urls) - len(done)
+    report(f"{sid}: {len(rows)} rows from {opened} pages this run, "
            f"{len(seen_series)} series, {beyond_horizon} beyond the "
            f"{horizon.isoformat()} horizon, {failed} unreadable")
+    if left:
+        report(f"{sid}: {left} occurrence page(s) still unread. This is a "
+               f"partial crawl and will be refused downstream, which is "
+               f"intended -- re-run until it reports 0 to publish. The pages "
+               f"already read are cached, so the next run starts here.",
+               level="warn")
+    else:
+        report(f"{sid}: all {len(urls)} occurrence pages read")
     return rows
+
+
+def _cache_path(cfg):
+    """Where this source's crawl progress is kept between runs."""
+    override = cfg.get("cache_file")
+    if override:
+        p = Path(override)
+        return p if p.is_absolute() else _ROOT / p
+    snap = cfg.get("snapshot") or ""
+    base = Path(snap).stem if snap else str(cfg["id"])
+    return _ROOT / "scripts" / "webfetch_snapshots" / ("%s.progress.json" % base)
+
+
+def _load_cache(path):
+    """Cached crawl state: which pages are read, and the rows they yielded.
+
+    The rows are cached as well as the URLs, and that is not an optimisation.
+    A crawl that completes has read all 876 pages; if the cache held only the
+    URLs then every run after the last one would read nothing, find no rows, and
+    raise -- so the source would be permanently unfetchable having been
+    successfully fetched once. The rows make a finished crawl self-sustaining,
+    and they are also how a page that is read in one run still publishes.
+
+    A corrupt or absent cache is a fresh crawl rather than a failure: the cost
+    of being wrong is re-reading some pages, and the cost of failing is a
+    source that never comes up.
+    """
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        done = data.get("done")
+        cached = data.get("rows")
+        if (isinstance(done, list)
+                and all(isinstance(u, str) for u in done)
+                and isinstance(cached, list)):
+            return {"done": done, "rows": cached}
+    except (OSError, ValueError, AttributeError):
+        pass
+    return {"done": [], "rows": []}
+
+
+def _save_cache(path, cache, done, rows):
+    cache = dict(cache or {})
+    cache["done"] = sorted(done)
+    cache["rows"] = list(rows or [])
+    try:
+        path.write_text(json.dumps(cache, indent=1), encoding="utf-8")
+    except OSError as e:
+        # Losing the cache costs one extra crawl. Failing the fetch over it
+        # would mean a read-only checkout permanently blocks the source.
+        report(f"could not write {path.name}: {e}", level="warn")
+
+
+def _pad(body, size=DETAIL_MIN_LEN + 500):
+    """Pad a fake body past the min_len get() enforces, without altering it.
+
+    The detail pages need to clear DETAIL_MIN_LEN specifically, which is
+    higher than the sitemap's, and getting that wrong makes every page read as
+    a block -- the case then passes for the wrong reason.
+    """
+    return body + " " * max(0, size - len(body))
+
+
+def _crawl_with_fakes(fail_streak_at, total=12, slice_size=None,
+                      cache_file=None, count_requests=True):
+    """Run fetch_everi against a fake session, so the failure paths are testable.
+
+    `fail_streak_at` is the page index from which every fetch fails, or None for
+    a clean run. Returns (rows, raised) so a case can assert on either without
+    the exception escaping the test.
+    """
+    class _R:
+        def __init__(self, text):
+            self.status_code, self.text = 200, text
+
+    class _S:
+        def __init__(self):
+            self.n = 0
+            self.detail_reads = 0
+
+        def get(self, url):
+            # get() rejects a body under min_len, on the grounds that a short
+            # body means something went wrong rather than that the page is
+            # short. The fakes are padded to clear that, so a case cannot pass
+            # or fail on the length check instead of on the path under test.
+            if url.endswith("sitemap.xml"):
+                # The real sitemap is an index of children; the fetcher insists
+                # on that shape, so the fake has the same shape or the case would
+                # be testing the fake rather than the failure path.
+                # The children must match EVENT_SITEMAP, or the fetcher reads
+                # this as "the sitemap shape changed" rather than as a crawl.
+                return _R(_pad("<sitemapindex>%s</sitemapindex>" % "".join(
+                    "<sitemap><loc>https://x/event-sitemap/%d</loc></sitemap>" % c
+                    for c in range(2))))
+            if "/event-sitemap/" in url:
+                half = total // 2
+                lo, hi = ((0, half) if url.endswith("/0")
+                          else (half, total))
+                return _R(_pad("<urlset>%s</urlset>" % "".join(
+                    "<loc>https://x/event/%d</loc>" % i for i in range(lo, hi)),
+                    2000))
+            i = self.n
+            self.n += 1
+            self.detail_reads += 1
+            if fail_streak_at is not None and i >= fail_streak_at:
+                return _R("blocked")
+            # The markup mirrors the real page, selectors included: a fake built
+            # to the class names the test happened to use would exercise
+            # nothing the fetcher actually looks for.
+            return _R(_pad(
+                "<html><body><div id='divEventDetail'>"
+                "<h1 class='text-uppercase'><span>Event %d</span></h1>"
+                "<ul><li class='btn-info-detail calendar'>"
+                "<span>Tuesday 05 January 2027</span></li>"
+                "<li class='btn-info-detail session'>"
+                "<span>10:00 AM - 11:00 AM</span></li>"
+                "<li class='btn-info-detail marker'>"
+                "<div class='btn-block'><span>Some Hall</span></div>"
+                "<span>1 Example St, Frankston VIC 3199</span></li></ul>"
+                "<script type='application/ld+json'>%s</script>"
+                "</div></body></html>"
+                % (i, json.dumps({
+                    "name": "Event %d" % i,
+                    "startDate": "2027-01-05T10:00:00",
+                    "description": "d",
+                }))))
+
+    cfg = {"id": "t", "sitemap": "https://x/sitemap.xml",
+           "horizon_days": 400, "crawl_delay": 0}
+    if slice_size is not None:
+        cfg["slice_size"] = slice_size
+    if cache_file is not None:
+        cfg["cache_file"] = str(cache_file)
+    else:
+        # Always a temp path even when the case does not ask for a cache: the
+        # default is derived from the source id, so a case without one wrote
+        # scripts/webfetch_snapshots/t.progress.json into the real snapshots
+        # directory, and dedupe.py -- which merges every *.json there -- then
+        # published the suite's twelve fake "Event 0" rows as a source called
+        # "t". It reached the built page, because the leak was a real file in a
+        # real directory and nothing in the pipeline looks for it.
+        import tempfile
+
+        cfg["cache_file"] = str(Path(tempfile.mkdtemp()) / "t.progress.json")
+    sess = _S()
+    rows, raised = None, None
+    try:
+        rows = fetch_everi(cfg, sess)
+    except PartialFetch as e:
+        raised = str(e)
+    if count_requests:
+        return rows, raised
+    return rows, getattr(sess, "detail_reads", 0)
+
+
+def _sliced_crawl(runs=3, per_run=2, total=6, fail_at=None):
+    """Run fetch_everi repeatedly against fakes, returning (rows, cache path).
+
+    Each call is a separate "run", which is the point: a slice-per-run crawler
+    can only be tested by running it more than once and watching that the second
+    run does not re-read the first run's pages.
+    """
+    import tempfile
+
+    cache = Path(tempfile.mkdtemp()) / "t.progress.json"
+    published, reads = [], 0
+    for i in range(runs):
+        # Each call returns the whole crawl so far, not just this run's rows:
+        # that is what a real run publishes, and accumulating the return values
+        # would count each row once per subsequent run. `fail_at` lets one run
+        # in the sequence be a blocked one, which is the case that has to
+        # advance the crawl anyway.
+        block = fail_at[i] if fail_at and i < len(fail_at) else None
+        got, n = _crawl_with_fakes(
+            fail_streak_at=block, total=total, slice_size=per_run,
+            cache_file=cache, count_requests=False)
+        published = got or []
+        reads += n
+    return published, cache
+
+
+def _total_detail_reads(runs, per_run, total):
+    """Total occurrence-page fetches across `runs` runs of a sliced crawl.
+
+    Distinct from the page count: this is how many requests were actually made,
+    which is what the host counts and what the slice design is for. Four runs of
+    two pages over six is six requests, not eight -- the two extra runs must
+    fetch nothing.
+    """
+    import tempfile
+
+    cache = Path(tempfile.mkdtemp()) / "t.progress.json"
+    reads = 0
+    for _ in range(runs):
+        _got, n = _crawl_with_fakes(
+            fail_streak_at=None, total=total, slice_size=per_run,
+            cache_file=cache, count_requests=False)
+        reads += n
+    return reads
+
+
+def _write_corrupt_cache():
+    import tempfile
+
+    p = Path(tempfile.mkdtemp()) / "t.progress.json"
+    p.write_text("{not json", encoding="utf-8")
+    return _load_cache(p)["done"]
 
 
 def _self_test():
     import sys
+    import tempfile
 
     failures = []
 
@@ -428,6 +737,70 @@ def _self_test():
     check("the category is read",
           _text(soup.select_one(FIELD_CATEGORY)), "Lifestyle and Community")
 
+    rows, raised = _crawl_with_fakes(fail_streak_at=3, total=20)
+    check("a run of blocked pages aborts the crawl", raised is not None, True)
+    check("the abort says how far it got before stopping",
+          "3 of 20" in (raised or ""), True)
+    check("a blocked crawl publishes nothing rather than a fragment",
+          rows, None)
+    rows, raised = _crawl_with_fakes(fail_streak_at=None, total=12)
+    check("a clean crawl is not mistaken for a block", raised, None)
+    check("a clean crawl returns every page's row", len(rows or []), 12)
+
+    # The resumable crawl, which is the only way this source can be activated:
+    # 876 pages in one run is what earns the IP block, so each run takes a
+    # slice and the cache is what makes the next run not repeat it.
+    rows, cache_file = _sliced_crawl(runs=3, per_run=2, total=6)
+    check("a sliced crawl reaches every page across its runs",
+          len(rows or []), 6)
+    check("the cache records every page read",
+          len(_load_cache(cache_file)["done"]), 6)
+    rows, cache_file = _sliced_crawl(runs=1, per_run=2, total=6)
+    check("one run reads only its slice", len(rows or []), 2)
+    check("and the cache records only that slice",
+          len(_load_cache(cache_file)["done"]), 2)
+
+    # A blocked run must still keep what it read. Raising before the save threw
+    # away every page the run had managed, so a crawl on a host that allows
+    # ~30 pages per session never advanced: run two re-read run one's 31 pages
+    # and was blocked at the same point.
+    import tempfile as _tf
+
+    blocked_cache = Path(_tf.mkdtemp()) / "t.progress.json"
+    # A slice at least BLOCK_STREAK_LIMIT long, so the block actually trips
+    # rather than the run simply running short of pages.
+    _got, raised = _crawl_with_fakes(
+        fail_streak_at=0, total=6, slice_size=6,
+        cache_file=blocked_cache, count_requests=True)
+    check("a blocked run still raises", raised is not None, True)
+    check("and it says it recorded what it read",
+          "recorded" in (raised or ""), True)
+    check("a run blocked before reading anything records nothing",
+          len(_load_cache(blocked_cache)["done"]), 0)
+
+    # The case that matters: pages read *before* the block must survive it.
+    partial_cache = Path(_tf.mkdtemp()) / "t.progress.json"
+    _got, raised = _crawl_with_fakes(
+        fail_streak_at=3, total=12, slice_size=12,
+        cache_file=partial_cache, count_requests=True)
+    check("a run blocked part-way raises", raised is not None, True)
+    check("a run blocked part-way keeps the pages it did read",
+          len(_load_cache(partial_cache)["done"]), 3)
+    check("and says in the failure how many it recorded",
+          "3 recorded" in (raised or ""), True)
+    # Once every page is cached, a further run still publishes -- from the cache,
+    # which is the whole reason the rows are stored in it -- and issues no
+    # requests at all. "No rows" was the wrong expectation to write: it is the
+    # failure mode the row cache was added to prevent.
+    rows, cache_file = _sliced_crawl(runs=4, per_run=2, total=6)
+    check("a finished crawl reads nothing twice",
+          len(_load_cache(cache_file)["done"]), 6)
+    check("and republishes from the cache without re-fetching",
+          (len(rows or []), _total_detail_reads(runs=4, per_run=2, total=6)),
+          (6, 6))
+    check("a corrupt cache is a fresh crawl, not a failure",
+          _write_corrupt_cache(), [])
+
     if failures:
         print(f"\nwebfetch_everi: {len(failures)} case(s) FAILED")
         sys.exit(1)
@@ -435,4 +808,28 @@ def _self_test():
 
 
 if __name__ == "__main__":
-    _self_test()
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] not in ("--test",):
+        # `python scripts/webfetch_everi.py --slice 40` runs one slice for real,
+        # against the live host. It exists because activation needs repeated
+        # runs to complete the crawl, and the alternative -- hand-editing the
+        # commented config entry and calling fetch_sources.py -- is how a slice
+        # size or a cache path ends up wrong in the committed config.
+        n = sys.argv[sys.argv.index("--slice") + 1] \
+            if "--slice" in sys.argv else None
+        import json as _json
+
+        cfg = _json.loads(
+            (Path(__file__).resolve().parent / "frankston_live.slice.json")
+            .read_text(encoding="utf-8"))
+        if n:
+            cfg["slice_size"] = int(n)
+        # An impersonating session, since the host answers plain urllib with
+        # 409 before it ever looks at the path.
+        from webfetch_http import make_session
+
+        rows = fetch_everi(cfg, make_session())
+        print(f"\n{len(rows)} rows")
+    else:
+        _self_test()

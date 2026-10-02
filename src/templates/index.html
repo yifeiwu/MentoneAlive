@@ -141,6 +141,7 @@ td{overflow-wrap:break-word}
 .badge-frankston_archived{background:#1d8248}
 .badge-chatty_cafe{background:#cb4335}
 .badge-ccc{background:#12836d}
+.badge-frankston_libraries{background:#b1560f}
 .badge-kingston_seniors{background:#ba4a00}
 .badge-kingston_council{background:#0b5aa2}
 .badge-commercial{background:#6c757d}
@@ -475,7 +476,7 @@ function typeStr(r){return getTypes(r).join(", ");}
 // `[,]<label>:` scan finds each name here. The keys are valid identifiers, so
 // dropping the quotes is free; keeping one map is what stops a new source from
 // needing a second list that can drift out of sync with this one.
-function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",kingston_groups:"Kingston Groups",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",frankston_live:"Frankston"};
+function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",kingston_groups:"Kingston Groups",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",frankston_libraries:"Frankston Libraries"};
 return '<span class="badge badge-'+(src||"unknown")+'">'+esc(m[src]||src||"unknown")+'</span>'}
 function commercialBadge(r){var h='';if(r.is_commercial)h+='<span class="badge badge-commercial">COMMERCIAL</span>';if(r.is_service)h+='<span class="badge badge-service">DROP-IN SERVICE</span>';if(r.status)h+='<span class="badge badge-status">'+esc(r.status_label||r.status.toUpperCase())+'</span>';return h;}
 // A large share of published rows are date_inferred: recurrence.py derived

@@ -73,32 +73,61 @@ webfetch:
     # place the schedule exists. Pagination is an ASP.NET postback: ?page=2 is
     # accepted and ignored. See webfetch_directory.py for both traps.
 
-  # NOT YET ACTIVE. webfetch_everi.py is written and its suite passes, but the
-  # first snapshot has never been taken: the host rate-limits by IP and answers
-  # "Your IP has been temporarily blocked, please try again later" (HTTP 409) to
-  # every page including the homepage. Enabling the entry before a snapshot
-  # exists turns the next scheduled run red by design (D3), so it stays
-  # commented until one fetch succeeds. Uncomment, run
-  # `python scripts/fetch_sources.py --source frankston_live`, and check the
-  # count before committing.
+  # NOT ACTIVE until its first crawl completes. The fetcher is now resumable
+  # and safe to run: it takes a bounded slice per run and caches both the pages
+  # read and the rows they yielded, so no single run is ever the 876-request
+  # run that earned the IP block. Run it until it reports "all 876 occurrence
+  # pages read":
+  #
+  #   python scripts/fetch_sources.py --source frankston_live   # repeat
+  #
+  # Each run refuses to publish a partial crawl, which is intended -- the
+  # calendar is wrong in a way nothing downstream can detect if it silently
+  # takes eight ninths of a directory. So the first few scheduled runs will
+  # fail this source by design, and the entry stays commented until the cache
+  # says the crawl is done (D3: a configured source with no snapshot turns
+  # every run red for no reason).
   #
   # - name: "Frankston"
   #   id: "frankston_live"
   #   type: "everi"
-  #   # HTTP 409 on plain urllib: the host answers only to a browser
-  #   # impersonating session.
+  #   # Answers only to a browser-impersonating session.
   #   impersonate: true
   #   url: "https://whatsonfrankston.com/"
   #   sitemap: "https://whatsonfrankston.com/sitemap.xml"
   #   # 876 occurrence URLs, some reaching a year out. Bounded by the horizon
-  #   # rather than by a cap, so the fetcher reports what it chose not to
+#   # rather than by a cap, so the fetcher reports what it chose not to
   #   # publish instead of silently publishing a fraction.
   #   horizon_days: 120
-  #   detail_cap: 900
-  #   # 0.35s over 876 pages is ~5 minutes of deliberate waiting. Faster earns
-  #   # an IP block that outlives the run.
+  #   # Pages read per run. 876 at the tolerated rate is the run that gets
+  #   # blocked; 150 is ~70s of requests, well inside the budget, and the crawl
+  #   # completes over several scheduled runs instead of inside one.
+  #   slice_size: 150
   #   crawl_delay: 0.35
   #   snapshot: "frankston_auto.json"
+  #   # Crawl progress: which pages are read, and the rows they yielded.
+  #   # Deliberately not committed -- it is per-IP state, and a stale one from
+  #   # another machine would suppress a crawl that has not happened there.
+  #   cache_file: "scripts/webfetch_snapshots/frankston_auto.progress.json"
+
+  - name: "Frankston City Libraries"
+    id: "frankston_libraries"
+    type: "frankston_libraries"
+    # Three series were withheld from the page with no dates to publish: the
+    # archive recorded Justice of the Peace Saturdays, Basic Tech Help and
+    # Weekend Board Games without a schedule, because the site that states it
+    # (this one) was not crawled. Each programme's own page lists every date in
+    # its term, so this is the fetcher that supplies them -- and the live feed
+    # then clears their archived status on its own.
+    # 403 without a browser TLS fingerprint. Reachable from an impersonating
+    # session (verified), so `impersonate` is required rather than a workaround.
+    impersonate: true
+    url: "https://library.frankston.vic.gov.au/Whats-On"
+    # The listing publishes ten cards and no working pagination: ?page=2, ?p=2
+    # and ?pageNumber=2 all return page 1, and /Page-2 is a 404. The cap is
+    # therefore the card count, not a guess at page depth.
+    detail_cap: 10
+    snapshot: "frankston_libraries.json"
 
   - name: "Cheltenham Community Centre"
     id: "ccc"
@@ -196,7 +225,7 @@ sources:
       - slug: "chelsea-activity-hub"
         name: "Chelsea Activity Hub"
         address: "3-5 Showers Ave, Chelsea VIC 3196"
-        schedule: "Tuesday 10.00am - 11.30am (1st & 3rd Tuesdays)"
+        schedule: "Tuesday 10.00am - 11.30am (1st & 3rd Tuesdays of the Month)"
       - slug: "chelsea-heights-community-centre"
         name: "Chelsea Heights Community Centre"
         address: "160 Thames Promenade, Chelsea Heights VIC 3196"

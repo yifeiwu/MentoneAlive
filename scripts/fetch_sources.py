@@ -49,6 +49,8 @@ from webfetch_bayside import fetch_bayside  # noqa: E402
 from webfetch_ccc import fetch_ccc  # noqa: E402
 from webfetch_directory import fetch_directory  # noqa: E402
 from webfetch_everi import fetch_everi  # noqa: E402
+from webfetch_frankston_libraries import (  # noqa: E402
+    fetch_frankston_libraries)
 from webfetch_granicus import fetch_granicus  # noqa: E402
 from webfetch_http import (PartialFetch, parse_day_month_year,  # noqa: E402
                            price_sort as _price_sort, report,
@@ -63,7 +65,7 @@ SNAP_DIR = ROOT / "scripts" / "webfetch_snapshots"
 # file would lose the per-source view. The plain sources share raw_events.json,
 # which is gitignored and is a scratch file for dedupe.py.
 SNAPSHOT_TYPES = {"bayside", "granicus", "ccc", "kingston_seniors_pdf",
-                 "oc_directory", "everi"}
+                 "oc_directory", "everi", "frankston_libraries"}
 
 # One entry per `type:` in sources.yaml. The type is the ONLY dispatch key --
 # it used to be dispatched on here and on `id` in the other script, so adding a
@@ -79,6 +81,7 @@ FETCHERS = {
     "ccc": (fetch_ccc, True),
     "oc_directory": (fetch_directory, True),
     "everi": (fetch_everi, True),
+    "frankston_libraries": (fetch_frankston_libraries, True),
     # The seniors PDF arrives whole, so it has no detail pages and takes no cap.
     "kingston_seniors_pdf": (fetch_kingston_seniors, False),
 }
@@ -93,6 +96,7 @@ REQUIRED_KEYS = {
     "gd_libraries": ("url",),
     "venues": ("venues",),
     "bayside": ("url",),
+    "frankston_libraries": ("url",),
     "granicus": ("url",),
     "ccc": (),  # `pages` or `url`; checked separately
     "oc_directory": ("url",),

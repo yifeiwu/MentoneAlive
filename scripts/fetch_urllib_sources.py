@@ -573,6 +573,13 @@ def _chatty_live_schedule(html):
     The whole matched phrase is returned, not a reassembly of the two groups,
     so a cadence the source states inside the gap -- "Friday (fortnightly)
     10.30am-11.30am" -- survives into the schedule text the date parser reads.
+
+    A trailing parenthetical cadence is appended too: the page states
+    "Tuesday 10.00am - 11.30am (1st & 3rd Tuesdays of the Month)" and the
+    daytime match ends after the time, dropping the qualifier that says it
+    is monthly. Without it the venue reads weekly. Only a short parenthetical
+    naming a cadence (1st/2nd/month/fortnight/second) is kept, so a following
+    sentence is never swallowed.
     """
     if not html:
         return ""
@@ -580,7 +587,12 @@ def _chatty_live_schedule(html):
     m = CHATTY_DAYTIME_RE.search(text)
     if not m:
         return ""
-    return re.sub(r"\s+", " ", m.group(0)).strip()[:80]
+    out = re.sub(r"\s+", " ", m.group(0)).strip()
+    tail = text[m.end():m.end() + 48]
+    pm = re.match(r"\s*\(([^)]{0,40})\)", tail)
+    if pm and _MONTHLY_MARKER_RE.search(pm.group(1)):
+        out = (out + " (" + pm.group(1).strip() + ")")[:80]
+    return out.strip()[:80]
 
 
 def _chatty_schedule_is_usable(schedule):
@@ -600,6 +612,49 @@ def _chatty_schedule_is_usable(schedule):
            "description": schedule}
     spec, _reason = build_spec(row)
     return spec is not None and bool(spec.slots)
+
+
+# A configured schedule stating a monthly/fortnightly cadence that the live
+# page drops ("Tuesday 10.00am - 11.30am (1st & 3rd Tuesdays)" -> "Tuesday
+# 10.00am - 11.30am"). The live value parses -- as weekly -- so the usability
+# check above cannot see the loss, and the venue doubles from ~2 to ~4
+# sessions a month. A monthly marker present in config but absent live means
+# the site text is the lossy one, so config wins.
+_MONTHLY_MARKER_RE = re.compile(
+    r"\b(1st|2nd|3rd|4th|5th|first|second|third|fourth|fifth|fortnight"
+    r"|every second|month)\b", re.I)
+
+
+def _cadence_markers(text):
+    """The cadence words in `text`, as a set, for comparing two schedules."""
+    return {m.group(0).lower() for m in _MONTHLY_MARKER_RE.finditer(text or "")}
+
+
+def _chatty_live_keeps_cadence(configured, live):
+    """True when preferring `live` does not lose or contradict a cadence.
+
+    Was "does the configured text mention a cadence and the live one not",
+    which is a one-way test and so passed whenever *neither* mentioned one. The
+    configured value for Chelsea Activity Hub is a bare "Every Tuesday" -- no
+    marker at all -- while the live page states "(1st & 3rd Tuesdays of the
+    Month)". The old test saw no marker in either and returned True, so the
+    live value won, the venue went from one session a week to two a month, and
+    the two coexist in the store: fourteen rows for one venue, six weekly and
+    eight monthly, half of them on days the venue does not actually run.
+
+    So the comparison is between the two texts rather than against one of
+    them: any marker in the configured text that the live text drops loses the
+    live text, and a live text that states *different* weekdays from the
+    configured one also loses, since a venue's cadence is not something a
+    reworded page is allowed to quietly double.
+    """
+    if not configured or not live:
+        return True
+    if _cadence_markers(configured) - _cadence_markers(live):
+        return False
+    if _cadence_markers(live) - _cadence_markers(configured):
+        return False
+    return True
 
 
 def fetch_chatty_cafe(cfg, session=None):
@@ -631,7 +686,11 @@ def fetch_chatty_cafe(cfg, session=None):
             html = _get(url, timeout=10)
             live = _chatty_live_schedule(html)
             if live and live != schedule:
-                if _chatty_schedule_is_usable(live):
+                if not _chatty_live_keeps_cadence(schedule, live):
+                    report(f"{vname}: site text {live!r} drops the monthly "
+                           f"cadence in configured {schedule!r}, keeping "
+                           f"configured", level="warn")
+                elif _chatty_schedule_is_usable(live):
                     report(f"{vname}: schedule updated from site ({live!r})")
                     schedule = live
                 else:

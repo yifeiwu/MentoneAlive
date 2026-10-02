@@ -44,10 +44,19 @@ RULES = [
     # than each source needing its own wording.
     ("Community Group", [r"kingston_groups"]),
     ("Seniors Festival", [r"seniors? festival", r"senior'?s? festival", r"kingston_seniors"]),
-    ("Movies & Cinema", [r"movie", r"film", r"cinema", r"screening", r"pinocchio"]),
+    ("Movies & Cinema", [r"movie", r"film", r"cinema", r"screening", r"pinocchio",
+                        # A film rating in the title is the listing's own
+                        # classification ("Penguins of Madagascar (G)"); the
+                        # description is just the date stsamp. Anchored on the
+                        # parens so "(Gardens)" cannot match.
+                        r"\(G\)", r"\(PG\)", r"\(M\)", r"silver screen"]),
     ("Dance", [r"ballroom danc", r"belly danc", r"line danc", r"\bdanc(e|ing|ers)\b",
                r"ballet", r"jazz class", r"jazz routine", r"broadway jazz",
-               r"fiesta latina", r"dancing gear"]),
+               r"fiesta latina", r"dancing gear", r"5rhythms"]),
+    # Bare "music" is deliberately absent: "set to music" is background music
+    # in an exercise class, not a music event. Only the qualified forms that
+    # name a music event ("Live Music", "Music at McClelland", "Music Club")
+    # belong here.
     ("Music & Performance", [r"concert", r"choir", r"karaoke", r"\bsing\b", r"singing",
                               r"singers", r"melod", r"\bband\b", r"orchestra", r"\bgig\b",
                               r"comedy", r"comedian", r"theatre", r"theater",
@@ -57,22 +66,32 @@ RULES = [
                               r"carol", r"sonantinas", r"mosaic", r"jazzeoke",
                               r"piano", r"\borgan\b", r"battle of the bands",
                               r"wizard of oz", r"musical", r"emma memma",
-                              r"drum theatre", r"\bdrum(s|ming)?\b"]),
+                              r"drum theatre", r"\bdrum(s|ming)?\b",
+                              r"live music", r"music (at|club)"]),
     ("Exercise & Fitness", [r"\byoga\b", r"pilates", r"zumba", r"\bgym\b", r"gymnastics",
                             r"tai chi", r"qigong", r"\bswim\b", r"swimming\b",
                             r"strength", r"\bstrong(er|est)?\b", r"\bbalance\b",
                             r"gentle exercis",
                             r"exercis", r"fitness class",
-                            r"active adult", r"newcombe", r"movement is medicine",
-                            r"move & groove", r"\bmovement\b", r"aerobic",
-                            r"body and balance", r"love to live",
-                            r"meditation", r"soundbath", r"sound bath",
-                            r"mums and bubs", r"posture fit", r"power hour",
-                            r"move and connect", r"morning yoga", r"hatha",
-                            r"mcclelland.*yoga", r"silver salties yoga",
-                            r"self defence", r"self defense",
-                            r"casual swim", r"water safety",
-                            r"calisthenics", r"holiday fun",
+                             r"active adult", r"newcombe", r"movement is medicine",
+                             r"move & groove", r"\bmovement\b", r"aerobic",
+                             r"body and balance", r"love to live",
+                             # "meditat*" not "meditation": the listing writes
+                             # "meditate", and the stem covers all three.
+                             r"meditat", r"soundbath", r"sound bath",
+                             r"mums and bubs", r"posture fit", r"power hour",
+                             r"move and connect", r"morning yoga", r"hatha",
+                             r"mcclelland.*yoga", r"silver salties yoga",
+                             r"self defence", r"self defense",
+                             r"casual swim", r"water safety",
+                             r"calisthenics", r"holiday fun",
+                             # CCC class brands that carry no generic keyword:
+                             # STEADYtone/rehab/moves (STEADYstrength already
+                             # matches via "strength"), Move & Mingle, Fit and
+                             # Feisty, Keep Active. Pinned as literals rather
+                             # than bare "fit"/"active", which hit prose.
+                             r"\bsteady\w*", r"move & mingle",
+                             r"fit and feisty", r"keep active",
                             # Bare "chair " caught "chair lift" and "folding
                             # chair"; only the fitness senses belong here.
                             r"chair (yoga|based|exercise|movement)"]),
@@ -84,7 +103,9 @@ RULES = [
                           r"\bshed\b",
                           r"table tennis", r"darts", r"sailing", r"kayak",
                           r"fishing", r"petanque", r"afl\b", r"martial art",
-                          r"aikido", r"karate", r"judo", r"taekwondo"]),
+                          r"aikido", r"karate", r"judo", r"taekwondo",
+                          r"pickleball", r"pickle\s*ball",
+                          r"life.?saving"]),
     ("Info Session", [r"information session", r"info session", r"pension",
                       r"superannuation", r"retirement", r"downsizing",
                       r"accommodation options", r"transport", r"home energy",
@@ -98,7 +119,7 @@ RULES = [
                        r"chess", r"scrabble", r"rummikub", r"500\s*cards?|cards?.{0,20}500|play\s+500", r"canasta",
                        r"board ?game", r"bingo", r"dungeons", r"dragons",
                        r"role-?play", r"tabletop",
-                       r"jigsaw", r"puzzle", r"crafty challenge"]),
+                       r"jigsaw", r"puzzle", r"crafty challenge", r"\btrivia\b"]),
     ("Art & Craft", [r"\bpaint", r"(?<!martial )\barts?\b", r"\bcraft", r"\bsew", r"crochet",
                      r"\bknit", r"\bweav", r"\bdraw", r"pottery", r"ceramics",
                      r"colouring", r"coloring", r"diamond art", r"bedazzle",
@@ -122,6 +143,8 @@ RULES = [
                               r"\bkoalas?\b", r"kangaroo", r"butterfl",
                               r"compost", r"worm farm", r"\bharvest\b",
                               r"meadow", r"\bnature\b", r"\breserve\b",
+                              r"fossil", r"prehistoric", r"\bwader",
+                              r"\bwild\b", r"water.?wise",
                               # "environment" alone is ordinary English ("a
                               # relaxed supportive environment"), and "nursery"
                               # is often a venue ("Bay Road Nursery Cafe"), so
@@ -193,7 +216,11 @@ RULES = [
     ("Books & Reading", [r"book club", r"author", r"storytime", r"\breading\b",
                          r"borrowbox", r"podcast", r"\bstor(y|ies)\b", r"writing",
                          r"writers?", r"poetry", r"book week", r"book launch",
-                         r"\blibrary\b"]),
+                         r"\blibrary\b",
+                         # Literary format: '"The Wreck" in conversation with
+                         # Geoff Parkes' carries no "author" keyword, only the
+                         # format. The phrase is specific to author talks.
+                         r"in conversation with"]),
     # "gallery" needs an event sense: in a title it is usually the venue
     # ("Sunday Jazz at the Gallery"), which is not a market.
     ("Market & Exhibition", [r"\bmarket", r"exhibition", r"\bfete\b",
@@ -378,7 +405,7 @@ if __name__ == "__main__":
         ("Chatty Cafe Frankston", "Casual conversation over coffee.", "",
          ["Food & Drink", "Social & Community"]),
         ("Chatty Cafe - Game On!", "Free morning tea with trivia and games.", "",
-         ["Food & Drink", "Social & Community"]),
+         ["Food & Drink", "Games & Cards", "Social & Community"]),
         ("Making Healthy Dumplings Masterclass",
          "Make dumplings; community group.", "", ["Food & Drink"]),
         ("Centenarians Celebration", "Special luncheon honouring centenarians.",
@@ -460,6 +487,42 @@ if __name__ == "__main__":
         # Dance + food (baklava/afternoon tea) + family audience (Social).
         ("Belly Dance and Baklava Afternoon tea", "Bring the whole family.", "",
          ["Dance", "Food & Drink", "Social & Community"]),
+
+        # --- revalidation fixes: rows previously filed as Other ---
+        ("Pickleball", "Term 4 (10 weeks). Tuesdays, Beginner: 10:00am-11:00am.", "",
+         ["Sport & Outdoors"]),
+        ("Trivia on Tap", "Gather your mates for Trivia on Tap!", "",
+         ["Games & Cards"]),
+        ("STEADYmoves", "Tuesdays, 11:30am - 1pm. Instructor: Annette.", "",
+         ["Exercise & Fitness"]),
+        ("Move & Mingle", "Term 4 (11 weeks). Thursdays, 11:00am-12:30pm.", "",
+         ["Exercise & Fitness"]),
+        ("Keep Active", "Fridays 10am - 10:50am.", "",
+         ["Exercise & Fitness"]),
+        ("Penguins of Madagascar (G)", "Friday 2 October, 6:00pm.", "",
+         ["Movies & Cinema"]),
+        ("Music at McClelland - 2026 Subscription tickets",
+         "Held on the third Sunday of the month.", "",
+         ["Music & Performance"]),
+        ("Halloween Spooktacular", "Friday 30 October, 4:30pm Live Music.", "",
+         ["Music & Performance"]),
+        ("Riley James - \"The Wreck\" in conversation with Geoff Parkes",
+         "Riley James - \"The Wreck\" in conversation with Geoff Parkes.", "",
+         ["Books & Reading"]),
+        ("Special display: fossil discoveries with Prehistoric Bayside",
+         "Special display: fossil discoveries with Prehistoric Bayside.", "",
+         ["Nature & Environment"]),
+        ("Welcome the Waders at Rickett's Point",
+         "Welcome the Waders at Rickett's Point.", "",
+         ["Nature & Environment"]),
+        ("Black Rock Life Saving Club: Open Day & Season Launch 2026!",
+         "Black Rock Life Saving Club: Open Day.", "",
+         ["Sport & Outdoors"]),
+        ("Friday Night Reset", "Weekly 5Rhythms class, move and breathe.", "",
+         ["Dance"]),
+        # "set to music" stays Exercise only: background music is not a gig.
+        ("Move and Connect", "Low impact exercise class set to music.", "",
+         ["Exercise & Fitness"]),
     ]
 
     # The taxonomy vocabulary the directory actually publishes. Taken from both

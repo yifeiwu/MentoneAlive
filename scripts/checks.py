@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Each suite is a module in scripts/ whose __main__ block asserts its rules and
 # exits non-zero on failure. Order is only for readable output.
 SUITES = (
-    ("activity_types", "64 name/description -> tags cases"),
+    ("activity_types", "name/description -> tags cases"),
     ("status", "10 sold-out / service cases"),
     ("recurrence", "the date-inference table, on a fixed reference date"),
     ("dedupe", "name, venue and series-key normalisation"),
@@ -32,6 +32,8 @@ SUITES = (
     ("webfetch_granicus", "Granicus address parsing"),
     ("webfetch_directory", "directory cards, addresses and hours tables"),
     ("webfetch_everi", "Everi detail pages: dates, venues, series GUID"),
+    ("webfetch_frankston_libraries",
+     "library listing cards, the dates their pages state, and a resumable crawl"),
     ("webfetch_http", "shared time/month/row parsing"),
     ("build_site", "suburb extraction"),
     ("fetchers", "the fetch call convention, without a network"),

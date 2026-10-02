@@ -592,7 +592,14 @@ def main():
         try:
             import json
             with open(EVENTS, encoding="utf-8") as jf:
-                total = len(json.load(jf)["rows"])
+                stored = json.load(jf)["rows"]
+            # The page is built from the store minus its archived rows, so the
+            # comparison has to be against the same count build_site.py used.
+            # Comparing against the whole store made the check fire on every
+            # build once delisted rows started being withheld -- the page was
+            # correct and the check was not, which is the failure mode this
+            # check exists to catch in the other direction.
+            total = sum(1 for r in stored if not r.get("archived"))
             header = re.search(r"(\d+)\s*events", dom)
             if header and int(header.group(1)) != total:
                 stale.append("page header claims %s events but "

@@ -823,6 +823,75 @@ It has one now, and `checks.py` passes `--test` to it — as it already did to
 `build_site.py` — so running the suite does not re-run the merge.
 
 ---
+### D44. "Archived" is a per-series fact, not a per-source one - **Hold**
+
+`archived_events.json` is what is left of sources this project could not crawl,
+and every row in it used to be withheld from the page. That treated a *source*
+as live or dead when the truth is per-series: a source is a whole council's
+listing page, and some of its programmes keep running on an organiser's own site
+after the council stops listing them.
+
+Checking them found ten that were still going -- the Bayside farmers' market
+among them, on `baysidefarmersmarket.com.au`, 4th Saturday monthly -- and one
+that was publishing a date that will not happen. The fixture described it as
+"the fourth Saturday of every month", so `recurrence.py` materialised a 26
+December session; the organiser's own site lists its 2026 dates and states
+there is no December market. Checking the archive against the web is what
+caught that, and it would have caught it for as long as the archive existed had
+anyone looked.
+
+So each fixture row now carries a `status` (`live` / `unverified` /
+`finished`) and the owning site's `live_url`, and only `live` keeps a row on
+the page. `unverified` is withheld too, which is the decision inside the
+decision: an unconfirmed series is the one whose dates are most likely to have
+moved, and a stale farmers' market is worse than no farmers' market. Withheld
+is the reversible direction -- adding `status` is a one-word edit.
+
+`archived` itself stays, meaning "this row came from the archive file", and it
+is no longer conflated with "hide this row". Conflating them is what hid the
+ten.
+
+The lookup that decides is a series-id match, and it needed care: a stored
+occurrence is stamped with its `series_id` at `materialise()` time, so its id
+differs from the dateless fixture row it came from, and matching on the stamped
+id alone finds nothing and silently withholds the entire file. Both keys are
+tried.
+
+### D45. A crawl that cannot finish in one run must resume - **Hold**
+
+`whatsonfrankston.com` refuses an IP that asks for too much, answering every
+page -- homepage and sitemap included -- with HTTP 409, and holds it for hours.
+The sitemap lists 856 occurrence pages. At the delay the host tolerates in
+testing, that is the run that gets blocked; the delay was measured on a handful
+of requests, not on nine hundred.
+
+So `webfetch_everi.py` takes a bounded slice per run and caches both the pages
+read and the rows they yielded, in a gitignored `*.progress.json`. No run is
+ever the 856-request run.
+
+Two things this had to get right, and both were wrong first:
+
+* **The cached rows, not just the cached URLs.** With URLs alone, a finished
+  crawl reads nothing on the next run, finds no rows, and raises -- so the
+  source becomes permanently unfetchable having been successfully fetched once.
+* **A blocked run keeps what it read.** Raising before the save discarded every
+  page the run had managed, so the next run re-read the same thirty-one and was
+  blocked at the same place. On a host allowing ~30 pages per session that is
+  the difference between finishing in a few dozen runs and never finishing.
+
+A partial crawl publishes nothing, and that is asserted in three places
+because it had already leaked twice: the fetcher refuses it, `dedupe.py` skips
+the progress file, and `dedupe.py` skips a snapshot whose source still has one.
+The second guard exists because `dedupe.py` merges every `*.json` in the
+snapshots directory, so it read the progress file directly and put sixteen rows
+of a 1%-complete crawl on the page -- the fetcher's own guard never applied,
+because the guard was in a different module.
+
+`frankston_live` stays commented out until the crawl completes. Enabling it
+before then turns every scheduled run red by design (D3), which is not a
+signal anyone reads.
+
+
 
 ## 7. Things that are not decisions, but look like they were
 

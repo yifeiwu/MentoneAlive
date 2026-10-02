@@ -1,0 +1,12 @@
+{
+  "id": "frankston_live",
+  "type": "everi",
+  "impersonate": true,
+  "url": "https://whatsonfrankston.com/",
+  "sitemap": "https://whatsonfrankston.com/sitemap.xml",
+  "horizon_days": 120,
+  "slice_size": 150,
+  "crawl_delay": 0.35,
+  "snapshot": "frankston_auto.json",
+  "cache_file": "scripts/webfetch_snapshots/frankston_auto.progress.json"
+}

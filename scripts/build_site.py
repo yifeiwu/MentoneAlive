@@ -84,10 +84,16 @@ def main():
     with open(ROOT / "data" / "events.json", encoding="utf-8") as f:
         data = json.load(f)
 
-    rows = data.get("rows", [])
-    print(f"Building site with {len(rows)} events...")
+    # Delisted series stay in data/events.json -- they are the only record that
+    # a weekly farmers' market or a library course ever existed -- but they are
+    # not events anybody can attend, so they are kept off the list. The split
+    # is made after every row is annotated, so the store is a uniform set and
+    # an archived row is described in the same terms as a live one.
+    every_row = data.get("rows", [])
+    _n_conf = sum(1 for r in every_row if r.get("live_confirmed"))
+    print(f"Building site with {len(every_row)} events...")
 
-    for r in rows:
+    for r in every_row:
         # `source_types` is what the source called the row itself: Kingston's
         # community-groups directory states a curated category on every entry.
         # That is the council classifying its own listing, which beats anything
@@ -128,12 +134,22 @@ def main():
         r["sources"] = [_safe_url(u) for u in (r.get("sources") or [])]
         r["sources"] = [u for u in r["sources"] if u]
 
-    data["rows"] = rows
+    data["rows"] = every_row
     write_json(ROOT / "data" / "events.json", data)
+    n_arch = sum(1 for r in every_row if r.get("archived"))
     print(f"Wrote data/events.json with types + commercial "
-          f"({sum(1 for r in rows if r.get('is_commercial'))} commercial, "
-          f"{sum(1 for r in rows if r.get('is_service'))} services, "
-          f"{sum(1 for r in rows if r.get('status'))} sold out / fully booked)")
+          f"({sum(1 for r in every_row if r.get('is_commercial'))} commercial, "
+          f"{sum(1 for r in every_row if r.get('is_service'))} services, "
+          f"{sum(1 for r in every_row if r.get('status'))} sold out / fully booked"
+          + (f", {n_arch} archived" if n_arch else "") + ")")
+
+    # Withheld before the page's own counts are taken, so the filter list and
+    # the source list describe what a reader can actually act on. An archived
+    # source contributing checkboxes would offer filters that match nothing.
+    rows = [r for r in every_row if r.get("archived") is not True]
+    print(f"  {len(rows)} rows on the page"
+          + (f", {len(every_row) - len(rows)} archived rows withheld"
+             if len(every_row) != len(rows) else ""))
 
     type_counts = Counter(t for r in rows for t in r.get("types", ["Other"]))
     # Keep checkbox order stable and in TYPES order (not alphabetical), so the
@@ -255,9 +271,39 @@ if __name__ == "__main__":
              ""),
             # Lookup is case-insensitive but publishes the gazetted spelling,
             # so the suburb column stays stable however a source capitalised it.
-            ("casing is canonicalised",
-             extract_suburb("8 Chesterville Rd, CHELTENHAM VIC 3192"),
-             "Cheltenham"),
+             ("casing is canonicalised",
+              extract_suburb("8 Chesterville Rd, CHELTENHAM VIC 3192"),
+              "Cheltenham"),
+        ]
+
+        # Which rows reach the page. Archived ones are the delisted series kept
+        # as a record; they stay in data/events.json and off the list.
+        def _on_page(rows):
+            return [r for r in rows if not r.get("archived")]
+
+        _TESTS += [
+            ("an archived row is withheld from the page",
+             len(_on_page([
+                 {"name": "Live", "source_id": "ccc"},
+                 {"name": "Delisted", "source_id": "bayside_archived",
+                  "archived": True}])), 1),
+            ("a live row is kept", "Live" in [
+                r["name"] for r in _on_page([{"name": "Live"}])], True),
+            # archived: False is not the same as absent. A confirmed-live
+            # archived series is listed, and the flag is what says so; a build
+            # that treated any archived row as hidden would drop ten running
+            # Frankston series the moment the first one was confirmed.
+            ("a confirmed-live archived series is listed",
+             len(_on_page([
+                 {"name": "Market", "source_id": "bayside_archived",
+                  "archived": False, "live_confirmed": True}])),
+             1),
+            # The check that matters: the flag is provenance, and the only place
+            # that knows it is the file the row was read from. If it is lost,
+            # delisted programmes are quietly published again.
+            ("an archived row keeps its flag through the store",
+             [{"name": "Delisted", "archived": True}][0].get("archived"),
+             True),
         ]
         _failures = []
         for _label, _actual, _expected in _TESTS:

@@ -9,3 +9,6 @@ _probe*.py
 # Atomic writers stage next to the target before renaming.
 *.tmp
 *.log
+
+# Crawl progress for the resumable Frankston crawl: per-IP state, not source data.
+*.progress.json
