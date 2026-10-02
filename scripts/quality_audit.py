@@ -229,16 +229,34 @@ for r in money[:6]:
 
 # ------------------------------------------------------------- types
 section("CLASSIFICATION")
-tc = collections.Counter(t for r in rows for t in r["types"])
+# `types` is derived by build_site.py, not by a fetcher, so it exists on every
+# row only once a build has run. A row added by a dedupe after the last build
+# has none, and this section indexed r["types"] directly -- so the audit died
+# with a KeyError on exactly the rows it existed to draw attention to, taking
+# every section after it with it. A report-only tool that crashes is worse than
+# no tool: the run looks like it found nothing.
+classified = [r for r in rows if r.get("types")]
+unclassified = [r for r in rows if not r.get("types")]
+tc = collections.Counter(t for r in classified for t in r["types"])
+base = len(classified) or 1
 for t, c in tc.most_common():
-    print("   %-24s %5d  (%.0f%% of rows)"
-          % (t, c, 100 * c / len(rows)))
-per = collections.Counter(len(r["types"]) for r in rows)
+    print("   %-24s %5d  (%.0f%% of classified rows)"
+          % (t, c, 100 * c / base))
+per = collections.Counter(len(r["types"]) for r in classified)
 print("tags per row: %s" % ", ".join("%d x%d" % (k, v) for k, v in sorted(per.items())))
+if unclassified:
+    print()
+    print("rows not yet classified (%d) -- added since the last build, which is"
+          % len(unclassified))
+    print("when build_site.py writes this field. Re-run build_site.py, or run")
+    print("the pipeline in order; these are not lost, only unlabelled:")
+    for sid, n in collections.Counter(
+            r.get("source_id") for r in unclassified).most_common():
+        print("      %-22s %5d" % (sid, n))
 print()
 print("groups published with no recognised subject tag:")
 for r in rows:
-    if r["source_id"] == "kingston_groups" and r["types"] == ["Community Group"]:
+    if r.get("source_id") == "kingston_groups" and r.get("types") == ["Community Group"]:
         print("      %r" % r["name"][:70])
 
 # ------------------------------------------------------------- flags

@@ -65,8 +65,10 @@ around rather than used:
   "+8 dates"), never a date.
 """
 import json
+import random
 import re
 import time
+from contextlib import contextmanager
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -138,6 +140,91 @@ DEFAULT_CRAWL_DELAY = 0.35
 # requests, well inside what the host tolerates, and the crawl completes over a
 # scheduled run's lifetime instead of inside one.
 DEFAULT_SLICE = 150
+# The slowest this crawl will ever go, whatever the config says. Configurable
+# upward for a host under less pressure, never downward: a `crawl_delay: 0` in
+# sources.yaml is the sort of thing that looks like a fix and is the opposite of
+# one, and the cost of it is measured in hours of block, not in crawl time.
+_MIN_CRAWL_DELAY = 0.35
+# Requests one run may issue, sitemap included, and the backstop the slice size
+# is not. The host tolerated 12 pages once and 31 another time before refusing,
+# so its budget is real but not well characterised; 60 sits above both observed
+# successes and below the 150 slice it caps, which is the point of having it as
+# a separate number -- the slice says how much progress to try for, the budget
+# says how much pressure one run is allowed to put on the host.
+_MAX_REQUESTS_PER_RUN = 60
+
+
+def _pace(seconds):
+    """Wait between requests. A module-level seam so the tests can count it.
+
+    Monkeypatching `time.sleep` instead would be global -- `webfetch_http`
+    imports the same module object -- so a test counting delays would also be
+    counting the retry backoff's, and could not tell the two apart. That
+    distinction is the whole question this throttle exists to answer.
+    """
+    time.sleep(seconds)
+
+
+class _Throttle:
+    """One owner for how fast this crawl is allowed to ask.
+
+    The delay used to be a `time.sleep` at the bottom of the request loop, and
+    that put the rate limit on the wrong branch: five `continue` statements
+    stood between the request and the sleep, so a page that failed, or parsed to
+    nothing, or fell outside the horizon, or had no address, was fetched with no
+    pause at all. Those are not the rare paths. The sitemap runs a year out
+    against a 120-day horizon, so the *majority* of the 856 pages take
+    `beyond_horizon` and skip the sleep -- measured: sixteen requests, zero
+    delays, a crawl at whatever speed the network happened to allow.
+
+    So pacing moves to where it belongs, immediately before each request, and
+    every path through the loop goes through it. Three properties, and the third
+    is the one a sleep alone cannot give:
+
+    * **A floor.** `max(delay, _MIN_CRAWL_DELAY)`, so no config value can turn
+      this into an unbounded crawler. Deliberately not overridable downward.
+    * **A budget.** `MAX_REQUESTS_PER_RUN` covers every request in the run, the
+      ten sitemap fetches included. Backstops the slice size, which is a request
+      for progress rather than a limit on pressure.
+    * **Jitter.** A uniform interval is a machine signature; the host is
+      refusing one. Up to a quarter of the delay is random.
+
+    The budget counts the sitemap because that fetch is repeated at the head of
+    every run -- ten requests, unthrottled and uncounted, times every run of a
+    fifteen-run crawl. Unthrottled, it is a fifth of the crawl's total traffic
+    spent before the first occurrence page.
+    """
+
+    def __init__(self, delay=None, budget=None, pace=None, jitter=None):
+        try:
+            want = float(delay) if delay is not None else DEFAULT_CRAWL_DELAY
+        except (TypeError, ValueError):
+            want = DEFAULT_CRAWL_DELAY
+        self.delay = max(want, _MIN_CRAWL_DELAY)
+        self.budget = int(budget) if budget else _MAX_REQUESTS_PER_RUN
+        self._pace = pace or _pace
+        self._jitter = jitter if jitter is not None else self.delay * 0.25
+        self.spent = 0
+        self._last = None
+
+    def take(self):
+        """Wait out the interval, then spend one request. False when spent.
+
+        The gap is measured from the previous *request*, not from the previous
+        wait, so a slow page -- a big detail page, a connection that took two
+        seconds -- shortens the next gap instead of adding to it. Pausing a
+        fixed interval *after* each request would make the real rate a function
+        of page size, which is the opposite of a rate limit.
+        """
+        if self.spent >= self.budget:
+            return False
+        if self._last is not None:
+            gap = self.delay - (time.monotonic() - self._last)
+            if gap > 0:
+                self._pace(gap + (random.random() * self._jitter))
+        self.spent += 1
+        self._last = time.monotonic()
+        return True
 # Consecutive unreadable pages that mean "blocked", not "some pages are broken".
 BLOCK_STREAK_LIMIT = 5
 # Report progress this often. At the host's rate this is roughly every 20s.
@@ -151,14 +238,28 @@ def _text(node):
     return node.get_text(" ", strip=True) if node else ""
 
 
-def _sitemap_urls(session, cfg):
+def _sitemap_urls(session, cfg, throttle=None):
     """Every occurrence URL, from the sitemap index and its children.
 
     A child that fails to load is a PartialFetch rather than a short list: the
     nine children partition the directory, so eight of nine publishes eight
     ninths of Frankston and nothing would say so.
+
+    This runs at the head of *every* run, so it is ten requests a run against a
+    host that answers a blocked IP with a refusal. They go through the same
+    throttle as the occurrence pages for that reason: a budget that counted only
+    the pages would let the crawl exceed its own limit by ten requests a run,
+    which over fifteen runs is a fifth of its total traffic spent before the
+    first event.
     """
+    def _pause():
+        if throttle is not None and not throttle.take():
+            raise PartialFetch(
+                f"sitemap fetch exhausted the run's request budget "
+                f"({throttle.budget}); no occurrence pages were read")
+
     index_url = cfg["sitemap"]
+    _pause()
     html = get(session, index_url, retries=3)
     if not html:
         raise PartialFetch(f"sitemap index {index_url} failed to load")
@@ -170,6 +271,7 @@ def _sitemap_urls(session, cfg):
             f"changed, and publishing would drop the whole directory")
     urls = []
     for child in children:
+        _pause()
         body = get(session, child, retries=3, min_len=500)
         if not body:
             raise PartialFetch(
@@ -308,15 +410,21 @@ def fetch_everi(cfg, session, detail_cap=None):
     """
     sid = cfg["id"]
     set_reporting_source(sid)
-    urls = _sitemap_urls(session, cfg)
+    throttle = _Throttle(cfg.get("crawl_delay"), cfg.get("max_requests_per_run"))
+    urls = _sitemap_urls(session, cfg, throttle)
     if not urls:
         raise PartialFetch(f"{sid}: the sitemap yielded no occurrence urls")
 
     horizon = date.today() + timedelta(days=int(
         cfg.get("horizon_days") or DEFAULT_HORIZON_DAYS))
-    cap = detail_cap if detail_cap is not None else len(urls)
-    delay = cfg.get("crawl_delay")
-    delay = float(delay) if delay is not None else DEFAULT_CRAWL_DELAY
+    slice_size = cfg.get("slice_size") or DEFAULT_SLICE
+    slice_size = int(detail_cap if detail_cap is not None else slice_size)
+    # The slice is how much progress this run tries for; the budget is how much
+    # pressure it may put on the host. `slice_size` alone was the whole limit,
+    # and it is a config value -- a mis-set 150 is a 150-request run against a
+    # host that refuses one at 31. Capping the slice by what the budget still
+    # allows means neither number has to be trusted on its own.
+    slice_size = max(0, min(slice_size, throttle.budget - throttle.spent))
 
     # Resumable. The host refuses an IP that asks for too much, and the refusal
     # lasts hours -- so a run that tries all 876 pages never finishes, and the
@@ -351,25 +459,36 @@ def fetch_everi(cfg, session, detail_cap=None):
     blocked_streak = 0
     newly_read = []
     for url in todo:
+        # Before the request, on every path. It used to be a sleep at the
+        # bottom of the loop, which the `continue`s below skipped: a page that
+        # failed, parsed to nothing, fell outside the horizon or had no address
+        # was fetched with no pause. Those are the common cases -- most of this
+        # sitemap is past the 120-day horizon -- so the measured rate on those
+        # pages was unbounded, which is a good deal of why the host kept
+        # refusing.
+        if not throttle.take():
+            break
         html = get(session, url, retries=2, min_len=DETAIL_MIN_LEN)
         if not html:
             failed += 1
             blocked_streak += 1
             if blocked_streak >= BLOCK_STREAK_LIMIT:
-                # The pages this run did read are recorded before the raise.
-                # They were paid for, and raising first threw them away: a run
-                # that read 31 pages before being blocked advanced the crawl by
-                # zero, so the next run re-read the same 31 and got blocked at
-                # the same place. On a host that allows ~30 pages per session,
-                # that is the difference between finishing in a few dozen runs
-                # and never finishing.
+                # The pages this run did read are recorded before the raise, and
+                # the pages that read fine and yielded nothing publishable are in
+                # `newly_read` too -- re-fetching those is the 856 requests this
+                # design exists to avoid. Raising before the save discarded every
+                # page the run had managed, so the next run re-read the same 31
+                # and was refused at the same place: on a host allowing ~30 pages
+                # per session that is the difference between finishing in a few
+                # dozen runs and never finishing.
                 done |= set(newly_read)
-                _save_cache(cache_path, cache, done, rows)
+                _save_cache(cache_path, cache, done, _dedupe_rows(rows))
                 report(f"{sid}: {blocked_streak} pages in a row unreadable, "
                        f"stopping at {opened} of {len(urls)}. This host blocks "
                        f"by IP with HTTP 409 and does not unblock quickly. The "
                        f"{len(done)} pages read so far are cached, so the next "
-                       f"run resumes from here rather than re-reading them.",
+                       f"run resumes from here rather than re-reading them. "
+                       f"{throttle.spent} request(s) this run.",
                        level="error")
                 raise PartialFetch(
                     f"{sid}: aborted after {blocked_streak} consecutive "
@@ -434,7 +553,6 @@ def fetch_everi(cfg, session, detail_cap=None):
             rows.append(row)
         if stamped:
             seen_series.add(stamped)
-        time.sleep(delay)
 
     rows = [r for r in rows if r["series_id"]] or rows
     if not rows:
@@ -447,20 +565,74 @@ def fetch_everi(cfg, session, detail_cap=None):
     # before the return rather than after, so a run that dies in the caller
     # still keeps what it spent requests on.
     done |= set(newly_read)
-    _save_cache(cache_path, cache, done, rows)
-    left = len(urls) - len(done)
+    _save_cache(cache_path, cache, done, _dedupe_rows(rows))
+    # Counted from the URLs still absent, not as len(urls) - len(done). The cache
+    # outlives the sitemap, so a page the site has since withdrawn leaves `done`
+    # holding a URL that is no longer in the list, and the subtraction goes
+    # negative -- which then reads as "unread pages remaining" on a crawl that is
+    # in fact finished, and never reaches the "all pages read" report.
+    left = len([u for u in urls if u not in done])
     report(f"{sid}: {len(rows)} rows from {opened} pages this run, "
            f"{len(seen_series)} series, {beyond_horizon} beyond the "
-           f"{horizon.isoformat()} horizon, {failed} unreadable")
+           f"{horizon.isoformat()} horizon, {failed} unreadable; "
+           f"{throttle.spent}/{throttle.budget} requests at "
+           f"~{throttle.delay:.2f}s")
     if left:
-        report(f"{sid}: {left} occurrence page(s) still unread. This is a "
-               f"partial crawl and will be refused downstream, which is "
-               f"intended -- re-run until it reports 0 to publish. The pages "
-               f"already read are cached, so the next run starts here.",
-               level="warn")
-    else:
-        report(f"{sid}: all {len(urls)} occurrence pages read")
+        # An incomplete crawl refuses to publish, whichever limit stopped it.
+        # The block path above already raises, so a run stopped by the budget
+        # while still holding rows has been the one route by which a fraction of
+        # the directory could reach a snapshot -- correct only because
+        # `dedupe.py` separately skips any snapshot whose source has a progress
+        # file. A fetcher's own "do not publish" signal is
+        # `PartialFetch`; leaving the quiet path out of it makes the guard depend
+        # on a second module happening to look in the right place.
+        #
+        # The two reasons are named separately because they need different
+        # responses: the budget is a deliberate limit and the crawl advances on
+        # the next run, whereas the slice simply ended.
+        reason = (f"the run's {throttle.budget}-request budget"
+                  if throttle.spent >= throttle.budget
+                  else f"a slice of {slice_size}")
+        raise PartialFetch(
+            f"{sid}: incomplete crawl -- {left} of {len(urls)} occurrence "
+            f"pages unread, stopped by {reason}. Refusing to publish a "
+            f"partial directory; the {len(done)} pages read are cached, so "
+            f"re-run to continue from there.")
+    report(f"{sid}: all {len(urls)} occurrence pages read")
     return rows
+
+
+def _occurrence_key(row):
+    """Identity of one published occurrence: which series, which session.
+
+    Not the URL. Every page of a series lists its siblings in `#otherDates`, so
+    one occurrence is emitted by its own page *and* by each of its siblings' --
+    a session on 2026-10-13 was being written seven times, once per sibling,
+    and the cache ran to 75% duplicate rows before this. That is not merely
+    untidy: the completed snapshot would carry four rows for every occurrence,
+    and every downstream dedupe pass would hash four times what it needed to.
+
+    The time is part of the key rather than being ignored, because a sibling
+    listed without one is a different row: it is the midnight restatement of a
+    timed session, and `drop_untimed_twins()` in dedupe.py is what decides that,
+    not a guess made here.
+    """
+    return (row.get("series_id") or " ".join(
+                (row.get("name") or "").lower().split()),
+            (row.get("datetime_iso") or "")[:16],
+            (row.get("location") or "").strip().lower())
+
+
+def _dedupe_rows(rows):
+    """Keep the first row for each occurrence, in order."""
+    seen, out = set(), []
+    for r in rows:
+        k = _occurrence_key(r)
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(r)
+    return out
 
 
 def _cache_path(cfg):
@@ -524,7 +696,7 @@ def _pad(body, size=DETAIL_MIN_LEN + 500):
 
 
 def _crawl_with_fakes(fail_streak_at, total=12, slice_size=None,
-                      cache_file=None, count_requests=True):
+                      cache_file=None, count_requests=True, cfg_overrides=None):
     """Run fetch_everi against a fake session, so the failure paths are testable.
 
     `fail_streak_at` is the page index from which every fetch fails, or None for
@@ -566,6 +738,14 @@ def _crawl_with_fakes(fail_streak_at, total=12, slice_size=None,
             self.detail_reads += 1
             if fail_streak_at is not None and i >= fail_streak_at:
                 return _R("blocked")
+            # The event's identity comes from its URL, not from how many
+            # requests this session has made. Counting per session meant the
+            # same page carried a different title on every run, which is not how
+            # the site behaves -- and it hid the fact that the cache was storing
+            # the same occurrence several times over, because two runs' "Event 0"
+            # rows were indistinguishable and two runs' "Event 0"/"Event 2" were
+            # not.
+            idx = int(url.rstrip("/").rsplit("/", 1)[-1])
             # The markup mirrors the real page, selectors included: a fake built
             # to the class names the test happened to use would exercise
             # nothing the fetcher actually looks for.
@@ -581,8 +761,8 @@ def _crawl_with_fakes(fail_streak_at, total=12, slice_size=None,
                 "<span>1 Example St, Frankston VIC 3199</span></li></ul>"
                 "<script type='application/ld+json'>%s</script>"
                 "</div></body></html>"
-                % (i, json.dumps({
-                    "name": "Event %d" % i,
+                % (idx, json.dumps({
+                    "name": "Event %d" % idx,
                     "startDate": "2027-01-05T10:00:00",
                     "description": "d",
                 }))))
@@ -591,6 +771,8 @@ def _crawl_with_fakes(fail_streak_at, total=12, slice_size=None,
            "horizon_days": 400, "crawl_delay": 0}
     if slice_size is not None:
         cfg["slice_size"] = slice_size
+    if cfg_overrides:
+        cfg.update(cfg_overrides)
     if cache_file is not None:
         cfg["cache_file"] = str(cache_file)
     else:
@@ -613,6 +795,33 @@ def _crawl_with_fakes(fail_streak_at, total=12, slice_size=None,
     if count_requests:
         return rows, raised
     return rows, getattr(sess, "detail_reads", 0)
+
+
+@contextmanager
+def _recorded_pace():
+    """Record the throttle's waits instead of serving them.
+
+    The throttle has a floor on the delay precisely so no config can switch the
+    rate limit off, which means the fake crawls below -- `crawl_delay: 0` -- now
+    pause for real and the suite would spend a minute asleep. Patching `_pace`
+    keeps the timing logic under test (how many waits, on which requests) while
+    making the waiting free, which is the only way "is every request paced" can
+    be written as a test at all.
+
+    Patched through `globals()`, not by importing the module by name: checks.py
+    runs this file as `__main__`, so `import webfetch_everi` builds a *second*
+    copy and sets `_pace` on that one, leaving the copy actually running
+    untouched. The count came back 0 in the suite and 14 standalone, which is
+    what that looks like.
+    """
+    waits = []
+    g = globals()
+    real = g["_pace"]
+    g["_pace"] = waits.append
+    try:
+        yield waits
+    finally:
+        g["_pace"] = real
 
 
 def _sliced_crawl(runs=3, per_run=2, total=6, fail_at=None):
@@ -756,8 +965,11 @@ def _self_test():
     check("the cache records every page read",
           len(_load_cache(cache_file)["done"]), 6)
     rows, cache_file = _sliced_crawl(runs=1, per_run=2, total=6)
-    check("one run reads only its slice", len(rows or []), 2)
-    check("and the cache records only that slice",
+    # A run that reads one slice of six publishes nothing, for the same reason a
+    # blocked one does: a fraction of a directory is indistinguishable from the
+    # whole thing once it is in a snapshot.
+    check("one run reading only its slice publishes nothing", rows, [])
+    check("and the cache still records that slice",
           len(_load_cache(cache_file)["done"]), 2)
 
     # A blocked run must still keep what it read. Raising before the save threw
@@ -801,35 +1013,143 @@ def _self_test():
     check("a corrupt cache is a fresh crawl, not a failure",
           _write_corrupt_cache(), [])
 
+    # Every page of a series lists its siblings, so one occurrence arrives once
+    # from its own page and once from each sibling. Measured on the real crawl:
+    # 43 pages cached 170 rows for 43 distinct occurrences -- 75% of the cache
+    # was copies, and a finished crawl would have written a snapshot with four
+    # rows for every session.
+    check("the same occurrence from two pages is stored once",
+          len(_dedupe_rows([
+              {"series_id": "s1", "datetime_iso": "2026-10-13T09:00:00",
+               "location": "Hall", "name": "A"},
+              {"series_id": "s1", "datetime_iso": "2026-10-13T09:00:00",
+               "location": "Hall", "name": "A"},
+          ])), 1)
+    check("different sessions of one series are both kept",
+          len(_dedupe_rows([
+              {"series_id": "s1", "datetime_iso": "2026-10-13T09:00:00",
+               "location": "Hall", "name": "A"},
+              {"series_id": "s1", "datetime_iso": "2026-10-20T09:00:00",
+               "location": "Hall", "name": "A"},
+          ])), 2)
+    check("a sibling listed with no time stays a separate row",
+          len(_dedupe_rows([
+              {"series_id": "s1", "datetime_iso": "2026-10-13T09:00:00",
+               "location": "Hall", "name": "A"},
+              {"series_id": "s1", "datetime_iso": "2026-10-13T00:00:00",
+               "location": "Hall", "name": "A"},
+          ])), 2)
+    check("a series with no GUID still collapses on name and session",
+          len(_dedupe_rows([
+              {"series_id": None, "datetime_iso": "2026-10-13T09:00:00",
+               "location": "Hall", "name": "A"},
+              {"series_id": None, "datetime_iso": "2026-10-13T09:00:00",
+               "location": "hall", "name": "  a  "},
+          ])), 1)
+
+    # --- the rate limit -----------------------------------------------------
+    # The delay was a sleep at the bottom of the request loop, and five
+    # `continue` statements stood between the request and the sleep. Every one
+    # of them is a *page that was fetched*: a failure, a page that parsed to
+    # nothing, a page outside the horizon, a page with no address. Those are the
+    # common cases, not the rare ones -- most of this sitemap is past the
+    # 120-day horizon -- so the crawl ran unbounded on exactly the pages that
+    # dominate it, which is a fair part of why the host kept refusing.
+    with _recorded_pace() as waits:
+        _rows, _raised = _crawl_with_fakes(fail_streak_at=None, total=12)
+        paced = len(waits)
+        requests = 12 + 3   # 12 occurrence pages + sitemap index + 2 children
+    # Exactly one fewer wait than requests: the first request of a run has no
+    # previous request to space itself from, so every *subsequent* one is paced.
+    check("every request after the first is paced, sitemap included",
+          paced, requests - 1)
+    # Each wait can be slightly under the delay, because the gap is measured
+    # from the previous *request* and time already spent on that page comes off
+    # the top. What must hold is that every paced request really waited.
+    check("and every one of those waits was a real pause",
+          all(w > 0 for w in waits), True)
+
+    # The specific regression: pages that take a `continue` were unpaced.
+    with _recorded_pace() as waits:
+        _crawl_with_fakes(fail_streak_at=None, total=8,
+                          cfg_overrides={"horizon_days": 1})
+        beyond = len(waits)
+    check("pages outside the horizon are paced too, not skipped",
+          beyond, 8 + 3 - 1)
+
+    # The floor is the point: a config value of 0 must not switch the rate limit
+    # off, which is what a `crawl_delay: 0` line in sources.yaml would otherwise
+    # do -- it reads like a fix and is the opposite of one.
+    check("a crawl_delay of 0 still yields the floor",
+          _Throttle(0).delay, _MIN_CRAWL_DELAY)
+    check("a tiny crawl_delay is raised to the floor",
+          _Throttle(0.01).delay, _MIN_CRAWL_DELAY)
+    check("a generous crawl_delay is respected",
+          _Throttle(2.5).delay, 2.5)
+    check("a nonsense crawl_delay falls back to the default",
+          _Throttle("soon").delay, DEFAULT_CRAWL_DELAY)
+
+    # The budget bounds pressure independently of the slice, which is a request
+    # for progress rather than a limit on what one run may ask of the host.
+    check("the budget counts the sitemap too",
+          _Throttle(0.35, budget=4).budget, 4)
+    with _recorded_pace() as waits:
+        _rows, raised = _crawl_with_fakes(
+            fail_streak_at=None, total=40, slice_size=40,
+            cfg_overrides={"max_requests_per_run": 8})
+        spent = len(waits) + 1   # first request has no gap to wait out
+    check("a run stops at its budget rather than at its slice",
+          spent, 8)
+    check("and says the budget is what stopped it",
+          "budget" in (raised or ""), True)
+
+    # The slice cannot ask for more than the budget allows, so a mis-set 150 is
+    # not a 150-request run against a host that refuses one at 31.
+    check("the slice is capped by the budget",
+          min(150, _Throttle(0.35, budget=20).budget - 10), 10)
+
     if failures:
         print(f"\nwebfetch_everi: {len(failures)} case(s) FAILED")
         sys.exit(1)
     print("\nall Everi-reader cases as expected")
 
 
-if __name__ == "__main__":
-    import sys
+def _main(argv):
+    """`python scripts/webfetch_everi.py --slice N` -- one bounded crawl run.
 
-    if len(sys.argv) > 1 and sys.argv[1] not in ("--test",):
-        # `python scripts/webfetch_everi.py --slice 40` runs one slice for real,
-        # against the live host. It exists because activation needs repeated
-        # runs to complete the crawl, and the alternative -- hand-editing the
-        # commented config entry and calling fetch_sources.py -- is how a slice
-        # size or a cache path ends up wrong in the committed config.
-        n = sys.argv[sys.argv.index("--slice") + 1] \
-            if "--slice" in sys.argv else None
-        import json as _json
+    Exists because activation needs repeated runs to complete the crawl, and the
+    alternative -- hand-editing the commented config entry and calling
+    fetch_sources.py -- is how a slice size or a cache path ends up wrong in the
+    committed config.
+    """
+    n = argv[argv.index("--slice") + 1] if "--slice" in argv else None
+    cfg = json.loads(
+        (Path(__file__).resolve().parent / "frankston_live.slice.json")
+        .read_text(encoding="utf-8"))
+    if n:
+        cfg["slice_size"] = int(n)
+    # An impersonating session, since the host answers plain urllib with 409
+    # before it ever looks at the path.
+    from webfetch_http import make_session
 
-        cfg = _json.loads(
-            (Path(__file__).resolve().parent / "frankston_live.slice.json")
-            .read_text(encoding="utf-8"))
-        if n:
-            cfg["slice_size"] = int(n)
-        # An impersonating session, since the host answers plain urllib with
-        # 409 before it ever looks at the path.
-        from webfetch_http import make_session
-
+    # An incomplete crawl raises PartialFetch, which is the fetcher's "do not
+    # publish" signal. For the operator driving this loop by hand that is not an
+    # error -- it means "the crawl advanced, run it again" -- so it is reported
+    # and exits 0. Letting it reach the traceback would print a stack for the
+    # expected outcome of every run but the last.
+    try:
         rows = fetch_everi(cfg, make_session())
-        print(f"\n{len(rows)} rows")
+    except PartialFetch as e:
+        print(f"\nnot finished: {e}")
+        return
+    print(f"\n{len(rows)} rows -- crawl complete, this can now be "
+          f"enabled in sources.yaml")
+
+
+if __name__ == "__main__":
+    import sys as _sys
+
+    if len(_sys.argv) > 1 and _sys.argv[1] != "--test":
+        _main(_sys.argv)
     else:
         _self_test()

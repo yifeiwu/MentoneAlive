@@ -857,6 +857,21 @@ differs from the dateless fixture row it came from, and matching on the stamped
 id alone finds nothing and silently withholds the entire file. Both keys are
 tried.
 
+None of that reaches the reader. The badge said "Bayside (archived)" and
+"Frankston (archived)", which tells someone about how this project obtained a
+listing rather than about the event, and offers a third state that does not
+exist for them: an event on this page is running, and one that is not running
+is not on this page. So the two Frankston and Bayside sources that arrive by
+different internal routes read as the one publisher they are -- "Bayside",
+"Frankston" -- and `archived` stays a fact about a row's origin, settled before
+publication.
+
+That is now asserted on the built artefact rather than left to review: a build
+that renders the word "(archived)", "(delisted)" or "(archive)" as text fails.
+The check is on `index.html` and not on the source because the source ids
+`bayside_archived` and `frankston_archived` legitimately remain in the payload's
+`source_id` and in the CSS class names -- only prose is the leak.
+
 ### D45. A crawl that cannot finish in one run must resume - **Hold**
 
 `whatsonfrankston.com` refuses an IP that asks for too much, answering every
@@ -890,6 +905,42 @@ because the guard was in a different module.
 `frankston_live` stays commented out until the crawl completes. Enabling it
 before then turns every scheduled run red by design (D3), which is not a
 signal anyone reads.
+
+And the pause was on the wrong side of the request.
+
+The delay lived at the bottom of the loop, as the last statement of a page that
+parsed. Five `continue`s stood between the request and the sleep, and every one
+of them is a page that was *fetched*: a failure, a page that parsed to nothing,
+a page outside the horizon, a page with no address. Those are not the rare
+paths -- the sitemap runs a year out against a 120-day horizon, so the majority
+of its 856 pages take the horizon `continue` -- and measured on a run of pages
+all outside the horizon, sixteen requests produced **zero** pauses. The crawl
+was rate-limited precisely nowhere it spent its requests, which is a fair part
+of why the host kept refusing it.
+
+So pacing moved to `_Throttle`, immediately before each request, on every path,
+and gained three properties a bare `sleep` cannot express:
+
+* **A floor.** `max(configured, 0.35s)`, so no `crawl_delay` in a config can
+  turn the rate limit off. Configurable upward, never down: a `crawl_delay: 0`
+  line reads like a fix and is the opposite of one.
+* **A budget** of 60 requests per run, sitemap fetches included. Those ten
+  repeat at the head of every run, so uncounted they are a fifth of the crawl's
+  total traffic spent before the first event.
+* **A gap measured from the previous request**, not a fixed wait after each
+  one. Sleeping a constant interval *after* a page makes the real rate a
+  function of page size, which is the opposite of a rate limit.
+
+The slice is now a request for progress and the budget is the limit on
+pressure, and the fetcher caps one with the other -- so a mis-set `slice_size`
+is no longer a 150-request run against a host that refuses one at 31.
+
+Making the budget stop *publish* also closed a hole the block path had already
+closed: a run that ran out of budget while holding rows used to return them,
+correct only because `dedupe.py` separately skips any snapshot whose source has
+a progress file. Both incomplete-crawl routes now raise `PartialFetch`, and the
+hand-driven `--slice` loop reports that as progress rather than a traceback,
+since it is the expected outcome of every run but the last.
 
 
 

@@ -23529,33 +23529,6 @@
    ]
   },
   {
-   "name": "Penguins of Madagascar (G)",
-   "datetime_text": "Friday 2 October, 6:00pm",
-   "datetime_iso": "2026-10-02T18:00:00",
-   "location": "Springvale Community Hub",
-   "address": "Springvale Community Hub, 5 Hillcrest Grove, Springvale",
-   "suburb": "Springvale",
-   "price_text": "",
-   "description": "02 Oct Penguins of Madagascar (G) Friday 2 October, 6:00pm Greater Dandenong Events",
-   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/penguins-madagascar-g",
-   "source_id": "greater_dandenong",
-   "price_sort": null,
-   "sources": [
-    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/penguins-madagascar-g"
-   ],
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false,
-   "types": [
-    "Movies & Cinema"
-   ]
-  },
-  {
    "name": "Shaun the Sheep: Farmageddon (PG)",
    "datetime_text": "Saturday 3 October, 6:00pm",
    "datetime_iso": "2026-10-03T18:00:00",
@@ -27817,10 +27790,11 @@
    "address": "54-70 Thompson Rd, Patterson Lakes 3197",
    "price_text": "",
    "description": "Sewing group",
-   "source": "https://www.kingston.vic.gov.au",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/sewing-group-patterson-lakes",
    "source_id": "kingston_hubs",
    "price_sort": null,
    "sources": [
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/sewing-group-patterson-lakes",
     "https://www.kingston.vic.gov.au"
    ],
    "types": [
@@ -64843,23 +64817,609 @@
    "hidden_by_default": false
   },
   {
-   "name": "Chinese Senior Citizens Club of Kingston",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 10:00 AM \r\n\tto 03:00 PM",
-   "datetime_iso": "2026-10-02T10:00:00",
-   "location": "Clarinda Community Centre, 58B Viney Street, Clarinda 3169",
-   "address": "58B Viney Street, Clarinda 3169",
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-10-06T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
    "price_text": "",
-   "description": "The Chinese Senior Citizens Club provides social and recreational activities for the Chinese community living in Clarinda and surrounding areas.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/chinese-senior-citizen-club-of-kingston",
-   "source_id": "kingston_council",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
    "price_sort": null,
    "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/chinese-senior-citizen-club-of-kingston"
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
    ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
    "types": [
     "Other"
    ],
-   "suburb": "Clarinda",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-10-13T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-10-20T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-10-27T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-11-03T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-11-10T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-11-17T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-11-24T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-01T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-08T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-15T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Business Plan Accelerator Workshop",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-22T09:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "20 Oct Business Plan Accelerator Workshop Tuesday 20 October, 9:00am Business Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/business-plan-accelerator-workshop-7"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "edc8994cad78",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Kingston Sounds' by Susannah Langley",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-02T18:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "979 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
+   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
+   ],
+   "types": [
+    "Art & Craft",
+    "Market & Exhibition",
+    "Technology"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Refugia' by Kerri Wilson McConchie",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+   "datetime_iso": "2026-10-02T18:00:00",
+   "location": "Kingston City Hall",
+   "address": "979-985 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
+   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
+   ],
+   "types": [
+    "Art & Craft",
+    "Games & Cards",
+    "Nature & Environment"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Hand me down' by Andrew Duong",
+   "datetime_text": "Next date: Saturday, 03 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+   "datetime_iso": "2026-10-03T11:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "979 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "Exhibiting a series of paintings exploring inherited items and their cultural significance through an Australian-Cambodian-Chinese lens. Paintings reference stories of second-generation migrants and people born in the 90's, through a playful tone that speaks to values of sharing, appreciation and family.",
+   "source": "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/hand-me-down-by-andrew-duong"
+   ],
+   "types": [
+    "Art & Craft",
+    "Books & Reading",
+    "Social & Community"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Rendered Other and Cast Out' by Elizabeth Cole",
+   "datetime_text": "Next date: Saturday, 03 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+   "datetime_iso": "2026-10-03T11:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "979 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "A multi-disciplinary exhibition that reworks Antarctic and personal archival materials to warn of our uncertain future due to human-caused global warming. The five-part installation references the historic age of polar exploration, colonial-era whaling and the possible post-human consequences of inaction.",
+   "source": "https://www.kingstonarts.com.au/whats-on/rendered-other-and-cast-out",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/rendered-other-and-cast-out"
+   ],
+   "types": [
+    "Info Session",
+    "Market & Exhibition"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Stitch with Sappho: Community Textile Installation by Juliet D Collins",
+   "datetime_text": "Next date: Saturday, 03 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
+   "datetime_iso": "2026-10-03T11:00:00",
+   "location": "Shirley Burke Theatre",
+   "address": "64 Parkers Road, Parkdale 3195",
+   "price_text": "",
+   "description": "A collaborative textile and mixed media installation created with community participants; weaving together stitched fragments to reimagine Ancient Greek poet Sappho’s legacy and enduring presence through collective making.",
+   "source": "https://www.kingstonarts.com.au/whats-on/stitch-with-sappho-by-juliet-d-collins",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/stitch-with-sappho-by-juliet-d-collins"
+   ],
+   "types": [
+    "Art & Craft"
+   ],
+   "suburb": "Parkdale",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "School holidays at Waves",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 06:00 PM \r\n\t - Friday, 2 October 2026",
+   "datetime_iso": "2026-10-02T18:00:00",
+   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
+   "address": "111 Chesterville Road, Highett 3190",
+   "price_text": "",
+   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
+   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
+   ],
+   "types": [
+    "Children & Families",
+    "Social & Community"
+   ],
+   "suburb": "Highett",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mental Health Month",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-02T18:00:00",
+   "location": "70 Thompson Road",
+   "address": "54-70 Thompson Road, Patterson Lakes 3197",
+   "price_text": "",
+   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
+   ],
+   "types": [
+    "Health & Wellbeing"
+   ],
+   "suburb": "Patterson Lakes",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Ballroom Dancing With Janette",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto 10:00 PM",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "Chelsea Heights Community Centre, 160 Thames Promenade, Chelsea Heights 3196",
+   "address": "160 Thames Promenade, Chelsea Heights 3196",
+   "price_text": "",
+   "description": "Everyone is welcome! No partner required",
+   "source": "https://www.kingston.vic.gov.au/community/events/community-events/Ballroom-Dancing-With-Janette",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/community-events/Ballroom-Dancing-With-Janette"
+   ],
+   "types": [
+    "Dance"
+   ],
+   "suburb": "Chelsea Heights",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Kingston Farmers' Market",
+   "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 AM \r\n\tto 12:30 PM",
+   "datetime_iso": "2026-10-03T08:00:00",
+   "location": "Kingston Heath Reserve, 285 Centre Dandenong Road, Cheltenham 3192",
+   "address": "285 Centre Dandenong Road, Cheltenham 3192",
+   "price_text": "",
+   "description": "Stock up on fresh produce and farm-origin food from our local producers. Every month except Jan at Kingston Heath Reserve in Cheltenham.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/farmers-market",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/farmers-market"
+   ],
+   "types": [
+    "Food & Drink",
+    "Market & Exhibition",
+    "Nature & Environment"
+   ],
+   "suburb": "Cheltenham",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -65374,6 +65934,119 @@
     "Info Session"
    ],
    "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Kingston Sounds' by Susannah Langley",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "979 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
+   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
+   ],
+   "types": [
+    "Art & Craft",
+    "Market & Exhibition",
+    "Technology"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Refugia' by Kerri Wilson McConchie",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "Kingston City Hall",
+   "address": "979-985 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
+   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
+   ],
+   "types": [
+    "Art & Craft",
+    "Games & Cards",
+    "Nature & Environment"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "School holidays at Waves",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\t - Friday, 2 October 2026",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
+   "address": "111 Chesterville Road, Highett 3190",
+   "price_text": "",
+   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
+   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
+   ],
+   "types": [
+    "Children & Families",
+    "Social & Community"
+   ],
+   "suburb": "Highett",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mental Health Month",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "70 Thompson Road",
+   "address": "54-70 Thompson Road, Patterson Lakes 3197",
+   "price_text": "",
+   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
+   ],
+   "types": [
+    "Health & Wellbeing"
+   ],
+   "suburb": "Patterson Lakes",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",

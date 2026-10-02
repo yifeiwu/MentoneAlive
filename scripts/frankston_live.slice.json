@@ -5,8 +5,9 @@
   "url": "https://whatsonfrankston.com/",
   "sitemap": "https://whatsonfrankston.com/sitemap.xml",
   "horizon_days": 120,
-  "slice_size": 150,
+  "slice_size": 45,
   "crawl_delay": 0.35,
+  "max_requests_per_run": 60,
   "snapshot": "frankston_auto.json",
   "cache_file": "scripts/webfetch_snapshots/frankston_auto.progress.json"
 }

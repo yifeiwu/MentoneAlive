@@ -199,6 +199,7 @@ td{overflow-wrap:break-word}
    that a rounding of the palette undoes it. Darkened to 6.4:1. */
 .recur{color:#6b5215;background:#fdf6e0;border:1px solid #f0e2b6;border-radius:3px;display:inline-block;margin-top:3px;padding:1px 5px;font-size:.8125rem;font-style:italic}
 .addr{color:#666;font-size:.8125rem;margin-top:2px}
+.whendate,.whentime{display:block}
 .daydivider{background:var(--primary);color:#fff;font-weight:bold;text-align:center;padding:6px;font-size:.8125rem}
 footer{padding:12px 20px;font-size:.8125rem;color:#555;border-top:1px solid var(--border)}
 .noscript{margin:12px 20px;padding:12px 14px;border:1px solid var(--border);border-left:4px solid var(--primary);background:var(--light)}
@@ -442,12 +443,12 @@ function updateURL(){
 }
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 // `timeOnly` is passed when the rows are grouped under day headers, which is
-// the default sort. The header directly above each group already states the
-// full date ("Wednesday, 30 September 2026"), so repeating "Wed 30 Sep 2026"
-// in all fifty rows beneath it is the same fact twice on every line -- and it
-// is why the Date & time column needed 13% of the table. Under grouping the
-// cell shows the time, with the date kept in the accessibility tree so a
-// screen reader reading the table cell by cell still hears it.
+// the default sort. The cell still states its own day and date, above the time:
+// a reader scans for a date far more often than they notice a divider, and rows
+// get copied out of this table one at a time -- in a note, a text message, a
+// calendar entry -- where the divider is not. The date line and the time line
+// are separate blocks so neither is truncated; "Wed 30 Sep 2026" is the widest
+// they get and fits the column on one line.
 function fmtDate(iso,timeOnly){
  if(!iso)return "";
  var d=new Date(iso);
@@ -455,13 +456,12 @@ function fmtDate(iso,timeOnly){
  var days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
  var day=days[d.getDay()]+" "+d.getDate()+" "+mon[d.getMonth()]+" "+d.getFullYear();
  // Midnight is the pipeline's marker for "date known, time not stated", not a
- // real 00:00 start. Printing it would invent a start time the source never gave.
-  // Every inferred row that lands on 00:00 was checked: none of them state a
-  // time in their own text, so "all day" is what the source actually says.
+  // real 00:00 start. Printing it would invent a start time the source never gave.
+   // Every inferred row that lands on 00:00 was checked: none of them state a
+   // time in their own text, so "all day" is what the source actually says.
  var allDay=d.getHours()===0&&d.getMinutes()===0;
- var full=esc(day)+(allDay?", all day":"");
- if(timeOnly) return "<span class='visually-hidden'>"+full+"</span>"+(allDay?"all day":fmtTime(d));
- return full+(allDay?"":", "+fmtTime(d));}
+ if(timeOnly) return "<span class='whendate'>"+esc(day)+"</span><span class='whentime'>"+(allDay?"all day":fmtTime(d))+"</span>";
+ return esc(day)+(allDay?", all day":", "+fmtTime(d));}
 function fmtTime(d){
  var h=d.getHours(),ap=h>=12?"PM":"AM";h=h%12;if(h===0)h=12;
  return h+":"+("0"+d.getMinutes()).slice(-2)+" "+ap;}
@@ -476,7 +476,16 @@ function typeStr(r){return getTypes(r).join(", ");}
 // `[,]<label>:` scan finds each name here. The keys are valid identifiers, so
 // dropping the quotes is free; keeping one map is what stops a new source from
 // needing a second list that can drift out of sync with this one.
-function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",kingston_groups:"Kingston Groups",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside (archived)",frankston_archived:"Frankston (archived)",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",frankston_libraries:"Frankston Libraries"};
+//
+// The badge names the *publisher*, and nothing else. It used to say "Bayside
+// (archived)" and "Frankston (archived)", which told a reader about how this
+// project obtained the listing rather than about the event -- and offered a
+// third state that does not exist for them. An event on this page is running;
+// one that is not running is not on this page (D44). "Archived" is a fact
+// about a row's origin, which is settled before publication and has no meaning
+// once it is shown. So the two Frankston/Bayside sources that reach the page by
+// different internal routes now read as the one publisher they are.
+function badge(src){var m={kingston_hubs:"Kingston Hubs",kingston_council:"Kingston Council",kingston_arts:"Kingston Arts",kingston_groups:"Kingston Groups",greater_dandenong:"Greater Dandenong",gd_libraries:"GD Libraries",bayside_live:"Bayside",bayside_archived:"Bayside",frankston_archived:"Frankston",chatty_cafe:"Chatty Cafe",ccc:"Cheltenham CC",kingston_seniors:"Kingston Seniors",frankston_libraries:"Frankston Libraries"};
 return '<span class="badge badge-'+(src||"unknown")+'">'+esc(m[src]||src||"unknown")+'</span>'}
 function commercialBadge(r){var h='';if(r.is_commercial)h+='<span class="badge badge-commercial">COMMERCIAL</span>';if(r.is_service)h+='<span class="badge badge-service">DROP-IN SERVICE</span>';if(r.status)h+='<span class="badge badge-status">'+esc(r.status_label||r.status.toUpperCase())+'</span>';return h;}
 // A large share of published rows are date_inferred: recurrence.py derived

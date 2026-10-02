@@ -2,6 +2,7 @@
 import html
 import json
 import re
+import sys
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -211,6 +212,26 @@ def main():
 
     with open(ROOT / "index.html", "w", encoding="utf-8") as f:
         f.write(html_out)
+
+    # A row's provenance must not reach the reader. `archived` is how this
+    # project obtained a listing, and it was being printed as a badge suffix --
+    # "Bayside (archived)", "Frankston (archived)" -- which offered a third
+    # state that does not exist for anyone reading the page. An event shown here
+    # is running; one that is not running is not shown (D44). So the badge names
+    # the publisher and nothing more.
+    #
+    # Asserted on the built artefact rather than on the template source, because
+    # that is the only string a reader can actually see: the source ids
+    # `bayside_archived` and `frankston_archived` are still in the payload's
+    # `source_id` and in the CSS class names, and a check on the source would
+    # have to know the difference between those and prose. What must never
+    # appear is the provenance rendered as text.
+    leaked = [t for t in ("(archived)", "(delisted)", "(archive)")
+              if t in html_out]
+    if leaked:
+        print("FAIL: internal provenance reached the page as text: "
+              f"{', '.join(leaked)}. The badge names the publisher only.")
+        sys.exit(1)
 
     print(f"Wrote index.html ({len(html_out)} bytes)")
 

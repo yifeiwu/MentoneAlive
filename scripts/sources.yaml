@@ -99,11 +99,23 @@ webfetch:
 #   # rather than by a cap, so the fetcher reports what it chose not to
   #   # publish instead of silently publishing a fraction.
   #   horizon_days: 120
-  #   # Pages read per run. 876 at the tolerated rate is the run that gets
-  #   # blocked; 150 is ~70s of requests, well inside the budget, and the crawl
-  #   # completes over several scheduled runs instead of inside one.
-  #   slice_size: 150
+  #   # Pages read per run. This asks for progress; `max_requests_per_run` below
+  #   # is what actually limits pressure, and the fetcher caps the slice by it,
+  #   # so neither number has to be trusted on its own. 856 pages at the
+  #   # tolerated rate is the run that gets an IP blocked, and the block outlives
+  #   # the run, so the crawl completes over several scheduled runs instead of
+  #   # inside one -- about 19 of them at these numbers.
+  #   slice_size: 45
+  #   # Seconds between requests. Applied before *every* request, on every code
+  #   # path, sitemap fetches included; it used to be a sleep after the last
+  #   # statement of a successful page, so every page that took an early
+  #   # `continue` -- which is most of them, the sitemap running a year out
+  #   # against a 120-day horizon -- was fetched with no pause at all.
   #   crawl_delay: 0.35
+  #   # Hard cap on requests in one run. The host tolerated 12 pages once and 31
+  #   # another time before refusing, so its budget is real but not well
+  #   # characterised; 60 sits above both and below the slice it caps.
+  #   max_requests_per_run: 60
   #   snapshot: "frankston_auto.json"
   #   # Crawl progress: which pages are read, and the rows they yielded.
   #   # Deliberately not committed -- it is per-IP state, and a stale one from
