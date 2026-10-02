@@ -169,6 +169,14 @@ Full rules in [D3](docs/decisions.md). In short:
 7. **Untimed twins** (`drop_untimed_twins`): a listing stating only "Wednesday"
    yields an occurrence at 00:00. When a timed occurrence of the same programme
    exists, the midnight row restates that session rather than adding an event.
+8. **A listing re-dated by a later fetch** (`drop_superseded_range_rows`): a
+   listing that runs for weeks states its *next* occurrence, which advances
+   while the run's closing date does not — so every fetch returns it at a new
+   start time and the store keeps a copy per run. Rows of one listing that
+   share a closing date, and that the sources no longer state as a slot, are
+   collapsed onto the current one. The closing date is what identifies a run;
+   a materialised series states its own date and no span, so the 58 stored
+   `Mahjong` occurrences are untouched. See [D46](docs/decisions.md).
 
 Two orderings that are load-bearing:
 
@@ -177,6 +185,9 @@ Two orderings that are load-bearing:
   and would fuse into one event.
 - Step 6 runs **after** inference, because the duplicated rows it exists to
   merge are the `date_inferred` ones.
+- Step 8 runs **before** `reconcile_store()`, which cannot make this call:
+  its series test keeps any row whose `(source, name, venue)` is still
+  published, and these rows are that one listing at eight different times.
 
 `reconcile_store()` then drops any row that **none of its own recorded sources**
 still justify — see [D6](docs/decisions.md) for the two boundaries that keep it

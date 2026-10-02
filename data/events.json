@@ -40950,64 +40950,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-09-30T21:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "Kingston Arts Centre",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-09-30T21:00:00",
-   "location": "Kingston City Hall",
-   "address": "Kingston City Hall",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "'Hand me down' by Andrew Duong",
    "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
    "datetime_iso": "2026-10-01T11:00:00",
@@ -41082,34 +41024,6 @@
     "Art & Craft"
    ],
    "suburb": "Parkdale",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "School holidays at Waves",
-   "datetime_text": "Next date: Wednesday, 30 September 2026 | 09:00 PM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-09-30T21:00:00",
-   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
-   "address": "111 Chesterville Road, Highett 3190",
-   "price_text": "",
-   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
-   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
-   "suburb": "Highett",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -42556,119 +42470,6 @@
     "Nature & Environment"
    ],
    "suburb": "Beaumaris",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-01T11:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "979 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-10-01T11:00:00",
-   "location": "Kingston City Hall",
-   "address": "979-985 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "School holidays at Waves",
-   "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-10-01T11:00:00",
-   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
-   "address": "111 Chesterville Road, Highett 3190",
-   "price_text": "",
-   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
-   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
-   "suburb": "Highett",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mental Health Month",
-   "datetime_text": "Next date: Thursday, 01 October 2026 | 11:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-01T11:00:00",
-   "location": "70 Thompson Road",
-   "address": "54-70 Thompson Road, Patterson Lakes 3197",
-   "price_text": "",
-   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
-   ],
-   "types": [
-    "Health & Wellbeing"
-   ],
-   "suburb": "Patterson Lakes",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -56910,119 +56711,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-01T12:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "979 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-10-01T12:00:00",
-   "location": "Kingston City Hall",
-   "address": "979-985 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "School holidays at Waves",
-   "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-10-01T12:00:00",
-   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
-   "address": "111 Chesterville Road, Highett 3190",
-   "price_text": "",
-   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
-   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
-   "suburb": "Highett",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mental Health Month",
-   "datetime_text": "Next date: Thursday, 01 October 2026 | 12:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-01T12:00:00",
-   "location": "70 Thompson Road",
-   "address": "54-70 Thompson Road, Patterson Lakes 3197",
-   "price_text": "",
-   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
-   ],
-   "types": [
-    "Health & Wellbeing"
-   ],
-   "suburb": "Patterson Lakes",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
    "datetime_text": "Every Monday",
    "datetime_iso": "2026-10-05T09:00:00",
@@ -61031,64 +60719,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 08:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T08:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "979 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 08:00 AM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-10-02T08:00:00",
-   "location": "Kingston City Hall",
-   "address": "979-985 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "'Hand me down' by Andrew Duong",
    "datetime_text": "Next date: Friday, 02 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
    "datetime_iso": "2026-10-02T11:00:00",
@@ -61163,61 +60793,6 @@
     "Art & Craft"
    ],
    "suburb": "Parkdale",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "School holidays at Waves",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 08:00 AM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-10-02T08:00:00",
-   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
-   "address": "111 Chesterville Road, Highett 3190",
-   "price_text": "",
-   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
-   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
-   "suburb": "Highett",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mental Health Month",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 08:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T08:00:00",
-   "location": "70 Thompson Road",
-   "address": "54-70 Thompson Road, Patterson Lakes 3197",
-   "price_text": "",
-   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
-   ],
-   "types": [
-    "Health & Wellbeing"
-   ],
-   "suburb": "Patterson Lakes",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -61857,119 +61432,6 @@
     "Exercise & Fitness"
    ],
    "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 09:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T09:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "979 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 09:00 AM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-10-02T09:00:00",
-   "location": "Kingston City Hall",
-   "address": "979-985 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "School holidays at Waves",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 09:00 AM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-10-02T09:00:00",
-   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
-   "address": "111 Chesterville Road, Highett 3190",
-   "price_text": "",
-   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
-   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
-   "suburb": "Highett",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mental Health Month",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 09:00 AM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T09:00:00",
-   "location": "70 Thompson Road",
-   "address": "54-70 Thompson Road, Patterson Lakes 3197",
-   "price_text": "",
-   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
-   ],
-   "types": [
-    "Health & Wellbeing"
-   ],
-   "suburb": "Patterson Lakes",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -64704,119 +64166,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 02:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T14:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "979 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 02:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-10-02T14:00:00",
-   "location": "Kingston City Hall",
-   "address": "979-985 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "School holidays at Waves",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 02:00 PM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-10-02T14:00:00",
-   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
-   "address": "111 Chesterville Road, Highett 3190",
-   "price_text": "",
-   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
-   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
-   "suburb": "Highett",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mental Health Month",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 02:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T14:00:00",
-   "location": "70 Thompson Road",
-   "address": "54-70 Thompson Road, Patterson Lakes 3197",
-   "price_text": "",
-   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
-   ],
-   "types": [
-    "Health & Wellbeing"
-   ],
-   "suburb": "Patterson Lakes",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "Business Plan Accelerator Workshop",
    "datetime_text": "Every Tuesday",
    "datetime_iso": "2026-10-06T09:00:00",
@@ -65177,64 +64526,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T18:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "979 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-10-02T18:00:00",
-   "location": "Kingston City Hall",
-   "address": "979-985 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "'Hand me down' by Andrew Duong",
    "datetime_text": "Next date: Saturday, 03 October 2026 | 11:00 AM \r\n\tto 04:00 PM",
    "datetime_iso": "2026-10-03T11:00:00",
@@ -65319,61 +64610,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "School holidays at Waves",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 06:00 PM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-10-02T18:00:00",
-   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
-   "address": "111 Chesterville Road, Highett 3190",
-   "price_text": "",
-   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
-   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
-   "suburb": "Highett",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mental Health Month",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T18:00:00",
-   "location": "70 Thompson Road",
-   "address": "54-70 Thompson Road, Patterson Lakes 3197",
-   "price_text": "",
-   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
-   ],
-   "types": [
-    "Health & Wellbeing"
-   ],
-   "suburb": "Patterson Lakes",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "Ballroom Dancing With Janette",
    "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto 10:00 PM",
    "datetime_iso": "2026-10-02T19:00:00",
@@ -65420,6 +64656,119 @@
     "Nature & Environment"
    ],
    "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Kingston Sounds' by Susannah Langley",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "979 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
+   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
+   ],
+   "types": [
+    "Art & Craft",
+    "Market & Exhibition",
+    "Technology"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Refugia' by Kerri Wilson McConchie",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "Kingston City Hall",
+   "address": "979-985 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
+   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
+   ],
+   "types": [
+    "Art & Craft",
+    "Games & Cards",
+    "Nature & Environment"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "School holidays at Waves",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\t - Friday, 2 October 2026",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
+   "address": "111 Chesterville Road, Highett 3190",
+   "price_text": "",
+   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
+   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
+   ],
+   "types": [
+    "Children & Families",
+    "Social & Community"
+   ],
+   "suburb": "Highett",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mental Health Month",
+   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-02T19:00:00",
+   "location": "70 Thompson Road",
+   "address": "54-70 Thompson Road, Patterson Lakes 3197",
+   "price_text": "",
+   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
+   ],
+   "types": [
+    "Health & Wellbeing"
+   ],
+   "suburb": "Patterson Lakes",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -65934,119 +65283,6 @@
     "Info Session"
    ],
    "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T19:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "979 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-10-02T19:00:00",
-   "location": "Kingston City Hall",
-   "address": "979-985 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "School holidays at Waves",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\t - Friday, 2 October 2026",
-   "datetime_iso": "2026-10-02T19:00:00",
-   "location": "Waves Leisure Centre, 111 Chesterville Road, Highett 3190",
-   "address": "111 Chesterville Road, Highett 3190",
-   "price_text": "",
-   "description": "Splash around, kick the footy or shoot hoops at Waves these school holidays. A winning day out for the whole family.",
-   "source": "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonactive.com.au/about-us/news-events-and-offers/school-holidays-at-waves"
-   ],
-   "types": [
-    "Children & Families",
-    "Social & Community"
-   ],
-   "suburb": "Highett",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mental Health Month",
-   "datetime_text": "Next date: Friday, 02 October 2026 | 07:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-02T19:00:00",
-   "location": "70 Thompson Road",
-   "address": "54-70 Thompson Road, Patterson Lakes 3197",
-   "price_text": "",
-   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
-   ],
-   "types": [
-    "Health & Wellbeing"
-   ],
-   "suburb": "Patterson Lakes",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",

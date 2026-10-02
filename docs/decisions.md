@@ -944,6 +944,89 @@ since it is the expected outcome of every run but the last.
 
 
 
+### D46. A listing's closing date identifies it, not its next date — **Hold**
+
+`'Kingston Sounds' by Susannah Langley` was on the page eight times. One
+exhibition, one URL, one description — and eight different start times:
+21:00 on 30 September, 11:00 and 12:00 on 1 October, then 08:00, 09:00, 14:00,
+18:00 and 19:00 on 2 October. One row per pipeline run, and the store grew by
+one every day. Three more listings were doing the same thing at the same rate
+(`'Refugia' by Kerri Wilson McConchie`, `School holidays at Waves`, `Mental
+Health Month`), 31 rows between them.
+
+The cause is one word on the page. Granicus writes the *next* occurrence, not
+the start of the run:
+
+```
+Next date:  Friday, 02 October 2026 | 07:00 PM
+       to Saturday, 31 October 2026 | 11:59 PM
+```
+
+That opening date is a cursor. It advances as the exhibition does, and the
+closing date does not, so every fetch of a listing that runs for weeks returns
+the same listing at a different start time.
+
+Every check in this pipeline missed it, and each miss is load-bearing rather
+than an oversight:
+
+* `slot_hash` puts the start time in the key, so the eight rows were eight
+  slots. That is correct — a venue can run the same class twice in a day, and
+  collapsing on the date alone erases the second session.
+* `dedupe_by_source_url` keys on the same `(name, url, stamp)`, and says so in
+  its own docstring: it exists to merge *two sources* reporting one session.
+* `health_check.py` asserts both of those keys, so the store was green.
+* `reconcile_store()` D38's series test keeps any row whose
+  `(source_id, name, venue)` is still published, and *deliberately* does not
+  compare timestamps. All eight rows share one `series_id` — that is what it is
+  — so the live row justified all eight.
+
+The series test is right and stayed. What it cannot see is that these rows
+carry real source-stated times which *disagree*, and a materialised series'
+times disagree too — which is why the test ignores them.
+
+So the first fix tried was the obvious one: a row the pipeline did not infer
+stands for exactly one slot, so judge it against the sources' own slots. It
+works, and it drops **175** rows, of which 129 are correct: `kingston_hubs`
+materialises a directory entry into a dozen dated occurrences *without* tagging
+them `date_inferred`, so its 58 stored `Mahjong` rows all look like eight
+`Kingston Sounds` rows. It also reintroduces the exact failure D38 exists to
+prevent — a listing publishes a rolling window, so an occurrence that has aged
+out of the window fails the slot test and vanishes. D38 measured that at 97 rows
+eight days after a build and 382 after two months.
+
+What separates the two is the **closing date**. A listing re-read on another day
+still states the same run, so its rows share one closing date; a materialised
+occurrence states *its own* date and no span at all — `4/09/2026 9:30:00 AM` —
+which is why 58 `Mahjong` rows are not eight copies of each other. So
+`drop_superseded_range_rows()` groups stored rows by
+`(name, url, closing date)` and drops the ones the sources no longer state.
+
+The pass is narrow on purpose, and each narrowing is a case in `dedupe --test`:
+
+* `range_end()` reads nothing unless the text states a span *and* what follows
+  the connector is a written date with a year. `11:00 AM to 04:00 PM` is one
+  session's duration; a list of the dates still to come is a different listing
+  per row; `17th October - 5th December` is a term, not a run.
+* Inside such a group a row is only dropped when no live row states its slot,
+  so a page that really does publish two sessions at two times keeps both.
+* An absent source and a source mid-crawl are both spared, on D3's reasoning
+  that silence is not a withdrawal. The mid-crawl case writes its own progress
+  file into a temp dir rather than leaning on the committed `frankston_auto`
+  one, which has been parked since D45 and would keep passing either way.
+
+27 rows went, one per stale copy, and nothing else in the store changed: the
+control run against `HEAD` differs only by those 27, and the 17 rows whose
+build-site fields move are pre-existing churn the unmodified pipeline produces
+too. 2190 rows, zero duplicates.
+
+`_live_slot_index()` and `_slot_is_stated()` are shared with `reconcile_store()`
+rather than written a second time, for the reason `health_check.py` uses
+`dedupe.slot_hash()`: the pass that drops and the pass that judges have to
+compute the same thing, or one of them reports a duplicate the other considers
+distinct and neither names the disagreement.
+
+*Owner:* `dedupe.drop_superseded_range_rows`, `dedupe.range_end`.
+
 ## 7. Things that are not decisions, but look like they were
 
 Noted here because each has cost real effort and will cost more if it is

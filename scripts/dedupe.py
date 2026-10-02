@@ -31,7 +31,7 @@ from rapidfuzz import fuzz
 from jsonio import read_json, write_json
 from recurrence import (infer_event, refresh_inferred, resolve_dateless,  # noqa: F401
                         series_id_for)
-from webfetch_http import price_sort
+from webfetch_http import month_number, price_sort
 
 PRUNE_DAYS = 90
 ROOT = Path(__file__).resolve().parent.parent
@@ -349,6 +349,160 @@ def drop_untimed_twins(rows):
     return kept
 
 
+def _slot_urls(row):
+    """Every URL this row claims, primary first. A row is judged only against
+    its own sources, so a row merged from two listings keeps both claims here
+    and loses neither when one of them stops publishing it."""
+    return [(row.get("source") or "").rstrip("/")] + \
+           [u.rstrip("/") for u in (row.get("sources") or []) if u]
+
+
+def _live_slot_index(live_rows):
+    """(name, url, start) -> {venue head} for every dated row the sources state.
+
+    Built here rather than inside reconcile_store() because two passes now read
+    it, and the codebase's standing rule is that a check and the merge enforcing
+    it must compute the same thing: if they disagree, one of them reports a
+    duplicate the other considers distinct and neither names the disagreement.
+    """
+    index = {}
+    for src in live_rows:
+        iso = str(src.get("datetime_iso") or "")
+        if not iso:
+            continue
+        key = (normalize_name(src.get("name")),
+               (src.get("source") or "").rstrip("/"), iso[:16])
+        index.setdefault(key, set()).add(venue_head(src.get("location")))
+    return index
+
+
+def _slot_is_stated(row, by_slot):
+    """True when a live row states this exact slot for one of the row's URLs.
+
+    The name, the start to the minute and a compatible venue all have to line
+    up. The venue check is what keeps genuinely distinct events apart -- two
+    STEADYstrength classes at two different halls, or "Chatty Cafe - Game On!"
+    at 10:00 against the 11:00 series.
+    """
+    name = normalize_name(row.get("name"))
+    venue = venue_head(row.get("location"))
+    iso = str(row.get("datetime_iso") or "")[:16]
+    for url in _slot_urls(row):
+        if not url:
+            continue
+        venues = by_slot.get((name, url, iso))
+        if venues is None:
+            continue
+        if not venue or venue in venues:
+            return True
+        if any(_venue_compatible(v, venue) for v in venues if v):
+            return True
+    return False
+
+
+# A listing that runs for a while states its span, and the span is what
+# identifies it: "Next date: Friday, 02 October 2026 | 07:00 PM  to Saturday,
+# 31 October 2026 | 11:59 PM". The opening date is a *cursor* -- the next
+# occurrence -- and it advances as the run does, while the closing date does
+# not. Split on the connector so only the far end is read.
+_RANGE_SPLIT_RE = re.compile(r"\s+(?:to|-|–|—)\s+")
+# A date as these sites write it out: "31 October 2026". Requires a year, so a
+# connector followed by a day and a month ("Term 4 (17th October - 5th
+# December)") is not read as the end of a run.
+_WRITTEN_DATE_RE = re.compile(r"\b(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})\b")
+
+
+def range_end(text):
+    """The closing date of a span a listing states, as an ISO day.
+
+    None whenever the text states no span, and whenever what follows the
+    connector is not a date: "11:00 AM to 04:00 PM" is one session's duration
+    rather than a run of days, and a list of the dates still to come is not a
+    span either. Both are load-bearing -- the sources publish each of those
+    shapes, and a row whose text merely mentions two dates is not a listing
+    seen on two different days.
+    """
+    parts = _RANGE_SPLIT_RE.split(text or "")
+    if len(parts) < 2:
+        return None
+    m = _WRITTEN_DATE_RE.search(parts[-1])
+    if not m:
+        return None
+    month = month_number(m.group(2))
+    if not month:
+        return None
+    try:
+        return date(int(m.group(3)), month, int(m.group(1))).isoformat()
+    except ValueError:
+        return None
+
+
+def drop_superseded_range_rows(rows, live_rows, crawling=None):
+    """Drop the copies of one listing that later runs replaced.
+
+    A listing that runs for weeks is re-read every day, and its date text leads
+    with the *next* occurrence rather than the start of the run. So each fetch
+    yields the same listing at a different start time, every dedupe key in this
+    file carries the start time, and the store accumulated a copy per run:
+    `'Kingston Sounds' by Susannah Langley` reached eight rows, one per run,
+    each restating one exhibition. `reconcile_store()` could not see it, because
+    its series test keeps any row whose (source, name, venue) is still
+    published -- which is the right rule for a materialised series and the wrong
+    one here, where the rows carry real source-stated times that disagree.
+
+    What separates the two is the closing date. A listing re-read on another day
+    still states the same run, so its rows share one closing date; the rows of a
+    materialised series each state *their own* date and no span at all
+    (`'4/09/2026 9:30:00 AM'`), which is why this leaves the 58 stored Mahjong
+    occurrences and the 35 it publishes alone.
+
+    Even inside such a group a row is only dropped when the source no longer
+    states its slot, so a page that really does publish two sessions at two
+    different times keeps both. The guards on the source are reconcile_store's:
+    a source absent from this run (out of season, or a fetch that failed) and a
+    source mid-crawl both cannot say which copy is current, and neither takes its
+    rows down. `crawling` is a parameter so that guard can be exercised without
+    a progress file having to exist on disk.
+    """
+    by_slot = _live_slot_index(live_rows)
+    live_labels = {r.get("source_id") for r in live_rows if r.get("source_id")}
+    if crawling is None:
+        crawling = _unfinished_crawl_sources()
+
+    groups = {}
+    ends = []
+    for r in rows:
+        end = range_end(r.get("datetime_text"))
+        ends.append(end)
+        if end:
+            groups.setdefault((normalize_name(r.get("name")),
+                               (r.get("source") or "").rstrip("/"), end),
+                              []).append(r)
+    # One row per key is the ordinary case and cannot be superseded.
+    crowded = {key for key, grp in groups.items() if len(grp) > 1}
+
+    kept, dropped = [], []
+    for i, r in enumerate(rows):
+        if ends[i]:
+            key = (normalize_name(r.get("name")),
+                   (r.get("source") or "").rstrip("/"), ends[i])
+            judged = (key in crowded and r.get("source_id") not in crawling
+                      and r.get("source_id") in live_labels)
+            if judged and not _slot_is_stated(r, by_slot):
+                dropped.append(r)
+                continue
+        kept.append(r)
+    if dropped:
+        print(f"  Dropped {len(dropped)} row(s) restating one listing a later "
+              f"fetch re-dated (same run, a moved next-occurrence date)")
+        for r in dropped[:10]:
+            print(f"    {r.get('name')!r} {str(r.get('datetime_iso'))[:16]} "
+                  f"[{r.get('source_id')}]")
+        if len(dropped) > 10:
+            print(f"    ... and {len(dropped) - 10} more")
+    return kept
+
+
 def _merge_sources(existing, candidate, refresh_source=False):
     """Fold `candidate` into `existing`, keeping `existing` as the kept row.
 
@@ -556,14 +710,7 @@ def reconcile_store(rows, live_rows, today=None, report=True):
 
     # venue compatibility, so a venue string enriched from a sibling source
     # does not read as a contradiction.
-    by_slot = {}
-    for src in live_rows:
-        iso = str(src.get("datetime_iso") or "")
-        if not iso:
-            continue
-        key = (normalize_name(src.get("name")),
-               (src.get("source") or "").rstrip("/"), iso[:16])
-        by_slot.setdefault(key, set()).add(venue_head(src.get("location")))
+    by_slot = _live_slot_index(live_rows)
 
     # The live row behind each slot, so a stored field the source has since
     # *corrected* can be re-derived. _merge_sources() only fills blanks, by
@@ -652,24 +799,7 @@ def reconcile_store(rows, live_rows, today=None, report=True):
             # Otherwise the row stands for exactly one slot, so it needs a live
             # row stating that slot. This is what covers a one-off whose source
             # has since switched to publishing a dateless recurring schedule.
-            name = normalize_name(r.get("name"))
-            venue = venue_head(r.get("location"))
-            urls = [(r.get("source") or "").rstrip("/")] + \
-                   [u.rstrip("/") for u in (r.get("sources") or []) if u]
-            ok = False
-            for url in urls:
-                if not url:
-                    continue
-                venues = by_slot.get((name, url, iso[:16]))
-                if venues is None:
-                    continue
-                if not venue or venue in venues:
-                    ok = True
-                    break
-                if any(_venue_compatible(v, venue) for v in venues if v):
-                    ok = True
-                    break
-            if not ok:
+            if not _slot_is_stated(r, by_slot):
                 dropped.append(r)
                 continue
             slot_kept += 1
@@ -678,8 +808,7 @@ def reconcile_store(rows, live_rows, today=None, report=True):
         # source has since corrected into a well-formed value. Applied after
         # the keep/drop decision so it cannot affect which rows survive.
         name = normalize_name(r.get("name"))
-        for url in [(r.get("source") or "").rstrip("/")] + \
-                [u.rstrip("/") for u in (r.get("sources") or []) if u]:
+        for url in _slot_urls(r):
             if not url:
                 continue
             candidates = live_by_slot.get((name, url, iso[:16]))
@@ -1239,6 +1368,86 @@ def _self_test():
     ]:
         check(label, actual, expected)
 
+    # What identifies a listing that runs for weeks is its *closing* date: the
+    # opening one is a cursor that advances on every fetch, so the store ends up
+    # holding the same run once per run. These are the two halves of that
+    # claim -- reading the closing date, and refusing to read one where there
+    # is no span -- because a reader that over-matches would collapse the 58
+    # stored Mahjong occurrences into one.
+    granicus_range = ("Next date:\xa0Friday, 02 October 2026 | 07:00 PM "
+                      "\r\n\tto Saturday, 31 October 2026 | 11:59 PM")
+    for label, actual, expected in [
+        ("a run's closing date is read past the connector",
+         range_end(granicus_range), "2026-10-31"),
+        ("a dash separates a run as well as the word to",
+         range_end("Next date:\xa0Wednesday, 30 September 2026 | 09:00 PM "
+                   "\r\n\t - Friday, 2 October 2026"), "2026-10-02"),
+        # A session's own duration is not a run of days.
+        ("an end time is not a closing date",
+         range_end("Next date:\xa0Saturday, 03 October 2026 | 11:00 AM "
+                   "\r\n\tto 04:00 PM"), None),
+        ("a month with no day is not a closing date",
+         range_end("Term 4 (17th October - 5th December)"), None),
+        # A materialised series states its own date and no span, which is
+        # exactly why 58 stored Mahjong rows are not duplicates of each other.
+        ("a single stated date is not a run",
+         range_end("4/09/2026 9:30:00 AM"), None),
+        ("a list of the dates still to come is not a run",
+         range_end("30 September 2026 1 October 2026 2 October 2026 "
+                   "10:00am-11:15am"), None),
+    ]:
+        check(label, actual, expected)
+
+    # The pass itself, on the shape that actually reached eight rows.
+    arts_url = "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
+
+    def arts_row(stamp, text=granicus_range, source_id="kingston_arts",
+                  url=arts_url, name="'Kingston Sounds' by Susannah Langley"):
+        return {"name": name, "datetime_iso": stamp, "datetime_text": text,
+                "location": "Kingston Arts Centre", "source": url,
+                "source_id": source_id, "sources": [url]}
+
+    live_arts = [arts_row("2026-10-02T19:00:00")]
+    check("a run re-dated by every fetch leaves one row",
+          len(drop_superseded_range_rows(
+              [arts_row("2026-10-02T19:00:00"), arts_row("2026-10-01T11:00:00"),
+               arts_row("2026-10-02T08:00:00")], live_arts)), 1)
+    # Two sessions one page really does publish, both stated by the source, are
+    # two events -- the pass may only drop what the source has stopped saying.
+    check("two sessions the source still states both survive",
+          len(drop_superseded_range_rows(
+              [arts_row("2026-10-02T19:00:00"), arts_row("2026-10-03T11:00:00")],
+              [arts_row("2026-10-02T19:00:00"),
+               arts_row("2026-10-03T11:00:00")])), 2)
+    # A source that did not report this run cannot say which copy is current,
+    # so it does not get to take any of them down. Nor does one whose crawl is
+    # still in progress: it has reported rows, but has not read the whole
+    # listing, so its silence is not a withdrawal.
+    check("a source absent from this run keeps its copies",
+          len(drop_superseded_range_rows(
+              [arts_row("2026-10-01T11:00:00"), arts_row("2026-10-02T08:00:00")],
+              [])), 2)
+    check("a mid-crawl source keeps its copies",
+          len(drop_superseded_range_rows(
+              [arts_row("2026-10-01T11:00:00"), arts_row("2026-10-02T08:00:00")],
+              [{"source_id": "kingston_arts"}],
+              crawling={"kingston_arts"})), 2)
+    # And the materialised series this pass must not touch, at the size that
+    # would show it had regressed into them. Each row states its own date and
+    # no span, which is the whole reason the closing date identifies a run.
+    mahjong = [{"name": "Mahjong", "location": "Chelsea Activity Hub",
+                "datetime_text": text,
+                "datetime_iso": stamp,
+                "source": "https://www.kingston.vic.gov.au",
+                "source_id": "kingston_hubs"}
+               for stamp, text in (
+                   ("2026-09-04T09:30:00", "4/09/2026 9:30:00 AM"),
+                   ("2026-09-07T10:00:00", "7/09/2026 10:00:00 AM"),
+                   ("2026-09-11T09:30:00", "11/09/2026 9:30:00 AM"),
+                   ("2026-09-14T10:00:00", "14/09/2026 10:00:00 AM"))]
+    check("a materialised series is left alone",
+          len(drop_superseded_range_rows(mahjong, [])), 4)
+
     if failures:
         print(f"\ndedupe: {len(failures)} case(s) FAILED")
         sys.exit(1)
@@ -1377,6 +1586,12 @@ def main():
     merged = dedupe_exact(merged)
     # A midnight row is a restatement of a timed session, not an extra event.
     merged = drop_untimed_twins(merged)
+    # A listing that runs for weeks is re-dated by every fetch of it, and the
+    # store keeps a copy per run. Held against the sources' own slots, which is
+    # what reconcile_store() cannot do for them: its series test keeps a row
+    # whose (source, name, venue) is still published, and these rows disagree on
+    # the one field that key ignores.
+    merged = drop_superseded_range_rows(merged, live)
     # Everything the sources still publish has now been merged in, so the
     # store can be held against them: a row none of its own sources justify is
     # a leftover from a listing that was corrected or withdrawn.
