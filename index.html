@@ -164,7 +164,7 @@ footer{padding:12px 20px;font-size:.8125rem;color:#555;border-top:1px solid var(
 <header>
 <h1>Community Events Index</h1>
 <p>Kingston &middot; Bayside &middot; Greater Dandenong (Springvale/Keysborough) &middot; Frankston &middot; Chatty Cafe</p>
-<p>Generated: 2026-10-03 13:32 &nbsp;|&nbsp; 2414 events &nbsp;|&nbsp; 13 sources</p>
+<p>Generated: 2026-10-03 13:39 &nbsp;|&nbsp; 2414 events &nbsp;|&nbsp; 13 sources</p>
 </header>
 <main id="main">
 <noscript>
@@ -231,7 +231,7 @@ footer{padding:12px 20px;font-size:.8125rem;color:#555;border-top:1px solid var(
 <nav class="pagination" id="pagination-top" aria-label="Pagination">
   <button class="pg-first" type="button" aria-label="First page" title="First page">&laquo;&laquo;</button>
   <button class="pg-prev" type="button" aria-label="Previous page" title="Previous page">&laquo;</button>
-  <span class="pg-info">Page <span class="pg-current">1</span> of <span class="pg-total">1</span></span>
+  <span class="pg-info" tabindex="-1">Page <span class="pg-current">1</span> of <span class="pg-total">1</span></span>
   <button class="pg-next" type="button" aria-label="Next page" title="Next page">&raquo;</button>
   <button class="pg-last" type="button" aria-label="Last page" title="Last page">&raquo;&raquo;</button>
 </nav>
@@ -259,7 +259,7 @@ footer{padding:12px 20px;font-size:.8125rem;color:#555;border-top:1px solid var(
 <nav class="pagination" id="pagination-bottom" aria-label="Pagination, end of results">
   <button class="pg-first" type="button" aria-label="First page" title="First page">&laquo;&laquo;</button>
   <button class="pg-prev" type="button" aria-label="Previous page" title="Previous page">&laquo;</button>
-  <span class="pg-info">Page <span class="pg-current">1</span> of <span class="pg-total">1</span></span>
+  <span class="pg-info" tabindex="-1">Page <span class="pg-current">1</span> of <span class="pg-total">1</span></span>
   <button class="pg-next" type="button" aria-label="Next page" title="Next page">&raquo;</button>
   <button class="pg-last" type="button" aria-label="Last page" title="Last page">&raquo;&raquo;</button>
 </nav>
@@ -545,17 +545,28 @@ function updatePagination(totalPages){
   pg.querySelector(".pg-next").disabled=state.page>=totalPages;
   pg.querySelector(".pg-last").disabled=state.page>=totalPages;});
 }
-function gotoPage(n,from){
+var _topPager=document.getElementById("pagination-top");
+function gotoPage(n,btnClass){
  if(n<1||n>_lastTotalPages) return;
  state.page=n;
  render();
- if(from)from.scrollIntoView({block:"nearest"});
+ if(_topPager){
+  var twin=btnClass?_topPager.querySelector("."+btnClass):null;
+  var landing=(twin&&!twin.disabled)?twin:_topPager.querySelector(".pg-info");
+  if(landing)landing.focus({preventScroll:true});
+ }
+ if(_topPager){
+  var bar=document.querySelector(".controls");
+  var off=(bar?bar.offsetHeight:0)+8;
+  window.scrollTo(0,Math.max(0,_topPager.getBoundingClientRect().top+
+   window.pageYOffset-off));
+ }
 }
 document.querySelectorAll(".pagination").forEach(function(pg){
- pg.querySelector(".pg-first").addEventListener("click",function(){gotoPage(1,pg);});
- pg.querySelector(".pg-prev").addEventListener("click",function(){gotoPage(state.page-1,pg);});
- pg.querySelector(".pg-next").addEventListener("click",function(){gotoPage(state.page+1,pg);});
- pg.querySelector(".pg-last").addEventListener("click",function(){gotoPage(_lastTotalPages,pg);});});
+ pg.querySelector(".pg-first").addEventListener("click",function(){gotoPage(1,"pg-first");});
+ pg.querySelector(".pg-prev").addEventListener("click",function(){gotoPage(state.page-1,"pg-prev");});
+ pg.querySelector(".pg-next").addEventListener("click",function(){gotoPage(state.page+1,"pg-next");});
+ pg.querySelector(".pg-last").addEventListener("click",function(){gotoPage(_lastTotalPages,"pg-last");});});
 
 document.getElementById("rows").addEventListener("click",function(e){
   var ics=e.target.closest("[data-ics]");
