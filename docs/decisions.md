@@ -163,7 +163,7 @@ Two boundaries keep it from deleting good data:
 
 - a row is kept if *any* of its `sources` still vouches for it, so a cross-source
   merge is not undone by one of its parents moving on;
-- a row whose `source_label` is absent from this run's inputs entirely is left
+- a row whose `source_id` is absent from this run's inputs entirely is left alone
   alone — a seasonal festival out of season, or a fetcher that failed, must not
   take its existing rows down with it. The 90-day prune still bounds those.
 
@@ -1041,6 +1041,130 @@ the other considers distinct and neither names the disagreement.
 
 *Owner:* `dedupe.drop_superseded_listing_rows`, `dedupe.names_next_occurrence`.
 
+### D47. A paginated listing is walked, at a rate the host sets — **Hold**
+
+`kingston_council` read exactly ten events for as long as it existed, and every
+check was green. The Granicus listing is **301 events over 31 pages**, sorted by
+next occurrence, and page 1 is the next ten of them. Nothing failed, because
+reading page 1 of a 31-page listing is a perfectly good fetch — it is just 3% of
+the calendar, and no invariant in this pipeline has an opinion about the other 97%.
+
+The events did not vanish. They rotated off the front. `Chinese Senior Citizens
+Club of Kingston` sat on **page 18** and `Tea & Talk Chinese Conversation Table`
+on **page 27**; both stayed published on the council's own site the entire time
+and both still answer `HTTP 200` with their full description and their next
+occurrence. They were absent from every snapshot from the moment their date
+passed the ten-event window. `Chinese Senior Citizens Club` was captured in
+`59e4bb9` and lost in `70b2678` — a listing rotating, correctly, under a fetch
+that could only ever see the front of it.
+
+The note in `sources.yaml` said the pager needs JavaScript. It does not:
+
+```html
+<select name="ctl10$ctl00$ctl07"><option value="2">2</option>…</select>
+<input type="submit" name="ctl10$ctl00$ctl08" value="Go" class="btn_scPagingNonJS_enabled">
+```
+
+Those are the non-JS controls, named so by the platform. A POST carrying the
+form's hidden state and `ctl10$ctl00$ctl07=18` returns page 18. The
+`webfetch_directory` listing has been walked this way for the whole life of the
+project; the council listing never was. So the walk is `webfetch_http.paged_listing`,
+shared by both, and the diagnosis in the config was wrong rather than
+unfortunate.
+
+**The rate is the host's decision, not the fetcher's.** `crawl_delay: 5.0` — one
+request per five seconds, across the 31 listing pages *and* all 301 detail pages,
+because that is the only reading of the number which bounds pressure on the site.
+It is applied immediately before every request rather than after, on the strength
+of D45: a delay on the wrong branch is a delay on the branch that most needs it,
+and a Granicus fetch whose detail pages fail is exactly the run that would
+otherwise hammer hardest. The floor is the shared `MIN_CRAWL_DELAY`, so a
+`crawl_delay: 0` in the config cannot switch the limit off.
+
+That is ~28 minutes of deliberate waiting, which is why `max_pages` is a *budget*
+and not a target: `40` against a claimed 31, so a month that grows the listing is
+followed rather than truncated at a fixed number. Reaching the budget is a
+**warning naming the pages not read**, because it is an operator's choice. A page
+that fails to load, a pager that will not advance, and a listing that stopped
+stating how deep it is are all `PartialFetch` — those are a broken fetch, and
+publishing page 1 in their place is the defect this whole entry is about.
+
+The walk is opt-in per source. `kingston_arts` has no `max_pages`, so it still
+reads one page and paces nothing: the listing is one page deep and should not pay
+for a walk it does not need.
+
+Two things the walk brought with it, both of which were invisible while it was
+ten rows:
+
+* **31 listings state their address as the literal words "Multiple locations"**
+  — a library storytime at three branches, a road-safety program wherever it is
+  booked. `drop_venueless()` asked only whether the field was blank, and a
+  non-empty string satisfied both it and the health check's "every non-online row
+  has an address". The test is now "states a place" — a postcode or a street line
+  — and it runs after the detail pass, which is what its own docstring already
+  claimed and the code never did. They are dropped, as the campaign pages were.
+* **`detail_cap` must cover what the walk finds.** A listing card states a date
+  and no time, so an unenriched row keeps midnight and renders as *all day* — a
+  10am–3pm club publishing as all-day is the same class of quietly wrong row as
+  the missing pages. `detail_cap: 320` over 301 rows, and a starved cap now warns
+  with the count it did not open rather than leaving it to be inferred.
+
+*Owner:* `webfetch_http.paged_listing`, `webfetch_http.Pacer`,
+`webfetch_granicus.drop_venueless`, `sources.yaml` (`kingston_council`).
+
+### D48. A fortnight's phase comes from the text, never from the run date - **Hold**
+
+Found while verifying D47, and not caused by it: the store committed on Friday
+2 October failed `health_check.py` on Saturday the 3rd. Eleven rows read
+*"an inferred row sits on a date its own text does not produce"*.
+
+`recurrence.py` anchored a fortnightly series on `today`, with a comment
+conceding that this was *"the best available anchor"*. It is not. A fortnight
+divides the week in two, so **which** fortnight comes first depends on the
+weekday of the run. A Chatty Cafe venue states only `Friday (fortnightly)
+10.30am-11.30am`, so:
+
+| run date | weekday | first occurrence inferred |
+| --- | --- | --- |
+| Fri 2 Oct | Friday | 2, 16, 30 October |
+| Sat 3 Oct | Saturday | 9, 23 October |
+
+The same text, a whole period apart. The existing fix for this class of bug —
+anchoring on the series' stated `start_date` — covered only the case where a
+start date exists, and there is a pinned test for exactly that case. The
+dateless case was left, and it is the common one.
+
+The accumulated damage is worse than a phase flip. The store is append-only, so
+both readings landed and merged: the 2nd, 9th, 16th, 23rd, 30th of October, every
+Friday thereafter. **A class that meets every second Friday was publishing as a
+weekly one — 23 sessions where there are 12.** Every one of them had a
+`date_inferred` flag, a plausible time, and a passing duplicate check.
+
+Two changes, and the second only matters because of the first:
+
+* **The phase is ISO week parity against a fixed epoch** (`_PHASE_EPOCH`, a
+  Monday in 2024) when the text states no start date. Arbitrary but stable,
+  and arbitrary is the best available: the source does not say which fortnight
+  it means, so no choice is more *correct* — it only has to be the same choice
+  every run. A stated `start_date` still wins, because that is the venue's own
+  phase and it is authoritative.
+* **An inferred row is withdrawn when its own text no longer produces its
+  date.** `refresh_inferred()` previously re-derived only a row whose *time*
+  disagreed, and then required the replacement to contain the row's own stored
+  date — a deliberate guard against silently moving a row to another day, and
+  correct for the case it was written for. But an inferred date is not an
+  independent fact about the world, it is what the text yields. A date the text
+  cannot produce is not a session that moved; it is a session that cannot exist,
+  and keeping it publishes a date the source never stated. Only dates from
+  `today` onwards are tested, because an expansion runs forward from `today`
+  and past rows are `prune_old`'s business at 90 days.
+
+Eleven rows withdrawn, the class back to 12 fortnightly sessions, and a second
+`dedupe.py` run withdraws 0.
+
+*Owner:* `recurrence._PHASE_EPOCH`, the fortnightly branch of
+`recurrence.expand`, `recurrence.refresh_inferred`.
+
 ## 7. Things that are not decisions, but look like they were
 
 Noted here because each has cost real effort and will cost more if it is
@@ -1049,12 +1173,13 @@ mistaken for load-bearing.
 | Thing | What it actually is |
 | --- | --- |
 | `bayside_seniors` | 74 fetched rows, **0 published**. Every event URL is byte-identical to one in `bayside_auto.json`. It cost a source entry, 7 listing pages and up to 90 detail fetches per run, and was invisible to the health check because seasonal sources are warn-only. **Removed.** |
-| `MIN_TOTAL = 700` | The real index is 1,531 rows, so this can only fire after a 54% collapse — and `MIN_SOURCE` localises better. The per-source floors of 3 do the real work. |
+| `MIN_TOTAL = 700` | The real index is 1,531 rows, so this can only fire after a 54% collapse — and `MIN_SOURCE` localises better. The per-source floors of 3 do the real work — except `kingston_council`'s, which was 3 against a ten-row page and so could not see the pager regress at all (D47). |
+| `chatty_cafe` venue schedules | `sources.yaml` states a bare cadence (`Friday (fortnightly) 10.30am-11.30am`) for 21 venues, so the schedule is config rather than a reading of the venue's page. That is the right side of D21 to err on, but it means these rows depend on the recurrence expansion being stable across run dates — which it was not, for two reasons at once (D48). The config's `schedules` are the least-checked strings in the pipeline. |
 | Horizon constants in `recurrence.py` | `WEEKLY/FORTNIGHTLY/MONTHLY_HORIZON_*` are all slack above the 12-occurrence cap, which always truncates first. They never decide an outcome; they only stop a runaway loop on a malformed spec. Kept, with a comment saying so — removing them would put a loop bound in charge of the last occurrence. |
 | Archived sources | `frankston_archived`/`bayside_archived` carry no date of their own, so `prune_old` never touches them — they re-derive *forward* indefinitely and will keep publishing. A deliberate trade, not an oversight: the live pages are WAF-blocked. |
 | The seniors festival | 10% of the calendar for one month of the year, and two files that must be re-synced by hand every October. Kept: it is a real event that is genuinely on, and the alternatives are a thinner calendar or a hand-written scraper for the PDF. |
 | A 0-row seasonal source | Warn-only by design, but it also means a genuinely dead source in that set never fails. The floor set and the warn set need to be read together, not separately. |
-| `datetime_display`, `date_text`, `source_id` | Three fields that were written on every row and read by nothing. `datetime_display` was a formatted copy of `datetime_iso`, which the page recomputes anyway. **Removed**; `_normalize_raw` strips them at load so a snapshot committed before the change does not keep carrying them. |
+| `datetime_display`, `date_text`, `source_label` | Three fields that were written on every row and read by nothing. `datetime_display` was a formatted copy of `datetime_iso`, which the page recomputes; `source_label` was `source_id` under a second name. **Removed**; `_normalize_raw` strips them at load so a snapshot committed before the change does not keep carrying them. (`source_id` is *not* in this list — it is the one field every reader keys on.) |
 | `type:` on the plain sources | Was never read — `fetch_events.py` dispatched on `id` — while the *same key* was load-bearing on the webfetch half, meaning different things in one file. Now the single dispatch key for all nine sources. |
 | `pip install .` | Did not work. `pyproject.toml` declared `build-backend = "setuptools.backends._legacy:_Backend"`, which is not a real backend, so the pinned dependencies had never been installable from the file that declared them and CI carried a second copy of the list. Fixed to `setuptools.build_meta` with `py-modules = []`, and CI now reads the pins. |
 

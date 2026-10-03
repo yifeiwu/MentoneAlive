@@ -87,11 +87,46 @@ def _check_impersonation(failures):
                      failures)
 
 
+def _check_plain_completeness(failures):
+    """data/raw_events.json is written only when every plain source delivered.
+
+    It holds *all* of the plain sources or it is misleading, and the next stage
+    cannot tell a partial file from a complete one: it reads the file, finds a
+    source that no longer states its rows, and `reconcile_store()` withdraws
+    them. The guard was `if plain_rows:`, which is true as soon as one plain
+    source succeeds -- so a single kingston_hubs failure wrote a file holding
+    chatty_cafe alone and the calendar lost 524 rows over one request, with
+    every gate still green.
+    """
+    p = fetch_sources.plain_sources_missing
+    plain = {"kingston_hubs", "greater_dandenong", "gd_libraries",
+             "chatty_cafe"}
+    checks.check("a complete plain fetch owes nothing",
+                 p(plain, plain), [], failures)
+    checks.check("one plain source missing is named",
+                 p(plain, plain - {"kingston_hubs"}), ["kingston_hubs"],
+                 failures)
+    checks.check("every missing plain source is named",
+                 p(plain, set()), sorted(plain), failures)
+    # A --source run is a deliberate single-source fetch, and the run summary
+    # already says the file now holds that source alone.
+    checks.check("a --source run owes only that source",
+                 p(plain, {"chatty_cafe"}, "chatty_cafe"), [], failures)
+    checks.check("a --source run that failed still owes it",
+                 p(plain, set(), "chatty_cafe"), ["chatty_cafe"], failures)
+    # A snapshot source is not a plain source that failed to arrive: without
+    # this, `--source ccc` would report an incomplete raw_events.json and exit
+    # non-zero on every snapshot debug run.
+    checks.check("a snapshot-only run owes nothing",
+                 p(plain, set(), "ccc"), [], failures)
+
+
 def main():
     failures = []
     for name, fn in (("signatures", _check_signatures),
                      ("config shape", _check_config_shape),
-                     ("impersonation", _check_impersonation)):
+                     ("impersonation", _check_impersonation),
+                     ("plain-source completeness", _check_plain_completeness)):
         print(f"  {name}")
         fn(failures)
     if failures:

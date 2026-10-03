@@ -28,6 +28,15 @@ WEEKLY_HORIZON_DAYS = 126
 FORTNIGHTLY_HORIZON_DAYS = 252
 MONTHLY_HORIZON_MONTHS = 20
 
+# Which fortnight a date falls in, for a series that states no start date.
+# A Monday, and arbitrary: "every second Friday" does not say which fortnight
+# it means, so there is no correct answer -- only one that does not change
+# between runs. Anchoring on the run date instead makes the phase depend on
+# the weekday of the run, so the same text infers one fortnight on a Friday and
+# a different one on the Saturday, and the stored series stops matching what its
+# own text yields. See the fortnightly branch of expand().
+_PHASE_EPOCH = date(2024, 1, 1)
+
 # How stale a year-less date may be before it stops being "this year, just
 # gone" and starts being "next year". Greater Dandenong states dates without a
 # year ("28 Sep Drop-In Casual Basketball Monday 28 September, 5:30pm"), so a
@@ -742,35 +751,58 @@ def expand(spec, today=None, max_occurrences=MAX_OCCURRENCES):
             for start, _end in slots_by_day[day.weekday()]:
                 found.append((day, start))
     elif spec.kind == "fortnightly":
-        # Phase is anchored on the series' own first session, not on `today`.
         # A fortnight divides the week in two, so the phase of "every second
-        # Saturday" is arbitrary: anchoring on today meant the published dates
-        # shifted by a week every time the pipeline ran, and when the stated
-        # start fell outside today's phase the whole series moved and the last
-        # named session fell off the end. A stated start_date is the venue's
-        # own phase; without one, `today` remains the best available anchor.
-        phase_origin = spec.start_date or today
-        for offset in range(FORTNIGHTLY_HORIZON_DAYS + 1):
-            anchor = phase_origin + timedelta(days=offset)
-            if anchor.weekday() not in slots_by_day:
-                continue
+        # Saturday" is arbitrary, and it has to come from somewhere that does
+        # not move between runs. Two anchors, in order of authority:
+        #
+        # * A stated `start_date` is the venue's own phase. "Fortnightly chess
+        #   from 15 July" means the 15th, not whichever fortnight today is in.
+        #   Anchoring on `today` shifted the published dates by a week every
+        #   time the pipeline ran, and when the stated start fell outside
+        #   today's phase the whole series moved and the last named session
+        #   fell off the end.
+        # * With no stated start there is nothing to anchor to except the run
+        #   date, and `today` is the one anchor that cannot be used. Which
+        #   fortnight comes "first" depends on the weekday of the run: the same
+        #   "Friday (fortnightly)" text inferred on a Friday starts that Friday,
+        #   and on the Saturday it starts a week later -- a whole period out of
+        #   step, not a day. A Chatty Cafe venue states no start date at all,
+        #   so its series was inferred one way on Friday 2 October and
+        #   re-inferred the other way on Saturday the 3rd, and health_check
+        #   failed the build on the stored rows the morning after.
+        #
+        #   ISO week parity against a fixed epoch is arbitrary but stable, and
+        #   arbitrary is the best available: the source does not say which
+        #   fortnight it means, so no choice is more correct than another --
+        #   it only has to be the *same* choice every run.
+        if spec.start_date is not None:
+            anchor = spec.start_date
+            while anchor.weekday() not in slots_by_day:
+                anchor += timedelta(days=1)
             # Do not bounds-check the anchor: it only picks the first matching
-            # weekday to align the fortnight to. Checking it here would skip a
-            # series whose first matching weekday precedes start_date, and the
-            # loop would then align to a fortnight phase weeks out of step.
-            for week in range(0, 26, 2):
-                day = anchor + timedelta(weeks=week)
-                if day > today + timedelta(days=FORTNIGHTLY_HORIZON_DAYS):
-                    break
-                # phase_origin may be a past start_date, which is what puts
-                # the series in the right fortnight; the occurrence still has
-                # to be ahead of the reader.
-                if day < today:
-                    continue
-                if _in_bounds(day, spec):
-                    for start, _end in slots_by_day[day.weekday()]:
-                        found.append((day, start))
-            break
+            # weekday to align the fortnight to. Checking it would skip a series
+            # whose first matching weekday precedes start_date, and the series
+            # would then align to a fortnight phase weeks out of step.
+            candidates = [anchor + timedelta(weeks=week)
+                          for week in range(0, 26, 2)]
+        else:
+            candidates = [today + timedelta(days=offset)
+                          for offset in range(FORTNIGHTLY_HORIZON_DAYS + 1)
+                          if (today + timedelta(days=offset)).weekday()
+                          in slots_by_day
+                          and (today + timedelta(days=offset)
+                               - _PHASE_EPOCH).days // 7 % 2 == 0]
+        for day in candidates:
+            if day > today + timedelta(days=FORTNIGHTLY_HORIZON_DAYS):
+                break
+            # A phase_origin may be a past start_date, which is what puts the
+            # series in the right fortnight; the occurrence still has to be
+            # ahead of the reader.
+            if day < today:
+                continue
+            if _in_bounds(day, spec):
+                for start, _end in slots_by_day[day.weekday()]:
+                    found.append((day, start))
     elif spec.kind == "monthly":
         anchor_day = next(iter(slots_by_day))
         year, month = today.year, today.month
@@ -934,9 +966,15 @@ def refresh_inferred(rows, today=None, max_occurrences=MAX_OCCURRENCES):
     A row is re-derived when it is `date_inferred` and the text states a start
     time for that row's own weekday which differs from what is stored. Rows
     whose text gives no time for that weekday are left alone.
+
+    It is *withdrawn* when the text no longer produces the row's date at all --
+    an inferred date is what the text yields, not an independent fact, so a
+    date the text cannot produce is a session that cannot exist. Only dates
+    from `today` onwards are tested, because an expansion runs forward from
+    `today` and past rows are `dedupe.prune_old`'s business at 90 days.
     """
     today = today or _default_today()
-    kept, refreshed, unresolvable = [], 0, 0
+    kept, refreshed, unresolvable, withdrawn = [], 0, 0, 0
     for r in rows:
         iso = str(r.get("datetime_iso") or "")
         if not (r.get("date_inferred") and len(iso) >= 16):
@@ -953,6 +991,28 @@ def refresh_inferred(rows, today=None, max_occurrences=MAX_OCCURRENCES):
             stored_day = None
         weekday = stored_day.weekday() if stored_day else None
         stated = [s for d, s in slots if weekday is not None and d == weekday]
+
+        # An inferred row's date is not a fact about the world, it is what this
+        # row's own text yields. So when the text no longer yields it, the row
+        # is not a session that might have moved -- it is a session that cannot
+        # exist, and keeping it publishes a date the source never stated. This
+        # is the accumulated damage of the fortnightly phase being anchored on
+        # the run date: a class that met every second Friday was inferred one
+        # fortnight on a Friday and a fortnight off on the Saturday, the two
+        # sets merged in an append-only store, and the result read as a *weekly*
+        # class -- 23 sessions where there are 12.
+        #
+        # Only rows dated today or later are withdrawn. An expansion runs
+        # forward from `today`, so no past date can appear in one, and past rows
+        # are `prune_old`'s business at 90 days; testing them here would
+        # shorten the published history instead of repairing it.
+        if stored_day is not None and stored_day >= today:
+            made, _reason = infer_event(r, today, max_occurrences)
+            if made and not any(m.get("datetime_iso", "")[:10] == iso[:10]
+                                for m in made):
+                withdrawn += 1
+                continue
+
         # With two times for one weekday (a morning and an afternoon session)
         # either stored value may be correct, so only act when unambiguous.
         if len(stated) == 1 and stated[0] != iso[11:16]:
@@ -973,6 +1033,9 @@ def refresh_inferred(rows, today=None, max_occurrences=MAX_OCCURRENCES):
                 continue
             unresolvable += 1
         kept.append(r)
+    if withdrawn:
+        print(f"  Withdrew {withdrawn} inferred row(s) whose own text no "
+              f"longer produces their date (a stale series phase)")
     if refreshed:
         print(f"  Refreshed {refreshed} stale inferred rows (stored time "
               f"disagreed with the text)")
@@ -1082,6 +1145,28 @@ if __name__ == "__main__":
           for d in (date(2026, 9, 30), date(2026, 10, 6))],
          [["2026-10-17", "2026-10-31", "2026-11-14", "2026-11-28"]] * 2),
 
+        # The same stability with NO stated start date, which is the case the
+        # anchor above was missing. A Chatty Cafe venue states only "Friday
+        # (fortnightly) 10.30am-11.30am", so `today` was the only anchor, and
+        # the weekday of the run then decided which fortnight came first: the
+        # same text gave Friday 2 Oct -> 2, 16, 30 October and Saturday 3 Oct
+        # -> 9, 23 October, one whole period apart. Eleven stored rows stopped
+        # matching their own text and health_check failed the build the morning
+        # after a Friday run.
+        ("a dateless fortnightly phase is stable across run dates",
+         [dates_for("Every second Friday", d)
+          for d in (date(2026, 10, 2), date(2026, 10, 3), date(2026, 10, 5))],
+         [dates_for("Every second Friday", date(2026, 10, 2))] * 3),
+        # ...and it is a fortnight, not a week: consecutive occurrences are
+        # exactly 14 days apart.
+        ("a dateless fortnightly series is fortnightly",
+         [(b - a).days for a, b in zip(
+             [date.fromisoformat(x) for x in
+              dates_for("Every second Friday", date(2026, 10, 3))],
+             [date.fromisoformat(x) for x in
+              dates_for("Every second Friday", date(2026, 10, 3))][1:])],
+         [14] * (len(dates_for("Every second Friday", date(2026, 10, 3))) - 1)),
+
         # --- one named date is one session, not a pattern ------------------
         # weekday_slots() returns a slot for a weekday followed by a time, so
         # a single afternoon parsed as weekly and published twelve of them.
@@ -1182,6 +1267,33 @@ if __name__ == "__main__":
              ["2026-10-06", "2026-10-13", "2026-10-20"]),
             ("refresh applies the stated time",
              sorted({m["datetime_iso"][11:16] for m in _out}), ["10:30"])):
+        if _actual == _expected:
+            print(f"ok   {_label}")
+        else:
+            print(f"FAIL {_label}\n       actual:   {_actual}"
+                  f"\n       expected: {_expected}")
+            failures.append(_label)
+
+    # ...but it must not *keep* a date its own text cannot produce. The
+    # fortnightly phase was once anchored on the run date, so "Every second
+    # Friday" inferred one fortnight on a Friday and another on the Saturday;
+    # both sets landed in an append-only store and the class published as a
+    # weekly one. Rows in the retired phase have to be withdrawable, or the
+    # store keeps both readings forever.
+    _ft = "Every second Friday"
+    _good = {d[:10] for d in dates_for(_ft, TODAY)}
+    _rows = [dict(name=_ft, description=_ft, location="Aspendale Gardens",
+                  date_inferred=True, datetime_iso=d + "T10:30:00")
+             for d in ("2026-10-09", "2026-10-16", "2026-10-23")]
+    _kept = refresh_inferred(_rows, TODAY)
+    for _label, _actual, _expected in (
+            ("a row the text still produces is kept", len(_kept), 2),
+            ("a row in the retired phase is withdrawn",
+             sorted(m["datetime_iso"][:10] for m in _kept),
+             sorted(d for d in _good if d in
+                    {"2026-10-09", "2026-10-16", "2026-10-23"})),
+            ("and the text's fortnight is the one that survives",
+             sorted(m["datetime_iso"][:10] for m in _kept)[:1], ["2026-10-09"])):
         if _actual == _expected:
             print(f"ok   {_label}")
         else:

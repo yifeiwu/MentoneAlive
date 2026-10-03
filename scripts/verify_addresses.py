@@ -52,9 +52,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from dedupe import ROOT, _malformed_address, _restates_name  # noqa: E402
+from dedupe import ROOT, _malformed_address  # noqa: E402
 from jsonio import write_json  # noqa: E402
 from vic_suburbs import canonical_suburb as canonical_vic_suburb  # noqa: E402
+from webfetch_http import restates_name  # noqa: E402
 
 NOMINATIM = "https://nominatim.openstreetmap.org/search"
 # Nominatim's policy: identify the application, and stay at or under one
@@ -219,7 +220,7 @@ def main(argv):
         why = []
         if _malformed_address(r.get("address")):
             why.append("malformed address")
-        if _restates_name(r.get("description"), r.get("name")):
+        if restates_name(r.get("description"), r.get("name")):
             why.append("description restates the name")
         if why:
             r = dict(r)

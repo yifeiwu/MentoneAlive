@@ -53,7 +53,7 @@ from datetime import date
 from bs4 import BeautifulSoup
 
 from recurrence import materialise
-from webfetch_http import (PartialFetch, get, make_row, report,
+from webfetch_http import (PartialFetch, get, make_row, paged_listing, report,
                            set_reporting_source)
 from venues import needs_address
 
@@ -71,8 +71,6 @@ SUMMARY_CLASSES = ("list-item-address", "oc-thumbnail-image")
 
 # "117 Result(s) Found"
 RESULTS_RE = re.compile(r"(\d[\d,]*)\s*Result")
-# "Page 1 of 12"
-PAGE_INFO_RE = re.compile(r"Page\s+(\d+)\s+of\s+(\d+)")
 
 # --- detail markup ---------------------------------------------------------
 DETAIL_COLUMN = "div.grid.obj-directory > div.col-m-8"
@@ -99,60 +97,20 @@ MAX_MEETING_HOURS = 6
 MAX_MEETING_DAYS = 4
 
 
-def _page_hidden_fields(soup):
-    """The form's hidden inputs, which carry the postback state."""
-    return {i.get("name"): i.get("value", "")
-            for i in soup.select("form#mainForm input[type=hidden]")
-            if i.get("name")}
-
-
-def _pager_control_names(soup):
-    """The page-number select and its Go button, found rather than assumed.
-
-    ASP.NET generates these names from the control tree, so `ctl10$ctl00$ctl07`
-    is a property of this page's markup today and not a fact about the platform.
-    A hard-coded name is a silent failure: the POST is still accepted, and the
-    server answers with page 1 -- which is why the result count is checked.
-    """
-    select_name = None
-    for sel in soup.select(".seamless-pagination-data select"):
-        options = [o.get("value", "") for o in sel.select("option")]
-        if len(options) > 1 and all(v.strip().isdigit() for v in options):
-            select_name = sel.get("name")
-            break
-    go_name = None
-    for btn in soup.select(".seamless-pagination-controls input[type=submit]"):
-        if (btn.get("value") or "").strip().lower() == "go":
-            go_name = btn.get("name")
-            break
-    return select_name, go_name
-
-
 def _fetch_listing_pages(session, cfg):
     """Every listing card on every page, plus the total the site claims.
 
-    Walks the postback pager, re-reading the viewstate from each response,
-    because every response issues a fresh one and the previous is spent.
+    The walk itself -- the postback, the re-read viewstate, the check that the
+    pager actually moved -- is `webfetch_http.paged_listing`, shared with the
+    council events listing, which paginates the same way for the same reason.
+    What is left here is this source's own reading of a card.
     """
     url = cfg["url"]
-    first = get(session, url, retries=3)
-    if not first:
-        raise PartialFetch(f"directory listing {url} failed to load")
+    listing = paged_listing(session, cfg)
 
-    cards, seen, claimed = [], set(), None
-    soup = BeautifulSoup(first, "html.parser")
-    page_nums = PAGE_INFO_RE.search(soup.get_text(" ", strip=True))
-    if page_nums:
-        report(f"listing claims {page_nums.group(2)} pages", level="debug")
-    select_name, go_name = _pager_control_names(soup)
-    if not (select_name and go_name):
-        raise PartialFetch(
-            f"{url} has no usable pagination controls -- the pager markup "
-            f"changed, and this fetcher cannot enumerate past the first page")
+    cards, seen = [], set()
 
-    def take(soup_or_html):
-        page = BeautifulSoup(soup_or_html, "html.parser") \
-            if isinstance(soup_or_html, str) else soup_or_html
+    def take(page):
         new = 0
         for card in page.select(CARD):
             link = card.select_one("a[href]")
@@ -167,40 +125,12 @@ def _fetch_listing_pages(session, cfg):
             new += 1
         return new
 
-    take(soup)
-    page = 1
-    max_pages = int(cfg.get("max_pages") or 40)
-    while page < max_pages:
-        page += 1
-        data = _page_hidden_fields(soup)
-        data[select_name] = str(page)
-        data[go_name] = "Go"
-        response = session.post(url, data=data)
-        html = getattr(response, "text", "") or ""
-        if getattr(response, "status_code", 0) != 200 or len(html) < 1000:
-            report(f"page {page} did not load "
-                   f"(HTTP {getattr(response, 'status_code', '?')})",
-                   level="warn")
+    for page in listing.pages:
+        if not take(page):
+            # A page with no cards at all after page 1 means the walk is being
+            # served something other than the listing.
             break
-        if page == 2:
-            got = PAGE_INFO_RE.search(BeautifulSoup(html, "html.parser")
-                                      .get_text(" ", strip=True))
-            if got and got.group(1) == "1":
-                # The POST was accepted and the server re-served page 1, which
-                # is what a wrong control name looks like. Everything below
-                # would otherwise quietly publish ten groups.
-                raise PartialFetch(
-                    f"paging {url} did not advance: POST returned page 1 "
-                    f"again, so the pager control name or the viewstate is "
-                    f"wrong -- refusing to publish the first page as if it "
-                    f"were the whole directory")
-        added = take(html)
-        soup = BeautifulSoup(html, "html.parser")
-        if not added:
-            break
-        if page % 5 == 0:
-            report(f"  page {page}: {len(cards)} entries", level="debug")
-    total = RESULTS_RE.search(soup.get_text(" ", strip=True))
+    total = RESULTS_RE.search(listing.pages[-1].get_text(" ", strip=True))
     claimed = int(total.group(1).replace(",", "")) if total else None
     if claimed is not None and len(cards) < claimed:
         raise PartialFetch(
@@ -208,7 +138,9 @@ def _fetch_listing_pages(session, cfg):
             f"lists -- the walk stopped early, so publishing would replace a "
             f"good snapshot with a fraction of the directory")
     report(f"listing: {len(cards)} entries"
-           + (f" of {claimed} claimed" if claimed else ""))
+           + (f" of {claimed} claimed" if claimed else "")
+           + (f" over {len(listing.pages)} of {listing.claimed} pages"
+              if listing.claimed else ""))
     return cards
 
 

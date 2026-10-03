@@ -40,7 +40,7 @@ from rapidfuzz import fuzz
 from jsonio import read_json, write_json
 from recurrence import (infer_event, refresh_inferred, resolve_dateless,  # noqa: F401
                         series_id_for)
-from webfetch_http import price_sort
+from webfetch_http import price_sort, restates_name
 
 PRUNE_DAYS = 90
 ROOT = Path(__file__).resolve().parent.parent
@@ -895,7 +895,8 @@ def reconcile_store(rows, live_rows, today=None, report=True):
 
     if repaired and report:
         print(f"  Repaired {repaired} stored field(s) the source has since "
-              f"corrected (malformed address, re-derived from the live row)")
+              f"corrected (a malformed address, or a description that only "
+              f"restated the row's own name)")
     if dropped and report:
         print(f"  Dropped {len(dropped)} stored rows the sources no longer "
               f"publish; kept {series_kept} on their series' identity and "
@@ -925,27 +926,19 @@ def _page_furniture(value):
 
 
 def _restates_name(description, name):
-    """True when a description is just the row's own title.
+    """True when a description is just the row's own title. See the owner.
 
-    Five fetchers reached for `description=<the page's prose> or name` so the
-    column would never be empty, and for every listing that states no prose of
-    its own that wrote the title into the description. 667 rows -- all 524 of
-    kingston_hubs and all 143 of bayside_live, 30% of the store. The page
-    printed each event's name twice, the search haystack counted it twice, and
-    `classify_types` read the title as if it were the listing's description.
+    `webfetch_http.restates_name` holds the rule, next to the row shape, because
+    `make_row` has to apply the same test to a row as it is written and this
+    function applies it to a row already in the store. They were separate
+    implementations that disagreed -- this one normalised internal whitespace,
+    `make_row` only stripped the ends -- so a description reading " Tai  Chi "
+    was kept by the fetcher and recognised as a restatement here.
 
-    `make_row` now refuses to store one, so this cannot recur; the rows already
-    written cannot be un-written, because `_merge_sources()` only ever fills a
-    blank. This is the test the store's repair pass uses to recognise one.
-
-    The length floor keeps a short generic title ("Trivia", "Yoga") from
-    condemning an unrelated description that happens to share the word: a
-    restatement is a copy of the whole title, and a title long enough to
-    identify a listing is a title worth checking.
+    Aliased rather than reimplemented so a caller reading this module does not
+    have to know where the rule lives.
     """
-    d = " ".join((description or "").split()).casefold()
-    n = " ".join((name or "").split()).casefold()
-    return bool(n) and len(n) >= 8 and d == n
+    return restates_name(description, name)
 
 
 def _malformed_address(value):
@@ -1482,6 +1475,87 @@ def _self_test():
          series_id_for({"source_id": "s", "name": "N", "location": "V1"})
          != series_id_for({"source_id": "s", "name": "N", "location": "V2"}),
          True),
+
+        # --- the two field-level defects the store repair pass recognises ----
+        # 667 rows (all of kingston_hubs, all of bayside_live) carried the
+        # event's own title in the description, and 10 carried an address with
+        # the suburb repeated. Both are the shape a fetcher bug leaves behind
+        # and no gate could see, because both are well-formed strings.
+        ("a description that is the title is a restatement",
+         _restates_name("PlaySpace", "PlaySpace"), True),
+        ("a short class name still counts as a restatement",
+         _restates_name("Tai Chi", "Tai Chi"), True),
+        ("casing and spacing do not hide a restatement",
+         _restates_name(" TAI  CHI ", "Tai Chi"), True),
+        ("prose that merely shares a word is not a restatement",
+         _restates_name("Tai chi for beginners", "Tai Chi"), False),
+        ("real prose is not a restatement",
+         _restates_name("Slow, gentle forms for older adults.", "Tai Chi"),
+         False),
+        # Bayside's own Location field: ten rows published as
+        # "84 Reserve Road, Beaumaris, Beaumaris, Victoria 3193".
+        ("a repeated suburb segment is a malformed address",
+         _malformed_address("84 Reserve Road, Beaumaris, Beaumaris, "
+                            "Victoria 3193"), True),
+        ("an empty segment is still malformed",
+         _malformed_address("14 Willis St,, Hampton, Victoria 3188"), True),
+        ("a dangling separator is still malformed",
+         _malformed_address(", Hampton, Victoria 3188"), True),
+        ("a well-formed address is not malformed",
+         _malformed_address("84 Reserve Road, Beaumaris, Victoria 3193"),
+         False),
+        ("a non-adjacent repeat is not malformed",
+         _malformed_address("Hall, Beaumaris, Street, Beaumaris"), False),
+        # The price rules must not inherit the address shapes: a cost is never
+        # a comma-separated address, which is why the two predicates are
+        # separate functions rather than one.
+        ("a price is judged by its own rule",
+         _malformed("$5, $5"), False),
+
+        # --- one slot stamp, one reader ------------------------------------
+        # `slot_hash` and `dedupe_by_source_url` each had their own reader and
+        # they disagreed on the malformed fallback: one tested for a "T" in the
+        # salvaged string and the other did not, so a stamp that was both
+        # unreadable and date-shaped became a garbage key that the caller's own
+        # `"T" not in stamp` guard then let through as a real slot.
+        ("a dateless row has no slot",
+         _slot_stamp(None) + _slot_stamp("") + _slot_stamp("2026-10-02"), ""),
+        ("a dateless row does not hash to a dated one",
+         slot_hash({"name": "N", "location": "V", "datetime_iso": ""})
+         != slot_hash({"name": "N", "location": "V",
+                       "datetime_iso": "2026-10-02T09:00:00"}), True),
+        ("an unreadable date-shaped stamp still names a slot",
+         "T" in _slot_stamp("2026-13-45T99:99:00"), True),
+        ("a malformed dateless stamp is not a slot",
+         _slot_stamp("not a date at all"), ""),
+        ("an aware stamp is converted, not stripped",
+         _slot_stamp("2026-10-02T09:00:00Z"), _slot_stamp(
+             datetime(2026, 10, 2, 19, 0).isoformat())),
+
+        # --- the archive file's shape, which nothing enforced ---------------
+        # This used to assert that `source_label` equalled `source_id`, which
+        # no row in the file could satisfy -- the field was retired -- so all 24
+        # rows were reported on every run, describing a file that was fine.
+        ("a well-formed archive row raises nothing",
+         _malformed_archived([{"name": "N", "source": "https://x.invalid/",
+                               "source_id": "bayside_archived",
+                               "status": "live"}]), []),
+        ("an archived source that is not a known one is named",
+         len(_malformed_archived([{"name": "N", "source": "https://x.invalid/",
+                                    "source_id": "typo_archived",
+                                    "status": "live"}])), 1),
+        # `status` is the one field that decides whether a series is listed, so
+        # a misspelling is a listing that quietly disappeared.
+        ("an unknown archived status is named",
+         len(_malformed_archived([{"name": "N", "source": "https://x.invalid/",
+                                    "source_id": "bayside_archived",
+                                    "status": "Live"}])), 1),
+        ("a missing archived status is named",
+         len(_malformed_archived([{"name": "N", "source": "https://x.invalid/",
+                                    "source_id": "bayside_archived"}])), 1),
+        ("a row missing required keys names all of them at once",
+         len(_malformed_archived([{"source_id": "bayside_archived",
+                                    "status": "live"}])), 2),
     ]:
         check(label, actual, expected)
 

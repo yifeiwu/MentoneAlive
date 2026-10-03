@@ -592,7 +592,16 @@ MIN_SOURCE = {
     "greater_dandenong": 6,
     "ccc": 150,
     "chatty_cafe": 150,
-    "kingston_council": 3,
+    # 267 published rows today, from a listing of 301 over 31 pages that this
+    # source now walks (see sources.yaml). The floor used to be 3, which could
+    # not see anything: the source was reading page 1 only and publishing ten
+    # rows, and a floor of 3 called that healthy for months while two live
+    # events sat on pages 18 and 27. It is now set where a walk that stops
+    # early fails -- page 1 alone is 10, and half the listing is ~130, so 150
+    # catches a truncated pager while leaving room for a quiet month.
+    "kingston_council": 150,
+    # Still one page deep and still read one page at a time, so its floor is a
+    # count of that page. It is small because the page is small.
     "kingston_arts": 3,
     "gd_libraries": 3,
     # Ten listed programmes, of which four are recurring runs of a dozen or more

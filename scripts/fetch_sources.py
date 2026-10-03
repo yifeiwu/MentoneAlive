@@ -171,6 +171,27 @@ def validate_config(entries):
                     errors.append(f"source {sid!r}: {len(unmapped)} calendar "
                                   f"id(s) have no name AND address in "
                                   f"calendar_venues: {unmapped}")
+            # The two keys that govern how much pressure a run may put on a
+            # host, and how much of a listing it may read. Both are read with
+            # int()/float() inside the fetchers, where a typo becomes a
+            # ValueError from a frame that names neither the file nor the key --
+            # and a `crawl_delay` that silently falls back to the default is
+            # worse still, because the run then crawls at the wrong rate and
+            # reports nothing.
+            for key in ("max_pages", "detail_cap", "max_requests_per_run"):
+                if cfg.get(key) is not None and not str(cfg[key]).strip(
+                ).lstrip("-").isdigit():
+                    errors.append(f"source {sid!r}: {key}={cfg[key]!r} is not a "
+                                  f"whole number")
+            if cfg.get("crawl_delay") is not None:
+                try:
+                    if float(cfg["crawl_delay"]) < 0:
+                        raise ValueError
+                except (TypeError, ValueError):
+                    errors.append(
+                        f"source {sid!r}: crawl_delay={cfg['crawl_delay']!r} is "
+                        f"not a non-negative number of seconds (0 is floored "
+                        f"up to the shared minimum, not taken as 'no limit')")
         if cfg.get("group") != "snapshot":
             continue
         snap = cfg.get("snapshot")

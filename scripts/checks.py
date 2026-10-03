@@ -5,7 +5,7 @@ detector, the failure signals -- ships as a module with an `__main__` block full
 of cases. That is deliberate: the rules live next to the cases that pin them, so
 a rule and its evidence cannot drift apart, and the module runs standalone.
 
-What was not deliberate is that eight of those blocks also hand-rolled the same
+What was not deliberate is that several of those blocks also hand-rolled the same
 seven-line `check()` helper and the same print-and-exit tail, in six slightly
 different formats. So:
 
@@ -13,7 +13,10 @@ different formats. So:
     python scripts/checks.py recurrence    # one suite
     python scripts/checks.py --list
 
-The suites stay where they are. This only owns the boilerplate.
+The suites stay where they are. This only owns the boilerplate. `check()` is
+importable (`from checks import check`) and most suites now use it; two still
+inline their own compare-and-print, which is a cosmetic difference and not worth
+another pass over a suite that has other reasons to be read carefully.
 """
 import subprocess
 import sys

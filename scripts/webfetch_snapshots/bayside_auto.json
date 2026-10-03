@@ -3,10 +3,10 @@
   "name": "One-on-one Device Advice Series",
   "datetime_text": "10 June 2026 to 6 January 2027 11:00am-12:00pm",
   "datetime_iso": "2026-06-10T11:00:00",
-  "location": "Beaumaris, Brighton, Hampton, Sandringham",
+  "location": "Beaumaris",
   "address": "Beaumaris, Brighton, Hampton, Sandringham, Victoria",
   "price_text": "Free",
-  "description": "One-on-one Device Advice Series",
+  "description": "Book into these twenty minute one-on-one sessions with a staff member to help you with your device. Please remember to bring your own device.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/one-one-device-advice-series",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -18,7 +18,7 @@
   "location": "Beaumaris Library",
   "address": "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Special display: fossil discoveries with Prehistoric Bayside",
+  "description": "Bayside's beaches hold one of Australia's most significant fossil records, preserving the remains of an ancient sea that covered the coastline five to six million years ago.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/special-display-fossil-discoveries-prehistoric-bayside",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -30,7 +30,7 @@
   "location": "Victoria",
   "address": "Victoria",
   "price_text": "Free",
-  "description": "Capture Wild Bayside and win",
+  "description": "You don't have to travel far to discover the beauty of Bayside's natural environment.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/capture-wild-bayside-and-win",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -40,9 +40,9 @@
   "datetime_text": "28 September 2026 to 2 October 2026 29 September 2026 to 3 October 2026 30 September 2026 to 4 October 2026 1 October 2026 to 5 October 2026 2 October 2026 to 6 October 2026 09:30am-03:00pm",
   "datetime_iso": "2026-09-28T09:30:00",
   "location": "84 Reserve Road",
-  "address": "84 Reserve Road, Beaumaris, Beaumaris, Victoria 3193",
+  "address": "84 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "$45.00",
-  "description": "Kids School Holiday Art Workshops",
+  "description": "Everyone is welcome, all skill levels are encouraged and no membership is required.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/kids-school-holiday-art-workshops",
   "source_id": "bayside_live",
   "price_sort": 45.0
@@ -54,7 +54,7 @@
   "location": "Beaumaris Senior Centre",
   "address": "Beaumaris Senior Centre, 84 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "$10.00",
-  "description": "Paul Gelsumini from the Ten Tenors",
+  "description": "Join acclaimed Australian vocalist Paul Gelsumini for a wonderful hour of live music as the opening event for Seniors Festival 2026.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/paul-gelsumini-ten-tenors",
   "source_id": "bayside_live",
   "price_sort": 10.0
@@ -66,7 +66,7 @@
   "location": "Brighton Town Hall",
   "address": "Brighton Town Hall, 32 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Discover the Art of the Pencil",
+  "description": "Join a free, relaxing art demonstration with Roger. Learn basic pencil skills to achieve realistic results quickly! Morning tea provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/discover-art-pencil",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -78,7 +78,7 @@
   "location": "Brighton Senior Centre",
   "address": "Brighton Senior Centre, 23 Durrant Steet, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Play Cards",
+  "description": "Learn how to play cards and learn about the secrets to good mental health practices.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/play-cards",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -90,7 +90,7 @@
   "location": "Brighton Town Hall",
   "address": "Brighton Town Hall, 32 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Watercolour Painting - Starting with Basics",
+  "description": "Join a free, art demonstration with Lindsay. Learn about basic materials and how to start watercolour painting. Afternoon tea provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-painting-starting-basics",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -102,7 +102,7 @@
   "location": "Bayside’s Arts & Cultural Centre",
   "address": "Bayside’s Arts & Cultural Centre, Level 1, 32 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Watercolour painting - starting with basics",
+  "description": "Join a free, art demonstration with Lindsay. Learn about basic materials and how to start watercolour painting. Afternoon tea provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-painting-starting-basics-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -114,7 +114,7 @@
   "location": "Brighton Library",
   "address": "Brighton Library, 14Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Watercolour Mandala Workshop",
+  "description": "Unwind and find your creative flow in a relaxing and mindful 2-hour Mandala Watercolour Workshop designed for all skill levels.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/watercolour-mandala-workshop",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -126,7 +126,7 @@
   "location": "4/41 Glen Huntly Road",
   "address": "4/41 Glen Huntly Road, Elwood, Victoria 3184",
   "price_text": "Free",
-  "description": "Colour your world art exhibition",
+  "description": "An exiting art exhibition by Inessa Karlik, whose artwork features in display homes, book illustrations and hangs in businesses across Australia.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/colour-your-world-art-exhibition",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -138,7 +138,7 @@
   "location": "Bayside City Council Corporate Centre foyer",
   "address": "Bayside City Council Corporate Centre foyer, 76 Royal Ave, Sandringham, Victoria 3191",
   "price_text": "",
-  "description": "Artists in Residence Exhibition",
+  "description": "Presented as part of the Bayside Seniors Festival, the Artists in Residence exhibition showcases artworks created through a series of workshops facilitated by Bayside Arts and Culture, with local Artist, Kerry Evitts. Participants included residents of local residential aged care homes and members of Bayside Care and Support's Social Support Program, who continue to live independently in their own",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/artists-residence-exhibition",
   "source_id": "bayside_live",
   "price_sort": null
@@ -147,10 +147,10 @@
   "name": "Fairies at Rippon Lea",
   "datetime_text": "2 October 2026 3 October 2026 4 October 2026 10:00am-11:15am",
   "datetime_iso": "2026-10-02T10:00:00",
-  "location": "192 Hotham St, Elsternwick",
+  "location": "192 Hotham St",
   "address": "192 Hotham St, Elsternwick, Victoria 3185",
   "price_text": "$30.00",
-  "description": "Fairies at Rippon Lea",
+  "description": "Join the magical fairies as they go on an exciting musical adventure!",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/fairies-rippon-lea",
   "source_id": "bayside_live",
   "price_sort": 30.0
@@ -159,10 +159,10 @@
   "name": "Reflection by Playable Streets",
   "datetime_text": "2 October 2026 11:00am-04:30pm",
   "datetime_iso": "2026-10-02T11:00:00",
-  "location": "Brighton Town Hall, Cnr Wilson and Carpenter Street",
+  "location": "Brighton Town Hall",
   "address": "Brighton Town Hall, Cnr Wilson and Carpenter Street, Brighton, Victoria 3186",
   "price_text": "",
-  "description": "Reflection by Playable Streets",
+  "description": "It’s time to reflect, on a year, on a thought, on anything at all.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/reflection-playable-streets-0",
   "source_id": "bayside_live",
   "price_sort": null
@@ -174,7 +174,7 @@
   "location": "Black Rock Village",
   "address": "Black Rock Village, Black Rock, Victoria",
   "price_text": "",
-  "description": "Spot the Clock competition",
+  "description": "Spring has officially sprung in Bayside, and Black Rock Village is celebrating with a shop window-painting trail and a ‘Spot the Clock!’ competition.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/spot-clock-competition",
   "source_id": "bayside_live",
   "price_sort": null
@@ -183,10 +183,10 @@
   "name": "Dad's Playgroup",
   "datetime_text": "3 October 2026 7 November 2026 5 December 2026 2 January 2027 6 February 2027 6 March 2027 10:00am-12:00pm",
   "datetime_iso": "2026-10-03T10:00:00",
-  "location": "Regular location 12 Willis Street, Hampton (currently unavailable)",
+  "location": "Regular location 12 Willis Street",
   "address": "Regular location 12 Willis Street, Hampton (currently unavailable), Temporary location: 665 Hampton Street, Brighton, Victoria 3188",
   "price_text": "",
-  "description": "Dad's Playgroup",
+  "description": "Join our Dad's Playgroup – A local group for dads and their kids!",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dads-playgroup",
   "source_id": "bayside_live",
   "price_sort": null
@@ -198,7 +198,7 @@
   "location": "32 Wilson Street",
   "address": "32 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Acrylic Painting - Starting with Basics",
+  "description": "Join a free, art demonstration with Lindsay. Learn about basic materials and how to start Acrylic painting. Morning tea provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/acrylic-painting-starting-basics",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -210,7 +210,7 @@
   "location": "Brighton Town Hall",
   "address": "Brighton Town Hall, 32 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Art Printing Methods - Starting with Basics",
+  "description": "Join a free, art demonstration with Christine. Learn various printing techniques and how to start with basic materials. Afternoon tea provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/art-printing-methods-starting-basics",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -220,9 +220,9 @@
   "datetime_text": "3 October 2026 7 November 2026 5 December 2026 10:00am-04:00pm",
   "datetime_iso": "2026-10-03T10:00:00",
   "location": "8 Waltham Street",
-  "address": "8 Waltham Street, Sandringham, Sandringham, Victoria 3193",
+  "address": "8 Waltham Street, Sandringham, Victoria 3193",
   "price_text": "Free",
-  "description": "Write space at Sandringham Library",
+  "description": "Are you a writer looking for a space to write and to meet other writers? Our monthly Write Space in Sandringham Library's beautiful multi-purpose room might be just what you are looking for... Up to five library members can book to use the room, and every person will have their own trestle table to work on. BYO device/charger/lunch/snacks. Tea and coffee making facilities are available in the room",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/write-space-sandringham-library",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -231,10 +231,10 @@
   "name": "Reflection by Playable Streets",
   "datetime_text": "3 October 2026 01:00pm-04:30pm",
   "datetime_iso": "2026-10-03T13:00:00",
-  "location": "Brighton Town Hall, Cnr Wilson and Carpenter Street",
+  "location": "Brighton Town Hall",
   "address": "Brighton Town Hall, Cnr Wilson and Carpenter Street, Brighton, Victoria 3186",
   "price_text": "",
-  "description": "Reflection by Playable Streets",
+  "description": "It’s time to reflect, on a year, on a thought, on anything at all.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/reflection-playable-streets-1",
   "source_id": "bayside_live",
   "price_sort": null
@@ -246,7 +246,7 @@
   "location": "Trinity Uniting Church",
   "address": "Trinity Uniting Church, 15 Black Street, Brighton, Victoria 3186",
   "price_text": "",
-  "description": "Brighton Youth Art Fundraiser",
+  "description": "The Brighton Youth Art Exhibition is a community fundraising event in support of dementia care and awareness.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-youth-art-fundraiser",
   "source_id": "bayside_live",
   "price_sort": null
@@ -258,7 +258,7 @@
   "location": "14 Willis St",
   "address": "14 Willis St, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Neighbourly Ride Hampton",
+  "description": "Introducing our newest Neighbourly Ride location – Hampton! 🎉 We’re so excited to share that Neighbourly Ride is expanding to the south. Thanks to the amazing interest in our Carlton and Brunswick rides, we’ll be launching a Hampton ride starting on Sunday, 1 February 🙌🏼",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neighbourly-ride-hampton",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -270,7 +270,7 @@
   "location": "Victoria",
   "address": "Victoria",
   "price_text": "$5.00",
-  "description": "Devilbend Reservoir Loop Walk- Mornington Peninsula",
+  "description": "A 12 km walk around Devilbend reservoir. A haven for waterbirds and walkers, Devilbend Natural Features include the largest inland water body on the Mornington Peninsula.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/devilbend-reservoir-loop-walk-mornington-peninsula",
   "source_id": "bayside_live",
   "price_sort": 5.0
@@ -282,7 +282,7 @@
   "location": "Elwood Bowling Club",
   "address": "Elwood Bowling Club, 170 Glen Huntly Road, Brighton, Victoria 3186",
   "price_text": "$18.00",
-  "description": "Belly Dance and Baklava Afternoon tea",
+  "description": "Enjoy watching belly dancers and participate in an optional 20 minute introduction to belly dance session. Enjoy a complimentary tea or coffee and piece of Middle Eastern sweet baklava.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/belly-dance-and-baklava-afternoon-tea",
   "source_id": "bayside_live",
   "price_sort": 18.0
@@ -291,10 +291,10 @@
   "name": "Welcome the Waders at Rickett's Point",
   "datetime_text": "4 October 2026 10:00am-11:30am",
   "datetime_iso": "2026-10-04T10:00:00",
-  "location": "Rickett's Point North carpark (Beaumaris Yacht Club), Beach Road",
-  "address": "Rickett's Point North carpark (Beaumaris Yacht Club), Beach Road, Beaumaris, Beaumaris, Victoria 3193",
+  "location": "Rickett's Point North carpark (Beaumaris Yacht Club)",
+  "address": "Rickett's Point North carpark (Beaumaris Yacht Club), Beach Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Welcome the Waders at Rickett's Point",
+  "description": "Every spring about two million shorebirds from dozens of species make an epic migration from the far north of Asia and the Americas to Australia. Around Port Phillip Bay our wader birds feed in the shallows, and the rocky platforms at Rickett's Point are an ideal roosting place for them during high tides. Rickett's Point, now a Marine Sanctuary, is the best place on the eastern shore of Port Phill",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/welcome-waders-ricketts-point-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -306,7 +306,7 @@
   "location": "Brighton Town Hall",
   "address": "Brighton Town Hall, 32 Wilson Street, Brighton, Victoria 3186",
   "price_text": "",
-  "description": "Talk: A history of Melbourne racewear",
+  "description": "Long before ‘Fashions on the Field’ began in 1962, Melburnians were dressing elegantly, colourfully—and sometimes outrageously—for the annual racing season. Racewear has evolved alongside racing itself, shaped by shifting fashion trends, weather, and global influences.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/talk-history-melbourne-racewear",
   "source_id": "bayside_live",
   "price_sort": null
@@ -318,7 +318,7 @@
   "location": "3 Mavis Avenue",
   "address": "3 Mavis Avenue, Brighton East, Victoria 3187",
   "price_text": "Free",
-  "description": "World Animal Day Celebration - Animal Blessings Fundraiser",
+  "description": "Join us as we honour and celebrate the animals who share our world. Experience a special Animal Blessing Ceremony and witness the joy of an Animal Liberation Release, symbolising hope, compassion, and freedom for all living beings. Together, let's promote kindness, respect, and care for every creature.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/world-animal-day-celebration-animal-blessings-fundraiser",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -327,10 +327,10 @@
   "name": "In conversation: Academy Award-winning filmmaker Adam Elliot",
   "datetime_text": "4 October 2026 12:00pm-01:00pm",
   "datetime_iso": "2026-10-04T12:00:00",
-  "location": "Brighton Library (Reading Room), 14 Wilson St",
+  "location": "Brighton Library (Reading Room)",
   "address": "Brighton Library (Reading Room), 14 Wilson St, Brighton, Victoria 3186",
   "price_text": "",
-  "description": "In conversation: Academy Award-winning filmmaker Adam Elliot",
+  "description": "Don’t miss this rare opportunity to hear directly from Academy Award-winning filmmaker Adam Elliot as he discusses his work and remarkable career in conversation with Bayside Gallery Curator Joanna Bosse.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/conversation-academy-award-winning-filmmaker-adam-elliot",
   "source_id": "bayside_live",
   "price_sort": null
@@ -342,7 +342,7 @@
   "location": "2 Livingston Street",
   "address": "2 Livingston Street, Highett, Victoria 3190",
   "price_text": "",
-  "description": "Free counselling services - Highett Neighbourhood Community House",
+  "description": "Free Counselling Services Mondays and Thursdays available via appointment at Highett Neighbourhood Community House or via Telehealth.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/free-counselling-services-highett-neighbourhood-community-house",
   "source_id": "bayside_live",
   "price_sort": null
@@ -354,7 +354,7 @@
   "location": "Bayside’s Arts & Cultural Centre",
   "address": "Bayside’s Arts & Cultural Centre, Level 1, 32 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Discover the art of the pencil",
+  "description": "Join a free, relaxing art demonstration with Roger. Learn basic pencil skills to achieve realistic results quickly! Materials and morning tea provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/discover-art-pencil-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -363,10 +363,10 @@
   "name": "Bayside Art Babies",
   "datetime_text": "5 October 2026 12 October 2026 19 October 2026 26 October 2026 2 November 2026 9 November 2026 16 November 2026 23 November 2026 30 November 2026 7 December 2026 14 December 2026 09:30am-10:00am",
   "datetime_iso": "2026-10-05T09:30:00",
-  "location": "Bayside Gallery, corner of Carpenter and Wilson Streets",
+  "location": "Bayside Gallery",
   "address": "Bayside Gallery, corner of Carpenter and Wilson Streets, Brighton, Victoria 3186",
   "price_text": "",
-  "description": "Bayside Art Babies",
+  "description": "Our Bayside Art Babies program is aimed at supporting child development through creative arts focussing on sensory stimulation and developing early cognitive skills such as visual tracking, gross motor skills and fostering bonding experiences with carers. Each week during school terms we will explore a work of art in the current exhibition using song, storytelling and a hands-on activity.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bayside-art-babies-term42026",
   "source_id": "bayside_live",
   "price_sort": null
@@ -378,7 +378,7 @@
   "location": "Multipurpose room",
   "address": "Multipurpose room, 8 Waltham Street, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Black gold! A composting and worm farming presentation",
+  "description": "Join this practical presentation facilitated by Sustainable Gardening Australia and discover how to transform your kitchen and garden scraps into nutrient-rich compost for a thriving garden. Learn the basics of composting, including the ideal compost recipe, how compost is made, and simple solutions to common composting problems.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/black-gold-composting-and-worm-farming-presentation",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -390,7 +390,7 @@
   "location": "St Michael’s Beaumaris Church Hall",
   "address": "St Michael’s Beaumaris Church Hall, 30 Dalgetty Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Table Tennis and Darts",
+  "description": "Come and play table tennis or darts. Two table tennis tables will be available and all equipment provided. All skill levels catered for and welcome.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-1",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -402,7 +402,7 @@
   "location": "Brighton Senior Centre",
   "address": "Brighton Senior Centre, 23 Durrant Steet, Brighton, Victoria 3186",
   "price_text": "$20.00",
-  "description": "Come and Try Line Dancing",
+  "description": "Celebrate Seniors Month by learning something new and fun. We’re running a 4-week introductory line dancing block designed specifically for older people who have always wanted to give it a try.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-line-dancing",
   "source_id": "bayside_live",
   "price_sort": 20.0
@@ -414,7 +414,7 @@
   "location": "Brighton Recreational Centre",
   "address": "Brighton Recreational Centre, 93 Outer Crescent, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Seniors Gymnastics Classes",
+  "description": "Our Seniors Gymnastics classes will run throughout October.  Participants will have the opportunity to enjoy up to four FREE weekly sessions held on Tuesday afternoons from 1:30 - 2:30 pm.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-gymnastics-classes-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -426,7 +426,7 @@
   "location": "Green Point Brighton Beach",
   "address": "Green Point Brighton Beach, 6 Esplanade, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Easy Walking",
+  "description": "Walk from GreenPoint along the beach trail to a cafe in Hampton St for coffee and return (about 6km).",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/easy-walking-1",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -438,7 +438,7 @@
   "location": "Brighton Library",
   "address": "Brighton Library, 14 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Ancestry - Library Edition For Beginners",
+  "description": "Curious about your family history? Join us for an introductory session on Ancestry Library Edition , one of the world's largest online genealogy resources, that you can use for free on a library computer or using your own device whilst using the free library wi-fi.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ancestry-library-edition-beginners",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -450,7 +450,7 @@
   "location": "Brighton Senior Centre",
   "address": "Brighton Senior Centre, 23 Durrant Steet, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "First Nations Basket Weaving",
+  "description": "Join Olivia, a Central and Eastern Arrernte woman, to learn the traditional Aboriginal art of basket-weaving. Olivia shares the meditative and communal practice of weaving, reconnecting people with tradition, land, and each other. All materials for learning are provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/first-nations-basket-weaving",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -462,7 +462,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service Street, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Works of Wonder Magic Show",
+  "description": "Get ready for an unforgettable, free magical performance as part of this year’s Seniors Festival. Join master illusionist, Elio Simonetti, and his dazzling soubrette Eva Salleh for a mesmerising show.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/works-wonder-magic-show-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -474,7 +474,7 @@
   "location": "Castlefield Community Centre",
   "address": "Castlefield Community Centre, 505 Bluff Road, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Rest and Restore: iRest Meditation and Soundbath",
+  "description": "Experience deep relaxation through a soothing sound bath and guided iRest meditation.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/rest-and-restore-irest-meditation-and-soundbath",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -486,7 +486,7 @@
   "location": "Brighton Senior Centre",
   "address": "Brighton Senior Centre, 23 Durrant Steet, Brighton, Victoria 3186",
   "price_text": "$5.00",
-  "description": "Line Dancing For Beginners and Beyond",
+  "description": "Come on your own or with friends to exercise your body and mind in a friendly and welcoming space. Come to one session or both. All levels are welcome, no age limits. Please wear comfortable shoes. Beginner session from 6:30 pm to 7:15 pm and more advanced session from 7:30 pm to 8:30 pm.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/line-dancing-beginners-and-beyond-2",
   "source_id": "bayside_live",
   "price_sort": 5.0
@@ -498,7 +498,7 @@
   "location": "Brighton Mens Shed",
   "address": "Brighton Mens Shed, 210 Dendy Street, Brighton, Victoria 3187",
   "price_text": "Free",
-  "description": "Brighton Men’s Shed Open Day",
+  "description": "Come along and visit a working session at the Men’s Shed in Brighton. This is a great opportunity to see members in action and to learn more about what takes place at the Men's Shed. We're pleased to assist visitors, but repairs are not undertaken at this event.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-mens-shed-open-day",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -510,7 +510,7 @@
   "location": "Tara Institute",
   "address": "Tara Institute, 3 Mavis Avenue, Brighton East, Victoria 3187",
   "price_text": "Free",
-  "description": "It’s never too late to meditate - Session 1",
+  "description": "A gentle, supportive session for older adults to slow down, breathe, and reconnect with inner peace. Each session offers simple guided meditation, light mindfulness practices, and the warmth of practicing together as a community. Whether you're brand new, returning to meditation after many years or you regularly practice meditation, this program makes it easy to cultivate calm, clarity, and wellbe",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/its-never-too-late-meditate-session-1",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -522,7 +522,7 @@
   "location": "Sandringham Life Saving Club",
   "address": "Sandringham Life Saving Club, Beach Road, Sandringham, Victoria",
   "price_text": "Free",
-  "description": "Silver Salties Yoga",
+  "description": "Yoga can enhance physical health and overall wellness. Yoga practice builds strength and flexibility and increasesphysical awareness. All fitness levels and abilities are welcome.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-yoga",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -534,7 +534,7 @@
   "location": "Brighton Croquet Club",
   "address": "Brighton Croquet Club, 2-6 Bleazby Avenue, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Come and Try Croquet",
+  "description": "An opportunity to visit our lovely green grounds in the heart of Brighton and try out running a few hoops.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-croquet-2",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -546,7 +546,7 @@
   "location": "Sandringham Library",
   "address": "Sandringham Library, 8 Waltham Street, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Riley James - \"The Wreck\" in conversation with Geoff Parkes",
+  "description": "A gripping survivalist thriller from the author of The Chilling about researchers marooned on a remote island in the Bass Strait while searching for the wreckage of a plane that disappeared under mysterious circumstances twenty years earlier.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/riley-james-wreck-conversation-geoff-parkes",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -555,10 +555,10 @@
   "name": "Melbourne Sculpture Biennale 2026: Soft Systems",
   "datetime_text": "8 October 2026 9 October 2026 10 October 2026 11 October 2026 15 October 2026 16 October 2026 17 October 2026 18 October 2026 22 October 2026 23 October 2026 24 October 2026 25 October 2026 11:00am-05:00pm",
   "datetime_iso": "2026-10-08T11:00:00",
-  "location": "Billilla Mansion, 26 Halifax Street",
+  "location": "Billilla Mansion",
   "address": "Billilla Mansion, 26 Halifax Street, Brighton, Victoria 3186",
   "price_text": "",
-  "description": "Melbourne Sculpture Biennale 2026: Soft Systems",
+  "description": "After the success of the inaugural edition, Melbourne Sculpture Biennale will return for a second edition in October 2026.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/melbourne-sculpture-biennale-2026-soft-systems",
   "source_id": "bayside_live",
   "price_sort": null
@@ -570,7 +570,7 @@
   "location": "Victorian Bridge Centre",
   "address": "Victorian Bridge Centre, 3 Breen Drive, Brighton East, Victoria 3187",
   "price_text": "Free",
-  "description": "Victorian Bridge Centre  Open Day - Learn or play.",
+  "description": "The Victorian Bridge Centre will run this free event open to all members of the community. If you've ever wondered what bridge is, come along and find out. Learn a new skill and meet members of your community with a shared interest. If you already know how to play come along and play a free game with club members.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/victorian-bridge-centre-open-day-learn-or-play",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -582,7 +582,7 @@
   "location": "Brighton Senior Centre",
   "address": "Brighton Senior Centre, 23 Durrant Steet, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Play Mahjong",
+  "description": "Make friends through mahjong. Learn how to play mahjong with a group of social players.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/play-mahjong",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -594,7 +594,7 @@
   "location": "Sandybeach Centre",
   "address": "Sandybeach Centre, 2 Sims Street, Sandringham, Victoria 3191",
   "price_text": "$10.00",
-  "description": "The Roy Orbison Story with Glenn Douglas",
+  "description": "Step back in time and relive the golden era of rock and roll with The Roy Orbison Story featuring Glenn Douglas. This unforgettable musical afternoon brings people together through the timeless songs and heartfelt storytelling of one of music's most iconic voices.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/roy-orbison-story-glenn-douglas-0",
   "source_id": "bayside_live",
   "price_sort": 10.0
@@ -606,7 +606,7 @@
   "location": "Beaumaris Library",
   "address": "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Citizen Science Nature Walk",
+  "description": "Join us at Beaumaris Library for an enlightening session on our local nature reserves, featuring guest speaker Dr Rob Saunders.  You'll discover the rich history and biodiversity of our area, the crucial role of ecological burning and the remarkable signifcance of Long Hollow - which boasts a great variety of species, more than any other reserve in Bayside.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/citizen-science-nature-walk",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -618,7 +618,7 @@
   "location": "Brighton Recreational Centre",
   "address": "Brighton Recreational Centre, 93 Outer Crescent, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Seniors Beginner Crochet Workshop",
+  "description": "Join us for a bubbly, beginner-friendly crochet class and learn the basics of crocheting. In this workshop, we will cover all the essentials, from chain stitches, single and double stitches to making your own granny squares. No experience is required. Your friendly teacher will guide you step-by-step through the crocheting process to help bring your project to life.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-beginner-crochet-workshop",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -627,10 +627,10 @@
   "name": "ZOE Australia Melbourne Justice Walk 2026",
   "datetime_text": "10 October 2026 09:45am-01:56pm",
   "datetime_iso": "2026-10-10T09:45:00",
-  "location": "Green Point, Brighton",
-  "address": "Green Point, Brighton, Brighton, Victoria 3186",
+  "location": "Green Point",
+  "address": "Green Point, Brighton, Victoria 3186",
   "price_text": "",
-  "description": "ZOE Australia Melbourne Justice Walk 2026",
+  "description": "On Saturday, October 10th, 2026, ZOE Australia will be hosting their Melbourne Justice Walk, to take a stand against one of the most pressing issues of our time; child trafficking. It’s not just an event, but a powerful movement that unites people from all walks of life to take action for children who are silenced by exploitation and abuse.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/zoe-australia-melbourne-justice-walk-2026",
   "source_id": "bayside_live",
   "price_sort": null
@@ -642,7 +642,7 @@
   "location": "315-317 Reserve Rd",
   "address": "315-317 Reserve Rd, Cheltenham, Victoria 3192",
   "price_text": "Free",
-  "description": "Final Gala Day at Bayside Community Nursery",
+  "description": "Bayside Community Nursery will be holding its Final Gala Day on Saturday 10 October from 9am to 1pm.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/final-gala-day-bayside-community-nursery",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -654,7 +654,7 @@
   "location": "Brighton General Cemetery",
   "address": "Brighton General Cemetery, 261 North Road (meet at front gate near corner Hawthorn Road), Brighton, Victoria 3186",
   "price_text": "$15.00",
-  "description": "The Thin Blue Line - Police at the Brighton Cemetery",
+  "description": "The Victoria Police was formally established on 8 January 1853 from an existing  colonial police force of 875 men. Today we will hear just a few stories of those buried within the walls of Brighton General Cemetery. Stories about the Policeman who was found guilty of misconduct by lying about his blossoming weight.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/thin-blue-line-police-brighton-cemetery",
   "source_id": "bayside_live",
   "price_sort": 15.0
@@ -666,7 +666,7 @@
   "location": "Sandringham Croquet Club",
   "address": "Sandringham Croquet Club, 94B Beach Road, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Come and try Croquet",
+  "description": "Croquet is a fun game that is easy to learn. Please wear flat shoes and a sun hat. Equipment and coaching will be provided. Complimentary afternoon tea. Bookings essential.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-croquet-3",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -678,7 +678,7 @@
   "location": "Firbank Grammar",
   "address": "Firbank Grammar, Middle Crescent, Brighton, Victoria 3186",
   "price_text": "$10.00",
-  "description": "Destination Imagination - Community Festival & STEM Tournament",
+  "description": "Come and explore all the entertainment and activities on offer at this Community Festival & STEM Tournament for all ages.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/destination-imagination-community-festival-stem-tournament",
   "source_id": "bayside_live",
   "price_sort": 10.0
@@ -687,10 +687,10 @@
   "name": "Rebetiko festival celebration with Anatreptix",
   "datetime_text": "11 October 2026 10:00am-12:00pm",
   "datetime_iso": "2026-10-11T10:00:00",
-  "location": "58 Station St, Sandringham",
-  "address": "58 Station St, Sandringham, Sandringham, Victoria 3191",
+  "location": "58 Station St",
+  "address": "58 Station St, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Rebetiko festival celebration with Anatreptix",
+  "description": "Sandringham Village Square will come alive with the sounds of Greece as Anatreptix takes to the street for a special free pop-up performance. Direct from the Retreat Hotel in Brunswick, this talented Rebetiko quartet will perform opposite Sandringham Station and Bus Hub, sharing the rich musical tradition often described as the \"Greek blues\".",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/rebetiko-festival-celebration-anatreptix",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -702,7 +702,7 @@
   "location": "Sandringham Library",
   "address": "Sandringham Library, 8 Waltham Street, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Recording Life Stories",
+  "description": "Join talented podcaster and storyteller Nina Fromhold from Memory Lane Life Stories for an engaing workshop where you can delve into the art of capturing life stories.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/recording-life-stories",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -714,7 +714,7 @@
   "location": "Billilla Mansion",
   "address": "Billilla Mansion, 26 Halifax Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Bayside Art Babies",
+  "description": "Bayside Art Babies is aimed at supporting child development through creative arts. Designed for babies up to 18 months of age, the sessions focus on sensory stimulation and developing early cognitive skills such as visual tracking, gross motor skills and fostering bonding experiences with carers.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bayside-art-babies-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -726,7 +726,7 @@
   "location": "Palace Church Street Cinema",
   "address": "Palace Church Street Cinema, 26 Church Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Carers Week  Movie Event",
+  "description": "We invite unpaid carers in Bayside, and the people they care for, to join us for a free movie screening followed by a light lunch. Enjoy some time out, a chat and lunch with other carers in the community. Movie details will be available closer to the date.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/carers-week-movie-event",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -738,7 +738,7 @@
   "location": "St Michael’s Church Hall",
   "address": "St Michael’s Church Hall, 30 Dalgetty Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Table Tennis and Darts",
+  "description": "Come and play table tennis or darts. Two table tennis tables will be available and all equipment provided. All skill levels catered for and welcome.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-2",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -750,7 +750,7 @@
   "location": "Sandringham Life Saving Club",
   "address": "Sandringham Life Saving Club, Beach Road, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Silver Salties Tai Chi",
+  "description": "Tai Chi is a moving meditation, with flowing, gentle movements creating a low-impact workout. All fitness levels and abilities are welcome.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-tai-chi-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -762,7 +762,7 @@
   "location": "Beaumaris Community Hall",
   "address": "Beaumaris Community Hall, 96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Do you like to sing in the shower?",
+  "description": "Ever thought of joining a choir? Come and try our open rehearsal. All abilities welcome. Enjoy a sumptuous supper and join us in song.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/do-you-sing-shower",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -774,7 +774,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service, Hampton, Victoria 3188",
   "price_text": "$5.00",
-  "description": "Seniors Aikido Demonstration",
+  "description": "Come and join Seniors Aikido, a gentle and senior-friendly Japanese martial art that focuses on balance, flexibility, confidence and wellbeing. Visitors are welcome to watch the demonstration free of charge and are invited to join our light warm-up exercises at the beginning of the session. Bookings essential.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-aikido-demonstration",
   "source_id": "bayside_live",
   "price_sort": 5.0
@@ -784,9 +784,9 @@
   "datetime_text": "13 October 2026 07:30pm-09:30pm",
   "datetime_iso": "2026-10-13T19:30:00",
   "location": "96 Reserve Road",
-  "address": "96 Reserve Road, Beaumaris, Beaumaris, Victoria 3193",
+  "address": "96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Vocally Wild Choir open rehearsal",
+  "description": "Do you love to sing?  Are you looking for a fun, friendly and welcoming community with which to share your love of music? Come along to our Free Open Rehearsal and see what we're all about.  We look forward to greeting you.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/vocally-wild-choir-open-rehearsal",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -798,7 +798,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service Street, Hampton, Victoria 3188",
   "price_text": "$10.00",
-  "description": "Merry Melodies",
+  "description": "Come join us for an afternoon of sensational musical entertainment featuring the classic songs from the 40s, 50s and 60s.  Audience members will sing and bop along to a variety of talented performers.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-2",
   "source_id": "bayside_live",
   "price_sort": 10.0
@@ -810,7 +810,7 @@
   "location": "Middle Brighton Baths",
   "address": "Middle Brighton Baths, 251 Esplanade, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Cycling",
+  "description": "An easy 20 minute ride from Middle Brighton Baths to the Beachcomber Cafe in St Kilda for coffee and return.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cycling-2",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -822,7 +822,7 @@
   "location": "Hampton Bayside Bowls Club",
   "address": "Hampton Bayside Bowls Club, 25 Fewster Road, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Come and Try Lawn Bowls",
+  "description": "Try out Lawn Bowls in a friendly and encouraging environment, followed by a delicious morning tea.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-lawn-bowls-4",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -834,7 +834,7 @@
   "location": "Highett Neighbourhood  Community House",
   "address": "Highett Neighbourhood  Community House, 2 Livingston Street, Highett, Victoria 3190",
   "price_text": "Free",
-  "description": "Dungeons and Dragons",
+  "description": "An ageless, easy to play, tabletop role playing game where the players assume the role of an adventurer.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dungeons-and-dragons-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -846,7 +846,7 @@
   "location": "Hampton Community Centre",
   "address": "Hampton Community Centre, 14 Willis Street, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Death Café",
+  "description": "Not sure how to talk about death and dying? Death Cafes are welcoming, non-judgmental gatherings where people come together to talk openly about the final stage of life in a supportive environment.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/death-cafe",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -858,7 +858,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service, Hampton, Victoria 3188",
   "price_text": "$10.00",
-  "description": "Merry Melodies",
+  "description": "Come join us for an afternoon of sensational musical entertainment featuring the classic songs from the ‘40s, ‘50s and ‘60s. Audience members will sing and bop along to a variety of talented performers.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-4",
   "source_id": "bayside_live",
   "price_sort": 10.0
@@ -870,7 +870,7 @@
   "location": "Beaumaris Library",
   "address": "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Sing-a-long",
+  "description": "Come and experience the comedic and musical brilliance of The Tuck Shop Ladies!",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sing-long",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -882,7 +882,7 @@
   "location": "Beaumaris Library",
   "address": "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Tricia Stringer - \"The Paradise Resort\"",
+  "description": "Bayside borrowers love Tricia Stringer! Come along to hear about her brand new book The Paradise Resort.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/tricia-stringer-paradise-resort",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -894,7 +894,7 @@
   "location": "Online",
   "address": "Online",
   "price_text": "Free",
-  "description": "Support for carers webinar",
+  "description": "Carers Victoria, Bayside City Council, Glen Eira City Council, City of Kingston and City of Stonnington invite you to join this free online workshop.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/support-carers-webinar",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -906,7 +906,7 @@
   "location": "2 Sims Street",
   "address": "2 Sims Street, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Carers Week - High tea with Elton and Olivia",
+  "description": "Celebrate Carers Week with an afternoon of music, friendship and a little bit of sparkle! Join us for a fabulous High Tea with Elton and Olivia, featuring our very own Peter Sullivan as Elton John and Andrea Lees as Olivia Newton-John. Enjoy a delicious afternoon tea, wonderful live music and plenty of opportunities to sing along to some much-loved favourites. Come along, relax, have a laugh and e",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/carers-week-high-tea-elton-and-olivia",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -918,7 +918,7 @@
   "location": "Sandringham Library",
   "address": "Sandringham Library, 8 Waltham St Sandringham, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Home Energy Upgrades Program information session",
+  "description": "Are your energy bills going up? Is your home hot in summer and cold in winter?",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/home-energy-upgrades-program-information-session-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -930,7 +930,7 @@
   "location": "Brighton Recreational Centre",
   "address": "Brighton Recreational Centre, 93 Outer Crescent, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Seniors Walk and Talk",
+  "description": "Our Seniors Walk and Talk invites older people of Bayside to spend an afternoon being active and connecting with community. The event begins with a guided walk. Afterwards, guests will enjoy a light lunch followed by a thought-provoking talk from Dr Bruce Walmsley. Dr Walmsley will explore the idea of internalised ageing and the powerful stories we tell ourselves about growing older.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/seniors-walk-and-talk",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -942,7 +942,7 @@
   "location": "Cranbourne Gardens Ballarto Road and Botanic Drive",
   "address": "Cranbourne Gardens Ballarto Road and Botanic Drive, Cranbourne, Victoria",
   "price_text": "$5.00",
-  "description": "Cranbourne Gardens in late Spring",
+  "description": "Starting at Stringybark Picnic Ground and walking to the Gardens via Possum gully and Trig Track, enjoy this 10km walk. BYO morning tea. Possible garden tour. Enjoy extended time at the Gardens then walk back to Stringybark via Wylies Creek track and Wetlands walk for lunch. Bookings essential.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cranbourne-gardens-late-spring",
   "source_id": "bayside_live",
   "price_sort": 5.0
@@ -954,7 +954,7 @@
   "location": "Black Rock Activity Centre",
   "address": "Black Rock Activity Centre, 2 Karrakatta Street, Black Rock, Victoria 3193",
   "price_text": "Free",
-  "description": "Come and try: Rewire Choir",
+  "description": "Rewire Choir is an inclusive, therapeutic choir designed specifically for people living with a diagnosis of dementia and their family members or friends who support them. Led by registered music therapist Zara Thompson who is trained in using music to support health and wellbeing outcomes.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-try-rewire-choir",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -966,7 +966,7 @@
   "location": "2 Livingston Street",
   "address": "2 Livingston Street, Highett, Victoria 3190",
   "price_text": "Free",
-  "description": "Neurodiversity in Kids Presentation 2",
+  "description": "Join us for this practical workshop lead by Better Health Network designed to help parents, carers and educators better understand neurodivergence in children.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neurodiversity-kids-presentation-2",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -978,7 +978,7 @@
   "location": "Billilla Mansion",
   "address": "Billilla Mansion, 26 Halifax Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Analog Art Club",
+  "description": "Analog Art Club is an initiative that invites participants to slow down, switch off their screens and connect in real life, through art. This event offers a welcoming space to reflect, discuss and experience art together, making creativity social, accessible and refreshingly analog.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/analog-art-club-9",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -990,7 +990,7 @@
   "location": "Brighton Senior Centre",
   "address": "Brighton Senior Centre, 23 Durrant Steet, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Comedy Show with Brad Oakes",
+  "description": "Get ready for an evening of laughter, fun and feel-good entertainment as part of this year’s Seniors Festival.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/comedy-show-brad-oakes",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1002,7 +1002,7 @@
   "location": "Masonic Hall",
   "address": "Masonic Hall, 23 Abbott Street, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Morning Tea with S.L.A.C.",
+  "description": "Enjoy morning tea with members of Sandringham Life Activities Club (S.L.A.C). Learn about the range of activities on offer with this growing Bayside social club.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/morning-tea-slac-2",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1014,7 +1014,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Let’s Connect through Community Singing",
+  "description": "Join in with others singing uplifting well known songs. All voices, even rusty ones are welcome. Lyrics and morning tea provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/lets-connect-through-community-singing",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1026,7 +1026,7 @@
   "location": "Brighton Senior Centre",
   "address": "Brighton Senior Centre, 23 Durrant Steet, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Karaoke Singing",
+  "description": "Join us to sing together through Karaoke and make friends.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/karaoke-singing",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1038,7 +1038,7 @@
   "location": "Sandringham Life  Saving Club",
   "address": "Sandringham Life  Saving Club, Beach Road, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Silver Salties Pilates",
+  "description": "Pilates increases core strength, flexibility, and builds muscle. All fitness levels and abilities are welcome.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-salties-pilates-1",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1050,7 +1050,7 @@
   "location": "Black Rock Sports Club",
   "address": "Black Rock Sports Club, 2 Fern Street, Black Rock, Victoria 3193",
   "price_text": "$25.00",
-  "description": "Timber Craft Workshop",
+  "description": "Timber Craft Workshops  - Creative timber classes for both men and women designed to inspire creativity, learning and confidence. You can choose from 3 workshop options 1. Timber bottle opener with engraving 2. Charcuterie board - choose your shape. Resin plus engraving options available 3. Bird house",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/timber-craft-workshop",
   "source_id": "bayside_live",
   "price_sort": 25.0
@@ -1062,7 +1062,7 @@
   "location": "Billilla Mansion",
   "address": "Billilla Mansion, 26 Halifax Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "National Carers Week at Melbourne Sculpture Biennale",
+  "description": "This National Carers Week, Bayside Arts recognises, celebrates, and raises awareness of the more than 3 million Australians who provide unpaid care to a family member or friend.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/national-carers-week-melbourne-sculpture-biennale",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1074,7 +1074,7 @@
   "location": "Sandringham Library",
   "address": "Sandringham Library, 8 Waltham Street, Sandringham, Victoria 3191",
   "price_text": "$30.00",
-  "description": "Graeme Simsion - \"The Novel Project\" writing event",
+  "description": "This Bayside Libraries event by bestselling author Graeme Simsion will cover the end-to-end process of writing, from premise to proofreading, as described in Graeme’s book The Novel Project: A step-by-step guide to writing your novel, memoir or biography ,",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/graeme-simsion-novel-project-writing-event",
   "source_id": "bayside_live",
   "price_sort": 30.0
@@ -1086,7 +1086,7 @@
   "location": "Sandybeach Community Centre",
   "address": "Sandybeach Community Centre, 2 Sims Street, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "How to Preserve Your Harvest",
+  "description": "Join permaculture and sustainability educator, Anna The Urban Nanna, for a presentation and hands-on workshop where you’ll learn about the many ways to preserve fresh seasonal produce and have a go at making a tasty preserve to take home.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/how-preserve-your-harvest",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1095,7 +1095,7 @@
   "name": "Black Rock Life Saving Club: Open Day & Season Launch 2026!",
   "datetime_text": "17 October 2026 03:00pm-05:00pm",
   "datetime_iso": "2026-10-17T15:00:00",
-  "location": "Beach Park, near the clock tower",
+  "location": "Beach Park",
   "address": "Beach Park, near the clock tower, Beach Road, Black Rock, Victoria 3193",
   "price_text": "Free",
   "description": "Black Rock Life Saving Club: Open Day & Season Launch 2026!",
@@ -1110,7 +1110,7 @@
   "location": "Beaumaris Senior Centre",
   "address": "Beaumaris Senior Centre, 84 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Celebrate Seniors Day with us including free BBQ",
+  "description": "Learn about all that U3A has to offer. Selected classes will demonstrate what they do including: -Balance and Bones, Feldenkrais - magical movement, Finska -Alto/descant recorder, painting for pleasure -Crafty conversations, gardening -Mahjong for beginners, history",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/celebrate-seniors-day-us-including-free-bbq",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1122,7 +1122,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Sakura in Hampton",
+  "description": "Celebrating the arrival of Sakura or Cherry Blossom with - High Tea Ceremony - Japanese Drumming Performance and hands on workshop - Craft and Clothing Stalls",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sakura-hampton",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1134,7 +1134,7 @@
   "location": "Beaumaris Library",
   "address": "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Birds in your neighbourhood with Kirsty Costa",
+  "description": "Join us at Beaumaris Library to celebrate the first day of BirdLife Australia's annual Aussie Bird Count from 19-25 October, and to hear all about the Birds in Your Neighbourhood by Kirsty Costa.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/birds-your-neighbourhood-kirsty-costa",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1146,7 +1146,7 @@
   "location": "Saint Agnes Anglican Church",
   "address": "Saint Agnes Anglican Church, 35 Arkaringa Crescent, Black Rock, Victoria 3193",
   "price_text": "$25.00",
-  "description": "Merry Melodies",
+  "description": "Come join us for an afternoon of sensational musical entertainment featuring the classic songs from the 40s, 50s and 60s.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/merry-melodies-3",
   "source_id": "bayside_live",
   "price_sort": 25.0
@@ -1158,7 +1158,7 @@
   "location": "St Michael’s Church Hall",
   "address": "St Michael’s Church Hall, 30 Dalgetty Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Table Tennis and Darts",
+  "description": "Come and play table tennis or darts. Two table tennis tables will be available and all equipment provided. All skill levels catered for and welcome.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-3",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1170,7 +1170,7 @@
   "location": "Black Rock Sports Club",
   "address": "Black Rock Sports Club, 2 Fern Street, Black Rock, Victoria 3193",
   "price_text": "Free",
-  "description": "Healthy Tennis Workshops",
+  "description": "Introductory tennis sessions teaching older people the correct techniques, movement and posture. Learn how to minimise strain on joints and reduce injury risk while remaining active and social. Morning tea will follow the session.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/healthy-tennis-workshops",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1180,9 +1180,9 @@
   "datetime_text": "21 October 2026 07:30pm-09:30pm",
   "datetime_iso": "2026-10-21T19:30:00",
   "location": "Highett Neighbourhood Community House",
-  "address": "Highett Neighbourhood Community House, 2 Livingston St, Highett, Highett, Victoria 3190",
+  "address": "Highett Neighbourhood Community House, 2 Livingston St, Highett, Victoria 3190",
   "price_text": "$5.00",
-  "description": "Birdlife Bayside Monthly Meeting",
+  "description": "The Bayside branch of Birdlife Australia (birdlife.org.au) meets monthly to learn more about birds.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/birdlife-bayside-monthly-meeting",
   "source_id": "bayside_live",
   "price_sort": 5.0
@@ -1191,10 +1191,10 @@
   "name": "Ask about Aged Care: information session, Beaumaris Community Centre",
   "datetime_text": "21 October 2026 11:00am-12:00pm",
   "datetime_iso": "2026-10-21T11:00:00",
-  "location": "Beaumaris Community Centre (large hall), 96 Reserve Road, Beaumaris",
-  "address": "Beaumaris Community Centre (large hall), 96 Reserve Road, Beaumaris, Beaumaris, Victoria",
+  "location": "Beaumaris Community Centre (large hall)",
+  "address": "Beaumaris Community Centre (large hall), 96 Reserve Road, Beaumaris, Victoria",
   "price_text": "Free",
-  "description": "Ask about Aged Care: information session, Beaumaris Community Centre",
+  "description": "Are you wondering if you or a family member can receive help with daily tasks at home?",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ask-about-aged-care-information-session-beaumaris-community-centre",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1206,7 +1206,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service Street, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Suzy Singer – Cabaret show",
+  "description": "Join us for a fun-filled afternoon of music, laughter and sing-along entertainment with local performer Suzy Singer.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/suzy-singer-cabaret-show",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1218,7 +1218,7 @@
   "location": "Highett Neighbourhood Community House",
   "address": "Highett Neighbourhood Community House, 2 Livingston Street, Highett, Victoria 3190",
   "price_text": "Free",
-  "description": "Dungeons and Dragons",
+  "description": "An ageless, easy to play, tabletop role playing game where the players assume the role of an adventurer.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/dungeons-and-dragons-1",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1230,7 +1230,7 @@
   "location": "Brighton Croquet Club",
   "address": "Brighton Croquet Club, 2-6 Bleazby Avenue, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Croquet - Come and try it",
+  "description": "You are welcome to visit our lovely grounds and have a go at running a few hoops.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/croquet-come-and-try-it",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1242,7 +1242,7 @@
   "location": "Sandringham Life Saving Club",
   "address": "Sandringham Life Saving Club, Beach Road, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Stay Water-Wise for Life",
+  "description": "Join us to learn how to safely enjoy open water swimming, including:",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/stay-water-wise-life",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1254,7 +1254,7 @@
   "location": "Tara Institute",
   "address": "Tara Institute, 3 Mavis Avenue, Brighton East, Victoria 3187",
   "price_text": "Free",
-  "description": "It’s never too late to  meditate - Session 2",
+  "description": "A gentle, supportive session for older adults to slow down, breathe, and reconnect with inner peace.  Each session offers simple guided meditation, light mindfulness practices, and the warmth of practicing together as a community.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/its-never-too-late-meditate-session-2",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1266,7 +1266,7 @@
   "location": "Brighton Library",
   "address": "Brighton Library, 14 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Matthew Ricketson - \"Getting Murdoched\" in conversation with Jon Faine",
+  "description": "How Murdoch’s media wields power and punishment",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/matthew-ricketson-getting-murdoched-conversation-jon-faine",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1278,7 +1278,7 @@
   "location": "Beaumaris Senior Centre (behind the library)",
   "address": "Beaumaris Senior Centre (behind the library), 84 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "The Camino de Santiago - What it is and how it's done",
+  "description": "You may already know that the Camino is far more than simply a long-distance walk. It is a historic pilgrimage route followed by hundreds of thousands of people each year from all over the world. Far from just being religious, for many it becomes a journey through history, culture, reflection, challenge, and personal renewal.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/camino-de-santiago-what-it-and-how-its-done-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1290,7 +1290,7 @@
   "location": "Brighton Senior Centre",
   "address": "Brighton Senior Centre, 23 Durrant Steet, Brighton, Victoria 3186",
   "price_text": "$10.00",
-  "description": "Making Healthy Dumplings Masterclass",
+  "description": "Using organic ingredients, learn how to make healthy dumplings while discussing the secrets to a healthy brain.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/making-healthy-dumplings-masterclass",
   "source_id": "bayside_live",
   "price_sort": 10.0
@@ -1302,7 +1302,7 @@
   "location": "Black Rock Sports Club",
   "address": "Black Rock Sports Club, 2 Fern Street, Black Rock, Victoria 3193",
   "price_text": "Free",
-  "description": "Bowls Technique and Wellbeing Sessions",
+  "description": "Friendly lawn bowls sessions focused on correct form, balance and body movement to support safe participation and long-term mobility. Afternoon tea will follow the session. Places are limited.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bowls-technique-and-wellbeing-sessions",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1314,7 +1314,7 @@
   "location": "Brighton Library",
   "address": "Brighton Library, 14 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Mature Rainbow Conversations",
+  "description": "Come along to our welcoming Mature Rainbow Conversations, a monthly catch-up for older LGBTQIA+ community members and their allies. Join Rudi, Bayside’s Positive Ageing Librarian, for a cuppa, a chat, and a chance to connect in a safe, inclusive, and rainbow-friendly space. Share your favourite books and films, discover new ones, and enjoy meaningful conversation. Tea, coffee, and biscuits provide",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/mature-rainbow-conversations",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1326,7 +1326,7 @@
   "location": "Billilla Mansion",
   "address": "Billilla Mansion, 26 Halifax Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Connections: Art + Dementia",
+  "description": "Bayside City Council’s Connections: Art + Dementia program is a free activity for people living with dementia and their carers.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/connections-art-dementia",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1338,7 +1338,7 @@
   "location": "Black Rock Sports Club",
   "address": "Black Rock Sports Club, 2 Fern Street, Black Rock, Victoria 3193",
   "price_text": "Free",
-  "description": "Fitness Class",
+  "description": "Low-impact strength and wellbeing sessions specifically suited to older people to support healthy ageing.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/fitness-class",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1350,7 +1350,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Cards - canasta and 500",
+  "description": "All are welcome to an enjoyable afternoon playing canasta or 500. Afternoon tea will be provided.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/cards-canasta-and-500",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1362,7 +1362,7 @@
   "location": "Bayside City Council Corporate Centre",
   "address": "Bayside City Council Corporate Centre, 76 Royal Avenue, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Come and celebrate Children's Week with us 🎉",
+  "description": "Join us for a free morning of family fun as we celebrate Children’s Week. Enjoy face painting, magic shows, crafts and interactive activities designed to inspire creativity, play and connection. This year’s theme, Children have the right to use their own language, celebrate their culture and practise their religion , will be reflected through inclusive activities for children and families.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/come-and-celebrate-childrens-week-us",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1372,9 +1372,9 @@
   "datetime_text": "24 October 2026 11:00am-04:00pm",
   "datetime_iso": "2026-10-24T11:00:00",
   "location": "46 Jetty Rd",
-  "address": "46 Jetty Rd, Sandringham, Sandringham, Victoria 3191",
+  "address": "46 Jetty Rd, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "Hampton Sailing Club Open Day",
+  "description": "Come along to Hampton Sailing Club - a hidden gem at the bottom of Jetty Rd, Sandringham. A great opportunity to learn more about the sailing, kayaking and paddle boarding opportunities we offer.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/hampton-sailing-club-open-day",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1386,7 +1386,7 @@
   "location": "Sandringham Foreshore at the end of Melrose Street",
   "address": "Sandringham Foreshore at the end of Melrose Street, Sandringham, Victoria 3191",
   "price_text": "",
-  "description": "Sandringham Band Rotunda -100 Year Community Celebration",
+  "description": "Save the date for upcoming celebrations of the 100th birthday of the Sandringham Band Rotunda.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sandringham-band-rotunda-100-year-community-celebration",
   "source_id": "bayside_live",
   "price_sort": null
@@ -1398,7 +1398,7 @@
   "location": "Palace Church Street Cinema",
   "address": "Palace Church Street Cinema, 26 Church Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Silver Screen Social",
+  "description": "Celebrate Seniors Month with us at a fun and welcoming movie event. Enjoy a new release film, great company, and light refreshments in a relaxed and friendly atmosphere. Come along on your own or bring a friend and be part of a joyful morning filled with connection and entertainment—we’d love to see you there!",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/silver-screen-social",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1410,7 +1410,7 @@
   "location": "St Michael’s Church Hall",
   "address": "St Michael’s Church Hall, 30 Dalgetty Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Table Tennis and Darts",
+  "description": "Come and play table tennis or darts. Two table tennis tables will be available and all equipment provided. All skill levels catered for and welcome.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/table-tennis-and-darts-4",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1422,7 +1422,7 @@
   "location": "Online",
   "address": "Online",
   "price_text": "Free",
-  "description": "Positive Parenting Session, Raising Waste Wise Children",
+  "description": "Want to reduce household waste, save money and help your child build positive lifelong habits?",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/positive-parenting-session-raising-waste-wise-children",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1434,7 +1434,7 @@
   "location": "Hampton Seniors Centre",
   "address": "Hampton Seniors Centre, 14 Service, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Bag Sewing Day",
+  "description": "Come and help us sew fabric bags for distribution to organisations for toiletries, toys, clothes etc. Sewing skills not essential.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bag-sewing-day",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1446,7 +1446,7 @@
   "location": "Gardiners Creek and Anniversary Trail Loop Walk",
   "address": "Gardiners Creek and Anniversary Trail Loop Walk, Victoria",
   "price_text": "$5.00",
-  "description": "Gardiners Creek and  Anniversary Trail Loop Walk",
+  "description": "This is a 14km trail loop through Melbourne's eastern suburbs provides a brilliant excuse to stretch the legs. The walk kicks off at Holmesglen reserve, where parking is readily available. The route seamlessly connects the Gardiners Creek and Anniversary trails.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/gardiners-creek-and-anniversary-trail-loop-walk",
   "source_id": "bayside_live",
   "price_sort": 5.0
@@ -1458,7 +1458,7 @@
   "location": "Beaumaris Library",
   "address": "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Vikki Petraitis - \"The Reckoning\" in conversation with Robert Gott",
+  "description": "When the system fails, justice must take another form. When two convicted criminals walk free on appeal, the town of Deception Bay splits down the middle. The men swagger onto a packed cricket ground on Australia Day to a hero’s welcome. Before lunch is over, dozens of people fall ill. Among them, the newly released men. As panic rips through the town and emergency services buckle, Detective Antig",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/vikki-petraitis-reckoning-conversation-robert-gott",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1470,7 +1470,7 @@
   "location": "Bayside City Council Corporate Centre",
   "address": "Bayside City Council Corporate Centre, 76 Royal Avenue, Sandringham, Victoria 3191",
   "price_text": "",
-  "description": "Grant seekers guide to using AI",
+  "description": "Used ethically, AI can help. Not by writing your application for you, but by helping you understand what assessors want and get your own words down faster.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/grant-seekers-guide-using-ai",
   "source_id": "bayside_live",
   "price_sort": null
@@ -1482,7 +1482,7 @@
   "location": "Yalukit Willam Nature Reserve",
   "address": "Yalukit Willam Nature Reserve, Meeting point at the New Street BBQ, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Tour the Wildflower Meadow at Yalukit Willam Nature Reserve",
+  "description": "Join us for a walk with Jarrod Fleming and team through Yalukit Willam Nature Reserve and explore the Wildflower Meadow in this beautiful urban oasis.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/tour-wildflower-meadow-yalukit-willam-nature-reserve",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1494,7 +1494,7 @@
   "location": "Beach end of North Road",
   "address": "Beach end of North Road, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Beach Walk",
+  "description": "Enjoy a steady 45 minute walk from North Road to Point Ormond and back, before coffee at North Point Cafe.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/beach-walk-2",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1506,7 +1506,7 @@
   "location": "Bayside Men’s Shed",
   "address": "Bayside Men’s Shed, 76 Wells Road, Beaumaris, Victoria 3193",
   "price_text": "Free",
-  "description": "Men’s Shed Open Day",
+  "description": "Visit our Shed for a tour of the facilities. Meet and chat to some of the \"Shedders\". NOTE: protective eye and ear wear will be provided for use in the workshop.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/mens-shed-open-day-2",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1518,7 +1518,7 @@
   "location": "Sandringham Library",
   "address": "Sandringham Library, 8 Waltham Street, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "From Brighton to Beaumaris: Pubs with a past",
+  "description": "Take a stroll with us through Bayside Pubs from Brighton to Beaumaris",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-beaumaris-pubs-past",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1530,7 +1530,7 @@
   "location": "Sandybeach Centre",
   "address": "Sandybeach Centre, 2 Sims Street, Sandringham, Victoria 3191",
   "price_text": "$10.00",
-  "description": "Spooky Sonantinas Halloween Spectacular",
+  "description": "Join The Spooky Sonantinas for a frightfully fun Halloween-themed musical afternoon. This lively all-female singing group will perform nostalgic favourites loved by all. This is a joyful opportunity to connect through music, laughter, and shared community spirit.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/spooky-sonantinas-halloween-spectacular",
   "source_id": "bayside_live",
   "price_sort": 10.0
@@ -1542,7 +1542,7 @@
   "location": "30-36 Ebden Ave",
   "address": "30-36 Ebden Ave, Black Rock, Victoria 3193",
   "price_text": "Free",
-  "description": "Black Rock House of Horrors",
+  "description": "Dress to impress… if you’re brave enough… for an evening of spine-chilling terror, wicked surprises and things that should probably remain buried.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/black-rock-house-horrors",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1554,7 +1554,7 @@
   "location": "Brighton Library",
   "address": "Brighton Library, 14 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Chris Macheras - \"Old Vintage Melbourne: A Culinary History\" in conversation with Jaclyn Crupi",
+  "description": "Take a delicious trip through Melbourne's culinary history with Chris Macheras as he celebrates the city's most beloved restaurants, cafés, bars, pubs, and markets. Chris will be joined in conversation with Jaclyn Crupi. Drawing on original research, rare historic photography, and stories shared by the venues and their families, Chris's latest book profiles around 120 institutions that have helped",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/chris-macheras-old-vintage-melbourne-culinary-history-conversation-jaclyn-crupi",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1564,9 +1564,9 @@
   "datetime_text": "6 November 2026 to 21 November 2026 7 November 2026 to 22 November 2026 8 November 2026 to 23 November 2026 9 November 2026 to 24 November 2026 10 November 2026 to 25 November 2026 11 November 2026 to 26 November 2026 12 November 2026 to 27 November 2026 13 November 2026 to 28 November 2026 14 November 2026 to 29 November 2026 15 November 2026 to 30 November 2026 16 November 2026 to 1 December 2026 17 November 2026 to 2 December 2026 18 November 2026 to 3 December 2026 19 November 2026 to 4 December 2026 08:00pm-10:30pm | 02:00pm-04:30pm",
   "datetime_iso": "2026-11-06T20:00:00",
   "location": "Cnr Wilson & Carpenter Streets",
-  "address": "Cnr Wilson & Carpenter Streets, Brighton, Brighton, Victoria 3186",
+  "address": "Cnr Wilson & Carpenter Streets, Brighton, Victoria 3186",
   "price_text": "$32.00",
-  "description": "A Simple Act of Kindness",
+  "description": "Season 4:  A Simple Act of Kindness by Ross Mueller Dates:  6-21 November 2026 Directed by Blake Stringer With the help of her \"boomer\" parents, Sophie takes the giant leap into the property market... but it's all about the fine print.  And a global pandemic means a brand new deal.  Now Sophia and Greg (her fiance) must live with Sophia's parents as 'downsizing' bites and this reconstructed family",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/simple-act-kindness",
   "source_id": "bayside_live",
   "price_sort": 32.0
@@ -1578,7 +1578,7 @@
   "location": "Glamis Avenue",
   "address": "Glamis Avenue, Hampton, Victoria 3188",
   "price_text": "Free",
-  "description": "Sandringham Community Cup",
+  "description": "Sandringham Little Athletics Club will host the annual Coles Community Round.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/sandringham-community-cup",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1590,7 +1590,7 @@
   "location": "Sandringham Library",
   "address": "Sandringham Library, 8 Waltham Street, Sandringham, Victoria 3191",
   "price_text": "Free",
-  "description": "National Recycling Week Storytime – with a visit from a waste collection truck",
+  "description": "Come along to a special Recycling Week Storytime at Sandringham Library, featuring a real-life waste truck that children can climb aboard! This event is in partnership with Bayside Council’s Waste team and Cleanaway. Our Preschool Storytimes are designed to support early educational milestones. These sessions offer longer stories and encourage more sophisticated interaction with the books. They st",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/national-recycling-week-storytime-visit-waste-collection-truck-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1602,7 +1602,7 @@
   "location": "Bayley Arts Gallery",
   "address": "Bayley Arts Gallery, 1 Avoca Street, Highett, Victoria 3190",
   "price_text": "Free",
-  "description": "Brighton Art Society 47th Annual Art Exhibition",
+  "description": "Brighton Art Society (BAS) proudly hosts its Annual Exhibition, showcasing a wide range of artwork created by our talented members. From painting to drawing, the exhibition highlights the creativity and diversity of our local arts community.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/brighton-art-society-47th-annual-art-exhibition",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1614,7 +1614,7 @@
   "location": "2 Livingston Street",
   "address": "2 Livingston Street, Highett, Victoria 3190",
   "price_text": "Free",
-  "description": "Neurodiversity In Kids Presentation 3",
+  "description": "Join us for this practical workshop lead by Better Health Network designed to help parents, carers and educators better understand neurodivergence in children.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/neurodiversity-kids-presentation-3",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1623,10 +1623,10 @@
   "name": "Ask about Aged Care: information session, Carnegie Library",
   "datetime_text": "13 November 2026 11:00am-12:00pm",
   "datetime_iso": "2026-11-13T11:00:00",
-  "location": "Carnegie Library and Community Centre (Boyd Room), 7 Shepparson Avenue, Carnegie",
+  "location": "Carnegie Library and Community Centre (Boyd Room)",
   "address": "Carnegie Library and Community Centre (Boyd Room), 7 Shepparson Avenue, Carnegie, Victoria",
   "price_text": "Free",
-  "description": "Ask about Aged Care: information session, Carnegie Library",
+  "description": "Are you wondering if you or a family member can receive help with daily tasks at home?",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/ask-about-aged-care-information-session-carnegie-library-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1638,7 +1638,7 @@
   "location": "Cheltenham Park",
   "address": "Cheltenham Park, Park Road, Cheltenham, Victoria 3192",
   "price_text": "Free",
-  "description": "Microbats at Cheltenham Park",
+  "description": "Microbats are everywhere, but they are small and difficult to see. They come out as the sun sets to hunt for insects using echolocation.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/microbats-cheltenham-park-0",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1650,7 +1650,7 @@
   "location": "Sandringham Library",
   "address": "Sandringham Library, 8 Waltham Street, Sandringham, Victoria 3191",
   "price_text": "$20.00",
-  "description": "Self-publishing 101 workshop",
+  "description": "Self Publishing 101: Have you ever thought about self publishing?",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/self-publishing-101-workshop",
   "source_id": "bayside_live",
   "price_sort": 20.0
@@ -1662,7 +1662,7 @@
   "location": "Brighton Library",
   "address": "Brighton Library, 14 Wilson Street, Brighton, Victoria 3186",
   "price_text": "Free",
-  "description": "Jock Serong - \"A Suitable Man\" in conversation with Gideon Haigh",
+  "description": "'In 1924, into the tiny town of Warrnambool, which then had a population of a fraction under 4000 people, there came a travelling salesman...'",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/jock-serong-suitable-man-conversation-gideon-haigh",
   "source_id": "bayside_live",
   "price_sort": 0.0
@@ -1674,7 +1674,7 @@
   "location": "Dendy Park",
   "address": "Dendy Park, Brighton East, Victoria 3186",
   "price_text": "",
-  "description": "Bayside Christmas Carols in the Park 2026",
+  "description": "Join us at Dendy Park for an all-ages evening of your favourite festive tunes at Bayside Christmas Carols in the Park on Tuesday 8 December 2026.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/bayside-christmas-carols-park-2026",
   "source_id": "bayside_live",
   "price_sort": null
@@ -1686,7 +1686,7 @@
   "location": "Beaumaris Community Centre",
   "address": "Beaumaris Community Centre, 96 Reserve Road, Beaumaris, Victoria 3193",
   "price_text": "$10.00",
-  "description": "Vocally Wild Choir Christmas singalong concert",
+  "description": "Vocally Wild Choir's annual Christmas Concert and Singalong is a joyous, popular event. We hope all families will come along, join in and feel the Christmas spirit.",
   "source": "https://www.bayside.vic.gov.au/explore-bayside/events/vocally-wild-choir-christmas-singalong-concert",
   "source_id": "bayside_live",
   "price_sort": 10.0

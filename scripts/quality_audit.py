@@ -45,6 +45,13 @@ from rapidfuzz import fuzz
 
 from dedupe import name_head, normalize_name, slot_hash, venue_head
 from venues import extract_suburb, is_online
+from webfetch_http import restates_name
+
+
+def _repeated_segment(address):
+    """True when an address names the same segment twice in a row."""
+    parts = [p.strip().casefold() for p in (address or "").split(",")]
+    return any(p and p == parts[i - 1] for i, p in enumerate(parts) if i)
 
 TODAY = date.today()
 rows = json.load(open("data/events.json", encoding="utf-8"))["rows"]
@@ -209,6 +216,28 @@ trunc = [r for r in rows if re.search(r"\.\.\.$", (r.get("name") or ""))]
 print("names that look truncated (trailing ...): %d" % len(trunc))
 for r in trunc[:6]:
     print("      [%s] %r" % (r["source_id"], r["name"][:80]))
+# The one this file existed to catch and did not. Five fetchers reached for
+# `description=<prose> or name` so the column would never be empty, and for
+# every listing that states no prose of its own that wrote the title into the
+# description: 667 rows, every kingston_hubs and every bayside_live row, 30% of
+# the store. The page printed each event's name twice, the search haystack
+# counted it twice, and the classifier read the title as prose. The checks
+# above it all look for furniture *inside* a description, and a copy of the
+# title is the most furniture-free string there is.
+echo = [r for r in rows if restates_name(r.get("description"),
+                                          r.get("name"))]
+print("descriptions that only restate the name: %d" % len(echo))
+by_src = collections.Counter(r["source_id"] for r in echo)
+for sid, c in by_src.most_common(5):
+    print("      [%s] %d" % (sid, c))
+for r in echo[:4]:
+    print("      [%s] %r" % (r["source_id"], r["name"][:66]))
+# The shape a fetcher's field-join leaves behind: a segment repeated straight
+# after itself. Bayside prints the suburb twice in its own Location block.
+rep = [r for r in rows if _repeated_segment(r.get("address"))]
+print("addresses with a repeated segment: %d" % len(rep))
+for r in rep[:4]:
+    print("      [%s] %r" % (r["source_id"], r.get("address")))
 
 # ------------------------------------------------------------- money
 section("PRICE")

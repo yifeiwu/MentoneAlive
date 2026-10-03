@@ -48,8 +48,15 @@ jobs:
       #
       # The config is validated before any request, so a typo is one message
       # naming the entry rather than a KeyError from inside a fetcher.
+      #
+      # 60 minutes, and most of it is one source waiting on purpose:
+      # kingston_council walks a 31-page listing and opens all 301 detail pages
+      # at one request per five seconds (D47), which is ~28 minutes of
+      # deliberate sleeping. It is paced rather than quick because it is the
+      # host behind the Granicus WAF, and the previous 45 was measured against
+      # a run that never left page 1.
       - name: Fetch sources
-        timeout-minutes: 45
+        timeout-minutes: 60
         run: python scripts/fetch_sources.py
 
       - name: Deduplicate (+ snapshots, infer dates, prune 90d)

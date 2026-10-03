@@ -426,7 +426,7 @@
   "location": "Cheltenham Community Centre",
   "address": "8 Chesterville Road, Cheltenham VIC 3192",
   "price_text": "$20 fee for the term. This course is for people with little",
-  "description": "Introduction to Computers",
+  "description": "",
   "source": "https://www.chelt.com.au/computer-courses.html",
   "source_id": "ccc",
   "price_sort": 20.0
@@ -438,7 +438,7 @@
   "location": "Cheltenham Community Centre",
   "address": "8 Chesterville Road, Cheltenham VIC 3192",
   "price_text": "$20 fee for the term, , free for concession card holders.",
-  "description": "Everyday Computer Skills",
+  "description": "",
   "source": "https://www.chelt.com.au/computer-courses.html",
   "source_id": "ccc",
   "price_sort": 0.0
@@ -450,7 +450,7 @@
   "location": "Cheltenham Community Centre",
   "address": "8 Chesterville Road, Cheltenham VIC 3192",
   "price_text": "$20 fee for the term, free for concession card holders.",
-  "description": "iPads, Tablets & Phones",
+  "description": "",
   "source": "https://www.chelt.com.au/computer-courses.html",
   "source_id": "ccc",
   "price_sort": 0.0
@@ -462,7 +462,7 @@
   "location": "Cheltenham Community Centre",
   "address": "8 Chesterville Road, Cheltenham VIC 3192",
   "price_text": "Concession: $20 per term. Perfect for adult learners",
-  "description": "MS Outlook, Email, Word & Excel",
+  "description": "",
   "source": "https://www.chelt.com.au/computer-courses.html",
   "source_id": "ccc",
   "price_sort": 20.0

@@ -18,19 +18,48 @@ observation, not a standing total. Read the live number from the store.
 
 | Source | Label | Rows | Method |
 |--------|-------|------|--------|
-| Kingston Hubs (OpenCities calendar API) | `kingston_hubs` | 524 | JSON API, `urlopen`. Venue per calendar id in `sources.yaml` |
-| Cheltenham Community Centre | `ccc` | 390 | HTML + Humanitix term ranges |
-| Kingston Community Groups | `kingston_groups` | 342 | OpenCities local directory, ASP.NET postback paging + one detail page per group |
-| Chatty Cafe venue directory | `chatty_cafe` | 234 | Venue pages, fallback schedule in config |
+| Kingston Hubs (OpenCities calendar API) | `kingston_hubs` | 518 | JSON API, `urlopen`. Venue per calendar id in `sources.yaml` |
+| Cheltenham Community Centre | `ccc` | 397 | HTML + Humanitix term ranges |
+| Kingston Community Groups | `kingston_groups` | 343 | OpenCities local directory, ASP.NET postback paging + one detail page per group |
+| Chatty Cafe venue directory | `chatty_cafe` | 237 | Venue pages, fallback schedule in config |
+| Kingston Council events | `kingston_council` | 231 | HTML, all 31 listing pages walked by postback + one detail page per event |
 | Kingston Seniors Festival | `kingston_seniors` | 158 | Annual PDF guide + hand-checked overrides |
-| Bayside Council events | `bayside_live` | 142 | HTML, full `?page=` pagination |
-| Greater Dandenong | `greater_dandenong` | 108 | HTML + per-event detail pages, `suburb_filter` applied |
-| Greater Dandenong Libraries | `gd_libraries` | 36 | HTML, same CMS and detail treatment |
-| Frankston City Libraries | `frankston_libraries` | 89 | Ten listed programmes, each expanded to every date its own page states |
-| Frankston archived programmes | `frankston_archived` | 26 | `archived_events.json`; withheld from the page, and the live site's config entry is commented out (see below) |
+| Frankston City Libraries | `frankston_libraries` | 145 | Ten listed programmes, each expanded to every date its own page states |
+| Bayside Council events | `bayside_live` | 143 | HTML, full `?page=` pagination |
+| Greater Dandenong | `greater_dandenong` | 132 | HTML + per-event detail pages, `suburb_filter` applied |
+| Greater Dandenong Libraries | `gd_libraries` | 60 | HTML, same CMS and detail treatment |
+| Kingston Arts | `kingston_arts` | 10 | HTML, one page deep |
+| Frankston archived programmes | `frankston_archived` | 28 | `archived_events.json`; withheld from the page, and the live site's config entry is commented out (see below) |
 | Bayside archived programmes | `bayside_archived` | 12 | `archived_events.json`, series the live feed no longer carries; withheld from the page |
-| Kingston Arts | `kingston_arts` | 19 | HTML, same platform as `kingston_council` |
-| Kingston Council upcoming events | `kingston_council` | 12 | HTML, page 1 only (Granicus pager is a JS postback) |
+
+### Paginating a listing that is deeper than one page
+
+A listing page is not a listing. `kingston_council` reads page 1 of a **31-page,
+301-event** Granicus listing, sorted by next occurrence, and page 1 is the next
+ten of them — so events *rotated* off the front as real dates filled it. Two sat
+on pages 18 and 27 (`Chinese Senior Citizens Club of Kingston`, `Tea & Talk
+Chinese Conversation Table`), stayed live on the council's own site the whole
+time, and were absent from every snapshot. Nothing failed: `MIN_SOURCE` for that
+source was 3, against a ten-row page.
+
+The pager is an ASP.NET postback with a **non-JS** route — a page-number
+`<select>` and a `Go` submit — and `webfetch_http.paged_listing` drives it,
+shared with the community-groups directory. `max_pages` is the budget (opt-in:
+a source without one still reads page 1), `crawl_delay` is the rate, and both
+are read from `sources.yaml`.
+
+| | |
+| --- | --- |
+| Budget reached | a **warning** naming the pages not read — an operator's choice |
+| A page fails to load | `PartialFetch` — the previous snapshot survives |
+| The pager will not advance | `PartialFetch` — a wrong control name is *accepted* and answers with page 1 |
+| The listing stops stating its depth | `PartialFetch` — publishing page 1 there is the defect itself |
+
+The rate is 5s between **every** request this source makes, listing pages and
+detail pages on one clock, which is ~28 min of deliberate waiting and the reason
+the fetch step's timeout is 60. It is applied before each request rather than
+after, so a run whose pages are failing cannot hammer hardest; see
+[D47](docs/decisions.md).
 
 Frankston has a written and tested fetcher (`scripts/webfetch_everi.py`) and is
 not yet active: the host blocks an IP that asks for too much, and 876 pages in
@@ -38,7 +67,7 @@ one run is too much. The crawl is now resumable — `slice_size` pages per run,
 with the pages read *and the rows they yielded* cached in a gitignored
 `*.progress.json` — so it completes across several scheduled runs instead of
 inside one. Until it does, `frankston_live` stays commented out and
-`frankston_archived` carries the 26 rows. A partial crawl publishes nothing:
+`frankston_archived` carries the 28 rows. A partial crawl publishes nothing:
 the fetcher refuses it, `dedupe.py` skips the progress file, and it skips a
 snapshot whose source still has one.
 
@@ -71,7 +100,7 @@ behind `kingston_groups`, and the libraries CMS behind
 `frankston_libraries`. The two Greater Dandenong
 sources need it for their event **detail** pages only — the listing answers
 plain HTTP, and the suburb that the catchment filter depends on is on the detail
-page. Everything else is plain HTTP. That is four `impersonate: true` entries in
+page. Everything else is plain HTTP. That is six `impersonate: true` entries in
 `sources.yaml` rather than a second script; see [D2a](docs/decisions.md).
 
 ## Pipeline
@@ -94,6 +123,10 @@ rather than a failure. It exists for the class of defect no gate covers — a
 description that is the page's address block, an internal scratch field that
 reached the store, two sources styling one class differently and producing two
 rows for it. Run it after `build_site.py`, which writes the artefact it reads.
+
+One it currently reports, and which no gate will: a description that leaks the
+page's address block, or a source styling one class two ways. These move with
+the sources, which is why it is a report and not a gate.
 
 Useful flags:
 
@@ -122,7 +155,8 @@ writes its output in two places:
 
 Every source is reached through a session, and `impersonate: true` selects which
 kind: a `curl_cffi` Chrome-TLS session, or the plain `urllib` one. Both are built
-lazily and reused, so a nine-source run opens one pool of each rather than nine.
+lazily and reused, so an eleven-source run opens one pool of each rather
+than eleven.
 
 `scripts/webfetch_http.py` owns the shared pieces — the session constructors, row
 shape (`make_row`), month names, written-time conversion, the detail-page crawl
@@ -190,9 +224,13 @@ Two orderings that are load-bearing:
   published, and these rows are that one listing at eight different times.
 
 `reconcile_store()` then drops any row that **none of its own recorded sources**
-still justify — see [D6](docs/decisions.md) for the two boundaries that keep it
+still justify - see [D6](docs/decisions.md) for the two boundaries that keep it
 from deleting good data. `refresh_inferred()` re-derives a stored `date_inferred`
-row whose time disagrees with its own text.
+row whose time disagrees with its own text, and **withdraws** one whose own text
+no longer produces its date at all - an inferred date is what the text yields,
+not an independent fact, so a date the text cannot produce is a session that
+cannot exist. Only dates from today onwards are tested, since an expansion runs
+forward from today. See [D48](docs/decisions.md).
 
 ## Date inference (`recurrence.py`)
 
@@ -204,6 +242,13 @@ a recurring pattern in prose; those are parsed into a spec and expanded.
 | --- | --- | --- |
 | Nth weekday of month | `1st Wednesday of every month` | 12 months |
 | Fortnightly | `Every second Saturday`, `Friday (fortnightly)` | every 2nd week |
+
+A fortnight's phase — which of the two is "first" — cannot come from the run
+date, because that makes it depend on the weekday the pipeline happens to run
+on: the same `Friday (fortnightly)` text inferred on a Friday starts that
+Friday, and on the Saturday a week later. A stated start date is the venue's own
+phase and wins; without one the phase is ISO week parity against a fixed epoch,
+which is arbitrary but does not move. See [D48](docs/decisions.md).
 | Explicit range | `Term 4 (17th October - 5th December)` | that window only |
 | Full date | `Thursday, May 25th, 2023` | single occurrence |
 | Weekday(s) + times | `Mondays and Thursdays 9am - 12pm` | 12 occurrences |
@@ -288,14 +333,15 @@ the build before it can reach the published page. The suites are:
 | `activity_types` | 64 name/description → tags cases |
 | `status` | 10 sold-out / service cases |
 | `recurrence` | the date-inference table, on a fixed reference date |
-| `dedupe` | name, venue and series-key normalisation |
+| `dedupe` | name, venue and series-key normalisation; the two field-level defects the store repair pass recognises (a description that restates the title, a repeated address segment); the archive file's shape |
 | `commercial` | commercial detection rules |
-| `webfetch_granicus` | Granicus address parsing |
+| `webfetch_granicus` | Granicus address parsing, the postback pager walk, and the rate limit |
 | `webfetch_directory` | directory cards, addresses and hours tables |
 | `webfetch_everi` | Everi detail pages: dates, venues, series GUID |
-| `webfetch_http` | shared time/month/row parsing |
-| `build_site` | suburb extraction |
-| `fetchers` | the fetch call convention, without a network |
+| `webfetch_frankston_libraries` | library listing cards, the dates their pages state, and a resumable crawl |
+| `webfetch_http` | shared time/month/row parsing, `join_address`, and the rule that a description may not restate its own name |
+| `build_site` | suburb extraction, and which rows reach the page |
+| `fetchers` | the fetch call convention, without a network, and the rule that `raw_events.json` is only written when every plain source delivered |
 | `failure_signals` | config validation, the do-not-publish signal, and store stability across run dates |
 | `fetcher_equivalence` | the fetchers extract the same rows they used to |
 
@@ -316,6 +362,31 @@ executes JavaScript, and a syntax error in the template would otherwise build
 cleanly and publish a **blank calendar**. If no Chromium-family browser is found
 it prints `SKIP` and exits 0; set `$BROWSER` to force a specific one. The GitHub
 runner has Chrome preinstalled, so CI always gets the real check.
+
+### Addresses: `scripts/verify_addresses.py`
+
+`dedupe.py` can tell that an address is *malformed* and repair it from a source
+that has since been fixed. It cannot tell whether a well-formed address is the
+right one. That question needs a geocoder:
+
+```bash
+python scripts/verify_addresses.py                    # report, change nothing
+python scripts/verify_addresses.py --source bayside_live --check
+python scripts/verify_addresses.py --fix              # write corrections
+```
+
+It looks up OpenStreetMap through Nominatim and reports any row whose suburb,
+state or postcode the map contradicts, defaulting to the rows whose address
+already looks doubtful. A geocoder is a check, not a gate: it is kept out of the
+pipeline and out of `checks.py` because every suite there is required to be
+pure, and because Nominatim's usage policy caps a client at about one request
+per second — fine for the few dozen doubtful rows, not for 2,200. It reports by
+default and only writes under `--fix`, because a council's preferred way to
+write its own address is not always the one the map would pick.
+
+It earns its keep already: Bayside publishes the Sandringham Library at postcode
+**3193**, and the library is at **3191**. Nothing in the pipeline can see that —
+a postcode is four digits and looks like a postcode.
 
 ## Seasonal maintenance
 
@@ -379,7 +450,6 @@ next `dedupe.py` run on `JSONDecodeError` and wedge the pipeline.
   "name": "Event name",
   "datetime_iso": "2026-10-15T10:00:00",
   "datetime_text": "Wednesday 15 October, 10:00am - 12:00pm",
-  "has_real_date": true,
   "date_inferred": true,
   "recurrence": "Every Wednesday",
   "price_text": "$5",
@@ -390,7 +460,7 @@ next `dedupe.py` run on `JSONDecodeError` and wedge the pipeline.
   "description": "Event description...",
   "types": ["Exercise & Fitness", "Social & Community"],
   "source": "https://...",
-  "source_label": "kingston_hubs",
+  "source_id": "kingston_hubs",
   "is_commercial": false,
   "commercial_reason": "",
   "is_service": false,

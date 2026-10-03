@@ -12,10 +12,14 @@ attributed to the source that produced it and the verbosity can be filtered in
 one place.
 """
 import os
+import random
 import re
 import sys
 import time
+from collections import namedtuple
 from datetime import datetime
+
+from bs4 import BeautifulSoup
 
 # curl_cffi is imported inside make_session(), not here. This module also owns
 # the pure date/time/row helpers, and fetch_urllib_sources.py imports those
@@ -116,6 +120,35 @@ ROW_FIELDS = ("name", "datetime_text", "datetime_iso", "location", "address",
               "price_text", "description", "source", "source_id")
 
 
+def restates_name(description, name):
+    """True when a description is just the row's own title.
+
+    Five fetchers reached for `description=<the page's prose> or name` so the
+    column would never be empty, and for every listing that states no prose of
+    its own that wrote the title into the description. 667 rows -- all 524 of
+    kingston_hubs and all 143 of bayside_live, 30% of the store. The page
+    printed each event's name twice, the search haystack counted it twice, and
+    `classify_types` read the title as if it were the listing's description.
+
+    Lived here, next to the row shape, so that `make_row` and the store's
+    repair pass cannot disagree about it. They did: the repair pass normalised
+    internal whitespace and casing, `make_row` only stripped the ends, so a
+    description reading " Tai  Chi " against a title of "Tai Chi" was kept by
+    one and recognised by the other.
+
+    The comparison is whole-string equality, not containment: a restatement is a
+    copy of the entire title, so there is no word in common between a real
+    description and the name it would be wrongly condemned for sharing one. The
+    length floor is only there to skip a degenerate two-letter title, and it is
+    deliberately small -- a first version used 8, which silently spared every
+    short class name ("Tai Chi", "Zumba", "PlaySpace") and left 123 rows of
+    kingston_hubs still carrying their own title, which is most of that source.
+    """
+    d = " ".join((description or "").split()).casefold()
+    n = " ".join((name or "").split()).casefold()
+    return bool(n) and len(n) >= 3 and d == n
+
+
 def make_row(source_id, name, source, datetime_iso="", datetime_text="",
              location="", address="", price_text="", description=""):
     """One snapshot row, with every documented key always present.
@@ -139,7 +172,7 @@ def make_row(source_id, name, source, datetime_iso="", datetime_text="",
     """
     name = name or ""
     description = description or ""
-    if description.strip().casefold() == name.strip().casefold() and name.strip():
+    if name.strip() and restates_name(description, name):
         description = ""
     return {
         "name": name,
@@ -173,19 +206,22 @@ def join_address(parts):
     only recognised ",," and a dangling separator, and a well-formed-looking
     duplicate segment is exactly what it could not see.
 
-    Segment order is preserved, and only *adjacent* repeats collapse, so a
-    genuine "Sandringham, Sandringham" pair of distinct fields is unaffected
-    only where it is actually a repeat -- see the case above.
+    The repeat is not always between two of the caller's own parts: for some
+    Bayside events the page renders the locality as a single run reading
+    "Brighton, Brighton", so a part can carry the repeat internally. Every part
+    is therefore split on commas before the collapse, which handles both levels
+    with one rule, and order is otherwise preserved.
     """
-    out = []
+    flat = []
     for raw in parts or []:
-        seg = (raw or "").strip().strip(",").strip()
-        if not seg or seg.lower() == "australia":
-            continue
-        if out and seg.casefold() == out[-1].casefold():
-            continue
-        out.append(seg)
-    return ", ".join(out)
+        for seg in (raw or "").split(","):
+            seg = seg.strip().strip(".").strip()
+            if not seg or seg.lower() == "australia":
+                continue
+            if flat and seg.casefold() == flat[-1].casefold():
+                continue
+            flat.append(seg)
+    return ", ".join(flat)
 
 
 def make_session():
@@ -340,13 +376,241 @@ def fetch_bytes(session, url, min_len, retries=2):
                   if len(r.content) >= min_len else None, retries)
 
 
+# --- pacing -----------------------------------------------------------------
+
+# The shortest gap a crawl here will accept whatever the config says. A
+# `crawl_delay: 0` line in sources.yaml reads like a fix and is the opposite of
+# one, so the floor is deliberately not overridable downward. Each source passes
+# the floor its own host warrants.
+MIN_CRAWL_DELAY = 0.35
+
+
+def _pace(seconds):
+    """Wait between requests. A module-level seam so the tests can count it.
+
+    Monkeypatching `time.sleep` instead would be global -- every fetcher here
+    imports the same module object -- so a test counting deliberate delays would
+    also be counting `_retry`'s backoff, and could not tell the two apart. That
+    distinction is the whole question this throttle exists to answer.
+    """
+    time.sleep(seconds)
+
+
+class Pacer:
+    """One owner for how fast a crawl is allowed to ask.
+
+    The delay this replaces was a `time.sleep` at the bottom of the request
+    loop, which put the rate limit on the wrong branch: every `continue` between
+    the request and the sleep -- a page that failed, one that parsed to nothing,
+    one that fell outside a horizon -- was fetched with no pause at all. Those
+    are not the rare paths. Measured on the Frankston sitemap, sixteen requests
+    and zero delays, because the majority of its pages take an early `continue`.
+
+    So pacing sits immediately before each request, and every path through the
+    loop goes through it. Three properties a bare sleep cannot give:
+
+    * **A floor.** `max(delay, floor)`, so no config value can turn a source
+      into an unbounded crawler.
+    * **A budget.** `budget` covers every request in the run, so a per-source
+      page or detail cap cannot ask for more pressure than the host tolerates.
+    * **Jitter.** A uniform interval is a machine signature. Up to a quarter of
+      the delay is random.
+
+    The gap is measured from the previous *request*, not from the previous
+    wait, so a slow page -- a big detail page, a connection that took two
+    seconds -- shortens the next gap instead of adding to it. Pausing a fixed
+    interval *after* each request makes the real rate a function of page size,
+    which is the opposite of a rate limit.
+    """
+
+    def __init__(self, delay=None, floor=0.0, default=0.0, budget=None,
+                 pace=None, jitter=None):
+        try:
+            want = float(delay) if delay is not None else float(default)
+        except (TypeError, ValueError):
+            want = float(default)
+        self.delay = max(want, float(floor))
+        self.budget = int(budget) if budget else None
+        self._pace = pace or _pace
+        self._jitter = jitter if jitter is not None else self.delay * 0.25
+        self.spent = 0
+        self._last = None
+
+    def take(self):
+        """Wait out the interval, then spend one request. False when spent.
+
+        The first request is not delayed: there is no previous one to be a
+        distance from, and a leading sleep is dead time on every run.
+        """
+        if self.budget is not None and self.spent >= self.budget:
+            return False
+        if self._last is not None:
+            gap = self.delay - (time.monotonic() - self._last)
+            if gap > 0:
+                self._pace(gap + (random.random() * self._jitter))
+        self.spent += 1
+        self._last = time.monotonic()
+        return True
+
+
+# --- ASP.NET postback pagination -------------------------------------------
+#
+# Granicus "Seamless CMS" listings ignore `?page=` and move only on a POST
+# carrying the form's own hidden state, so two of them need this and a third
+# caller would too. It lives here rather than in either fetcher because the
+# mechanism is the platform's, not a source's, and a per-source copy is a copy
+# that can drift from the one that is actually running.
+#
+# The control names (`ctl10$ctl00$ctl07`, `ctl10$ctl00$ctl08`) are generated
+# from the control tree, so they are discovered from the markup rather than
+# hard-coded. That matters more than it looks: a POST with a wrong field name is
+# *accepted* and the server re-serves page 1, silently. `paged_listing` treats
+# exactly that as the failure it is.
+
+# "Page 1 of 31"
+PAGE_INFO_RE = re.compile(r"Page\s+(\d+)\s+of\s+(\d+)")
+
+
+def page_hidden_fields(soup):
+    """The form's hidden inputs, which carry the postback state.
+
+    Reissued on every response, so it has to be re-read from each page rather
+    than kept from the first: the previous blob is spent.
+    """
+    return {i.get("name"): i.get("value", "")
+            for i in soup.select("form#mainForm input[type=hidden]")
+            if i.get("name")}
+
+
+def pager_control_names(soup):
+    """The page-number select and its Go button, found rather than assumed.
+
+    Both are identified by what they contain rather than by their name, so a
+    template that renumbers its controls still works. A name is a property of
+    this page's markup today and not a fact about the platform.
+    """
+    select_name = None
+    for sel in soup.select(".seamless-pagination-data select"):
+        options = [o.get("value", "") for o in sel.select("option")]
+        if len(options) > 1 and all(v.strip().isdigit() for v in options):
+            select_name = sel.get("name")
+            break
+    go_name = None
+    for btn in soup.select(".seamless-pagination-controls input[type=submit]"):
+        if (btn.get("value") or "").strip().lower() == "go":
+            go_name = btn.get("name")
+            break
+    return select_name, go_name
+
+
+# A page count the site states that this walk did not reach is a budget stop,
+# which is a warning; a page that failed to load is a broken fetch, which is
+# not. The two are kept apart because conflating them either refuses to publish
+# a deliberately bounded crawl or publishes a truncated one as if it were whole.
+Listing = namedtuple("Listing", "pages claimed capped")
+
+
+def paged_listing(session, cfg, *, pacer=None):
+    """Every listing page this source is allowed to read, and how many it claims.
+
+    `max_pages` is the budget and it is opt-in: a source that does not set one
+    reads page 1 only, which is what every Granicus source did until the council
+    listing turned out to be 31 pages deep and the deeper half of the calendar
+    was invisible for that reason.
+
+    Raises `PartialFetch` for the failures that must not publish -- the first
+    page will not load, the pager cannot be driven at all, the listing stopped
+    stating how deep it is, and a page beyond the first that fails to load.
+    That last one is a walk cut short rather than a budget reached, and the two
+    are kept apart deliberately: refusing to publish a deliberately bounded
+    crawl and publishing a truncated one as if it were whole are both wrong, in
+    opposite directions.
+
+    Returns `capped=True` when the budget, rather than the site, decided where
+    to stop. That is a warning the caller is expected to print, naming how much
+    of the listing it did not read.
+    """
+    url = cfg["url"]
+    if pacer:
+        pacer.take()
+    first = get(session, url, retries=3)
+    if not first:
+        raise PartialFetch(f"listing page {url} failed to load")
+
+    soup = BeautifulSoup(first, "html.parser")
+    found = PAGE_INFO_RE.search(soup.get_text(" ", strip=True))
+    claimed = int(found.group(2)) if found else None
+
+    max_pages = cfg.get("max_pages")
+    if not max_pages:
+        return Listing([soup], claimed, False)
+    if claimed is None:
+        # A source that asked to be walked past page 1 and whose listing no
+        # longer states how deep it is. Publishing page 1 here is exactly the
+        # defect the walk exists to prevent -- a fetch that succeeds, looks
+        # healthy, and is a fraction of the listing -- so it is refused rather
+        # than reported.
+        raise PartialFetch(
+            f"{url} states no page count, and this source is configured with "
+            f"max_pages: {max_pages} -- either the pager's 'Page 1 of N' text "
+            f"moved or this listing no longer paginates. Refusing rather than "
+            f"publishing page 1 as if it were the whole listing")
+    if claimed <= 1:
+        return Listing([soup], claimed, False)
+
+    select_name, go_name = pager_control_names(soup)
+    if not (select_name and go_name):
+        raise PartialFetch(
+            f"{url} has no usable pagination controls -- the pager markup "
+            f"changed, and this fetcher cannot enumerate past the first page")
+
+    pages, page = [soup], 1
+    while page < min(int(max_pages), claimed):
+        page += 1
+        data = page_hidden_fields(soup)
+        data[select_name] = str(page)
+        data[go_name] = "Go"
+        if pacer:
+            pacer.take()
+        response = session.post(url, data=data)
+        html = getattr(response, "text", "") or ""
+        if getattr(response, "status_code", 0) != 200 or len(html) < 1000:
+            raise PartialFetch(
+                f"page {page} of {url} did not load "
+                f"(HTTP {getattr(response, 'status_code', '?')}) -- the walk "
+                f"stopped short, so publishing would replace a good snapshot "
+                f"with a fraction of the listing")
+        soup = BeautifulSoup(html, "html.parser")
+        got = PAGE_INFO_RE.search(soup.get_text(" ", strip=True))
+        if got and got.group(1) == "1":
+            # The POST was accepted and the server re-served page 1, which is
+            # what a wrong control name looks like. Publishing now would mean
+            # shipping the first page as if it were the whole listing -- which
+            # is precisely the defect this walk was added to fix.
+            raise PartialFetch(
+                f"paging {url} did not advance: POST returned page 1 again, so "
+                f"the pager control name or the viewstate is wrong -- refusing "
+                f"to publish the first page as if it were the whole listing")
+        pages.append(soup)
+        if page % 5 == 0:
+            report(f"  page {page} of {claimed}", level="debug")
+
+    capped = len(pages) < claimed
+    if capped:
+        report(f"listing claims {claimed} pages; read {len(pages)} "
+               f"(max_pages budget) -- the events past page {len(pages)} are "
+               f"not in this snapshot", level="warn")
+    return Listing(pages, claimed, capped)
+
+
 # A detail crawl that opened *some* pages but almost none of them is a broken
 # crawl, not a source whose event pages are gone. Below this fraction of
 # attempted pages succeeding, the snapshot is not replaced.
 DETAIL_MIN_SUCCESS_RATIO = 0.5
 
 
-def enrich_details(session, rows, cap, apply_one, *, sleep=0.2, label=""):
+def enrich_details(session, rows, cap, apply_one, *, sleep=0.2, label="",
+                   pacer=None):
     """Fetch each row's own page and let `apply_one` fill it in, in place.
 
     The three listing sources each need a detail pass -- the listing card
@@ -360,7 +624,13 @@ def enrich_details(session, rows, cap, apply_one, *, sleep=0.2, label=""):
     with a listing-only file, every venue blank, and the run stayed green.
     Under DETAIL_MIN_SUCCESS_RATIO of attempts succeeding, this raises
     PartialFetch so the previous snapshot survives.
+
+    `pacer` overrides `sleep`, and `sleep` is then ignored. It is passed rather
+    than multiplied here so that a source which also paces its *listing* pages
+    runs on one clock: the delay belongs to the source's relationship with its
+    host, not to whichever loop happens to be making the request.
     """
+    pace = pacer if pacer is not None else Pacer(delay=sleep)
     attempted = enriched = 0
     for r in rows:
         if cap is not None and enriched >= cap:
@@ -369,12 +639,16 @@ def enrich_details(session, rows, cap, apply_one, *, sleep=0.2, label=""):
         if not url:
             continue
         attempted += 1
+        # Before the request, on every path. The delay used to sit after
+        # `enrich_details`'s own success branch, so a page that failed to load
+        # -- the one branch that most deserves a pause -- was retried straight
+        # on with none.
+        pace.take()
         html = get(session, url)
         if not html:
             continue
         apply_one(r, html)
         enriched += 1
-        time.sleep(sleep)
     if attempted and enriched / attempted < DETAIL_MIN_SUCCESS_RATIO:
         raise PartialFetch(
             f"only {enriched}/{attempted} detail pages loaded"
@@ -623,6 +897,82 @@ if __name__ == "__main__":
             print(f"FAIL {label}\n       actual:   {actual!r}"
                   f"\n       expected: {expected!r}")
             failures.append(label)
+
+    # --- make_row: a description that restates the name is not a description -
+    # Five fetchers reached for `description=<prose> or name`. That published
+    # 667 rows -- every kingston_hubs and every bayside_live row, 30% of the
+    # store -- with the event's own title in the description column.
+    ROW_CASES = [
+        ("a description that is the name is dropped",
+         make_row("s", "PlaySpace", "u", description="PlaySpace")["description"],
+         ""),
+        ("casing does not hide a restatement",
+         make_row("s", "Tai Chi", "u", description="TAI CHI")["description"],
+         ""),
+        ("whitespace does not hide a restatement",
+         make_row("s", "Tai Chi", "u", description=" Tai  Chi ")["description"],
+         ""),
+        ("a short class name is still a restatement",
+         make_row("s", "Zumba", "u", description="Zumba")["description"], ""),
+        ("real prose is kept",
+         make_row("s", "Tai Chi", "u",
+                  description="Slow, gentle forms suited to older adults."
+                  )["description"],
+         "Slow, gentle forms suited to older adults."),
+        ("prose that merely shares a word is kept",
+         make_row("s", "Tai Chi", "u",
+                  description="Tai chi for beginners, no experience needed."
+                  )["description"],
+         "Tai chi for beginners, no experience needed."),
+        ("a nameless row keeps its description",
+         make_row("s", "", "u", description="Tai Chi")["description"], "Tai Chi"),
+        ("None is normalised to blank, not kept as None",
+         make_row("s", "PlaySpace", "u", description=None)["description"], ""),
+    ]
+
+    # --- join_address: the shapes Bayside's own venue block renders ---------
+    ADDRESS_CASES = [
+        ("plain segments join in order",
+         join_address(["Beaumaris Library", "96 Reserve Road", "Beaumaris",
+                       "Victoria 3193"]),
+         "Beaumaris Library, 96 Reserve Road, Beaumaris, Victoria 3193"),
+        ("the country is dropped",
+         join_address(["84 Reserve Road", "Beaumaris", "Victoria 3193",
+                       "Australia"]),
+         "84 Reserve Road, Beaumaris, Victoria 3193"),
+        # The one that shipped: Bayside lists the suburb twice in its own
+        # Location field, so ten rows published as
+        # "84 Reserve Road, Beaumaris, Beaumaris, Victoria 3193".
+        ("a repeated suburb segment collapses",
+         join_address(["84 Reserve Road", "Beaumaris", "Beaumaris",
+                       "Victoria 3193", "Australia"]),
+         "84 Reserve Road, Beaumaris, Victoria 3193"),
+        # ...and for some events the repeat is inside a single run, so a part
+        # can carry it rather than arriving as two parts.
+        ("a repeated suburb inside one part collapses",
+         join_address(["Green Point", "Brighton, Brighton", "Victoria 3186"]),
+         "Green Point, Brighton, Victoria 3186"),
+        ("blank separators from the markup are dropped",
+         join_address(["14 Willis St", "", "Hampton", "", "Victoria 3188"]),
+         "14 Willis St, Hampton, Victoria 3188"),
+        ("trailing commas on a part are stripped",
+         join_address(["14 Willis St,", "Hampton,", "Victoria 3188"]),
+         "14 Willis St, Hampton, Victoria 3188"),
+        ("nothing in, nothing out",
+         join_address([]), ""),
+        ("a non-adjacent repeat is left alone",
+         join_address(["Hall", "Beaumaris", "Street", "Beaumaris"]),
+         "Hall, Beaumaris, Street, Beaumaris"),
+    ]
+
+    for group in (ROW_CASES, ADDRESS_CASES):
+        for label, actual, expected in group:
+            if actual == expected:
+                print(f"ok   {label}")
+            else:
+                print(f"FAIL {label}\n       actual:   {actual!r}"
+                      f"\n       expected: {expected!r}")
+                failures.append(label)
 
     if failures:
         print(f"\nwebfetch_http: {len(failures)}/{len(TESTS)} cases FAILED")

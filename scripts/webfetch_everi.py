@@ -4,7 +4,7 @@ Replaces the hand-maintained `frankston_archived` rows in
 `scripts/archived_events.json`. Those were kept by hand on the stated grounds
 that the live pages were WAF-blocked, which stopped being true; the site answers
 plain urllib. Being hand-maintained was not only stale, it was unreclaimable:
-`reconcile_store()` only judges a row whose `source_label` appeared in this run's
+`reconcile_store()` only judges a row whose `source_id` appeared in this run's
 live rows, and no fetcher ever produced one, so a listing withdrawn by its
 organiser sat on the calendar forever. `Trivia on Tap` was published as twelve
 rows reaching 2027-09-03 from a transcription nobody could cancel, and five of
@@ -65,17 +65,16 @@ around rather than used:
   "+8 dates"), never a date.
 """
 import json
-import random
 import re
-import time
 from contextlib import contextmanager
 from datetime import date, timedelta
 from pathlib import Path
 
 from bs4 import BeautifulSoup
 
-from webfetch_http import (PartialFetch, get, make_row, report,
-                           set_reporting_source)
+from webfetch_http import (Pacer, PartialFetch, get, make_row,  # noqa: F401
+                           report, set_reporting_source)
+from webfetch_http import _pace as _shared_pace
 from venues import needs_address
 
 _ROOT = Path(__file__).resolve().parent.parent
@@ -155,27 +154,37 @@ _MAX_REQUESTS_PER_RUN = 60
 
 
 def _pace(seconds):
-    """Wait between requests. A module-level seam so the tests can count it.
+    """Wait between requests. A module-level seam so this suite can count the
+    throttle's deliberate waits.
 
-    Monkeypatching `time.sleep` instead would be global -- `webfetch_http`
-    imports the same module object -- so a test counting delays would also be
-    counting the retry backoff's, and could not tell the two apart. That
-    distinction is the whole question this throttle exists to answer.
+    The mechanism is `webfetch_http.Pacer`; only the three numbers in
+    `_Throttle` below are this source's. `_Throttle` defaults `pace` to *this*
+    name, resolved in this module's globals at call time, so the suite's
+    `globals()["_pace"] = waits.append` reaches the throttle that actually
+    runs. A `Pacer` imported by name would look it up in `webfetch_http` and the
+    patch would count nothing.
     """
-    time.sleep(seconds)
+    _shared_pace(seconds)
 
 
-class _Throttle:
-    """One owner for how fast this crawl is allowed to ask.
+class _Throttle(Pacer):
+    """Frankston's rate limit: this host's floor, default and request budget.
 
-    The delay used to be a `time.sleep` at the bottom of the request loop, and
-    that put the rate limit on the wrong branch: five `continue` statements
-    stood between the request and the sleep, so a page that failed, or parsed to
-    nothing, or fell outside the horizon, or had no address, was fetched with no
-    pause at all. Those are not the rare paths. The sitemap runs a year out
-    against a 120-day horizon, so the *majority* of the 856 pages take
-    `beyond_horizon` and skip the sleep -- measured: sixteen requests, zero
-    delays, a crawl at whatever speed the network happened to allow.
+    The pacing mechanism -- wait out the interval immediately before each
+    request, with a floor, a budget and jitter -- is `webfetch_http.Pacer`,
+    shared with the other sources that now walk a paginated listing. Only the
+    three numbers are Frankston's, and they are the measured ones recorded
+    above: this host refused a 876-page crawl at 0.1s and again at 0.35s.
+
+    What the mechanism fixes is the reason it exists at all. The delay used to
+    be a `time.sleep` at the bottom of the request loop, and that put the rate
+    limit on the wrong branch: five `continue` statements stood between the
+    request and the sleep, so a page that failed, or parsed to nothing, or
+    fell outside the horizon, or had no address, was fetched with no pause at
+    all. Those are not the rare paths. The sitemap runs a year out against a
+    120-day horizon, so the *majority* of the 856 pages take `beyond_horizon`
+    and skip the sleep -- measured: sixteen requests, zero delays, a crawl at
+    whatever speed the network happened to allow.
 
     So pacing moves to where it belongs, immediately before each request, and
     every path through the loop goes through it. Three properties, and the third
@@ -196,35 +205,10 @@ class _Throttle:
     """
 
     def __init__(self, delay=None, budget=None, pace=None, jitter=None):
-        try:
-            want = float(delay) if delay is not None else DEFAULT_CRAWL_DELAY
-        except (TypeError, ValueError):
-            want = DEFAULT_CRAWL_DELAY
-        self.delay = max(want, _MIN_CRAWL_DELAY)
-        self.budget = int(budget) if budget else _MAX_REQUESTS_PER_RUN
-        self._pace = pace or _pace
-        self._jitter = jitter if jitter is not None else self.delay * 0.25
-        self.spent = 0
-        self._last = None
-
-    def take(self):
-        """Wait out the interval, then spend one request. False when spent.
-
-        The gap is measured from the previous *request*, not from the previous
-        wait, so a slow page -- a big detail page, a connection that took two
-        seconds -- shortens the next gap instead of adding to it. Pausing a
-        fixed interval *after* each request would make the real rate a function
-        of page size, which is the opposite of a rate limit.
-        """
-        if self.spent >= self.budget:
-            return False
-        if self._last is not None:
-            gap = self.delay - (time.monotonic() - self._last)
-            if gap > 0:
-                self._pace(gap + (random.random() * self._jitter))
-        self.spent += 1
-        self._last = time.monotonic()
-        return True
+        super().__init__(delay=delay, floor=_MIN_CRAWL_DELAY,
+                         default=DEFAULT_CRAWL_DELAY,
+                         budget=budget or _MAX_REQUESTS_PER_RUN,
+                         pace=pace or _pace, jitter=jitter)
 # Consecutive unreadable pages that mean "blocked", not "some pages are broken".
 BLOCK_STREAK_LIMIT = 5
 # Report progress this often. At the host's rate this is roughly every 20s.

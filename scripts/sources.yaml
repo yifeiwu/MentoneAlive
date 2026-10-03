@@ -2,15 +2,24 @@
 #
 # One list is fetched by one script, `scripts/fetch_sources.py`. `type:` is the
 # only dispatch key and must match an entry in that script's FETCHERS table.
-# `impersonate: true` means the source's host answers only to a curl-cffi
+# `impersonate: true` means the source's host answers only to a curl_cffi
 # Chrome-TLS session rather than plain urllib -- it is a property of the host,
-# not of the source, and only four entries currently need it. The two lists
-# below (webfetch: / sources:) are kept separate only because a webfetch source
-# owns a committed snapshot file under scripts/webfetch_snapshots/ while the
-# others share data/raw_events.json.
+# not of the source, and six entries currently need it (fetchers.py pins the
+# set by id, so adding or dropping one fails the build rather than turning into
+# a silent TLS failure on the next live run). The two lists below (webfetch: /
+# sources:) are kept separate only because a webfetch source owns a committed
+# snapshot file under scripts/webfetch_snapshots/ while the others share
+# data/raw_events.json.
 #
-# Manual overflow snapshots (*_manual.json) are merged by dedupe.py. Libraries
-# (kingston_libraries, frankston_libraries) are future work.
+# A manual overflow snapshot named `<id>_manual.json` is merged without being
+# listed here: load_live_inputs() reads every *.json in webfetch_snapshots, and
+# the Granicus pager is a JS postback that cannot be walked. The one thing that
+# is checked is its `source_id`, which has to name a source configured here or
+# in archived_events.json -- otherwise the file is skipped.
+#
+# kingston_libraries is future work. frankston_libraries is not: it is
+# configured and fetched, and contributes the largest single block of library
+# rows in the store.
 
 webfetch:
   - name: "Kingston Council"
@@ -20,10 +29,34 @@ webfetch:
     impersonate: true
     url: "https://www.kingston.vic.gov.au/community/events/upcoming-events"
     base: "https://www.kingston.vic.gov.au"
-    detail_cap: 12
+    detail_cap: 320
     snapshot: "kingston_council.json"
-    # NOTE: Granicus pager is JS postback — page 1 only. Deeper pages via
-    # manual snapshots named kingston_council_manual.json.
+    # 301 events over 31 pages, ten to a page, sorted by next occurrence. This
+    # listing was read one page at a time for months because the note here said
+    # the pager needed JS: it does not, it has a non-JS `<select>` + "Go"
+    # postback, and webfetch_http.paged_listing drives it. The cost of the old
+    # note was silent -- events rotated off page 1 as real dates filled it, and
+    # two of them (Chinese Senior Citizens Club on p18, Tea & Talk on p27) were
+    # missing from every snapshot while still live on the council's own site.
+    #
+    # The budget, not a page count: the listing says 31 and this reads 40, so a
+    # month that grows the listing is followed rather than truncated at a fixed
+    # number. Exceeding it is a warning naming the pages not read, not a
+    # silent fraction.
+    max_pages: 40
+    # One request per five seconds, applied to every request this source makes
+    # -- the 31 listing pages and all 301 detail pages run on one clock, because
+    # that is the only reading of the number that bounds the pressure on the
+    # host. At 5s this source is ~28 minutes of deliberate waiting, which is
+    # most of the fetch step's budget and the reason that step's timeout is 45.
+    # It is slow on purpose: this is the host that 403s a plain urllib request,
+    # and the Granicus WAF is not the place to find out what it tolerates.
+    crawl_delay: 5.0
+    # detail_cap covers every row the walk finds (301 today, 320 allowed), so
+    # each one is opened and states its real start time. Left short, the
+    # unenriched rows still carry the card's date but no time, and a 10am-3pm
+    # club publishes as all day -- which is the same class of quietly wrong row
+    # the missing pages were.
 
   - name: "Kingston Arts"
     id: "kingston_arts"
@@ -34,6 +67,9 @@ webfetch:
     base: "https://www.kingstonarts.com.au"
     detail_cap: 12
     snapshot: "kingston_arts.json"
+    # No max_pages: this listing is one page deep, so it reads page 1 only and
+    # paces nothing. The key is the whole opt-in -- see kingston_council above
+    # for what setting it costs and what leaving it out was hiding.
 
   - name: "Bayside Council"
     id: "bayside_live"

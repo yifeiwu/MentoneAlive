@@ -161,6 +161,16 @@ RULES = [
     # catch-all for the program.
     ("Social & Community", [r"chatty", r"social group",
                             r"cuppa", r"catch ?up",
+                            # A conversation table is a social *format*. Bare
+                            # "conversation" is far too wide to match: it reads
+                            # an author talk ("The Wreck in conversation with
+                            # Geoff Parkes") as social when it is already Books
+                            # & Reading, and a language class ("Everyday
+                            # Conversation - Beginner, Intermediate") as social
+                            # when it is pinned to Other. Both are pinned
+                            # cases. The two-word form names the format and
+                            # matches neither.
+                            r"conversation (?:table|group)",
                             r"newcomers", r"new to the (area|suburb|city)",
                             r"friendship",
                             r"men'?s shed", r"u3a",
@@ -214,7 +224,24 @@ RULES = [
                              r"\btots?\b", r"little ones", r"\bjuniors?\b",
                              r"early years", r"kindergarten"]),
     ("Books & Reading", [r"book club", r"author", r"storytime", r"\breading\b",
-                         r"borrowbox", r"podcast", r"\bstor(y|ies)\b", r"writing",
+                         r"borrowbox", r"podcast",
+                         # "story"/"stories" as a literary form, not as the
+                         # ordinary English verb. A bare `\bstor(y|ies)\b`
+                         # matched "share stories" -- the own description of a
+                         # Chinese conversation table -- and filed a social
+                         # group as reading, so a reader filtering by Books &
+                         # Reading was shown it and a reader filtering by
+                         # Social & Community was not.
+                         #
+                         # The plural now has to be a content form, which on
+                         # this site's prose means "stories of/about/from X"
+                         # ("Stories of police buried here"), while "share
+                         # stories, and build community" is a comma and gets
+                         # nothing. The singular stays unqualified: `storytime`
+                         # already has its own pattern above, so a bare "story"
+                         # reaching here is a story hour or a title.
+                         r"\bstory\b|\bstor(y|ies)\b\s+(?:of|about|from)\b",
+                         r"writing",
                          r"writers?", r"poetry", r"book week", r"book launch",
                          r"\blibrary\b",
                          # Literary format: '"The Wreck" in conversation with
@@ -380,6 +407,24 @@ if __name__ == "__main__":
          ["Games & Cards"]),
         ("Recording Life Stories", "Podcast workshop on capturing life stories.",
          "", ["Books & Reading"]),
+        # "stories" as the ordinary verb is not a literary form. This is a
+        # council listing whose own description says "share stories", and a
+        # bare \bstor(y|ies)\b filed a conversation table as reading -- so it
+        # appeared under a Books filter and not under the Social one a reader
+        # would actually use.
+        ("Tea & Talk Chinese Conversation Table",
+         "Our monthly Tea & Talk table offers Mandarin and Cantonese speakers, "
+         "a welcoming space to connect, share stories, and build community "
+         "through meaningful conversation.", "",
+         ["Social & Community"]),
+        # The two sides of that fix, so neither can be undone alone: the plural
+        # still reads as a content form, and a conversation table is social
+        # without dragging in every use of the word.
+        ("Stories of police buried here", "", "", ["Books & Reading"]),
+        ("Everyday Conversation - Beginner, Intermediate",
+         "Practice English in pairs.", "", ["Other"]),
+        ("Riley James - \"The Wreck\" in conversation with Geoff Parkes.",
+         "", "", ["Books & Reading"]),
         ("The Thin Blue Line - Police at the Brighton Cemetery",
          "Stories of police buried here.", "", ["Books & Reading"]),
         ("Explore the Solar System with Merge Cube", "STEM and augmented reality.",
