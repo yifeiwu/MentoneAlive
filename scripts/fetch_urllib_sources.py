@@ -19,8 +19,13 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 from venues import extract_suburb, is_online
-from webfetch_http import (PartialFetch, enrich_details, make_row,
-                           month_number, parse_day_month_year, report)
+from webfetch_http import (MIN_CRAWL_DELAY, Pacer, PartialFetch, enrich_details,
+                           make_row, month_number, parse_day_month_year,
+                           report)
+
+# The interval the Greater Dandenong listing walk was actually running at, so
+# `crawl_delay` can override it and nothing else can change it by accident.
+GD_CRAWL_DELAY = 0.2
 
 BASE = "https://www.kingston.vic.gov.au"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -250,13 +255,6 @@ def fetch_kingston_hubs(cfg, session=None):
 # Source: Greater Dandenong (Drupal HTML, Python-safe)
 # ---------------------------------------------------------------------------
 
-# Suburbs the catchment covers. Used to decide whether a row is *out of area*
-# (drop) or merely *unclassifiable* (keep).
-GD_CATCHMENT = ("springvale", "keysborough", "dandenong", "doveton",
-                "cleveland", "noble park", "rowville", "braeside",
-                "dandenong south", "dandenong north", "notting hill",
-                "bangholme", "heatherton", "mordialloc")
-
 # The detail page states the venue under a labelled field, e.g.
 #   Location | Noble Park Community Centre
 #            | 44 Memorial Drive, Noble Park
@@ -300,13 +298,6 @@ def _gd_detail_location(soup):
             address = ""
         return venue, address
     return "", ""
-
-
-def _classifiable(row, known=GD_CATCHMENT):
-    """True when the row names a suburb we recognise, in or out of area."""
-    blob = " ".join([row.get("name", ""), row.get("location", ""),
-                     row.get("address", ""), row.get("description", "")]).lower()
-    return any(s in blob for s in known)
 
 
 def _passes_suburb_filter(row, allowed):
@@ -389,8 +380,20 @@ def fetch_greater_dandenong(cfg, session=None):
     # re-parsed every earlier card on every page -- 348 card reads to find 45
     # distinct events -- and left the duplicates for dedupe.py to unpick.
     cards = {}
+    # Paced before each request rather than after each page. The `time.sleep(0.2)`
+    # this replaces sat at the bottom of the loop, which the failure branch above
+    # skipped with a `continue` -- so a page that could not be fetched cost no
+    # pause and the retry went straight out behind it. `crawl_delay` was
+    # validated for this source and read by nobody. Shared with the detail pass
+    # so one budget covers every request.
+    pacer = Pacer(cfg.get("crawl_delay"), floor=MIN_CRAWL_DELAY,
+                  default=GD_CRAWL_DELAY)
     for page in range(max_pages):
         url = cfg["url"] if page == 0 else f"{cfg['url']}?page={page}"
+        if not pacer.take():
+            report(f"stopped at the run's {pacer.budget}-request budget "
+                   f"before page {page}", level="warn")
+            break
         try:
             html = _gd_fetch(session, url, timeout=12)
         except Exception as e:
@@ -435,7 +438,6 @@ def fetch_greater_dandenong(cfg, session=None):
             # what we already have.
             report(f"no new events past page {page - 1}")
             break
-        time.sleep(0.2)
     report(f"{len(cards)} distinct events from the listing")
 
     # Build every row from the card first, then open the detail pages in one
@@ -461,7 +463,7 @@ def fetch_greater_dandenong(cfg, session=None):
             row["suburb"] = extract_suburb(address)
 
     enrich_details(session, rows, None, _apply_detail, sleep=0.15,
-                   label="greater_dandenong")
+                   label="greater_dandenong", pacer=pacer)
 
     kept, placed, unplaced, dropped = [], 0, 0, 0
     for row in rows:

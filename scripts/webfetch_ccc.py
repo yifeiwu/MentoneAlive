@@ -1,16 +1,19 @@
 """Cheltenham Community Centre (Weebly term classes + Humanitix)."""
 import re
-import time
 from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup, NavigableString
 
-from webfetch_http import (DETAIL_MIN_SUCCESS_RATIO, PartialFetch, _hhmm, get,
-                           make_row, report)
+from webfetch_http import (DETAIL_MIN_SUCCESS_RATIO, MIN_CRAWL_DELAY, Pacer,
+                           PartialFetch, _hhmm, get, make_row, report)
 
 # ---------------------------------------------------------------------------
 # Cheltenham Community Centre (Weebly term classes + Humanitix bookings)
 # ---------------------------------------------------------------------------
+
+# The interval this source was actually running at, kept so `crawl_delay` can
+# override it and nothing else can change it by accident.
+DEFAULT_CRAWL_DELAY = 0.2
 
 CCC_LABELS = ("Term:", "When:", "Time:", "Where:", "Cost:",
               "Instructor:", "Facilitator:")
@@ -204,9 +207,23 @@ def _ccc_free_signals(text):
 
 def fetch_ccc(cfg, session=None, detail_cap=None):
     rows, seen = [], set()
+    # Paced before each request rather than after each page, and shared with the
+    # booking-page pass so one pacer covers every request this source makes. The
+    # `time.sleep(0.2)` this replaces sat at the bottom of both loops, which put
+    # the rate limit on the wrong branch: `enrich_humanitix` has six `continue`s
+    # between its request and its sleep, and the first of them is "the page did
+    # not load" -- so a booking page that failed cost no pause at all, and the
+    # next request went out immediately behind it. `crawl_delay` was validated
+    # for this source and read by nobody.
+    pacer = Pacer(cfg.get("crawl_delay"), floor=MIN_CRAWL_DELAY,
+                  default=DEFAULT_CRAWL_DELAY)
     for page_url in cfg.get("pages", [cfg.get("url", "")]):
         if not page_url:
             continue
+        if not pacer.take():
+            raise PartialFetch(
+                f"stopped at the run's {pacer.budget}-request budget before "
+                f"{page_url}", rows)
         html = get(session, page_url)
         if not html:
             # One unreachable program page means a partial term listing, which
@@ -341,8 +358,7 @@ def fetch_ccc(cfg, session=None, detail_cap=None):
                 ))
                 n += 1
         report(f"{page_url.split('/')[-1]}: {n} activities")
-        time.sleep(0.2)
-    rows.extend(enrich_humanitix(session, rows, detail_cap))
+    rows.extend(enrich_humanitix(session, rows, detail_cap, pacer=pacer))
     return rows
 
 
@@ -372,7 +388,7 @@ def _ccc_weekly_term(start, end, cap=CCC_TERM_MAX_ROWS):
     return out
 
 
-def enrich_humanitix(session, rows, cap):
+def enrich_humanitix(session, rows, cap, pacer=None):
     """Attach Humanitix dates, and expand a term range into weekly rows.
 
     Returns the extra rows a multi-week term expands into; the caller appends
@@ -395,6 +411,11 @@ def enrich_humanitix(session, rows, cap):
         if cap is not None and n >= cap:
             continue
         attempted += 1
+        # The pause belongs here rather than at the bottom of the loop: six
+        # `continue`s stand between this request and where the sleep used to be,
+        # and the first of them is a page that failed to load.
+        if pacer is not None and not pacer.take():
+            break
         html = get(session, r["source"])
         if not html:
             continue
@@ -469,7 +490,6 @@ def enrich_humanitix(session, rows, cap):
             row["datetime_iso"] = when.isoformat()
             if i:
                 extra.append(row)
-        time.sleep(0.2)
     report(f"humanitix enriched: {n}"
            + (f" (+{len(extra)} term rows)" if extra else ""))
     if attempted and n / attempted < DETAIL_MIN_SUCCESS_RATIO:

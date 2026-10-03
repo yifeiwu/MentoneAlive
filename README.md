@@ -330,7 +330,7 @@ the build before it can reach the published page. The suites are:
 
 | Suite | Pins |
 | --- | --- |
-| `activity_types` | 64 name/description → tags cases |
+| `activity_types` | 82 name/description → tags cases |
 | `status` | 10 sold-out / service cases |
 | `recurrence` | the date-inference table, on a fixed reference date |
 | `dedupe` | name, venue and series-key normalisation; the two field-level defects the store repair pass recognises (a description that restates the title, a repeated address segment); the archive file's shape |

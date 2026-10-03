@@ -47,15 +47,19 @@ returns page 1 again, silently. So the collected URLs are counted against the
 rather than a snapshot of the first ten groups.
 """
 import re
-import time
 from datetime import date
 
 from bs4 import BeautifulSoup
 
 from recurrence import materialise
-from webfetch_http import (PartialFetch, get, make_row, paged_listing, report,
+from webfetch_http import (MIN_CRAWL_DELAY, Pacer, PartialFetch, get,
+                           make_row, paged_listing, report,
                            set_reporting_source)
 from venues import needs_address
+
+# The interval this source was actually running at, so `crawl_delay` can
+# override it and nothing else can change it by accident.
+DEFAULT_CRAWL_DELAY = 0.15
 
 # --- listing markup --------------------------------------------------------
 CARD = "div.list-item-container article"
@@ -67,7 +71,6 @@ CARD_TAGS = "div.tagged-as-list div.text li span"
 # `class=""`, the attribute is absent, and the template even emits it with a
 # stray space (`<p >`). So it cannot be selected by name and is found by
 # elimination: the only direct-child <p> of the card's link with no class.
-SUMMARY_CLASSES = ("list-item-address", "oc-thumbnail-image")
 
 # "117 Result(s) Found"
 RESULTS_RE = re.compile(r"(\d[\d,]*)\s*Result")
@@ -414,6 +417,13 @@ def fetch_directory(cfg, session, detail_cap=None):
     set_reporting_source(sid)
     cards = _fetch_listing_pages(session, cfg)
 
+    # One pacer for the whole source, so the budget covers the detail pages and
+    # the listing walk together. `crawl_delay` was validated for this source and
+    # read by nobody: the only delay here was a `time.sleep(0.15)` at the bottom
+    # of the detail loop, which the five `continue`s above it skipped.
+    pacer = Pacer(cfg.get("crawl_delay"), floor=MIN_CRAWL_DELAY,
+                  default=DEFAULT_CRAWL_DELAY)
+
     rows, dropped, attempted, opened = [], {"no place": 0, "no time": 0,
                                             "fetch failed": 0}, 0, 0
     for href, card in cards:
@@ -431,6 +441,16 @@ def fetch_directory(cfg, session, detail_cap=None):
         row["source_types"] = [t for t in tags if t]
 
         attempted += 1
+        # The pause belongs immediately before the request, not at the bottom of
+        # the loop: five `continue`s stand between the two, and the first of them
+        # is a detail page that did not load -- so a failed page cost no pause and
+        # the next request went straight out behind it. That is the branch this
+        # host's 404s actually take.
+        if not pacer.take():
+            report(f"stopped at the run's {pacer.budget}-request budget; "
+                   f"{len(cards) - len(rows) - sum(dropped.values())} entries "
+                   f"left unopened", level="warn")
+            break
         html = get(session, href, retries=2, min_len=2000)
         if not html:
             dropped["fetch failed"] += 1
@@ -480,7 +500,6 @@ def fetch_directory(cfg, session, detail_cap=None):
             # in a 2026 calendar. The description already carries the schedule,
             # so the copy bought nothing.
             rows.append(row)
-        time.sleep(0.15)
 
     # `_hours_schedule` is scratch space for _usable_schedule, carried on the row
     # because that is the only thing both the prose test and the hours test read.
@@ -506,16 +525,12 @@ def _self_test():
     """The three decisions that are this module's, run over the real markup."""
     import sys
 
+    from checks import check as _check
+
     failures = []
 
     def check(label, actual, expected):
-        ok = actual == expected
-        print("  %s %s%s" % ("ok  " if ok else "FAIL", label,
-                             "" if ok else
-                             "\n         actual:   %r\n         expected: %r"
-                             % (actual, expected)))
-        if not ok:
-            failures.append(label)
+        return _check(label, actual, expected, failures)
 
     # A bare <p> with no class attribute, alongside a classed address line.
     card = BeautifulSoup(

@@ -325,15 +325,12 @@ if __name__ == "__main__":
         # the reader did not replace is reported as no address at all.
         return None if addr == "Kingston Arts Centre" else addr
 
+    from checks import check as _check
+
     failures = []
 
     def check(label, actual, expected):
-        if actual == expected:
-            print(f"ok   {label}")
-        else:
-            print(f"FAIL {label}\n       actual:   {actual!r}"
-                  f"\n       expected: {expected!r}")
-            failures.append(label)
+        return _check(label, actual, expected, failures)
 
     # --- what the detail reader makes of a page's address block -------------
     check("tag-separated address",

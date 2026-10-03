@@ -73,7 +73,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 from webfetch_http import (Pacer, PartialFetch, get, make_row,  # noqa: F401
-                           report, set_reporting_source)
+                           month_number, report, set_reporting_source)
 from webfetch_http import _pace as _shared_pace
 from venues import needs_address
 
@@ -104,9 +104,11 @@ OTHER_DATE_RE = re.compile(
     r"([A-Za-z]+day)\s+(\d{1,2})\s+([A-Za-z]+)\s+(\d{4}),?\s*"
     r"(?:(\d{1,2}):(\d{2})\s*([AaPp])\.?[Mm]\.?)?", re.I)
 
-MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5,
-          "june": 6, "july": 7, "august": 8, "september": 9, "october": 10,
-          "november": 11, "december": 12}
+# Month names resolve through webfetch_http.month_number, the pipeline's one
+# owner. This used to keep its own twelve-name table and look up
+# `MONTHS.get(name[:9])`, which resolved the full names and nothing else: a site
+# printing "Sept" -- the four-letter abbreviation Australian listings use -- got
+# None, and the row lost its date rather than raising.
 
 # How far ahead a listing is published. The sitemap carries every occurrence the
 # site knows about, which reaches a year out -- a series running to 2027-09 was
@@ -282,7 +284,7 @@ def _parse_when(text):
     m = DETAIL_DATE_RE.search(text or "")
     if not m:
         return None, ""
-    month = MONTHS.get(m.group(2).strip().lower()[:9])
+    month = month_number(m.group(2))
     if not month:
         return None, ""
     try:
@@ -366,7 +368,7 @@ def _occurrence_dates(soup, first_iso):
         m = OTHER_DATE_RE.search(text)
         if not m:
             continue
-        month = MONTHS.get(m.group(3).strip().lower()[:9])
+        month = month_number(m.group(3))
         if not month:
             continue
         try:
@@ -385,6 +387,24 @@ def _occurrence_dates(soup, first_iso):
     return found
 
 
+def _slice_length(configured, detail_cap, throttle):
+    """How many occurrence pages this run may try for.
+
+    `slice_size` and `detail_cap` say how much progress to try for; the budget
+    says how much pressure the run may put on the host, and the sitemap has
+    already spent part of it. The smallest of the three wins, so neither number
+    has to be trusted on its own: a mis-set 150 slice is not a 150-request run
+    against a host that refuses one at 31.
+
+    The throttle would stop the loop either way, so this is not what bounds a
+    run -- it is what makes the slice a run *reports* the slice it attempts,
+    rather than the one it was configured with and then had cut short.
+    """
+    want = int(detail_cap if detail_cap is not None
+               else (configured or DEFAULT_SLICE))
+    return max(0, min(want, throttle.budget - throttle.spent))
+
+
 def fetch_everi(cfg, session, detail_cap=None):
     """Fetch an Everi "Event Hub" listing into dated rows.
 
@@ -401,14 +421,7 @@ def fetch_everi(cfg, session, detail_cap=None):
 
     horizon = date.today() + timedelta(days=int(
         cfg.get("horizon_days") or DEFAULT_HORIZON_DAYS))
-    slice_size = cfg.get("slice_size") or DEFAULT_SLICE
-    slice_size = int(detail_cap if detail_cap is not None else slice_size)
-    # The slice is how much progress this run tries for; the budget is how much
-    # pressure it may put on the host. `slice_size` alone was the whole limit,
-    # and it is a config value -- a mis-set 150 is a 150-request run against a
-    # host that refuses one at 31. Capping the slice by what the budget still
-    # allows means neither number has to be trusted on its own.
-    slice_size = max(0, min(slice_size, throttle.budget - throttle.spent))
+    slice_size = _slice_length(cfg.get("slice_size"), detail_cap, throttle)
 
     # Resumable. The host refuses an IP that asks for too much, and the refusal
     # lasts hours -- so a run that tries all 876 pages never finishes, and the
@@ -424,8 +437,6 @@ def fetch_everi(cfg, session, detail_cap=None):
     # page read on Monday still appears on Saturday's snapshot.
     rows = list(cache.get("rows") or [])
     remaining = [u for u in urls if u not in done]
-    slice_size = cfg.get("slice_size") or DEFAULT_SLICE
-    slice_size = int(detail_cap if detail_cap is not None else slice_size)
     todo = remaining[:slice_size]
 
     opened, seen_series = 0, set()
@@ -866,16 +877,12 @@ def _self_test():
     import sys
     import tempfile
 
+    from checks import check as _check
+
     failures = []
 
     def check(label, actual, expected):
-        ok = actual == expected
-        print("  %s %s%s" % ("ok  " if ok else "FAIL", label,
-                             "" if ok else
-                             "\n         actual:   %r\n         expected: %r"
-                             % (actual, expected)))
-        if not ok:
-            failures.append(label)
+        return _check(label, actual, expected, failures)
 
     check("a detail date and session parse",
           _parse_when("Friday 02 October 2026 6:30 PM - 8:30 PM"),
@@ -1077,20 +1084,32 @@ def _self_test():
     # for progress rather than a limit on what one run may ask of the host.
     check("the budget counts the sitemap too",
           _Throttle(0.35, budget=4).budget, 4)
+
+    _th = _Throttle(0.35, budget=20)
+    _th.take(); _th.take()      # the sitemap spends two of the twenty
+    check("the slice is capped by the budget the sitemap left",
+          _slice_length(150, None, _th), 18)
+    check("a detail_cap below that budget is still honoured",
+          _slice_length(150, 5, _th), 5)
+    check("a slice below that budget is not inflated",
+          _slice_length(3, None, _th), 3)
+    _th2 = _Throttle(0.35, budget=2)
+    _th2.take(); _th2.take()     # the sitemap uses the whole budget
+    check("a budget the sitemap used up means no occurrence pages this run",
+          _slice_length(150, None, _th2), 0)
+
+    # End to end: a mis-set 150 slice against an 8-request budget reads five
+    # pages, not eight. It still refuses to publish -- publishing a fraction of
+    # a directory would be silently wrong -- so the run's whole request count
+    # is what this pins.
     with _recorded_pace() as waits:
         _rows, raised = _crawl_with_fakes(
             fail_streak_at=None, total=40, slice_size=40,
             cfg_overrides={"max_requests_per_run": 8})
         spent = len(waits) + 1   # first request has no gap to wait out
-    check("a run stops at its budget rather than at its slice",
-          spent, 8)
-    check("and says the budget is what stopped it",
-          "budget" in (raised or ""), True)
-
-    # The slice cannot ask for more than the budget allows, so a mis-set 150 is
-    # not a 150-request run against a host that refuses one at 31.
-    check("the slice is capped by the budget",
-          min(150, _Throttle(0.35, budget=20).budget - 10), 10)
+    check("a partial crawl still refuses to publish",
+          "incomplete crawl" in (raised or ""), True)
+    check("and the run stayed inside its budget", spent <= 8, True)
 
     if failures:
         print(f"\nwebfetch_everi: {len(failures)} case(s) FAILED")

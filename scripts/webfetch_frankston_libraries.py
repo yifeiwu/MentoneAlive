@@ -27,15 +27,16 @@ from datetime import date
 from bs4 import BeautifulSoup
 
 from webfetch_http import (PartialFetch, combine, get, make_row,
-                           parse_day_month_year, report)
+                           month_number, parse_day_month_year, report)
 
 # ---------------------------------------------------------------------------
 # Frankston City Libraries
 # ---------------------------------------------------------------------------
 
-MONTHS = {m: i for i, m in enumerate(
-    ["january", "february", "march", "april", "may", "june", "july", "august",
-     "september", "october", "november", "december"], start=1)}
+# Month names resolve through webfetch_http.month_number, the pipeline's one
+# owner. This used to keep its own twelve-name table and look up
+# `MONTHS.get(name[:9])`, which resolved the full names and nothing else -- so a
+# page printing "Sept" got None and the row lost its date.
 
 # A full date as the detail pages write it, e.g.
 # "Saturday, 03 October 2026". The comma is optional and sometimes absent.
@@ -51,12 +52,10 @@ TIME_RE = re.compile(
     r"(\d{1,2}:\d{2}\s*(?:AM|PM)?)\s*(?:to|-|–|—)\s*"
     r"\d{1,2}:\d{2}\s*(?:AM|PM)?", re.I)
 
-NEXT_DATE_RE = re.compile(r"Next date:\s*(.*)$", re.S)
-
-# Ignored outright: these state a month with no day ("December 2026"), which is
-# a schedule note and not an occurrence. Materialising the first of the month
-# would publish a library session on New Year's Eve.
-_NO_DAY_RE = re.compile(r"^\s*[A-Za-z]+\s+\d{4}\s*$")
+# A month with no day ("December 2026") is ignored outright, and needs no
+# pattern of its own: DATE_RE below requires \d{1,2} for the day, so such a line
+# never matches. Materialising the first of the month would publish a library
+# session on New Year's Eve.
 
 
 def _detail_dates(html):
@@ -77,7 +76,7 @@ def _detail_dates(html):
     seen, out = set(), []
     for m in DATE_RE.finditer(html):
         day_num, month_name, year = m.group(1), m.group(2), m.group(3)
-        month = MONTHS.get(month_name.strip().lower()[:9])
+        month = month_number(month_name)
         if not month:
             continue
         try:

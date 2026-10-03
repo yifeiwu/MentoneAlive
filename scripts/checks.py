@@ -14,9 +14,12 @@ different formats. So:
     python scripts/checks.py --list
 
 The suites stay where they are. This only owns the boilerplate. `check()` is
-importable (`from checks import check`) and most suites now use it; two still
-inline their own compare-and-print, which is a cosmetic difference and not worth
-another pass over a suite that has other reasons to be read carefully.
+importable (`from checks import check`), and the fetchers that had a local copy
+of the compare-and-print now delegate to it. What is left is a handful of
+single-expression report lines inside a data-driven loop -- activity_types,
+build_site, commercial, recurrence, status -- which are not a duplicated
+harness and are left alone; status prints a table and commercial prints only a
+summary, both of which are meaningful shapes rather than incidental ones.
 """
 import subprocess
 import sys

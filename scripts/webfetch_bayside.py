@@ -1,13 +1,21 @@
 """Bayside Council events (Drupal, ?page=N pagination)."""
 import re
-import time
 from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from webfetch_http import (PartialFetch, combine, enrich_details, get,
-                           join_address, make_row, parse_day_month_year,
-                           report)
+from webfetch_http import (MIN_CRAWL_DELAY, Pacer, PartialFetch, combine,
+                           enrich_details, get, join_address, make_row,
+                           parse_day_month_year, report)
+
+# Bayside was paced by a `time.sleep(0.3)` at the bottom of the page loop, which
+# the loop reaches only when a page yielded something new: the two `break`s above
+# it -- page 0 legitimately empty, and a later page running dry -- skipped the
+# pause entirely, so the request that discovered the listing was over cost
+# nothing. `crawl_delay` was also validated for this source and then read by
+# nobody. Pacing moves to immediately before the request, where every path
+# through the loop passes it.
+DEFAULT_CRAWL_DELAY = 0.3
 
 # ---------------------------------------------------------------------------
 # Bayside (Drupal, ?page=N)
@@ -16,8 +24,14 @@ from webfetch_http import (PartialFetch, combine, enrich_details, get,
 def fetch_bayside(cfg, session=None, detail_cap=None):
     rows, seen_links = [], set()
     max_pages = cfg.get("max_pages", 12)
+    pacer = Pacer(cfg.get("crawl_delay"), floor=MIN_CRAWL_DELAY,
+                  default=DEFAULT_CRAWL_DELAY)
     for page in range(max_pages):
         url = cfg["url"] if page == 0 else f"{cfg['url']}?page={page}"
+        if not pacer.take():
+            raise PartialFetch(
+                f"stopped at the run's {pacer.budget}-request budget after "
+                f"page {page}", rows)
         html = get(session, url)
         if not html:
             # A page we could not load is a broken crawl, not an exhausted
@@ -72,7 +86,6 @@ def fetch_bayside(cfg, session=None, detail_cap=None):
         report(f"page {page}: {fresh} new")
         if fresh == 0:
             break
-        time.sleep(0.3)
     enrich_bayside_details(session, rows, detail_cap)
     return rows
 

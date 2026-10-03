@@ -11,10 +11,9 @@ from datetime import date, timedelta
 sys.path.insert(0, "scripts")
 
 import jsonio  # noqa: E402
-import yaml  # noqa: E402
 from checks import check as _check  # noqa: E402
 from dedupe import (_normalize_raw, load_live_inputs,  # noqa: E402
-                    reconcile_store)
+                    reconcile_store, series_id_for)
 import fetch_sources  # noqa: E402
 from fetch_sources import (_count_change, _previous_count,  # noqa: E402
                            validate_config)
@@ -24,16 +23,17 @@ from webfetch_http import (PartialFetch, enrich_details, make_row,  # noqa: E402
 
 set_reporting_source("test")
 
-with open("scripts/sources.yaml", encoding="utf-8") as f:
-    CONFIG = yaml.safe_load(f)
 # `load_config()` is the one reader of sources.yaml's two lists, and it is what
 # tags each entry with the group that decides snapshot ownership. This used to
 # rebuild that mapping here with `"webfetch" if c in CONFIG["webfetch"]`, which
 # is a list membership test -- dict equality, not identity -- so it was quadratic
 # and would have tagged two identical entries as belonging to the first list
 # either appeared in. The two can no longer disagree about what is configured.
+#
+# It also used to load sources.yaml itself into a module-level CONFIG, only to
+# `del CONFIG` a few lines later -- which read the file off the current working
+# directory at import time, for a value nothing used.
 GOOD = fetch_sources.load_config()
-del CONFIG
 
 failures = []
 
@@ -199,9 +199,18 @@ with tempfile.TemporaryDirectory() as _tmp:
 # series_id made the test a set membership instead, and these cases assert the
 # two properties that fix has to have: stable across every future run date, and
 # still actually able to notice a withdrawal.
-_STORE = [_normalize_raw(dict(r), quiet=True)
+# The live set is built from the committed snapshots and archive only, with
+# `use_raw=False` excluding data/raw_events.json. It used to include that file,
+# which made this the one suite in the runner whose result depended on whatever
+# the last fetch had left behind: `fetch_sources.py --source <id>` overwrites it
+# with that one source, so the "live" set silently became one source wide and
+# these cases started failing for reasons that had nothing to do with the code
+# under test. The file is gitignored, so it is not part of what this suite is
+# entitled to depend on.
+_STORE = [_normalize_raw(dict(r))
           for r in jsonio.read_json("data/events.json")["rows"]]
-_LIVE = [_normalize_raw(dict(r), quiet=True) for r in load_live_inputs(quiet=True)]
+_LIVE = [_normalize_raw(dict(r))
+         for r in load_live_inputs(quiet=True, use_raw=False)]
 _TODAY = date(2026, 10, 1)
 
 
@@ -217,13 +226,27 @@ check("reconciliation does not drift with the run date",
        for d in (7, 30, 91, 365)], [0, 0, 0, 0])
 
 # ...and the check must not have been defanged to achieve that. Withdrawing a
-# single series from the live set must take exactly that series' rows down.
-_target = next(r for r in _LIVE if r.get("name", "").startswith("Bayside Farmers"))
-_without = [r for r in _LIVE if r is not _target]
+# single series from the live set must take exactly that series' rows down. Both
+# the series and the expected count are derived rather than written down: this
+# used to name "Bayside Farmers" and assert `== 12`, so it would fail the moment
+# that series gained a session -- or vanished, taking the `next()` with it.
+# Anchor on the largest multi-row series this source has, so the case is about a
+# series rather than a one-off (the first bayston row in the store is a single
+# occurrence, and withdrawing it would assert almost nothing).
+_by_sid = {}
+for _r in _STORE:
+    if _r.get("source_id") == "bayside_live":
+        _by_sid.setdefault(_r.get("series_id") or series_id_for(_r),
+                           []).append(_r)
+_sid, _same = max(_by_sid.items(), key=lambda kv: len(kv[1]))
+_without = [r for r in _LIVE
+            if (r.get("series_id") or series_id_for(r)) != _sid]
 _lost = reconcile_store(list(_STORE), _without, today=_TODAY, report=False)[1]
-check("a withdrawn series is noticed", len(_lost), 12)
+check("the series this case withdraws is a real multi-row series",
+      len(_same) > 1, True)
+check("a withdrawn series is noticed", len(_lost), len(_same))
 check("and only that series goes", sorted({r["name"] for r in _lost}),
-      [_target["name"]])
+      sorted({r["name"] for r in _same}))
 
 # A source that is absent entirely is out of season or broken, not withdrawn,
 # and must not take its existing rows down with it.

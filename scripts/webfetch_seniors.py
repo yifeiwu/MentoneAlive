@@ -33,8 +33,17 @@ SENIORS_CONTACT_RE = re.compile(
 # How far from a date line a time may be and still belong to the same event;
 # line_range_starts() takes this as its window.
 SENIORS_TIME_WINDOW_LINES = 6
+# The guide prints September, October and November only. Named here, and named
+# as numbers as well as words, because health_check.py gates the whole festival
+# on the same window -- it used to cite a SENIORS_MONTHS constant that does not
+# exist in this file or anywhere else, so the check that stops a stale
+# configured year from wiping the festival rested on an unverified literal. The
+# day-list pattern is built from the same names so the two cannot drift.
+SENIORS_FESTIVAL_MONTHS = frozenset({9, 10, 11})
+SENIORS_FESTIVAL_MONTH_NAMES = ("September", "October", "November")
 SENIORS_DAYLIST_RE = re.compile(
-    r"(\d{1,2}(?:\s*,\s*\d{1,2})*)\s+(September|October|November)\b", re.I)
+    r"(\d{1,2}(?:\s*,\s*\d{1,2})*)\s+(%s)\b"
+    % "|".join(SENIORS_FESTIVAL_MONTH_NAMES), re.I)
 SENIORS_STOP_RE = ("Bookings are essential", "For event inquiries", "Contact")
 SENIORS_VENUE_END_RE = re.compile(
     r"(Centre|Center|Club|House|Hall|Hub|Librar\w+|Park|Gardens|Reserve|"

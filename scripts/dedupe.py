@@ -759,7 +759,8 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     for src in live_rows:
         if not src.get("datetime_iso"):
             continue
-        live_by_slot.setdefault(_slot_key(src), []).append(src)    # A series is one snapshot row and a dozen published ones, so a store row
+        live_by_slot.setdefault(_slot_key(src), []).append(src)
+    # A series is one snapshot row and a dozen published ones, so a store row
     # has no single live row to match on its timestamp. Fall back to
     # (name, url), which is the coarse key, and only for reading -- deciding
     # survival is the series_id test above.
@@ -891,6 +892,14 @@ def reconcile_store(rows, live_rows, today=None, report=True):
                         and _page_furniture(stored_desc) and not _page_furniture(fresh_desc):
                     r["description"] = fresh_desc
                     repaired += 1
+                # First match wins, and that is a real constraint rather than an
+                # incidental one: `candidates` is a list, so a store row whose
+                # own first live match is clean never sees a second one that
+                # would have repaired it. Deliberate in the sense that a later
+                # repair pass could always widen it; undocumented until now,
+                # which is the part that mattered -- every other rule in this
+                # pass is a never-overwrite rule, so a reader had no reason to
+                # expect the search to stop at one candidate.
                 break
 
     if repaired and report:
@@ -1086,8 +1095,12 @@ def deduplicate(new_events, existing_events):
     return merged, new_count
 
 
-def _normalize_raw(row, quiet=False):
-    """Backfill fields for archived/webfetch rows lacking fetch normalization."""
+def _normalize_raw(row):
+    """Backfill fields for archived/webfetch rows lacking fetch normalization.
+
+    It took a `quiet` flag for a while and never read it, so three callers were
+    passing `quiet=True` believing it suppressed output. It suppresses nothing.
+    """
     row["source_id"] = row.get("source_id") or "unknown"
     # Two fields that were pure duplicates of others, retired rather than kept
     # in step. `source_label` was `source_id` in all 1531 rows under a second
@@ -1174,8 +1187,10 @@ def dedupe_exact(rows):
 
 def prune_old(rows, days=PRUNE_DAYS, today=None):
     # datetime.combine(day, dt_time.min) -- datetime.min is a *time* object
-    # and raises AttributeError, and the stdlib `time` module is shadowed here
-    # by the retry helper's import, so use an aliased datetime.time.
+    # and raises AttributeError, so the time class is aliased at the import.
+    # (The alias used to be justified by this module shadowing the stdlib
+    # `time` module, which it never did: the retry helper that shadowed it
+    # lives in webfetch_http.py.)
     cutoff = datetime.combine(today or reference_today(), dt_time.min) \
         - timedelta(days=days)
     kept = []
@@ -1253,7 +1268,7 @@ def _malformed_archived(archived):
     return problems
 
 
-def load_live_inputs(quiet=False):
+def load_live_inputs(quiet=False, use_raw=True):
     """Every row the sources published this run, normalised.
 
     raw_events.json plus the archived fixtures plus every webfetch snapshot.
@@ -1261,8 +1276,15 @@ def load_live_inputs(quiet=False):
     assert the published store is still what the sources justify -- if the two
     ever load different inputs, that check would pass while the pipeline had
     already drifted.
+
+    `use_raw=False` drops raw_events.json, which is a gitignored scratch file
+    that a `fetch_sources.py --source <id>` run overwrites with that one source.
+    It exists for a caller that needs a live set determined by *committed* files
+    alone -- failure_signals.py, whose whole claim is that the committed store
+    reconciles clean, and which cannot assert that against an input that changes
+    depending on what was last fetched on this machine.
     """
-    raw = read_json(ROOT / "data" / "raw_events.json")
+    raw = read_json(ROOT / "data" / "raw_events.json") if use_raw else []
     if raw is None:
         if quiet:
             return None
@@ -1398,7 +1420,7 @@ def load_live_inputs(quiet=False):
         print(f"FAIL: {len(snapshot_failures)} snapshot file(s) unreadable: "
               f"{snapshot_failures}")
         sys.exit(1)
-    return [_normalize_raw(r, quiet=quiet) for r in raw if isinstance(r, dict)]
+    return [_normalize_raw(r) for r in raw if isinstance(r, dict)]
 
 
 def _self_test():
@@ -1797,8 +1819,9 @@ def main():
     for name, reason in sorted(inferred["reasons"].items()):
         print(f"  dropped: {name} ({reason})")
     merged = dedupe_exact(merged)
-    # After inference: the duplicated rows are date_inferred, so this pass only
-    # has something to match once resolve_dateless has materialised them.
+    # And again now that inference has run: the duplicated rows are the
+    # date_inferred ones, so this pass only has something to match once
+    # resolve_dateless has materialised them above.
     merged = dedupe_by_source_url(merged)
     merged = dedupe_exact(merged)
     # A midnight row is a restatement of a timed session, not an extra event.

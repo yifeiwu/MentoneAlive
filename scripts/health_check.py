@@ -26,11 +26,13 @@ from pathlib import Path
 import yaml
 
 from activity_types import TYPES
-from dedupe import (PRUNE_DAYS, load_live_inputs, name_head,
-                    reconcile_store, reference_today, slot_hash, venue_head)
+from dedupe import (ARCHIVED_SOURCE_IDS, PRUNE_DAYS, load_live_inputs,
+                    name_head, reconcile_store, reference_today, slot_hash,
+                    venue_head)
 from recurrence import infer_event, weekday_slots
 from status import STATUS_LABELS, event_status, is_ongoing_service
 from venues import is_online, needs_address
+from webfetch_seniors import SENIORS_FESTIVAL_MONTHS
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -44,10 +46,11 @@ PLACEHOLDERS = ("__EVENTS_DATA__", "__GENERATED_AT__", "__EVENT_COUNT__",
 # a page whose script never runs (see the count assertion below).
 SINGLE_USE_PLACEHOLDERS = ("__EVENTS_DATA__",)
 
-# The seniors festivals run Sept-Nov (SENIORS_MONTHS in webfetch_seniors.py).
-# Outside that window a stale configured year is harmless -- last year's
-# festival really has finished and 0 rows is the honest answer.
-SENIORS_FESTIVAL_MONTHS = frozenset({9, 10, 11})
+# The seniors festivals run Sept-Nov. Outside that window a stale configured year
+# is harmless -- last year's festival really has finished and 0 rows is the honest
+# answer. The window itself is owned by webfetch_seniors, which is where the guide's
+# day-list pattern is built from the same three names; this used to carry its own
+# copy while citing a constant here that did not exist.
 
 
 def seniors_config_errors(today=None):
@@ -231,6 +234,9 @@ def _strip_code(source):
     return source
 
 
+_MEDIA_QUERY_RE = re.compile(r"@media\b")
+
+
 def _strip_media(css):
     """CSS with every @media block removed, leaving the unconditional rules.
 
@@ -242,7 +248,7 @@ def _strip_media(css):
     out = []
     i = 0
     while True:
-        m = re.compile(r"@media\b").search(css, i)
+        m = _MEDIA_QUERY_RE.search(css, i)
         if not m:
             out.append(css[i:])
             break
@@ -625,7 +631,12 @@ WARN_ONLY = {"kingston_seniors"}
 # store would be checking rows nobody can reach, and a floor would fail the
 # build the day the last of them is retired, which is the goal rather than a
 # regression. Reported, never enforced.
-ARCHIVED_SOURCES = {"bayside_archived", "frankston_archived"}
+# Same names, from dedupe, which owns the list: it is what treats an archived
+# row's source as exempt when judging whether the source is still published.
+# Two literals spelled the same way were one rename away from disagreeing, and
+# the disagreement would have been silent -- one check counting rows the other
+# did not exempt.
+ARCHIVED_SOURCES = ARCHIVED_SOURCE_IDS
 
 
 def _undeclared_source_floors():
@@ -969,7 +980,8 @@ def main():
         errors.append("could not load source inputs to reconcile against - "
                       "did fetch_sources.py run?")
     else:
-        kept, dropped = reconcile_store(rows, live, reference_today())
+        kept, dropped = reconcile_store(rows, live, reference_today(),
+                                      report=False)
         if dropped:
             sample = ", ".join(
                 f"{r.get('name')!r} {str(r.get('datetime_iso'))[:16]}"

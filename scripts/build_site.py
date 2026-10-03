@@ -354,8 +354,8 @@ if __name__ == "__main__":
             # dict literal can only ever agree with itself, which is what the
             # previous version of this case did.
             ("an archived row keeps its flag through the store",
-             _normalize_raw({"name": "Delisted", "archived": True},
-                            quiet=True).get("archived"),
+             _normalize_raw({"name": "Delisted", "archived": True})
+                            .get("archived"),
              True),
         ]
         _failures = []

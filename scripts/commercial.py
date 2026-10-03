@@ -92,16 +92,14 @@ def _venue_hit(location, address):
     for rx in HARD_VENUE_RE:
         if rx.search(blob_wo_public if rx.pattern == r"\bpub\b" else blob):
             return True
-    # Ambiguous words may be exempted by a clearly community venue string.
-    # NOTE: SOFT in an allowlisted venue still counts as a venue hit here;
-    # the rescue for unpriced community trivia lives in is_commercial's
-    # trivia branch (which requires HARD or non-allowlisted SOFT). A priced
-    # meal at a "Sports Bar" inside a Community Centre stays commercial.
-    if not ALLOWLIST_RE.search(blob) or RSL_RE.search(blob):
-        for rx in SOFT_VENUE_RE:
-            if rx.search(blob):
-                return True
-        return False
+    # SOFT in an allowlisted venue still counts as a venue hit: there is no
+    # exemption here, and there never was -- the branches this used to be
+    # split by were the same four statements either side of the `if`, so
+    # ALLOWLIST_RE and RSL_RE decided nothing. The rescue for unpriced community
+    # trivia lives in is_commercial's trivia branch (which requires HARD or
+    # non-allowlisted SOFT), so a priced meal at a "Sports Bar" inside a
+    # Community Centre stays commercial. `_venue_hit_hard_or_public` is where
+    # the allowlist does decide, and only that one is about it.
     for rx in SOFT_VENUE_RE:
         if rx.search(blob):
             return True
@@ -116,8 +114,8 @@ def _venue_hit_hard_or_public(blob):
     """
     if not blob:
         return False
+    blob_wo_public = re.sub(r"publi[cs]\w*|publish\w*", " ", blob, flags=re.I)
     for rx in HARD_VENUE_RE:
-        blob_wo_public = re.sub(r"publi[cs]\w*|publish\w*", " ", blob, flags=re.I)
         if rx.search(blob_wo_public if rx.pattern == r"\bpub\b" else blob):
             return True
     if ALLOWLIST_RE.search(blob) and not RSL_RE.search(blob):

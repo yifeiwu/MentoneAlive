@@ -890,13 +890,11 @@ if __name__ == "__main__":
     ]
 
     failures = []
+
+    from checks import check as _check
+
     for label, actual, expected in TESTS:
-        if actual == expected:
-            print(f"ok   {label}")
-        else:
-            print(f"FAIL {label}\n       actual:   {actual!r}"
-                  f"\n       expected: {expected!r}")
-            failures.append(label)
+        _check(label, actual, expected, failures)
 
     # --- make_row: a description that restates the name is not a description -
     # Five fetchers reached for `description=<prose> or name`. That published
@@ -967,12 +965,7 @@ if __name__ == "__main__":
 
     for group in (ROW_CASES, ADDRESS_CASES):
         for label, actual, expected in group:
-            if actual == expected:
-                print(f"ok   {label}")
-            else:
-                print(f"FAIL {label}\n       actual:   {actual!r}"
-                      f"\n       expected: {expected!r}")
-                failures.append(label)
+            _check(label, actual, expected, failures)
 
     if failures:
         print(f"\nwebfetch_http: {len(failures)}/{len(TESTS)} cases FAILED")

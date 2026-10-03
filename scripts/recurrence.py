@@ -1302,6 +1302,6 @@ if __name__ == "__main__":
             failures.append(_label)
 
     if failures:
-        print(f"\nrecurrence: {len(failures)}/{len(TESTS) + 3} cases FAILED")
+        print(f"\nrecurrence: {len(failures)}/{len(TESTS) + 6} cases FAILED")
         raise SystemExit(1)
-    print(f"\nall {len(TESTS) + 3} recurrence cases as expected")
+    print(f"\nall {len(TESTS) + 6} recurrence cases as expected")
