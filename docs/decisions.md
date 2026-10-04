@@ -1165,6 +1165,30 @@ Eleven rows withdrawn, the class back to 12 fortnightly sessions, and a second
 *Owner:* `recurrence._PHASE_EPOCH`, the fortnightly branch of
 `recurrence.expand`, `recurrence.refresh_inferred`.
 
+### D49. A dedupe run is a function of the store it is given, not only of its sources - **Hold**
+
+Observed while verifying an unrelated change: a full `fetch_sources.py` followed by
+`dedupe.py` produced 2314 rows, and re-running `dedupe.py` on the unchanged
+snapshots then produced 2317, and stayed at 2317 for three further runs.
+
+`dedupe.main()` reads `data/events.json` and merges the incoming batch *against
+it* -- `deduplicate(batch_deduped, existing)` -- so the previous store is an input
+to the merge. `refresh_inferred` and `resolve_dateless` are also seeded from stored
+rows. The run is therefore history-dependent by design, and it converges: the first
+run after a fetch absorbs state left by the previous fetch generation, and
+subsequent runs reach a fixed point.
+
+The consequence is about verification rather than about data. "Re-run `dedupe.py`
+and `git diff`" does **not** test reproducibility here, because it reports the
+distance to the fixed point rather than a difference in the inputs. The test that
+does work is running `dedupe.py` twice and checking the *second* run changed
+nothing, which is what D48's closing line already does.
+
+Not fixed, deliberately. Making the merge a pure function of the live inputs means
+giving up the append-only merge that D6-D9 are built on, which is the change
+section 8 calls questionable and the one this document has been deferring. Worth
+*Owner:* `dedupe.main`, `dedupe.deduplicate`.
+
 ## 7. Things that are not decisions, but look like they were
 
 Noted here because each has cost real effort and will cost more if it is

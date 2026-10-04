@@ -33,6 +33,7 @@ import sys
 import unicodedata
 from datetime import date, datetime, time as dt_time, timedelta
 from pathlib import Path
+from typing import NamedTuple
 from zoneinfo import ZoneInfo
 
 from rapidfuzz import fuzz
@@ -677,11 +678,63 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     existing rows down with it, so those rows are left for the 90-day prune.
     """
     today = today or reference_today()
+    index = _reconcile_index(rows, live_rows, today)
+    kept, dropped = [], []
+    kept_on = {"series": 0, "slot": 0}
+    repaired = 0
+    for r in rows:
+        iso = _slot_stamp(r.get("datetime_iso"))
+        verdict, why = _judge_row(r, iso, index)
+        if verdict == _DROP:
+            dropped.append(r)
+            continue
+        if why in kept_on:
+            # Only a row the sources actually vouch for is repaired: the repair
+            # pass works from the live row behind this slot, and a row that was
+            # kept without being judged has none.
+            kept_on[why] += 1
+            repaired += _repair_row(r, iso, index)
+        kept.append(r)
+
+    if repaired and report:
+        print(f"  Repaired {repaired} stored field(s) the source has since "
+              f"corrected (a malformed address, or a description that only "
+              f"restated the row's own name)")
+    if dropped and report:
+        print(f"  Dropped {len(dropped)} stored rows the sources no longer "
+              f"publish; kept {kept_on['series']} on their series' identity and "
+              f"{kept_on['slot']} on a source-stated slot")
+        for r in dropped[:10]:
+            print(f"    {r.get('name')!r} {str(r.get('datetime_iso'))[:16]} "
+                  f"[{r.get('source_id')}] {r.get('location')!r}")
+        if len(dropped) > 10:
+            print(f"    ... and {len(dropped) - 10} more")
+    return kept, dropped
+
+
+class _ReconcileIndex(NamedTuple):
+    """What the judge needs to know, computed once per run.
+
+    Named rather than passed as seven positional arguments, because the judge
+    and the repair pass read overlapping subsets of it and a reader should not
+    have to check which is which.
+    """
+    live_labels: set       # source_ids this run crawled
+    crawling: set          # source_ids mid-crawl: judged against nothing
+    live_series: set       # series ids a live listing still publishes
+    label_of: dict         # series id -> the cadence its text expands to, or None
+    by_slot: dict          # (name, url, stamp) -> live rows stating that slot
+    live_by_slot: dict     # (name, url, stamp) -> live rows, for repair
+    live_by_listing: dict  # (name, url) -> live rows, for a materialised series
+
+
+def _reconcile_index(rows, live_rows, today):
+    """Build the index. Pure reads of both row sets; nothing is decided here."""
     live_labels = {r.get("source_id") for r in live_rows if r.get("source_id")}
     # A source mid-crawl is judged against nothing: its rows are not yet
     # justified by a complete read, and equally not refuted by an incomplete
     # one. Kept as a separate set rather than removed from live_labels so the
-    # distinction survives into the row loop, where it decides what happens.
+    # distinction survives into the judge, where it decides what happens.
     crawling = _unfinished_crawl_sources()
 
     # One call per live row rather than one per stored row it might justify,
@@ -764,159 +817,151 @@ def reconcile_store(rows, live_rows, today=None, report=True):
     # A series is one snapshot row and a dozen published ones, so a store row
     # has no single live row to match on its timestamp. Fall back to
     # (name, url), which is the coarse key, and only for reading -- deciding
-    # survival is the series_id test above.
+    # survival is the series_id test.
     live_by_listing = {}
     for src in live_rows:
         key = (normalize_name(src.get("name")),
                (src.get("source") or "").rstrip("/"))
         live_by_listing.setdefault(key, []).append(src)
 
-    kept, dropped = [], []
-    series_kept = slot_kept = 0
-    repaired = 0
-    for r in rows:
-        iso = _slot_stamp(r.get("datetime_iso"))
-        if r.get("source_id") in crawling:
-            # Mid-crawl. Kept, and not judged: this run read only part of the
-            # source, so it cannot say whether a stored row is still published.
-            # Dropping here would withdraw a source's rows every scheduled run
-            # until its crawl completed, which is the reverse error and just as
-            # wrong.
-            kept.append(r)
-            continue
-        if not iso or r.get("source_id") not in live_labels:
-            kept.append(r)
-            continue
-        sid = r.get("series_id") or series_id_for(r)
-        if sid in live_series:
-            # A live listing publishes this programme at this venue. The row's
-            # timestamps are a materialisation of that listing's schedule, not
-            # a claim about what the source publishes today, so they are not
-            # compared: doing so only measured how far the run date had moved
-            # since they were written, which slid the window forward every run
-            # and dropped correct rows in bulk.
-            #
-            # The one comparison that does hold is against the *label* the
-            # series' current text expands to, and only for a row the pipeline
-            # inferred. That is what stops a changed schedule from accumulating:
-            # a venue whose listing moves from "every Tuesday" to "1st & 3rd
-            # Tuesdays of the Month" keeps its series id, so membership alone
-            # cannot see that six weekly rows were written from a schedule the
-            # source no longer states. The label carries no date, so this does
-            # not reintroduce the sliding window; and a row the pipeline did not
-            # infer is left to the slot test, which is about real timestamps.
-            expected_label = label_of.get(sid)
-            if (expected_label is not None and r.get("date_inferred")
-                    and _cadence_label(r.get("recurrence")) != expected_label):
-                # Not an occurrence of the schedule the source states now.
-                # Dropped rather than re-dated, because resolve_dateless() has
-                # already expanded the current schedule into fresh rows this
-                # run; re-dating would invent a second set.
-                dropped.append(r)
-                continue
-            # Deliberately not `continue`:
-            # the repair pass below runs for every kept row, and skipping it
-            # here is what left 344 directory rows holding the venue's street
-            # address and the words "View Map" at the end of their description,
-            # forever, because a live row had corrected them and nothing
-            # downstream ever overwrites a field the store already has.
-            kept.append(r)
-            series_kept += 1
-        else:
-            # Otherwise the row stands for exactly one slot, so it needs a live
-            # row stating that slot. This is what covers a one-off whose source
-            # has since switched to publishing a dateless recurring schedule.
-            if not _slot_is_stated(r, by_slot):
-                dropped.append(r)
-                continue
-            slot_kept += 1
-            kept.append(r)
-        # A row the source vouches for, but whose address or location the
-        # source has since corrected into a well-formed value. Applied after
-        # the keep/drop decision so it cannot affect which rows survive.
-        name = normalize_name(r.get("name"))
-        for url in _slot_urls(r):
-            if not url:
-                continue
-            candidates = live_by_slot.get((name, url, iso))
-            if not candidates:
-                candidates = live_by_listing.get((name, url), ())
-            for live in candidates:
-                for field in ("address", "location"):
-                    stored = (r.get(field) or "").strip()
-                    fresh = (live.get(field) or "").strip()
-                    if stored and fresh and _malformed_address(stored) \
-                            and not _malformed_address(fresh):
-                        r[field] = fresh
-                        repaired += 1
-                # A price the source has since cleaned. The same
-                # never-overwrite rule applies: a fetcher that used to publish
-                # the page's call-to-action as a price ("$12 per session FIND
-                # OUT MORE BUTTON Find Out More", 96 rows) leaves the store
-                # holding it, because _merge_sources() only fills blanks.
-                # Tested on the *live* value, not a pattern, so a genuinely
-                # long price is never truncated.
-                stored_price = (r.get("price_text") or "").strip()
-                fresh_price = (live.get("price_text") or "").strip()
-                if stored_price and fresh_price and len(fresh_price) < len(
-                        stored_price) and (_malformed(stored_price) or len(stored_price) > 60
-                        or "BUTTON" in stored_price or "FIND OUT" in stored_price.upper()):
-                    r["price_text"] = fresh_price
-                    repaired += 1
-                # A description carrying page furniture rather than prose. The
-                # same never-overwrite rule: only the stored value is judged, so
-                # a terse or unusual but well-formed description is left alone.
-                # 344 rows held the group's own street address and the words
-                # "View Map" at the end of the description, which a directory
-                # fetcher produced by reading every paragraph in a column
-                # instead of stopping at the Location heading -- shown to a
-                # reader, and fed to the classifier as text about a road.
-                stored_desc = (r.get("description") or "").strip()
-                fresh_desc = (live.get("description") or "").strip()
-                if stored_desc and _restates_name(stored_desc,
-                                                  r.get("name")):
-                    # The stored description is the row's own title, not prose.
-                    # Take the source's text where it has one, and clear the
-                    # field where it does not -- which is the correct end state
-                    # for a listing that states no description, and what
-                    # `make_row` now emits for it. Every other rule in this pass
-                    # is a never-overwrite rule; this is the one case where the
-                    # stored value is known to be wrong rather than merely
-                    # plainer, so a blank from the source is the improvement.
-                    if fresh_desc and not _restates_name(fresh_desc,
-                                                         r.get("name")):
-                        r["description"] = fresh_desc
-                    else:
-                        r["description"] = ""
-                    repaired += 1
-                elif stored_desc and fresh_desc and len(fresh_desc) < len(stored_desc) \
-                        and _page_furniture(stored_desc) and not _page_furniture(fresh_desc):
-                    r["description"] = fresh_desc
-                    repaired += 1
-                # First match wins, and that is a real constraint rather than an
-                # incidental one: `candidates` is a list, so a store row whose
-                # own first live match is clean never sees a second one that
-                # would have repaired it. Deliberate in the sense that a later
-                # repair pass could always widen it; undocumented until now,
-                # which is the part that mattered -- every other rule in this
-                # pass is a never-overwrite rule, so a reader had no reason to
-                # expect the search to stop at one candidate.
-                break
+    return _ReconcileIndex(live_labels, crawling, live_series, label_of,
+                           by_slot, live_by_slot, live_by_listing)
 
-    if repaired and report:
-        print(f"  Repaired {repaired} stored field(s) the source has since "
-              f"corrected (a malformed address, or a description that only "
-              f"restated the row's own name)")
-    if dropped and report:
-        print(f"  Dropped {len(dropped)} stored rows the sources no longer "
-              f"publish; kept {series_kept} on their series' identity and "
-              f"{slot_kept} on a source-stated slot")
-        for r in dropped[:10]:
-            print(f"    {r.get('name')!r} {str(r.get('datetime_iso'))[:16]} "
-                  f"[{r.get('source_id')}] {r.get('location')!r}")
-        if len(dropped) > 10:
-            print(f"    ... and {len(dropped) - 10} more")
-    return kept, dropped
+
+_KEEP, _DROP = "keep", "drop"
+
+
+def _judge_row(r, iso, index):
+    """(_KEEP|_DROP, why) for one stored row. Decides; never mutates.
+
+    `why` is the test that let the row survive, and is what the report counts.
+    Two values are deliberately *not* tests: a row whose source was mid-crawl,
+    and a row with no usable slot whose source was not crawled this run. Both
+    are kept unjudged, because this run cannot say whether they are still
+    published -- dropping a source's rows every scheduled run until its crawl
+    completed is the reverse error and just as wrong.
+    """
+    if r.get("source_id") in index.crawling:
+        # Mid-crawl. Kept, and not judged: this run read only part of the
+        # source, so it cannot say whether a stored row is still published.
+        return _KEEP, "mid-crawl"
+    if not iso or r.get("source_id") not in index.live_labels:
+        # No slot to judge against, or a source this run did not read at all
+        # (a seasonal festival out of season, a fetcher that failed). Left for
+        # the 90-day prune rather than taken down on absent evidence.
+        return _KEEP, "unjudgeable"
+
+    sid = r.get("series_id") or series_id_for(r)
+    if sid in index.live_series:
+        # A live listing publishes this programme at this venue. The row's
+        # timestamps are a materialisation of that listing's schedule, not
+        # a claim about what the source publishes today, so they are not
+        # compared: doing so only measured how far the run date had moved
+        # since they were written, which slid the window forward every run
+        # and dropped correct rows in bulk.
+        #
+        # The one comparison that does hold is against the *label* the
+        # series' current text expands to, and only for a row the pipeline
+        # inferred. That is what stops a changed schedule from accumulating:
+        # a venue whose listing moves from "every Tuesday" to "1st & 3rd
+        # Tuesdays of the Month" keeps its series id, so membership alone
+        # cannot see that six weekly rows were written from a schedule the
+        # source no longer states. The label carries no date, so this does
+        # not reintroduce the sliding window; and a row the pipeline did not
+        # infer is left to the slot test, which is about real timestamps.
+        expected_label = index.label_of.get(sid)
+        if (expected_label is not None and r.get("date_inferred")
+                and _cadence_label(r.get("recurrence")) != expected_label):
+            # Not an occurrence of the schedule the source states now.
+            # Dropped rather than re-dated, because resolve_dateless() has
+            # already expanded the current schedule into fresh rows this
+            # run; re-dating would invent a second set.
+            return _DROP, "series"
+        return _KEEP, "series"
+
+    # Otherwise the row stands for exactly one slot, so it needs a live
+    # row stating that slot. This is what covers a one-off whose source
+    # has since switched to publishing a dateless recurring schedule.
+    if not _slot_is_stated(r, index.by_slot):
+        return _DROP, "slot"
+    return _KEEP, "slot"
+
+
+def _repair_row(r, iso, index):
+    """Correct the fields a source has fixed since the row was written.
+
+    Applied only to rows the judge has already kept, and it cannot change which
+    rows survive: it never adds, drops or re-dates anything. Returns the number
+    of fields it changed, for the report.
+    """
+    repaired = 0
+    name = normalize_name(r.get("name"))
+    for url in _slot_urls(r):
+        if not url:
+            continue
+        candidates = index.live_by_slot.get((name, url, iso))
+        if not candidates:
+            candidates = index.live_by_listing.get((name, url), ())
+        for live in candidates:
+            for field in ("address", "location"):
+                stored = (r.get(field) or "").strip()
+                fresh = (live.get(field) or "").strip()
+                if stored and fresh and _malformed_address(stored) \
+                        and not _malformed_address(fresh):
+                    r[field] = fresh
+                    repaired += 1
+            # A price the source has since cleaned. The same
+            # never-overwrite rule applies: a fetcher that used to publish
+            # the page's call-to-action as a price ("$12 per session FIND
+            # OUT MORE BUTTON Find Out More", 96 rows) leaves the store
+            # holding it, because _merge_sources() only fills blanks.
+            # Tested on the *live* value, not a pattern, so a genuinely
+            # long price is never truncated.
+            stored_price = (r.get("price_text") or "").strip()
+            fresh_price = (live.get("price_text") or "").strip()
+            if stored_price and fresh_price and len(fresh_price) < len(
+                    stored_price) and (_malformed(stored_price) or len(stored_price) > 60
+                    or "BUTTON" in stored_price or "FIND OUT" in stored_price.upper()):
+                r["price_text"] = fresh_price
+                repaired += 1
+            # A description carrying page furniture rather than prose. The
+            # same never-overwrite rule: only the stored value is judged, so
+            # a terse or unusual but well-formed description is left alone.
+            # 344 rows held the group's own street address and the words
+            # "View Map" at the end of the description, which a directory
+            # fetcher produced by reading every paragraph in a column
+            # instead of stopping at the Location heading -- shown to a
+            # reader, and fed to the classifier as text about a road.
+            stored_desc = (r.get("description") or "").strip()
+            fresh_desc = (live.get("description") or "").strip()
+            if stored_desc and _restates_name(stored_desc, r.get("name")):
+                # The stored description is the row's own title, not prose.
+                # Take the source's text where it has one, and clear the
+                # field where it does not -- which is the correct end state
+                # for a listing that states no description, and what
+                # `make_row` now emits for it. Every other rule in this pass
+                # is a never-overwrite rule; this is the one case where the
+                # stored value is known to be wrong rather than merely
+                # plainer, so a blank from the source is the improvement.
+                if fresh_desc and not _restates_name(fresh_desc, r.get("name")):
+                    r["description"] = fresh_desc
+                else:
+                    r["description"] = ""
+                repaired += 1
+            elif stored_desc and fresh_desc and len(fresh_desc) < len(stored_desc) \
+                    and _page_furniture(stored_desc) and not _page_furniture(fresh_desc):
+                r["description"] = fresh_desc
+                repaired += 1
+            # First match wins, and that is a real constraint rather than an
+            # incidental one: `candidates` is a list, so a store row whose
+            # own first live match is clean never sees a second one that
+            # would have repaired it. Deliberate in the sense that a later
+            # repair pass could always widen it; undocumented until now,
+            # which was the part that mattered -- every other rule in this
+            # pass is a never-overwrite rule, so a reader had no reason to
+            # expect the search to stop at one candidate.
+            break
+    return repaired
 
 
 def _page_furniture(value):

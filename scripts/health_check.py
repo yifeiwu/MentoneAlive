@@ -25,6 +25,10 @@ from pathlib import Path
 
 import yaml
 
+from config import load_config as _config_entries  # noqa: E402
+from config import read_config as _read_config  # noqa: E402
+from config import source_ids as _config_source_ids  # noqa: E402
+
 from activity_types import TYPES
 from dedupe import (ARCHIVED_SOURCE_IDS, PRUNE_DAYS, load_live_inputs,
                     name_head, reconcile_store, reference_today, slot_hash,
@@ -66,8 +70,7 @@ def seniors_config_errors(today=None):
     """
     today = today or date.today()
     try:
-        with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
-            cfg = yaml.safe_load(f) or {}
+        cfg = _read_config()
     except FileNotFoundError:
         return ["sources.yaml missing - cannot verify the seniors config"]
     except yaml.YAMLError as e:
@@ -648,49 +651,61 @@ def _undeclared_source_floors():
     one of them. The floor number itself is a judgement call; whether a source
     has one is not, so that part is asserted rather than remembered.
     """
-    configured = set()
-    with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-    for entry in (config.get("webfetch") or []) + (config.get("sources") or []):
-        if entry.get("id"):
-            configured.add(entry["id"])
+    configured = _config_source_ids()
     return sorted(configured - set(MIN_SOURCE) - set(WARN_ONLY))
 
 
-def main():
-    with open("data/events.json", encoding="utf-8") as f:
-        data = json.load(f)
-    rows = data.get("rows", [])
-    errors, warnings = [], []
+class Report(list):
+    """The findings, with warnings kept apart from errors.
 
+    Separate because only errors fail the build: a seasonal source legitimately
+    reaching zero rows is information, and mixing the two lists would mean
+    deciding per message whether it matters.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.warnings = []
+
+    def error(self, message):
+        self.append(message)
+
+    def warn(self, message):
+        self.warnings.append(message)
+
+
+def check_total(rows, rep):
     if len(rows) < MIN_TOTAL:
-        errors.append(f"total {len(rows)} < floor {MIN_TOTAL}")
+        rep.error(f"total {len(rows)} < floor {MIN_TOTAL}")
 
+
+def check_source_floors(rows, rep):
     labels = Counter(r.get("source_id", "unknown") for r in rows)
     undeclared = _undeclared_source_floors()
     if undeclared:
-        errors.append(
+        rep.error(
             f"{len(undeclared)} configured source(s) have no row floor: "
             f"{', '.join(undeclared)} -- add each to MIN_SOURCE (year-round) "
             f"or WARN_ONLY (seasonal/static), or it can reach zero rows "
             f"without failing the build")
     for src, floor in MIN_SOURCE.items():
         if labels.get(src, 0) < floor:
-            errors.append(f"source {src}: {labels.get(src, 0)} < floor {floor}")
+            rep.error(f"source {src}: {labels.get(src, 0)} < floor {floor}")
     for src in WARN_ONLY:
         if labels.get(src, 0) == 0:
-            warnings.append(f"source {src}: 0 rows (seasonal/static, ok)")
+            rep.warn(f"source {src}: 0 rows (seasonal/static, ok)")
     for src in sorted(ARCHIVED_SOURCES):
         mine = [r for r in rows if r.get("source_id") == src]
         live_n = sum(1 for r in mine if r.get("archived") is False)
         print(f"archived source {src}: {len(mine)} row(s) in the store, "
               f"{live_n} listed (confirmed live), {len(mine) - live_n} withheld")
-
     # Warn-only above covers "out of season". A stale *config* is a different
     # fault and has to fail the build, or the whole festival disappears without
     # anyone noticing until October.
-    errors.extend(seniors_config_errors())
+    rep.extend(seniors_config_errors())
 
+
+def check_exact_duplicates(rows, rep):
     # Start time is part of the key: a venue can legitimately run the same
     # class twice in one day ('Cert II in EAL' Wed 9am and 12:30pm), so
     # collapsing on the date alone would report real sessions as duplicates.
@@ -705,8 +720,10 @@ def main():
             dups += 1
         seen.add(key)
     if dups:
-        errors.append(f"{dups} exact (name, start, location) duplicates")
+        rep.error(f"{dups} exact (name, start, location) duplicates")
 
+
+def check_archive_flags(rows, rep):
     # An archived row must be flagged and must be in the store; a live row must
     # not be flagged. Asserted rather than assumed because the flag is the only
     # thing keeping delisted programmes off the page: set wrongly it hides a
@@ -721,7 +738,7 @@ def main():
               and r.get("archived") is False]
     for r in listed:
         if not r.get("live_confirmed"):
-            errors.append(
+            rep.error(
                 f"row from {r.get('source_id')} is on the page without "
                 f"live_confirmed ({r.get('name')!r}) - an archived series is "
                 f"listed only when the fixture marks it status: live")
@@ -729,22 +746,24 @@ def main():
     stale = sorted({r.get("source_id") for r in confirmed
                     if r.get("archived") is not False})
     if stale:
-        errors.append(
+        rep.error(
             f"rows from {', '.join(stale)} are marked live_confirmed but "
             f"withheld from the page")
     if not any(r.get("live_confirmed") for r in rows) and listed == []:
-        warnings.append("no archived series is confirmed live - if the "
-                        "liveness check has not been run, "
-                        "scripts/apply_archive_fixes.py is the place to say so")
+        rep.warn("no archived series is confirmed live - if the "
+                 "liveness check has not been run, "
+                 "scripts/apply_archive_fixes.py is the place to say so")
     stale_flag = [r for r in rows
                   if r.get("archived") is not False and "T" not in str(
                       r.get("datetime_iso") or "")]
     if stale_flag:
-        errors.append(
+        rep.error(
             f"{len(stale_flag)} withheld row(s) with no date - every row on "
             f"the page is an event at a time, and an undated one is both "
             f"unlistable and the sign of a broken archive")
 
+
+def check_same_listing_duplicates(rows, rep):
     # Same listing page reported by two scrapers. These differ only in how they
     # name the venue, so the exact check above cannot see them. The description
     # must agree, which keeps genuinely distinct events that share a page (two
@@ -767,9 +786,11 @@ def main():
         else:
             listing_seen.setdefault(key, desc)
     if listing_dups:
-        errors.append(f"{listing_dups} same-listing duplicates (one event "
-                      f"page, two scrapers) - dedupe_by_source_url() regressed")
+        rep.error(f"{listing_dups} same-listing duplicates (one event "
+                  f"page, two scrapers) - dedupe_by_source_url() regressed")
 
+
+def check_inferred_time_matches_text(rows, rep):
     # A row dated by inference must not sit at midnight when its own text
     # states a start time for that weekday: recurrence.py used to leave those
     # at 00:00, and because inferred dates are stored they then persisted
@@ -789,14 +810,16 @@ def main():
         if len(stated) == 1 and iso[11:16] not in stated:
             stale.append(f"{r.get('name')} ({iso[11:16]} vs {stated.pop()})")
     if stale:
-        errors.append(
+        rep.error(
             f"{len(stale)} inferred rows whose stored time contradicts the "
             f"text: {', '.join(sorted(stale)[:5])}")
 
-    # The rule above compares the stored time against `weekday_slots()`, the
-    # same parser that produced the stored time, so a parser bug is
-    # self-validating: every one of these shipped a correct-looking wrong date
-    # through a green build.
+
+def check_inferred_dates_reproduce(rows, rep):
+    # The rule in the check above compares the stored time against
+    # `weekday_slots()`, the same parser that produced the stored time, so a
+    # parser bug is self-validating: every one of these shipped a
+    # correct-looking wrong date through a green build.
     #
     # This one re-expands the *whole* series and asks a different question:
     # is the row's own date still one the text produces at all? That is
@@ -835,11 +858,13 @@ def main():
                 orphan.append(f"{name!r} stored {day}, text yields "
                               f"{sorted(allowed)[0]}..{sorted(allowed)[-1]}")
     if orphan:
-        errors.append(
+        rep.error(
             f"{len(orphan)} inferred rows sit on a date their own text does "
             f"not produce: {', '.join(sorted(set(orphan))[:5])}. "
             f"re-run scripts/dedupe.py to re-infer.")
 
+
+def check_same_programme_duplicates(rows, rep):
     # One session, two sources, two titles. Sources style the same programme
     # differently ("Chatty Cafe - Cheltenham Community Centre" vs "Chatty
     # Cafe" vs "Chatty Cafe - Connect over a Cuppa"), so a same-name check
@@ -856,17 +881,21 @@ def main():
             prog_dups += 1
         prog_seen.setdefault(key, r)
     if prog_dups:
-        errors.append(
+        rep.error(
             f"{prog_dups} same-programme duplicates (one session, two "
             f"titles) - dedupe_by_source_url() regressed")
 
+
+def check_dateless(rows, rep):
     dateless = [r for r in rows if not r.get("datetime_iso")]
     if dateless:
         sample = ", ".join(sorted({(r.get("name") or "?")[:40]
                                    for r in dateless})[:5])
-        errors.append(f"{len(dateless)} dateless rows (need a date to be "
-                      f"placed on a calendar): {sample}")
+        rep.error(f"{len(dateless)} dateless rows (need a date to be "
+                  f"placed on a calendar): {sample}")
 
+
+def check_addresses(rows, rep):
     # A published row has to say where to go. This is not a cosmetic check: the
     # address is what the map link, the .ics LOCATION and the CSV export are
     # built from, so a missing one silently ships an event a reader cannot
@@ -885,10 +914,12 @@ def main():
         sample = ", ".join(
             f"{r.get('name')!r} @ {(r.get('location') or '').strip()!r}"
             for r in no_address[:5])
-        errors.append(
+        rep.error(
             f"{len(no_address)} rows have no address (only an event held "
             f"online may omit one): {dict(by_source)} e.g. {sample}")
 
+
+def check_suburbs(rows, rep):
     # Every published suburb must be a gazetted Victorian locality in the
     # catchment set (scripts/vic_suburbs.py). extract_suburb() already refuses
     # to invent one, so a failure here means either a fetcher carried a
@@ -901,49 +932,52 @@ def main():
         {s for s in ((r.get("suburb") or "").strip() for r in rows)
          if s and not is_known_suburb(s)})
     if unknown_suburbs:
-        errors.append(
+        rep.error(
             f"{len(unknown_suburbs)} suburbs are not gazetted localities in "
             f"vic_suburbs.py: {', '.join(unknown_suburbs[:8])} - add the real "
             f"locality or fix the extractor")
 
+
+def check_gd_catchment(rows, rep):
     # The Greater Dandenong catchment is only enforceable if the fetcher got a
     # real venue: the listing cards carry none, so a regression that drops the
     # detail fetch leaves every row at the generic "Greater Dandenong" location
     # and the configured suburb_filter silently admits the whole city again.
     gd = [r for r in rows if r.get("source_id") == "greater_dandenong"]
-    if gd:
-        generic = sum(1 for r in gd
-                      if (r.get("location") or "").strip().lower()
-                      in ("greater dandenong", "greater dandenong libraries", ""))
-        if generic > len(gd) // 2:
-            errors.append(
-                f"{generic}/{len(gd)} greater_dandenong rows have no real "
-                f"venue - the detail-page fetch has regressed and the "
-                f"suburb_filter is not filtering")
-        try:
-            with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
-                _cfg = yaml.safe_load(f) or {}
-                _all = (_cfg.get("webfetch") or []) + (_cfg.get("sources") or [])
-                gd_cfg = next((s for s in _all if s.get("id")
-                               == "greater_dandenong"), None) or {}
-        except (OSError, yaml.YAMLError) as e:
-            gd_cfg = {}
-            errors.append(f"sources.yaml unreadable while checking the GD "
-                          f"catchment: {e}")
-        allowed = {a.lower() for a in (gd_cfg.get("suburb_filter") or [])}
-        if allowed:
-            # An online event has no suburb to be out of, so it is not a
-            # catchment violation.
-            physical = [r for r in gd if is_online(r.get("location")) is False]
-            outside = sorted({(r.get("location") or "").strip()
-                              for r in physical
-                              if not _suburb_in(r, allowed)})
-            if outside:
-                errors.append(
-                    f"greater_dandenong has {len(outside)} venues outside the "
-                    f"configured catchment {sorted(allowed)}: "
-                    f"{', '.join(outside[:4])}")
+    if not gd:
+        return
+    generic = sum(1 for r in gd
+                  if (r.get("location") or "").strip().lower()
+                  in ("greater dandenong", "greater dandenong libraries", ""))
+    if generic > len(gd) // 2:
+        rep.error(
+            f"{generic}/{len(gd)} greater_dandenong rows have no real "
+            f"venue - the detail-page fetch has regressed and the "
+            f"suburb_filter is not filtering")
+    try:
+        _all = _config_entries()
+        gd_cfg = next((s for s in _all if s.get("id")
+                       == "greater_dandenong"), None) or {}
+    except (OSError, yaml.YAMLError) as e:
+        gd_cfg = {}
+        rep.error(f"sources.yaml unreadable while checking the GD "
+                  f"catchment: {e}")
+    allowed = {a.lower() for a in (gd_cfg.get("suburb_filter") or [])}
+    if allowed:
+        # An online event has no suburb to be out of, so it is not a
+        # catchment violation.
+        physical = [r for r in gd if is_online(r.get("location")) is False]
+        outside = sorted({(r.get("location") or "").strip()
+                          for r in physical
+                          if not _suburb_in(r, allowed)})
+        if outside:
+            rep.error(
+                f"greater_dandenong has {len(outside)} venues outside the "
+                f"configured catchment {sorted(allowed)}: "
+                f"{', '.join(outside[:4])}")
 
+
+def check_types_schema(rows, rep):
     # Multi-tag schema: every row carries a non-empty `types` array of known
     # tags, never the legacy single `type` string. Without this a build_site
     # regression would silently ship unfilterable rows (the UI's OR filter
@@ -954,22 +988,24 @@ def main():
     if bad_shape:
         sample = ", ".join(sorted({(r.get("name") or "?")[:40]
                                    for r in bad_shape})[:5])
-        errors.append(f"{len(bad_shape)} rows with missing/empty types array: "
-                      f"{sample}")
-    else:
-        unknown_tags = sorted({t for r in rows for t in r.get("types", [])
-                               if t not in _valid})
-        if unknown_tags:
-            errors.append(f"rows carry unknown activity tags {unknown_tags} - "
-                          f"add them to TYPES so the UI can filter them")
-        # Two checks that used to live here were removed rather than kept:
-        # "any row still carrying a legacy single `type`" is redundant, because
-        # a store where build_site.py did not run already fails the empty-types
-        # check above and the missing-hidden_by_default check below; and
-        # "'Other' mixed with real tags" is structurally impossible, since
-        # classify_types returns ["Other"] iff nothing matched. Neither could
-        # fail in any reachable state.
+        rep.error(f"{len(bad_shape)} rows with missing/empty types array: "
+                  f"{sample}")
+        return
+    unknown_tags = sorted({t for r in rows for t in r.get("types", [])
+                           if t not in _valid})
+    if unknown_tags:
+        rep.error(f"rows carry unknown activity tags {unknown_tags} - "
+                  f"add them to TYPES so the UI can filter them")
+    # Two checks that used to live here were removed rather than kept:
+    # "any row still carrying a legacy single `type`" is redundant, because
+    # a store where build_site.py did not run already fails the empty-types
+    # check above and the missing-hidden_by_default check in
+    # check_published_flags(); and "'Other' mixed with real tags" is
+    # structurally impossible, since classify_types returns ["Other"] iff
+    # nothing matched. Neither could fail in any reachable state.
 
+
+def check_store_is_justified(rows, rep):
     # The store must be exactly what the sources justify. Re-running the
     # pipeline's own reconciliation is the check: a row that would be dropped
     # now is a row the store is still carrying that no source backs, which is
@@ -977,130 +1013,173 @@ def main():
     # the exact-duplicate checks cannot see.
     live = load_live_inputs(quiet=True)
     if live is None:
-        errors.append("could not load source inputs to reconcile against - "
-                      "did fetch_sources.py run?")
-    else:
-        kept, dropped = reconcile_store(rows, live, reference_today(),
-                                      report=False)
-        if dropped:
-            sample = ", ".join(
-                f"{r.get('name')!r} {str(r.get('datetime_iso'))[:16]}"
-                for r in dropped[:5])
-            errors.append(
-                f"{len(dropped)} rows in events.json are not backed by any "
-                f"source (corrected time, or listing withdrawn) - "
-                f"dedupe.py must run after the fetches: {sample}")
+        rep.error("could not load source inputs to reconcile against - "
+                  "did fetch_sources.py run?")
+        return
+    kept, dropped = reconcile_store(rows, live, reference_today(), report=False)
+    if dropped:
+        sample = ", ".join(
+            f"{r.get('name')!r} {str(r.get('datetime_iso'))[:16]}"
+            for r in dropped[:5])
+        rep.error(
+            f"{len(dropped)} rows in events.json are not backed by any "
+            f"source (corrected time, or listing withdrawn) - "
+            f"dedupe.py must run after the fetches: {sample}")
 
+
+def check_published_flags(rows, rep):
     # A listing the venue has stopped selling, or a drop-in service rather
     # than a session, is hidden by default. If build_site.py did not run, the
     # keys are absent and the page would quietly show them all.
     unflagged = [r for r in rows if "hidden_by_default" not in r]
     if unflagged:
-        errors.append(f"{len(unflagged)} rows have no hidden_by_default flag - "
-                      f"did build_site.py run?")
-    else:
-        # Re-derive rather than trust: a status.py regression must not leave
-        # a sold-out workshop sitting in the published data looking bookable.
-        stale_status, stale_service = [], []
-        for r in rows:
-            status, _detail = event_status(r)
-            if status != (r.get("status") or ""):
-                stale_status.append(r.get("name"))
-            service, _reason = is_ongoing_service(r)
-            if service != bool(r.get("is_service")):
-                stale_service.append(r.get("name"))
-        if stale_status:
-            errors.append(f"{len(stale_status)} rows whose sold-out/cancelled "
-                          f"status disagrees with their own text: "
-                          f"{', '.join(sorted(set(stale_status))[:5])}")
-        if stale_service:
-            errors.append(f"{len(stale_service)} rows whose drop-in-service "
-                          f"flag disagrees with their own text: "
-                          f"{', '.join(sorted(set(stale_service))[:5])}")
-        unknown = {r.get("status") for r in rows
-                   if r.get("status") and r["status"] not in STATUS_LABELS}
-        if unknown:
-            errors.append(f"rows carry an unknown status {sorted(unknown)} - "
-                          f"add it to STATUS_LABELS so the UI can label it")
+        rep.error(f"{len(unflagged)} rows have no hidden_by_default flag - "
+                  f"did build_site.py run?")
+        return
+    # Re-derive rather than trust: a status.py regression must not leave
+    # a sold-out workshop sitting in the published data looking bookable.
+    stale_status, stale_service = [], []
+    for r in rows:
+        status, _detail = event_status(r)
+        if status != (r.get("status") or ""):
+            stale_status.append(r.get("name"))
+        service, _reason = is_ongoing_service(r)
+        if service != bool(r.get("is_service")):
+            stale_service.append(r.get("name"))
+    if stale_status:
+        rep.error(f"{len(stale_status)} rows whose sold-out/cancelled "
+                  f"status disagrees with their own text: "
+                  f"{', '.join(sorted(set(stale_status))[:5])}")
+    if stale_service:
+        rep.error(f"{len(stale_service)} rows whose drop-in-service "
+                  f"flag disagrees with their own text: "
+                  f"{', '.join(sorted(set(stale_service))[:5])}")
+    unknown = {r.get("status") for r in rows
+               if r.get("status") and r["status"] not in STATUS_LABELS}
+    if unknown:
+        rep.error(f"rows carry an unknown status {sorted(unknown)} - "
+                  f"add it to STATUS_LABELS so the UI can label it")
 
+
+def check_template(rows, rep):
     # Every source label needs a badge: CSS class + friendly-name entries,
     # or its badge renders as invisible white-on-white text.
+    labels = Counter(r.get("source_id", "unknown") for r in rows)
     try:
         with open(ROOT / "src" / "templates" / "index.html", encoding="utf-8") as f:
             tpl = f.read()
-        css = set(re.findall(r"\.badge-([a-z_]+)\{", tpl))
-        for label in labels:
-            if label == "unknown":
-                continue
-            if label not in css:
-                errors.append(f"source {label}: missing .badge-{label} CSS")
-            if not re.search(r"[{,]" + re.escape(label) + r":", tpl):
-                errors.append(f"source {label}: missing friendly name in maps")
-
-        # A duplicated template silently inlines the whole event array twice
-        # and ships a page whose JS never runs.
-        doctypes = tpl.lower().count("<!doctype")
-        if doctypes != 1:
-            errors.append(f"template has {doctypes} <!DOCTYPE> (want exactly 1)")
-        if tpl.lower().count("</html>") != 1:
-            errors.append(f"template has {tpl.lower().count('</html>')} </html> "
-                          "(want exactly 1)")
-
-        # A repeated id or an unbalanced container is invisible to every other
-        # check here and to a regex scan of the script block, and it is not
-        # hypothetical: an edit to the control bar once left a second copy of
-        # the CSV and Filters buttons and a stray </div>, so getElementById
-        # silently addressed the first of each and the page rendered both. Every
-        # id in the page is unique by definition -- there is no legitimate
-        # reason for two elements to share one.
-        for element, dupes in _duplicate_ids(tpl):
-            errors.append(f"template has {dupes} elements with id={element!r}; "
-                          "ids must be unique (getElementById addresses only "
-                          "the first)")
-        unbalanced = _unbalanced_tags(tpl)
-        if unbalanced:
-            errors.append("template markup is unbalanced: " + unbalanced)
-
-        for ph in PLACEHOLDERS:
-            if ph not in tpl:
-                errors.append(f"placeholder {ph} is missing from the template")
-            elif ph in SINGLE_USE_PLACEHOLDERS and tpl.count(ph) != 1:
-                errors.append(f"placeholder {ph} appears {tpl.count(ph)}x "
-                              "(want exactly 1)")
-        # A top-level call to an undefined function aborts the whole script
-        # block before render() runs. This does NOT try to catch that by
-        # scanning for names -- a regex cannot see a parse error, which is the
-        # more likely fault. render_check.py executes the built page and
-        # asserts it produced rows, which covers both.
-        errors.extend(a11y_errors(tpl, "template"))
     except FileNotFoundError as e:
-        errors.append(f"template missing: {e}")
+        rep.error(f"template missing: {e}")
+        return
+    css = set(re.findall(r"\.badge-([a-z_]+)\{", tpl))
+    for label in labels:
+        if label == "unknown":
+            continue
+        if label not in css:
+            rep.error(f"source {label}: missing .badge-{label} CSS")
+        if not re.search(r"[{,]" + re.escape(label) + r":", tpl):
+            rep.error(f"source {label}: missing friendly name in maps")
 
+    # A duplicated template silently inlines the whole event array twice
+    # and ships a page whose JS never runs.
+    doctypes = tpl.lower().count("<!doctype")
+    if doctypes != 1:
+        rep.error(f"template has {doctypes} <!DOCTYPE> (want exactly 1)")
+    if tpl.lower().count("</html>") != 1:
+        rep.error(f"template has {tpl.lower().count('</html>')} </html> "
+                  "(want exactly 1)")
+
+    # A repeated id or an unbalanced container is invisible to every other
+    # check here and to a regex scan of the script block, and it is not
+    # hypothetical: an edit to the control bar once left a second copy of
+    # the CSV and Filters buttons and a stray </div>, so getElementById
+    # silently addressed the first of each and the page rendered both. Every
+    # id in the page is unique by definition -- there is no legitimate
+    # reason for two elements to share one.
+    for element, dupes in _duplicate_ids(tpl):
+        rep.error(f"template has {dupes} elements with id={element!r}; "
+                  "ids must be unique (getElementById addresses only "
+                  "the first)")
+    unbalanced = _unbalanced_tags(tpl)
+    if unbalanced:
+        rep.error("template markup is unbalanced: " + unbalanced)
+
+    for ph in PLACEHOLDERS:
+        if ph not in tpl:
+            rep.error(f"placeholder {ph} is missing from the template")
+        elif ph in SINGLE_USE_PLACEHOLDERS and tpl.count(ph) != 1:
+            rep.error(f"placeholder {ph} appears {tpl.count(ph)}x "
+                      "(want exactly 1)")
+    # A top-level call to an undefined function aborts the whole script
+    # block before render() runs. This does NOT try to catch that by
+    # scanning for names -- a regex cannot see a parse error, which is the
+    # more likely fault. render_check.py executes the built page and
+    # asserts it produced rows, which covers both.
+    rep.extend(a11y_errors(tpl, "template"))
+
+
+def check_built_page(rows, rep):
     # The built page is what users actually load; check the artefact too.
     try:
         with open(ROOT / "index.html", encoding="utf-8") as f:
             built = f.read()
-        n_doctype = built.lower().count("<!doctype")
-        if n_doctype != 1:
-            errors.append(f"index.html has {n_doctype} <!DOCTYPE> "
-                          f"(want exactly 1)")
-        for ph in PLACEHOLDERS:
-            if ph in built:
-                errors.append(f"index.html still contains {ph}")
-        if built.lower().count("</html>") != 1:
-            errors.append("index.html has a duplicated/partial document")
-        # The template being accessible proves nothing about the page users
-        # actually load: an uncommitted rebuild ships the old markup. This
-        # ran the same battery against index.html and stayed green for a
-        # build that had never been made.
-        errors.extend(a11y_errors(built, "index.html"))
     except FileNotFoundError:
-        errors.append("index.html missing - did build_site.py run?")
+        rep.error("index.html missing - did build_site.py run?")
+        return
+    n_doctype = built.lower().count("<!doctype")
+    if n_doctype != 1:
+        rep.error(f"index.html has {n_doctype} <!DOCTYPE> (want exactly 1)")
+    for ph in PLACEHOLDERS:
+        if ph in built:
+            rep.error(f"index.html still contains {ph}")
+    if built.lower().count("</html>") != 1:
+        rep.error("index.html has a duplicated/partial document")
+    # The template being accessible proves nothing about the page users
+    # actually load: an uncommitted rebuild ships the old markup. This
+    # ran the same battery against index.html and stayed green for a
+    # build that had never been made.
+    rep.extend(a11y_errors(built, "index.html"))
 
-    for w in warnings:
+
+# Every check, in the order they run. The order is the order they used to be
+# written in and it is load-bearing only for the report: the first failing
+# check should be the one whose message tells you what to go and look at, and
+# that is not always the first thing wrong with a store.
+CHECKS = [
+    check_total,
+    check_source_floors,
+    check_exact_duplicates,
+    check_archive_flags,
+    check_same_listing_duplicates,
+    check_inferred_time_matches_text,
+    check_inferred_dates_reproduce,
+    check_same_programme_duplicates,
+    check_dateless,
+    check_addresses,
+    check_suburbs,
+    check_gd_catchment,
+    check_types_schema,
+    check_store_is_justified,
+    check_published_flags,
+    check_template,
+    check_built_page,
+]
+
+
+def main():
+    with open("data/events.json", encoding="utf-8") as f:
+        data = json.load(f)
+    rows = data.get("rows", [])
+
+    rep = Report()
+    for check in CHECKS:
+        check(rows, rep)
+
+    labels = Counter(r.get("source_id", "unknown") for r in rows)
+    for w in rep.warnings:
         print(f"WARN: {w}")
-    if errors:
-        for e in errors:
+    if rep:
+        for e in rep:
             print(f"FAIL: {e}")
         sys.exit(1)
     print(f"health ok: {len(rows)} events, {len(labels)} sources, 0 dupes")

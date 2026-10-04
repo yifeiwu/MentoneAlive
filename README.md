@@ -343,7 +343,8 @@ python scripts/checks.py recurrence   # one suite
 
 Each suite is pure — no network, no writes — and exits non-zero with the actual
 value and the expected one, so a rule change that alters a classification fails
-the build before it can reach the published page. The suites are:
+the build before it can reach the published page. `check_all.py` runs the suites
+plus the rest of the pipeline in CI order. The suites are:
 
 | Suite | Pins |
 | --- | --- |
@@ -360,6 +361,13 @@ the build before it can reach the published page. The suites are:
 | `build_site` | suburb extraction, and which rows reach the page |
 | `fetchers` | the fetch call convention, without a network, and the rule that `raw_events.json` is only written when every plain source delivered |
 | `failure_signals` | config validation, the do-not-publish signal, and store stability across run dates |
+
+Note when checking a store change by hand: `dedupe.py` merges the incoming batch
+against the store it already has, so the first run after a fetch absorbs state
+from the previous one and only later runs reach a fixed point. Re-running it and
+diffing measures the distance to that fixed point, not a change in the inputs —
+run it twice and check the *second* run changed nothing. See
+[D49](docs/decisions.md).
 | `fetcher_equivalence` | the fetchers extract the same rows they used to |
 
 `build_site.py` and `dedupe.py` are both pipeline stages and suites, so
