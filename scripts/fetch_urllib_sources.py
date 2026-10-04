@@ -19,9 +19,9 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 from venues import extract_suburb, is_online
-from webfetch_http import (MIN_CRAWL_DELAY, Pacer, PartialFetch, enrich_details,
-                           make_row, month_number, parse_day_month_year,
-                           report)
+from webfetch_http import (MIN_CRAWL_DELAY, Pacer, PartialFetch, decode_body,
+                           enrich_details, make_row, month_number,
+                           parse_day_month_year, report)
 
 # The interval the Greater Dandenong listing walk was actually running at, so
 # `crawl_delay` can override it and nothing else can change it by accident.
@@ -59,7 +59,7 @@ def _request(url, data=None, headers=None, timeout=15, retries=3):
         try:
             req = urllib.request.Request(url, data=data, headers=h)
             with urllib.request.urlopen(req, timeout=timeout) as r:
-                return r.read().decode("utf-8", "ignore")
+                return decode_body(r.read())
         except Exception as e:
             last = e
             if attempt < retries - 1:

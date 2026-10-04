@@ -34,6 +34,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+from config import read_config as _read_config  # noqa: E402
 from dedupe import name_head  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -87,9 +88,7 @@ def _snapshot_of(live_id, cfg):
 
 
 def coverage():
-    import yaml
-    cfg = yaml.safe_load((ROOT / "scripts" / "sources.yaml")
-                         .read_text(encoding="utf-8"))
+    cfg = _read_config()
     archived = json.loads(ARCHIVED.read_text(encoding="utf-8"))
     if isinstance(archived, dict):
         archived = archived.get("rows", [])

@@ -1,8 +1,8 @@
 [
  {
   "name": "'Kingston Sounds' by Susannah Langley",
-  "datetime_text": "Next date: Saturday, 03 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-  "datetime_iso": "2026-10-03T18:00:00",
+  "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+  "datetime_iso": "2026-10-03T20:00:00",
   "location": "Kingston Arts Centre, 979 Nepean Highway, Moorabbin 3189",
   "address": "979 Nepean Highway, Moorabbin 3189",
   "price_text": "",
@@ -13,8 +13,8 @@
  },
  {
   "name": "'Refugia' by Kerri Wilson McConchie",
-  "datetime_text": "Next date: Saturday, 03 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-  "datetime_iso": "2026-10-03T18:00:00",
+  "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+  "datetime_iso": "2026-10-03T20:00:00",
   "location": "Kingston City Hall, 979-985 Nepean Highway, Moorabbin 3189",
   "address": "979-985 Nepean Highway, Moorabbin 3189",
   "price_text": "",
@@ -25,8 +25,8 @@
  },
  {
   "name": "Mental Health Month",
-  "datetime_text": "Next date: Saturday, 03 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-  "datetime_iso": "2026-10-03T18:00:00",
+  "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+  "datetime_iso": "2026-10-03T20:00:00",
   "location": "70 Thompson Road",
   "address": "54-70 Thompson Road, Patterson Lakes 3197",
   "price_text": "",
@@ -37,25 +37,13 @@
  },
  {
   "name": "The Wonder of Colour Exhibition",
-  "datetime_text": "Next date: Saturday, 03 October 2026 | 06:00 PM \r\n\tto Thursday, 15 October 2026 | 04:00 PM",
-  "datetime_iso": "2026-10-03T18:00:00",
+  "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 PM \r\n\tto Thursday, 15 October 2026 | 04:00 PM",
+  "datetime_iso": "2026-10-03T20:00:00",
   "location": "Bayley Arts, 1 Avoca Street, Highett 3190",
   "address": "1 Avoca Street, Highett 3190",
   "price_text": "",
   "description": "This new show celebrates not only the wonder of colour but also the uplifting experience of painting.",
   "source": "https://www.kingston.vic.gov.au/community/events/community-events/The-Wonder-of-Colour-Exhibition",
-  "source_id": "kingston_council",
-  "price_sort": null
- },
- {
-  "name": "Kings of the Gypsies",
-  "datetime_text": "Next date: Saturday, 03 October 2026 | 05:00 PM \r\n\tto 06:40 PM",
-  "datetime_iso": "2026-10-03T17:00:00",
-  "location": "Kingston Arts Centre, 979 Nepean Highway, Moorabbin 3189",
-  "address": "979 Nepean Highway, Moorabbin 3189",
-  "price_text": "",
-  "description": "Rosita’s Flamenco Centre returns with the story, Kings of the Gypsies.",
-  "source": "https://www.kingstonarts.com.au/whats-on/kings-of-the-gypsies",
   "source_id": "kingston_council",
   "price_sort": null
  },
@@ -152,6 +140,18 @@
   "price_text": "",
   "description": "A Filipino Seniors Club that meets every week to socialise and enjoy the   food. Kultura Filipino also provides free folk dancing lessons for those interested.",
   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/philipino-elderly-association-of-south-east-region",
+  "source_id": "kingston_council",
+  "price_sort": null
+ },
+ {
+  "name": "Kings of the Gypsies",
+  "datetime_text": "Next date: Sunday, 04 October 2026 | 02:00 PM \r\n\tto 03:40 PM",
+  "datetime_iso": "2026-10-04T14:00:00",
+  "location": "Kingston Arts Centre, 979 Nepean Highway, Moorabbin 3189",
+  "address": "979 Nepean Highway, Moorabbin 3189",
+  "price_text": "",
+  "description": "Rosita’s Flamenco Centre returns with the story, Kings of the Gypsies.",
+  "source": "https://www.kingstonarts.com.au/whats-on/kings-of-the-gypsies",
   "source_id": "kingston_council",
   "price_sort": null
  },

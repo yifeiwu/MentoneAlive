@@ -37,6 +37,7 @@ from zoneinfo import ZoneInfo
 
 from rapidfuzz import fuzz
 
+import config as _config
 from jsonio import read_json, write_json
 from recurrence import (infer_event, refresh_inferred, resolve_dateless,  # noqa: F401
                         series_id_for)
@@ -1334,20 +1335,15 @@ def load_live_inputs(quiet=False, use_raw=True):
     # Reading the set from the config is also what stops it drifting.
     known_source_ids = {r.get("source_id") for r in raw if isinstance(r, dict)}
     known_source_ids |= set(ARCHIVED_SOURCE_IDS)
-    try:
-        import yaml as _yaml
-        _cfg = _yaml.safe_load(
-            (ROOT / "scripts" / "sources.yaml").read_text(encoding="utf-8"))
-        for _e in (_cfg.get("webfetch") or []) + (_cfg.get("sources") or []):
-            if _e.get("id"):
-                known_source_ids.add(_e["id"])
-    except (OSError, ValueError, AttributeError):
-        # Without the config the check is toothless rather than wrong: every
-        # snapshot is skipped and the run reports nothing, which fails loudly
-        # in health_check rather than publishing a fraction.
-        if not quiet:
-            print("WARNING: sources.yaml unreadable; snapshot source ids "
-                  "cannot be verified")
+    # config.source_ids() returns None rather than an empty set when sources.yaml
+    # is unreadable, and leaving `known_source_ids` as raw+archived is what makes
+    # the snapshot walk below skip every snapshot as unconfigured -- toothless
+    # rather than wrong, and loud in health_check rather than publishing a
+    # fraction. It must not become an empty set: that reads as "every snapshot is
+    # stale" and would drop all of them.
+    declared = _config.source_ids(quiet=quiet)
+    if declared:
+        known_source_ids |= declared
     for path in sorted(glob.glob(str(ROOT / "scripts" / "webfetch_snapshots" / "*.json"))):
         try:
             snap = read_json(path)

@@ -257,13 +257,37 @@ def price_sort(cost):
     return float(m.group(1)) if m else None
 
 
+def decode_body(body):
+    """Decode a response body the way a browser would.
+
+    UTF-8 when the bytes are valid UTF-8, which is every source today. Failing
+    that, cp1252 rather than dropping the bytes on the floor.
+
+    The `"ignore"` this replaces was quiet about a real failure: it deletes any
+    byte sequence that is not valid UTF-8, so a source that serves latin-1 loses
+    the character outright -- "Cafe" with the accent dropped, not "Cafe" with
+    the accent mangled -- and nothing in the snapshot records that anything was
+    lost. The name then looks like a different event to dedupe and to anyone
+    reading the page. cp1252 cannot fail, and its 0x80-0x9F range maps to real
+    characters rather than to nothing.
+
+    A `Content-Type` charset would be the strictly better signal, but the
+    session layer hands the body over without headers, so there is nothing to
+    read one from.
+    """
+    try:
+        return body.decode("utf-8")
+    except UnicodeDecodeError:
+        return body.decode("cp1252", "replace")
+
+
 class _Response:
     """What the fetch layer reads off a response: status, text, bytes."""
 
     def __init__(self, status_code, body):
         self.status_code = status_code
         self.content = body
-        self.text = body.decode("utf-8", "ignore")
+        self.text = decode_body(body)
 
 
 class PlainSession:
@@ -661,17 +685,55 @@ def enrich_details(session, rows, cap, apply_one, *, sleep=0.2, label="",
 # One owner for "what time does this line state", replacing four hand-rolled
 # copies of the same twelve-hour conversion.
 
-def _hhmm(hour, minute, meridiem):
+def _hhmm(hour, minute, meridiem, clamp=True):
     """24-hour (hour, minute) from a loose hour / optional minutes / optional
-    meridiem. Clamped, so a malformed value degrades rather than raising."""
-    hour = int(hour)
-    minute = int(minute or 0)
-    ap = (meridiem or "").strip().lower()
-    if ap == "pm" and hour != 12:
+    meridiem.
+
+    The meridiem is accepted in every form the sources write -- "am", "a",
+    "p.m.", "pm" -- because the two regexes that feed this disagree about what
+    they capture: the shared TIME_RANGE_RE captures the whole word, the
+    directory's HOURS_RANGE_RE a single letter. When each version accepted only
+    its own spelling, every caller holding the other had to reshape it at the
+    call site, and webfetch_ccc.py was appending "m" to a bare "p" to get a word
+    its helper would recognise. Silently, too: the wrong spelling is not an
+    error here, it is just a morning.
+
+    clamp=True saturates a malformed value, which is what the generic listing
+    readers want -- one page printing "25:00" should not stop a crawl.
+    clamp=False returns (None, None) instead, which is what the opening-hours
+    reader wants, because it decides "opening hours, not a meeting" by comparing
+    times: a clamped 23:59 would quietly pass a test meant to refuse the row.
+    """
+    try:
+        hour = int(hour)
+        minute = int(minute or 0)
+    except (TypeError, ValueError):
+        # Each caller keeps the behaviour it already had: the clamped readers
+        # were never handed a non-numeric hour, and the refusing one wants None.
+        if clamp:
+            raise
+        return None, None
+    ap = (meridiem or "").strip().lower().replace(".", "")
+    if ap in ("p", "pm") and hour != 12:
         hour += 12
-    elif ap == "am" and hour == 12:
+    elif ap in ("a", "am") and hour == 12:
         hour = 0
-    return max(0, min(23, hour)), max(0, min(59, minute))
+    if clamp:
+        return max(0, min(23, hour)), max(0, min(59, minute))
+    if not 0 <= hour <= 23 or not 0 <= minute <= 59:
+        return None, None
+    return hour, minute
+
+
+def _hhmm_str(hour, minute, meridiem, clamp=True):
+    """("HH:MM") for the same conversion, or None when _hhmm refuses it.
+
+    Separate because the two consumers want different shapes and neither should
+    have to build the other's: schedule text needs the string, and the
+    opening-hours plausibility test needs minutes-past-midnight.
+    """
+    hour, minute = _hhmm(hour, minute, meridiem, clamp=clamp)
+    return None if hour is None else f"{hour:02d}:{minute:02d}"
 
 
 # A time range that states a meridiem. The pattern requires one on the *end*,
@@ -887,6 +949,42 @@ if __name__ == "__main__":
          "2026-10-02T10:00:00"),
         ("combine leaves a day alone when no time is stated",
          combine(_date(2026, 10, 2), "").isoformat(), "2026-10-02"),
+
+        # _hhmm / _hhmm_str: one conversion, two shapes, two clamping policies.
+        # The meridiem spellings are the point -- the two regexes that feed this
+        # capture different ones, and accepting only one shape is what made
+        # webfetch_ccc.py rewrite "p" as "pm" at the call site.
+        ("a bare meridiem letter means the afternoon",
+         _hhmm(9, 0, "p"), (21, 0)),
+        ("a full meridiem still means the afternoon",
+         _hhmm(9, 0, "pm"), (21, 0)),
+        ("a bare meridiem letter means the morning",
+         _hhmm(9, 0, "a"), (9, 0)),
+        ("a punctuated meridiem is understood",
+         _hhmm(9, 0, "p.m."), (21, 0)),
+        ("12a is midnight in either spelling",
+         (_hhmm(12, 0, "a"), _hhmm(12, 0, "am")), ((0, 0), (0, 0))),
+        ("12p is noon in either spelling",
+         (_hhmm(12, 0, "p"), _hhmm(12, 0, "pm")), ((12, 0), (12, 0))),
+        ("the string form agrees with the pair",
+         _hhmm_str(9, 5, "p"), "21:05"),
+        ("the string form pads",
+         _hhmm_str(9, 5, None), "09:05"),
+        # clamp: a malformed listing time must not stop a crawl, but a
+        # malformed *opening hours* entry must be refused rather than clamped
+        # into passing the plausibility test.
+        ("clamped, a nonsense hour saturates",
+         _hhmm(25, 0, None), (23, 0)),
+        ("clamped, a nonsense minute saturates",
+         _hhmm(9, 99, None), (9, 59)),
+        ("refused, a nonsense hour is None",
+         _hhmm(25, 0, None, clamp=False), (None, None)),
+        ("refused, a nonsense minute is None",
+         _hhmm(9, 99, None, clamp=False), (None, None)),
+        ("refused, the string form is None too",
+         _hhmm_str(25, 0, None, clamp=False), None),
+        ("refused, a real hour still converts",
+         _hhmm_str(9, 30, "a", clamp=False), "09:30"),
     ]
 
     failures = []

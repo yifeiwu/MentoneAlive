@@ -108,6 +108,7 @@ page. Everything else is plain HTTP. That is six `impersonate: true` entries in
 ```bash
 pip install .             # pins live in pyproject.toml, read from there
 
+python scripts/check_all.py               # the whole pipeline in CI order
 python scripts/fetch_sources.py           # all sources -> snapshots
 python scripts/dedupe.py                  # merge + dedupe -> data/events.json
 python scripts/build_site.py              # types/commercial/status -> render index.html
@@ -116,6 +117,22 @@ python scripts/checks.py                  # all rule assertions (exit non-zero o
 python scripts/render_check.py            # render index.html in headless Chrome, measure it
 python scripts/quality_audit.py           # report duplication and data quality (no gate)
 ```
+
+The six commands above are the pipeline, and `check_all.py` is that list in the
+order CI runs it — rules first (cheap, and they should fail before the network is
+touched), then fetch, then the three stages that read what the fetch produced. It
+stops at the first failure, and it writes: `fetch_sources.py` rewrites the
+snapshots, `dedupe.py` rewrites `data/events.json`, `build_site.py` rewrites
+`index.html`. So a local green means what a CI green means.
+
+```bash
+python scripts/check_all.py --list
+python scripts/check_all.py dedupe build_site    # a subset, still in canonical order
+```
+
+`checks.py` on its own is the rules with no network and no writes, which is why
+it runs first inside `check_all.py` and is the one to reach for while editing a
+rule.
 
 `quality_audit.py` is a report rather than a gate, on purpose: the other two
 assert invariants, and a number that moves as the sources move is information

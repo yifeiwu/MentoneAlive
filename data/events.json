@@ -6079,8 +6079,8 @@
    "source_id": "chatty_cafe",
    "price_sort": 0.0,
    "sources": [
-    "https://www.chelt.com.au/",
-    "https://www.chelt.com.au/social-activities.html"
+    "https://www.chelt.com.au/social-activities.html",
+    "https://www.chelt.com.au/"
    ],
    "date_inferred": true,
    "recurrence": "Every Wednesday and Thursday",
@@ -6142,8 +6142,8 @@
    "source_id": "chatty_cafe",
    "price_sort": 0.0,
    "sources": [
-    "https://www.chelt.com.au/",
-    "https://www.chelt.com.au/social-activities.html"
+    "https://www.chelt.com.au/social-activities.html",
+    "https://www.chelt.com.au/"
    ],
    "date_inferred": true,
    "recurrence": "Every Wednesday and Thursday",
@@ -6205,8 +6205,8 @@
    "source_id": "chatty_cafe",
    "price_sort": 0.0,
    "sources": [
-    "https://www.chelt.com.au/",
-    "https://www.chelt.com.au/social-activities.html"
+    "https://www.chelt.com.au/social-activities.html",
+    "https://www.chelt.com.au/"
    ],
    "date_inferred": true,
    "recurrence": "Every Wednesday and Thursday",
@@ -6268,8 +6268,8 @@
    "source_id": "chatty_cafe",
    "price_sort": 0.0,
    "sources": [
-    "https://www.chelt.com.au/",
-    "https://www.chelt.com.au/social-activities.html"
+    "https://www.chelt.com.au/social-activities.html",
+    "https://www.chelt.com.au/"
    ],
    "date_inferred": true,
    "recurrence": "Every Wednesday and Thursday",
@@ -27617,7 +27617,6 @@
    "source_id": "kingston_hubs",
    "price_sort": null,
    "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/sewing-group-patterson-lakes",
     "https://www.kingston.vic.gov.au"
    ],
    "types": [
@@ -28155,8 +28154,8 @@
    "source_id": "kingston_hubs",
    "price_sort": null,
    "sources": [
-    "https://www.kingston.vic.gov.au",
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/sewing-group-patterson-lakes"
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/sewing-group-patterson-lakes",
+    "https://www.kingston.vic.gov.au"
    ],
    "types": [
     "Art & Craft"
@@ -39883,33 +39882,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "Kings of the Gypsies",
-   "datetime_text": "Next date: Saturday, 03 October 2026 | 05:00 PM \r\n\tto 06:40 PM",
-   "datetime_iso": "2026-10-03T17:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "Kingston Arts Centre",
-   "price_text": "",
-   "description": "Rosita’s Flamenco Centre returns with the story, Kings of the Gypsies.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kings-of-the-gypsies",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kings-of-the-gypsies"
-   ],
-   "types": [
-    "Books & Reading"
-   ],
-   "suburb": "",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "Art for All",
    "datetime_text": "Tuesdays. 9:30am - 11:30am. Term 4 (6th October- 15th December, 10 weeks",
    "datetime_iso": "2026-10-06T09:30:00",
@@ -39948,8 +39920,8 @@
    "datetime_iso": "2026-10-09T10:30:00",
    "price_sort": 0.0,
    "sources": [
-    "https://www.agcsinc.org.au/chatty-café",
-    "https://chattycafeaustralia.org.au/venue/aspendale-gardens-community-service/"
+    "https://chattycafeaustralia.org.au/venue/aspendale-gardens-community-service/",
+    "https://www.agcsinc.org.au/chatty-café"
    ],
    "types": [
     "Food & Drink",
@@ -65548,520 +65520,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "STEADYmoves",
-   "datetime_text": "Every Tuesday and Friday",
-   "datetime_iso": "2026-10-06T11:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "Physiotherapy fees apply",
-   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
-   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/exercise-dance-yoga.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday and Friday",
-   "series_id": "b9eb59ff6541",
-   "types": [
-    "Exercise & Fitness"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "STEADYmoves",
-   "datetime_text": "Every Tuesday and Friday",
-   "datetime_iso": "2026-10-13T11:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "Physiotherapy fees apply",
-   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
-   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/exercise-dance-yoga.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday and Friday",
-   "series_id": "b9eb59ff6541",
-   "types": [
-    "Exercise & Fitness"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "STEADYmoves",
-   "datetime_text": "Every Tuesday and Friday",
-   "datetime_iso": "2026-10-20T11:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "Physiotherapy fees apply",
-   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
-   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/exercise-dance-yoga.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday and Friday",
-   "series_id": "b9eb59ff6541",
-   "types": [
-    "Exercise & Fitness"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "STEADYmoves",
-   "datetime_text": "Every Tuesday and Friday",
-   "datetime_iso": "2026-10-27T11:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "Physiotherapy fees apply",
-   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
-   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/exercise-dance-yoga.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday and Friday",
-   "series_id": "b9eb59ff6541",
-   "types": [
-    "Exercise & Fitness"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "STEADYmoves",
-   "datetime_text": "Every Tuesday and Friday",
-   "datetime_iso": "2026-11-03T11:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "Physiotherapy fees apply",
-   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
-   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/exercise-dance-yoga.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday and Friday",
-   "series_id": "b9eb59ff6541",
-   "types": [
-    "Exercise & Fitness"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "STEADYmoves",
-   "datetime_text": "Every Tuesday and Friday",
-   "datetime_iso": "2026-11-10T11:30:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "Physiotherapy fees apply",
-   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
-   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/exercise-dance-yoga.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday and Friday",
-   "series_id": "b9eb59ff6541",
-   "types": [
-    "Exercise & Fitness"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
-   "datetime_text": "Every Monday and Thursday",
-   "datetime_iso": "2026-10-12T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday and Thursday",
-   "series_id": "1fbb3459f96e",
-   "types": [
-    "Books & Reading",
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
-   "datetime_text": "Every Monday and Thursday",
-   "datetime_iso": "2026-10-15T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday and Thursday",
-   "series_id": "1fbb3459f96e",
-   "types": [
-    "Books & Reading",
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
-   "datetime_text": "Every Monday and Thursday",
-   "datetime_iso": "2026-10-19T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday and Thursday",
-   "series_id": "1fbb3459f96e",
-   "types": [
-    "Books & Reading",
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
-   "datetime_text": "Every Monday and Thursday",
-   "datetime_iso": "2026-10-22T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday and Thursday",
-   "series_id": "1fbb3459f96e",
-   "types": [
-    "Books & Reading",
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert I in EAL 22638VIC – Certificate I in EAL (Access)",
-   "datetime_text": "Every Monday and Thursday",
-   "datetime_iso": "2026-10-05T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays and Thursdays 9am - 12pm A course for students starting to learn English or who have had minimal exposure to English . Students will learn reading, writing, speaking and listening skills for personal and social needs. More information. Mondays. 9am - 12pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday and Thursday",
-   "series_id": "cdba6306fc79",
-   "types": [
-    "Books & Reading"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert I in EAL 22638VIC – Certificate I in EAL (Access)",
-   "datetime_text": "Every Monday and Thursday",
-   "datetime_iso": "2026-10-08T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays and Thursdays 9am - 12pm A course for students starting to learn English or who have had minimal exposure to English . Students will learn reading, writing, speaking and listening skills for personal and social needs. More information. Mondays. 9am - 12pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday and Thursday",
-   "series_id": "cdba6306fc79",
-   "types": [
-    "Books & Reading"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
-   "datetime_text": "Every Monday",
-   "datetime_iso": "2026-10-12T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday",
-   "series_id": "d653b0c3aa9f",
-   "types": [
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
-   "datetime_text": "Every Monday",
-   "datetime_iso": "2026-10-19T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday",
-   "series_id": "d653b0c3aa9f",
-   "types": [
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
-   "datetime_text": "Every Monday",
-   "datetime_iso": "2026-10-26T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday",
-   "series_id": "d653b0c3aa9f",
-   "types": [
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
-   "datetime_text": "Every Monday",
-   "datetime_iso": "2026-11-02T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday",
-   "series_id": "d653b0c3aa9f",
-   "types": [
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
-   "datetime_text": "Every Monday",
-   "datetime_iso": "2026-11-09T09:00:00",
-   "location": "Cheltenham Community Centre",
-   "address": "8 Chesterville Road, Cheltenham VIC 3192",
-   "price_text": "",
-   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
-   "source": "https://www.chelt.com.au/learn-english.html",
-   "source_id": "ccc",
-   "price_sort": null,
-   "sources": [
-    "https://www.chelt.com.au/learn-english.html"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Monday",
-   "series_id": "d653b0c3aa9f",
-   "types": [
-    "Info Session"
-   ],
-   "suburb": "Cheltenham",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "Justice of the Peace Tuesdays",
    "datetime_text": "06 Oct 2026 10:00 AM",
    "datetime_iso": "2026-10-06T10:00:00",
@@ -68104,64 +67562,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "'Kingston Sounds' by Susannah Langley",
-   "datetime_text": "Next date: Saturday, 03 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-03T18:00:00",
-   "location": "Kingston Arts Centre",
-   "address": "979 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
-   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition",
-    "Technology"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "'Refugia' by Kerri Wilson McConchie",
-   "datetime_text": "Next date: Saturday, 03 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
-   "datetime_iso": "2026-10-03T18:00:00",
-   "location": "Kingston City Hall",
-   "address": "979-985 Nepean Highway, Moorabbin 3189",
-   "price_text": "",
-   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
-   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
-   "source_id": "kingston_arts",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
-   ],
-   "types": [
-    "Art & Craft",
-    "Games & Cards",
-    "Nature & Environment"
-   ],
-   "suburb": "Moorabbin",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "Kings of the Gypsies",
    "datetime_text": "Next date: Sunday, 04 October 2026 | 02:00 PM \r\n\tto 03:40 PM",
    "datetime_iso": "2026-10-04T14:00:00",
@@ -68290,61 +67690,6 @@
     "Technology"
    ],
    "suburb": "",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mental Health Month",
-   "datetime_text": "Next date: Saturday, 03 October 2026 | 06:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
-   "datetime_iso": "2026-10-03T18:00:00",
-   "location": "70 Thompson Road",
-   "address": "54-70 Thompson Road, Patterson Lakes 3197",
-   "price_text": "",
-   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
-   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
-   ],
-   "types": [
-    "Health & Wellbeing"
-   ],
-   "suburb": "Patterson Lakes",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "The Wonder of Colour Exhibition",
-   "datetime_text": "Next date: Saturday, 03 October 2026 | 06:00 PM \r\n\tto Thursday, 15 October 2026 | 04:00 PM",
-   "datetime_iso": "2026-10-03T18:00:00",
-   "location": "Bayley Arts, 1 Avoca Street, Highett 3190",
-   "address": "1 Avoca Street, Highett 3190",
-   "price_text": "",
-   "description": "This new show celebrates not only the wonder of colour but also the uplifting experience of painting.",
-   "source": "https://www.kingston.vic.gov.au/community/events/community-events/The-Wonder-of-Colour-Exhibition",
-   "source_id": "kingston_council",
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/events/community-events/The-Wonder-of-Colour-Exhibition"
-   ],
-   "types": [
-    "Art & Craft",
-    "Market & Exhibition"
-   ],
-   "suburb": "Highett",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -68622,6 +67967,734 @@
     "Technology"
    ],
    "suburb": "Chelsea",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Kingston Sounds' by Susannah Langley",
+   "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-03T20:00:00",
+   "location": "Kingston Arts Centre",
+   "address": "979 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "An exhibition in Kingston's outdoor lightbox gallery, displaying a series of abstract drawings created inside virtual reality. Created in response to field recordings of the sounds of places, spaces and events in the City of Kingston.",
+   "source": "https://www.kingstonarts.com.au/whats-on/kingston-sounds",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/kingston-sounds"
+   ],
+   "types": [
+    "Art & Craft",
+    "Market & Exhibition",
+    "Technology"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "'Refugia' by Kerri Wilson McConchie",
+   "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 PM \r\n\tto Saturday, 31 October 2026 | 05:00 AM",
+   "datetime_iso": "2026-10-03T20:00:00",
+   "location": "Kingston City Hall",
+   "address": "979-985 Nepean Highway, Moorabbin 3189",
+   "price_text": "",
+   "description": "A collage of indigenous flora endemic to the region of Bunurong Land is transformed into moving image sequences, projected onto Kingston Arts' Skybridge, evoking a reimagined ‘wildlife corridor,’ a habitat crucial for the survival of the region’s endangered floristic communities.",
+   "source": "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie",
+   "source_id": "kingston_arts",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingstonarts.com.au/whats-on/refugia-by-kerri-wilson-mcconchie"
+   ],
+   "types": [
+    "Art & Craft",
+    "Games & Cards",
+    "Nature & Environment"
+   ],
+   "suburb": "Moorabbin",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mental Health Month",
+   "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 PM \r\n\tto Saturday, 31 October 2026 | 11:59 PM",
+   "datetime_iso": "2026-10-03T20:00:00",
+   "location": "70 Thompson Road",
+   "address": "54-70 Thompson Road, Patterson Lakes 3197",
+   "price_text": "",
+   "description": "October is Mental Health Month – a time to connect, check in and support each other. Discover the wide range of activities and events happening across Kingston and find opportunities to connect with your community.",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/upcoming-events/mental-health-month"
+   ],
+   "types": [
+    "Health & Wellbeing"
+   ],
+   "suburb": "Patterson Lakes",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "The Wonder of Colour Exhibition",
+   "datetime_text": "Next date: Saturday, 03 October 2026 | 08:00 PM \r\n\tto Thursday, 15 October 2026 | 04:00 PM",
+   "datetime_iso": "2026-10-03T20:00:00",
+   "location": "Bayley Arts, 1 Avoca Street, Highett 3190",
+   "address": "1 Avoca Street, Highett 3190",
+   "price_text": "",
+   "description": "This new show celebrates not only the wonder of colour but also the uplifting experience of painting.",
+   "source": "https://www.kingston.vic.gov.au/community/events/community-events/The-Wonder-of-Colour-Exhibition",
+   "source_id": "kingston_council",
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/events/community-events/The-Wonder-of-Colour-Exhibition"
+   ],
+   "types": [
+    "Art & Craft",
+    "Market & Exhibition"
+   ],
+   "suburb": "Highett",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Karate and Self-Defence Workshop",
+   "datetime_text": "Every Saturday",
+   "datetime_iso": "2026-12-26T10:00:00",
+   "location": "Chandler Park Primary School",
+   "address": "Chandler Park Primary School, 5/19 Cochrane Avenue, Keysborough",
+   "price_text": "",
+   "description": "10 Oct Karate and Self-Defence Workshop Saturday 10 October, 10:00am Community Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/karate-and-self-defence-workshop-0",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/karate-and-self-defence-workshop-0"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Saturday",
+   "series_id": "77dd5a87bfb4",
+   "types": [
+    "Sport & Outdoors"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Heatherton Dingley Uniting Church",
+   "datetime_text": "Every Wednesday, Thursday, Saturday and Sunday",
+   "datetime_iso": "2026-10-18T19:30:00",
+   "location": "184 Old Dandenong Road",
+   "address": "184 Old Dandenong Road, Heatherton 3202",
+   "price_text": "",
+   "description": "We seek to connect people to God and each other. Come join us on Sundays at 10am for our traditional church service, which is also live streamed on YouTube. Our Christmas Carols evening will be on Sunday 22 Dec 2024 at 7.30pm and our Christmas Day service will be on Wednesday 25 Dec at 10am. Unleash the Music group is on the 2nd and 4th Thursday nights of each month at 7.30pm. It's a fun musical group for all types of people to play or sing popular music from the past. Bark and Chat Morning Tea for dog owners, dog lovers and their dogs is on the 3rd Saturday at 10am in Jan, Mar, May, July, Sept, with an annual Dog Church service on the 3rd Sunday of Nov at 10am. More information about our church and activities can be found on our website at: https://heathertondingley.ucavictas.org.au/",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Heatherton-Dingley-Uniting-Church",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Faith"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Heatherton-Dingley-Uniting-Church"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday, Thursday, Saturday and Sunday",
+   "series_id": "8116b1a0b8a3",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Music & Performance",
+    "Social & Community"
+   ],
+   "suburb": "Heatherton",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Parkdale Tennis Club",
+   "datetime_text": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "datetime_iso": "2026-10-15T15:30:00",
+   "location": "Parkdale Tennis Club",
+   "address": "Cnr Imes and Chandler Streets, Parkdale 3195",
+   "price_text": "",
+   "description": "Parkdale Tennis Club has courts available to hire for Parkdale Tennis Club members and non members. Social tennis: Wednesday night, Thursday & Friday morning and Sunday afternoon for members and non members. Inhouse competition: Tuesday and Thursday nights for members and non members. Interclub competition: Saturday & Sunday morning (juniors) and Saturday afternoon (adults) members only. Coaching: Monday to Friday from 3.30pm for children and adults. Other times by appointment.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "series_id": "d2d8c3cb46f2",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Parkdale",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYmoves",
+   "datetime_text": "Every Tuesday and Friday",
+   "datetime_iso": "2026-10-06T11:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Physiotherapy fees apply",
+   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday and Friday",
+   "series_id": "b9eb59ff6541",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYmoves",
+   "datetime_text": "Every Tuesday and Friday",
+   "datetime_iso": "2026-10-13T11:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Physiotherapy fees apply",
+   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday and Friday",
+   "series_id": "b9eb59ff6541",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYmoves",
+   "datetime_text": "Every Tuesday and Friday",
+   "datetime_iso": "2026-10-20T11:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Physiotherapy fees apply",
+   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday and Friday",
+   "series_id": "b9eb59ff6541",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYmoves",
+   "datetime_text": "Every Tuesday and Friday",
+   "datetime_iso": "2026-10-27T11:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Physiotherapy fees apply",
+   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday and Friday",
+   "series_id": "b9eb59ff6541",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYmoves",
+   "datetime_text": "Every Tuesday and Friday",
+   "datetime_iso": "2026-11-03T11:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Physiotherapy fees apply",
+   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday and Friday",
+   "series_id": "b9eb59ff6541",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYmoves",
+   "datetime_text": "Every Tuesday and Friday",
+   "datetime_iso": "2026-11-10T11:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Physiotherapy fees apply",
+   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday and Friday",
+   "series_id": "b9eb59ff6541",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
+   "datetime_text": "Every Monday and Thursday",
+   "datetime_iso": "2026-10-12T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Thursday",
+   "series_id": "1fbb3459f96e",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
+   "datetime_text": "Every Monday and Thursday",
+   "datetime_iso": "2026-10-15T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Thursday",
+   "series_id": "1fbb3459f96e",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
+   "datetime_text": "Every Monday and Thursday",
+   "datetime_iso": "2026-10-19T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Thursday",
+   "series_id": "1fbb3459f96e",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
+   "datetime_text": "Every Monday and Thursday",
+   "datetime_iso": "2026-10-22T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Thursday",
+   "series_id": "1fbb3459f96e",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert I in EAL 22638VIC – Certificate I in EAL (Access)",
+   "datetime_text": "Every Monday and Thursday",
+   "datetime_iso": "2026-10-05T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays and Thursdays 9am - 12pm A course for students starting to learn English or who have had minimal exposure to English . Students will learn reading, writing, speaking and listening skills for personal and social needs. More information. Mondays. 9am - 12pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Thursday",
+   "series_id": "cdba6306fc79",
+   "types": [
+    "Books & Reading"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert I in EAL 22638VIC – Certificate I in EAL (Access)",
+   "datetime_text": "Every Monday and Thursday",
+   "datetime_iso": "2026-10-08T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays and Thursdays 9am - 12pm A course for students starting to learn English or who have had minimal exposure to English . Students will learn reading, writing, speaking and listening skills for personal and social needs. More information. Mondays. 9am - 12pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Thursday",
+   "series_id": "cdba6306fc79",
+   "types": [
+    "Books & Reading"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-10-12T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "d653b0c3aa9f",
+   "types": [
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-10-19T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "d653b0c3aa9f",
+   "types": [
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-10-26T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "d653b0c3aa9f",
+   "types": [
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-02T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "d653b0c3aa9f",
+   "types": [
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-09T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "d653b0c3aa9f",
+   "types": [
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",

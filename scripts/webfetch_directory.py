@@ -52,8 +52,8 @@ from datetime import date
 from bs4 import BeautifulSoup
 
 from recurrence import materialise
-from webfetch_http import (MIN_CRAWL_DELAY, Pacer, PartialFetch, get,
-                           make_row, paged_listing, report,
+from webfetch_http import (MIN_CRAWL_DELAY, Pacer, PartialFetch, _hhmm,
+                           _hhmm_str, get, make_row, paged_listing, report,
                            set_reporting_source)
 from venues import needs_address
 
@@ -274,13 +274,19 @@ def _schedule_from_hours(hours_html):
             m = HOURS_RANGE_RE.search(entry.get_text(" ", strip=True))
             if not m:
                 continue
-            start, start_m = _hhmm(m.group(1), m.group(2), m.group(3))
-            end, end_m = _hhmm(m.group(4), m.group(5), m.group(6))
-            if start is None or end is None:
+            start_hm = _hhmm(m.group(1), m.group(2), m.group(3), clamp=False)
+            end_hm = _hhmm(m.group(4), m.group(5), m.group(6), clamp=False)
+            if start_hm is None or end_hm is None:
                 continue
+            start_m = start_hm[0] * 60 + start_hm[1]
+            end_m = end_hm[0] * 60 + end_hm[1]
             if (end_m - start_m) % (24 * 60) > MAX_MEETING_HOURS * 60:
                 continue
-            by_day.setdefault(day, []).append((start_m, start, end_m, end))
+            by_day.setdefault(day, []).append(
+                (start_m, _hhmm_str(m.group(1), m.group(2), m.group(3),
+                                    clamp=False),
+                 end_m, _hhmm_str(m.group(4), m.group(5), m.group(6),
+                                  clamp=False)))
 
     days = []
     for day in sorted(by_day):
@@ -299,27 +305,6 @@ def _schedule_from_hours(hours_html):
     if not days or len(days) > MAX_MEETING_DAYS:
         return None
     return ", ".join(days)
-
-
-def _hhmm(hour, minute, meridiem):
-    """("HH:MM", minutes-past-midnight) for a 12-hour clock time, else Nones.
-
-    Both because the schedule text needs the string and the plausibility test
-    needs the number, and the conversion is the part that can silently produce
-    "20:00" from a page that said "8pm".
-    """
-    try:
-        h, m = int(hour), int(minute)
-    except (TypeError, ValueError):
-        return None, None
-    if not 0 <= h <= 23 or not 0 <= m <= 59:
-        return None, None
-    ap = (meridiem or "").strip().lower().replace(".", "")
-    if ap == "p" and h < 12:
-        h += 12
-    elif ap == "a" and h == 12:
-        h = 0
-    return f"{h:02d}:{m:02d}", h * 60 + m
 
 
 def _apply_directory_detail(row, html):

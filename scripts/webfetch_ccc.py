@@ -183,8 +183,9 @@ def _ccc_first_time(text):
         hour, minute, ap = int(m.group(4)), 0, m.group(5).lower()
     else:
         return "12:00"
-    # The regex captures a single letter ("9p"), _hhmm wants the word.
-    hour, minute = _hhmm(hour, minute, ap + "m")
+    # The regex captures a single meridiem letter ("9p"), which _hhmm now takes
+    # as it stands -- it used to want the whole word, so this appended an "m".
+    hour, minute = _hhmm(hour, minute, ap)
     return f"{hour:02d}:{minute:02d}"
 
 

@@ -38,7 +38,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import yaml
+import config as _config  # noqa: E402
 
 from fetch_urllib_sources import (fetch_chatty_cafe,  # noqa: E402
                                   fetch_gd_libraries, fetch_greater_dandenong,
@@ -314,14 +314,10 @@ _SESSIONS = {}
 def load_config():
     """Every source entry, tagged with which config list it came from.
 
-    `group` decides whether an entry owns a committed snapshot file, and it is
-    tagged here rather than in sources.yaml so the file stays a description of
-    the sources rather than of this script's internals.
+    Lives in config.py, which is the one reader of sources.yaml; this is the name
+    the rest of the pipeline already imports, so it stays as a re-export.
     """
-    with open(ROOT / "scripts" / "sources.yaml", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-    return ([dict(c, group="snapshot") for c in config.get("webfetch", [])]
-            + [dict(c, group="shared") for c in config.get("sources", [])])
+    return _config.load_config()
 
 
 def session_for(cfg):
