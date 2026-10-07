@@ -322,20 +322,33 @@ class PlainSession:
     def __init__(self, timeout=15):
         self.timeout = timeout
 
-    def get(self, url, timeout=None, **kwargs):
+    def _open(self, req, timeout):
+        """Run one request and shape every outcome as a `_Response`.
+
+        The `except` arms are the contract, not defensive noise: curl_cffi
+        raises on a connection error and `get()` above turns that into "HTTP 0",
+        so a different exception type escaping from here would break the shared
+        retry loop for every source at once. urllib raises HTTPError for a 4xx/5xx
+        rather than returning it, so that arm has to exist too, and returning the
+        body means `get()` sees the error page it would otherwise retry blindly.
+        """
+        import urllib.error
         import urllib.request
 
-        req = urllib.request.Request(url, headers=dict(self.HEADERS))
         try:
-            with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
+            with urllib.request.urlopen(
+                    req, timeout=timeout or self.timeout) as r:
                 return _Response(r.status, r.read())
         except urllib.error.HTTPError as e:
             return _Response(e.code, e.read())
         except Exception as e:
-            # curl_cffi raises on a connection error, and `get()` above turns
-            # that into "HTTP 0", so match it rather than letting a different
-            # exception type escape from under the shared retry loop.
             return _Response(0, str(e).encode())
+
+    def get(self, url, timeout=None, **kwargs):
+        import urllib.request
+
+        return self._open(urllib.request.Request(url, headers=dict(self.HEADERS)),
+                          timeout)
 
     def post(self, url, data=None, timeout=None, **kwargs):
         import urllib.parse
@@ -344,14 +357,8 @@ class PlainSession:
         body = urllib.parse.urlencode(data or {}).encode()
         headers = dict(self.HEADERS)
         headers["Content-Type"] = "application/x-www-form-urlencoded"
-        req = urllib.request.Request(url, data=body, headers=headers)
-        try:
-            with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
-                return _Response(r.status, r.read())
-        except urllib.error.HTTPError as e:
-            return _Response(e.code, e.read())
-        except Exception as e:
-            return _Response(0, str(e).encode())
+        return self._open(
+            urllib.request.Request(url, data=body, headers=headers), timeout)
 
 
 def make_plain_session():

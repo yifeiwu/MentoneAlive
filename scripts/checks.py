@@ -115,6 +115,41 @@ def run_suite(name, note):
     return True
 
 
+def run_lint():
+    """Ruff's F and E9 rules over scripts/, before any suite runs.
+
+    F is pyflakes (unused names, undefined names, a bad import) and E9 is
+    syntax errors, so this is the check that catches a module which imports a
+    name nobody defines -- the class of mistake a suite suite cannot catch when
+    it never reaches the broken line.
+
+    Deliberately not fatal when ruff is absent: it is a dev dependency, not one
+    of the pins the scrapers need, and a contributor without it should get the
+    suites rather than an install error. CI installs it (`pip install ".[dev]"`)
+    so CI does gate on it, and the line printed here says which happened.
+    """
+    print("== lint: ruff --select=F,E9 over scripts/")
+    try:
+        import ruff  # noqa: F401
+    except ImportError:
+        proc = subprocess.run([sys.executable, "-m", "ruff", "--version"],
+                              cwd=ROOT, capture_output=True, text=True)
+        if proc.returncode != 0:
+            print("  skipped: ruff is not installed "
+                  "(`pip install -e \".[dev]\"` to enable this gate)")
+            return True
+    proc = subprocess.run(
+        [sys.executable, "-m", "ruff", "check", "--select=F,E9", "scripts"],
+        cwd=ROOT, capture_output=True, text=True)
+    for line in (proc.stdout or "").strip().split("\n"):
+        if line.strip():
+            print("  " + line.strip())
+    if proc.returncode != 0:
+        print("  FAIL: ruff reported problems (F = pyflakes, E9 = syntax)")
+        return False
+    return True
+
+
 def main(argv):
     if "--list" in argv:
         print("suites:")
@@ -129,6 +164,10 @@ def main(argv):
             print(f"no such suite: {', '.join(sorted(unknown))}")
             print(f"known: {', '.join(n for n, _ in SUITES)}")
             return 2
+    # Lint first and always: a suite that imports a name nobody defines should
+    # not report as a mystery failure from whichever suite ran first.
+    if not run_lint():
+        return 1
     failed = [name for name, note in selected if not run_suite(name, note)]
     print()
     if failed:

@@ -32,10 +32,16 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: pip install .
+        # ".[dev]" pulls the ruff that checks.py's lint gate runs. Without it
+        # that gate reports itself skipped and CI stops catching the F-class
+        # mistakes -- an undefined name, an unused import, a bad import -- before
+        # the 45-minute crawl rather than after it.
+        run: pip install ".[dev]"
 
-      # Pure rule assertions first (fail-fast, no network): a broken classifier
-      # should not cost a 45-minute crawl.
+# Pure rule assertions first (fail-fast, no network): a broken classifier
+      # should not cost a 45-minute crawl. The ruff gate runs ahead of the
+      # suites, so a module importing a name nobody defines fails here instead
+      # of as a mystery failure from whichever suite touched it.
       - name: Check rule assertions
         timeout-minutes: 10
         run: python scripts/checks.py

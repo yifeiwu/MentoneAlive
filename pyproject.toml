@@ -15,6 +15,14 @@ dependencies = [
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
+# Verification only, and deliberately not in the pins above: nothing the
+# scrapers import needs a linter, and adding one to the runtime list would make
+# every `pip install .` carry a tool that only `checks.py` uses. CI installs
+# this group (`pip install ".[dev]"`) so the ruff gate in checks.py actually
+# gates there; locally its absence is reported rather than fatal.
+[project.optional-dependencies]
+dev = ["ruff==0.16.7"]
+
 # A collection of scripts, not an installable library: nothing here is imported
 # as `eventscal.something`, and `scripts/` has no __init__.py. Declaring no
 # modules keeps the build from looking for one -- without this, setuptools

@@ -875,7 +875,6 @@ def _write_corrupt_cache():
 
 def _self_test():
     import sys
-    import tempfile
 
     from checks import check as _check
 

@@ -1316,6 +1316,42 @@ the committed store was not the fixed point of its own inputs.
 *Owner:* `recurrence.weekday_slots`, `recurrence.refresh_inferred`,
 `webfetch_directory._schedule_from_hours`.
 
+### D52. C9 closed on one real duplicate; the rest were deliberate - **Hold**
+
+C9 was "remove the remaining small duplicated helpers", scoped in advance to five
+places. Scanned rather than assumed: an AST pass over all 32 modules comparing
+normalised function bodies, then each named area read by hand.
+
+**Changed:** `webfetch_http.PlainSession.get` and `.post` each carried a byte-identical
+nine-line request/response tail (the `urlopen` try, the `HTTPError` arm, the
+connection-error arm, and both `_Response` constructions). Extracted to `PlainSession._open`,
+with the reason the `except` arms exist moved onto it: curl_cffi raises on a connection
+error and `get()` turns that into "HTTP 0", so a different exception type escaping here
+would break the shared retry loop for every source at once. Verified live rather than by
+inspection -- POST returns 200/108 KB against the Kingston directory, a bad host returns
+status 0, and a 404 comes back as a `_Response` carrying its body rather than raising.
+The Kingston WAF answers a plain GET with 403, which masked that last arm until it was
+tested against a host that actually 404s.
+
+**Kept, each for a stated reason:**
+
+- The ten per-suite `check`/`ck` wrappers are the pattern C5 introduced, not an
+  oversight: each delegates to `checks.check`, so there is one assertion
+  implementation and the local name is free.
+- `make_plain_session()` is a one-line wrapper with one caller, but it mirrors
+  `make_session()` and the asymmetry would be the confusing part.
+- `fetch_urllib_sources._get`/`_post` are one-line adapters over `_request` that
+  differ in what they serialise; `_gd_session`/`_gd_fetch` carry the reason the GD
+  detail pages need their own impersonating session at all.
+- `dedupe.normalize_location` and `recurrence._norm` are the same one-liner, and
+  unifying them would mean either a new dependency edge into the lower-level module
+  or a new neutral home for a single line of code. Not worth either.
+
+`webfetch_everi`'s suite was scoped for fixture duplication and had none left: C1's
+`_slice_length` left one HTML fixture in the file, not several copies of it.
+
+*Owner:* `webfetch_http.PlainSession`.
+
 ## 7. Things that are not decisions, but look like they were
 
 Noted here because each has cost real effort and will cost more if it is

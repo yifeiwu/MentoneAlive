@@ -344,7 +344,17 @@ python scripts/checks.py recurrence   # one suite
 Each suite is pure — no network, no writes — and exits non-zero with the actual
 value and the expected one, so a rule change that alters a classification fails
 the build before it can reach the published page. `check_all.py` runs the suites
-plus the rest of the pipeline in CI order. The suites are:
+plus the rest of the pipeline in CI order.
+
+Before any suite, `checks.py` runs `ruff check --select=F,E9 scripts` — pyflakes
+plus syntax errors, so an undefined name or a dead import fails there rather than
+as a mystery failure from whichever suite happened to touch the line. Ruff is a
+dev dependency (`pip install -e ".[dev]"`, which is what CI installs). If it is
+absent the gate prints that it was skipped and the suites still run, because a
+contributor without a linter should get the assertions rather than an install
+error; CI installs it, so CI does gate on it.
+
+The suites are:
 
 | Suite | Pins |
 | --- | --- |
