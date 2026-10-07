@@ -204,3 +204,147 @@ def _apply_bayside_detail(r, html):
     # rather than regaining its own title.
     if desc and not r.get("description"):
         r["description"] = desc
+
+
+if __name__ == "__main__":
+    import sys
+
+    from checks import check as _check
+
+    failures = []
+
+    def ck(label, actual, expected):
+        return _check(label, actual, expected, failures)
+
+    page = """<html><body>
+      <div class="event-venue-item">
+        <div class="event-venue-item-label">When:</div>
+        <div class="event-venue-item-content">Saturday 3 October 2026</div>
+      </div>
+      <div class="event-venue-item">
+        <div class="event-venue-item-label">Time:</div>
+        <div class="event-venue-item-content">10:00am - 12:00pm</div>
+      </div>
+      <div class="event-venue-item">
+        <div class="event-venue-item-label">Location:</div>
+        <div class="event-venue-item-content">Beaumaris Library<br/>96 Reserve Rd
+          <br/>Beaumaris, Victoria 3193</div>
+      </div>
+      <div class="event-venue-item">
+        <div class="event-venue-item-label">Cost:</div>
+        <div class="event-venue-item-content">Free</div>
+      </div>
+    </body></html>"""
+    soup = BeautifulSoup(page, "html.parser")
+    ck("a label's content is read", _label_content(soup, "when"),
+       "Saturday 3 October 2026")
+    ck("the label is matched without its colon",
+       _label_content(soup, "time"), "10:00am - 12:00pm")
+    ck("multi-part content is joined with pipes",
+       _label_content(soup, "location"),
+       "Beaumaris Library | 96 Reserve Rd | Beaumaris, Victoria 3193")
+    ck("a label the page does not carry reads empty",
+       _label_content(soup, "price"), "")
+    ck("a missing label block reads empty",
+       _label_content(BeautifulSoup("<html></html>", "html.parser"), "cost"), "")
+
+    # A label whose case differs from the caller's must still match: the call
+    # site passes "cost", and a page writing "Cost:" is the normal case rather
+    # than a lucky one.
+    lower = BeautifulSoup(
+        '<div class="event-venue-item">'
+        '<div class="event-venue-item-label">COST</div>'
+        '<div class="event-venue-item-content">$5</div></div>', "html.parser")
+    ck("a label match ignores case", _label_content(lower, "cost"), "$5")
+
+    # The description reader is the one that fixed description=name on all 143
+    # rows, so its two guards each need a case: the venue block sits between the
+    # h1 and the prose and must be skipped, and a fragment must not be taken.
+    desc_page = """<html><body><main>
+      <h1>Chair Yoga</h1>
+      <div class="event-venue-item"><p>96 Reserve Rd</p></div>
+      <p>Book now</p>
+      <p>A gentle and accessible chair yoga class for all abilities and ages,
+         held every week during school term at the library.</p>
+    </main></body></html>"""
+    dsoup = BeautifulSoup(desc_page, "html.parser")
+    ck("a fragment below the length floor is not the description",
+       _page_description(dsoup).startswith("A gentle and accessible"), True)
+    ck("the venue block between h1 and prose is skipped",
+       "Reserve Rd" in _page_description(dsoup), False)
+    ck("no h1 means no description",
+       _page_description(BeautifulSoup("<html><body><p>" + "x " * 40 +
+                                       "</p></body></html>", "html.parser")), "")
+    ck("only short fragments means no description",
+       _page_description(BeautifulSoup(
+           "<html><body><main><h1>T</h1><p>Too short.</p></main></body></html>",
+           "html.parser")), "")
+
+    # _inside_not_prose reads the joined class string, because bs4 hands a
+    # class= callable a list for a multi-valued class and a string otherwise.
+    both = BeautifulSoup(
+        '<div class="event-share social-likes"><p>By the council team</p></div>',
+        "html.parser")
+    ck("a multi-valued class block is recognised as non-prose",
+       _inside_not_prose(both.select_one("p")), True)
+    ck("prose outside those blocks is prose",
+       _inside_not_prose(BeautifulSoup(
+           "<main><p>Real prose here</p></main>", "html.parser").select_one("p")),
+       False)
+
+    # The whole detail application, on a page shaped like the real one: the
+    # repeated suburb and the blank separators in the Location block are the
+    # reason join_address is applied to the split parts. Note the venue name
+    # stays in the address and becomes `location` -- the head of the address is
+    # the venue on this source, which is what the location column wants.
+    row = make_row("bayside_live", "Chair Yoga",
+                   "https://www.bayside.vic.gov.au/x")
+    _apply_bayside_detail(row, """<html><body>
+      <h1>Chair Yoga</h1>
+      <div class="event-date-item">
+        <time datetime="2026-10-03T00:00:00">3 Oct</time></div>
+      <div class="event-venue-item">
+        <div class="event-venue-item-label">When:</div>
+        <div class="event-venue-item-content">Saturday 3 October 2026</div></div>
+      <div class="event-venue-item">
+        <div class="event-venue-item-label">Time:</div>
+        <div class="event-venue-item-content">10:00am</div></div>
+      <div class="event-venue-item">
+        <div class="event-venue-item-label">Location:</div>
+        <div class="event-venue-item-content">Beaumaris Library<br/>96 Reserve Rd
+          <br/>Beaumaris<br/>Beaumaris<br/>Victoria 3193</div></div>
+      <div class="event-venue-item">
+        <div class="event-venue-item-label">Cost:</div>
+        <div class="event-venue-item-content">Free</div></div>
+      <p>A gentle and accessible chair yoga class for all abilities and ages.</p>
+    </body></html>""")
+    ck("the detail page states the real date", row["datetime_iso"],
+       "2026-10-03T10:00:00")
+    ck("the repeated suburb is published once", row["address"],
+       "Beaumaris Library, 96 Reserve Rd, Beaumaris, Victoria 3193")
+    ck("the location is the head of the address", row["location"],
+       "Beaumaris Library")
+    ck("a free cost is published", row["price_text"], "Free")
+    ck("the page's own prose becomes the description",
+       row["description"].startswith("A gentle and accessible"), True)
+
+    # A row that already carries prose keeps it: the detail pass fills blanks,
+    # it does not overwrite what the listing stated.
+    kept = make_row("bayside_live", "Chair Yoga", "u", description="Listing prose")
+    _apply_bayside_detail(kept, """<html><body><h1>T</h1>
+      <p>Some quite different detail-page prose that is definitely long enough
+         to pass the floor used by the description reader here.</p></body></html>""")
+    ck("existing description is not overwritten", kept["description"],
+       "Listing prose")
+
+    # A page with no venue block leaves the address alone rather than blanking
+    # what the listing card gave us.
+    blank = make_row("bayside_live", "Yoga", "u", address="1 Real St, Beaumaris")
+    _apply_bayside_detail(blank, "<html><body><h1>Y</h1></body></html>")
+    ck("a page with no location block keeps the listing address",
+       blank["address"], "1 Real St, Beaumaris")
+
+    if failures:
+        print("\n%d failure(s)" % len(failures))
+        sys.exit(1)
+    print("\nwebfetch_bayside: all checks passed")

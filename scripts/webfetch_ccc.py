@@ -498,3 +498,174 @@ def enrich_humanitix(session, rows, cap, pacer=None):
             f"only {n}/{attempted} humanitix booking pages parsed for ccc -- "
             f"the listing is intact but its booking pages are not", extra)
     return extra
+
+
+if __name__ == "__main__":
+    import sys
+
+    from checks import check as _check
+
+    failures = []
+
+    def ck(label, actual, expected):
+        return _check(label, actual, expected, failures)
+
+    # The cost reader is what stopped "Physiotherapy fees apply FIND OUT MORE
+    # BUTTON Find Out More" being published as a price, so each kind of trailing
+    # furniture the Weebly markup leaves behind gets its own case.
+    ck("a button label is not a price",
+       _ccc_clean_cost("Physiotherapy fees apply FIND OUT MORE BUTTON "
+                       "Find Out More"),
+       "Physiotherapy fees apply")
+    ck("a book-now link is not a price",
+       _ccc_clean_cost("$15 Book here"), "$15")
+    ck("a view-and-book link is not a price",
+       _ccc_clean_cost("Gold coin donation Read more"), "Gold coin donation")
+    ck("an enrol link is not a price",
+       _ccc_clean_cost("$5 per session Enrol now"), "$5 per session")
+    ck("a plain cost is left alone", _ccc_clean_cost("$5 per session"),
+       "$5 per session")
+    ck("an empty cost is still empty", _ccc_clean_cost(""), "")
+    ck("a cost of nothing but furniture reads empty",
+       _ccc_clean_cost("FIND OUT MORE BUTTON Find Out More"), "")
+    ck("a long cost is trimmed on a word boundary",
+       ("and then " * 20).startswith(_ccc_clean_cost("and then " * 20) + " ")
+       and len(_ccc_clean_cost("and then " * 20)) <= 60, True)
+
+    # _ccc_field must stop at the NEXT label rather than swallowing the rest of
+    # the paragraph, which is how one class's time used to publish as another's.
+    text = ("Time: Thursdays 9:30am - 10:30am\n"
+            "Instructor: Larisa\n"
+            "Cost: FREE")
+    ck("a labelled field stops at the next label", _ccc_field(text, "Time"),
+       "Thursdays 9:30am - 10:30am")
+    ck("the last label runs to the end", _ccc_field(text, "Cost"), "FREE")
+    ck("a missing field reads empty", _ccc_field(text, "Venue"), "")
+    ck("a field is matched case-insensitively",
+       _ccc_field("time: 9:30am", "Time"), "9:30am")
+
+    # The time regex reads forms the shared parse_time() does not: '12noon' and
+    # '11 midday'. It also has to hand a bare meridiem letter to _hhmm, which is
+    # what the old 'ap' + 'm' workaround used to build.
+    for text_in, want in [
+            ("Thursdays 9.30a.m.", "09:30"),
+            ("Starts at 12noon", "12:00"),
+            ("7pm", "19:00"),
+            ("9 a.m. to 10:30am", "09:00"),
+            ("Saturdays, 1.00 pm", "13:00"),
+            ("no time stated", ""),
+    ]:
+        ck("first time of %r is %s" % (text_in, want or "(none)"),
+           _ccc_first_time(text_in), want)
+
+    # "11 midday" and "11 noon" both publish 12:00, and the hour the regex
+    # captures for them (group 6) is discarded rather than read. That is the
+    # defensible answer -- midday is noon is 12:00 whatever number precedes it
+    # -- but it is a trap for the next reader, so it is pinned here. See D50.
+    ck("a stated hour before midday does not become the start time",
+       _ccc_first_time("11 midday"), "12:00")
+    ck("12noon reads as midday", _ccc_first_time("12 noon"), "12:00")
+
+    # _hhmm clamps, and this is the case that reason exists: an unclamped
+    # 111:00 reaches datetime.replace(hour=111) and takes the source down.
+    ck("an impossible hour is clamped into range, not published",
+       _ccc_first_time("99pm"), "23:00")
+    ck("a clamped time is a real datetime hour",
+       0 <= datetime.strptime(_ccc_first_time("99pm"), "%H:%M").hour <= 23,
+       True)
+    ck("a title drops zero-width and replacement characters",
+       _ccc_clean_title("Chair\u200b Yoga\ufffd"), "Chair Yoga")
+    ck("the ZumbaAr artefact is repaired",
+       _ccc_clean_title("ZumbaAr Gold"), "Zumba Gold")
+
+    # A long address keeps its beginning: the venue name and street identify it,
+    # and slicing from the end kept the postcode while discarding the street.
+    long_addr = ("Cheltenham Community Centre, 8 Chesterville Road, "
+                 + "somewhere " * 12 + "Cheltenham VIC 3192")
+    ck("a truncated address keeps the venue and street",
+       _ccc_trunc_start(long_addr).startswith(
+           "Cheltenham Community Centre, 8 Chesterville Road"), True)
+    ck("a truncated address is marked as truncated",
+       _ccc_trunc_start(long_addr).endswith("..."), True)
+    ck("a short address is untouched",
+       _ccc_trunc_start("8 Chesterville Road, Cheltenham VIC 3192"),
+       "8 Chesterville Road, Cheltenham VIC 3192")
+
+    # Section starts: a labelled paragraph is a start only if it carries one of
+    # the module's own labels. Missing this made a class's content get absorbed
+    # into the PREVIOUS class, so the next class's time published as this one's.
+    labelled = BeautifulSoup(
+        '<div id="wsite-content">'
+        '<h2 class="heading">Chair Yoga</h2>'
+        '<div class="paragraph"><p><strong>Zumba Gold</strong> '
+        'Time: Tuesdays 10am. Instructor: Sam. Cost: FREE</p></div>'
+        '</div>', "html.parser").select_one("#wsite-content")
+    starts = _ccc_section_starts(labelled)
+    ck("a heading and a labelled paragraph are both starts", len(starts), 2)
+    ck("the starts are in document order",
+       [k for _, k, _t in starts], ["h", "labels"])
+    ck("a labelled paragraph takes its bolded name as the title",
+       starts[1][2], "Zumba Gold")
+
+    unlabelled = BeautifulSoup(
+        '<div id="wsite-content"><h2>Chair Yoga</h2>'
+        '<div class="paragraph"><p>Some prose about the class that runs on '
+        'for long enough to pass the length floor here.</p></div>'
+        '</div>', "html.parser").select_one("#wsite-content")
+    ck("an unlabelled paragraph is not a section start",
+       len(_ccc_section_starts(unlabelled)), 1)
+
+    lower = BeautifulSoup(
+        '<div id="wsite-content">'
+        '<div class="paragraph"><p><strong>Morning Flow</strong> '
+        'time: Mondays 7am. instructor: Sam. cost: FREE</p></div>'
+        '</div>', "html.parser").select_one("#wsite-content")
+    ck("a lower-case label still starts a section",
+       len(_ccc_section_starts(lower)), 1)
+
+    # _ccc_section_span must not run past the next section start: for the LAST
+    # section there is no next_el, and an uncapped walk ran on through <script>
+    # and the footer, pulling unrelated text into the description.
+    body = BeautifulSoup(
+        '<div id="wsite-content"><h2>Chair Yoga</h2><p>alpha text</p>'
+        '<h2>Zumba Gold</h2><p>beta text</p></div>', "html.parser")
+    main = body.select_one("#wsite-content")
+    secs = _ccc_section_starts(main)
+    text_a, _links = _ccc_section_span(secs[0][0], secs[1][0])
+    ck("a section stops at the next heading", "beta" in text_a, False)
+    ck("a section keeps its own text", "alpha" in text_a, True)
+    _last, links = _ccc_section_span(secs[1][0], None, max_elements=2)
+    ck("the walk is capped when there is no next section",
+       len(links), 0)
+
+    # The term expansion: publishing only the startDate turned an 11-week class
+    # into a single row, so the other ten sessions were simply absent.
+    start = datetime(2026, 7, 16, 9, 30)
+    end = datetime(2026, 9, 17, 10, 30)
+    term = _ccc_weekly_term(start, end)
+    ck("a term is expanded to one row per week", len(term), 10)
+    ck("the term starts on the stated date", term[0], start)
+    ck("the term ends on the stated date", term[-1], datetime(2026, 9, 17, 9, 30))
+    ck("every term row is the same weekday",
+       {t.weekday() for t in term}, {start.weekday()})
+    ck("a one-off is not expanded",
+       _ccc_weekly_term(start, start + timedelta(days=2)), [start])
+    ck("the cap bounds the expansion",
+       len(_ccc_weekly_term(start, start + timedelta(days=400), cap=5)), 5)
+
+    # The free-signals reader feeds the cost/schedule columns on the listing.
+    bits, cost = _ccc_free_signals(
+        "Thursdays 9:30am - 10:30am. Term 4 runs for 10 weeks. Cost: FREE")
+    ck("the weekday is captured as a schedule signal",
+       any("Thursday" in b for b in bits), True)
+    ck("the term is captured", any("Term 4" in b for b in bits), True)
+    ck("a free cost is captured", cost.upper().startswith("FREE"), True)
+    _b2, cost2 = _ccc_free_signals("Cost: $15 per session")
+    ck("a priced cost is captured with its amount", "$15" in cost2, True)
+    _b3, cost3 = _ccc_free_signals("Come along any time")
+    ck("no stated cost reads empty", cost3, "")
+
+    if failures:
+        print("\n%d failure(s)" % len(failures))
+        sys.exit(1)
+    print("\nwebfetch_ccc: all checks passed")

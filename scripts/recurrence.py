@@ -119,6 +119,11 @@ _BARE_HOUR_RANGE_RE = re.compile(
 _BARE_START_RE = re.compile(r"^\d{1,2}$")
 _TIME_POINT_RE = re.compile(_TIME_TOKEN, re.I)
 
+# The bare words that name a time without carrying digits. Only ever used to
+# suppress a restatement of a range's own end; see the lone-time fallback in
+# weekday_slots, which is the only reader.
+_REDUNDANT_NOON_RE = re.compile(r"noon|midday", re.I)
+
 # "of the month" only. The alternation used to read "week" as well, so
 # "First Tuesday each week, 7pm" parsed as the first Tuesday of each *month*
 # -- twelve dates twelve months apart, four of every five wrong. "Every second
@@ -335,6 +340,21 @@ def weekday_slots(text):
             continue
         if any(rs <= m.start() < re_ for rs, re_ in refused_spans):
             continue
+        # A bare "noon"/"midday" just past the end of a range is the range's own end
+        # restated, not a second session. "from 9:00 am to 12:00 noon" reads the
+        # range as "9:00 am to 12:00" -- the range pattern stops at the digits --
+        # which leaves "noon" outside the consumed span, and _to_hhmm("noon") is
+        # "12:00", so it became a lone time point and gave every weekday a second
+        # slot at 12:00. Mordialloc Men's Shed published two events per date, one
+        # at 09:00 and one at 12:00, from a single 9-12 window.
+        if _REDUNDANT_NOON_RE.fullmatch(m.group(0)):
+            # `ranges` is (start_pos, end_pos, start_value, end_value).
+            redundant = any(r_end == single
+                            and pos_end <= m.start()
+                            and not text[pos_end:m.start()].strip()
+                            for _pos, pos_end, _v, r_end in ranges)
+            if redundant:
+                continue
         events.append((m.start(), "time", (single, single)))
     events.sort(key=lambda ev: ev[0])
     recurring = bool(_ONGOING_HINT_RE.search(text or ""))
@@ -1031,11 +1051,28 @@ def refresh_inferred(rows, today=None, max_occurrences=MAX_OCCURRENCES):
                         refreshed += 1
                         break
                 continue
+            # The row's date is outside this expansion's window, so no
+            # re-derivation can produce a replacement for it even when the row
+            # is only mis-timed. The text states exactly one start time for this
+            # weekday and the stored row starts at another, so this row is not a
+            # session the source states -- and it is how Mordialloc Men's Shed
+            # kept publishing a 12:00 event beside the real 09:00 one, from a
+            # single 9-12 window, until the health check failed the build.
+            #
+            # Withdrawing a past row is otherwise prune_old's business at 90
+            # days, and deliberately so: a past row that is merely stale is
+            # history, not damage. This one is different -- it contradicts its
+            # own text, which is the same class of repair as the date check
+            # above, not a shortening of the published history.
+            if stored_day is not None and stored_day < today:
+                withdrawn += 1
+                continue
             unresolvable += 1
         kept.append(r)
     if withdrawn:
         print(f"  Withdrew {withdrawn} inferred row(s) whose own text no "
-              f"longer produces their date (a stale series phase)")
+              f"longer produces them (a stale series phase, or a stored "
+              f"time the text contradicts)")
     if refreshed:
         print(f"  Refreshed {refreshed} stale inferred rows (stored time "
               f"disagreed with the text)")
@@ -1301,7 +1338,39 @@ if __name__ == "__main__":
                   f"\n       expected: {_expected}")
             failures.append(_label)
 
+    # A bare "noon"/"midday" restingating a range's own end is not a second
+    # session. Mordialloc Men's Shed states one 9-12 window in prose as "from
+    # 9:00 am to 12:00 noon"; the range pattern stops at the digits, so "noon"
+    # sat outside the consumed span, and _to_hhmm("noon") is "12:00" -- giving
+    # every weekday a second slot at 12:00 and two events per date.
+    _shed = ("We are open on Tuesday, Wednesday, and Thursday mornings from "
+             "9:00 am to 12:00 noon.")
+    for _label, _actual, _expected in (
+            ("a redundant 'noon' gives one slot per weekday, not two",
+             slots_for(_shed), [(1, "09:00", "12:00"), (2, "09:00", "12:00"),
+                                (3, "09:00", "12:00")]),
+            ("the same text with 'midday' behaves identically",
+             slots_for(_shed.replace("noon", "midday")),
+             [(1, "09:00", "12:00"), (2, "09:00", "12:00"),
+              (3, "09:00", "12:00")]),
+            # A standalone noon with no range is a real time and must survive.
+            ("a lone 'noon' with no range is still a time",
+             slots_for("Tuesdays at noon"), [(1, "12:00", "12:00")]),
+            # A bare time with no range is untouched by the fix.
+            ("a lone time with no range is untouched",
+             slots_for("Every Thursday 11.30am"), [(3, "11:30", "11:30")]),
+            # Two ranges are still two ranges.
+            ("two ranges are still two ranges",
+             slots_for("Mondays 9am-12pm and Fridays 1pm-2pm"),
+             [(0, "09:00", "12:00"), (4, "13:00", "14:00")])):
+        if _actual == _expected:
+            print(f"ok   {_label}")
+        else:
+            print(f"FAIL {_label}\n       actual:   {_actual}"
+                  f"\n       expected: {_expected}")
+            failures.append(_label)
+
     if failures:
-        print(f"\nrecurrence: {len(failures)}/{len(TESTS) + 6} cases FAILED")
+        print(f"\nrecurrence: {len(failures)}/{len(TESTS) + 11} cases FAILED")
         raise SystemExit(1)
-    print(f"\nall {len(TESTS) + 6} recurrence cases as expected")
+    print(f"\nall {len(TESTS) + 11} recurrence cases as expected")

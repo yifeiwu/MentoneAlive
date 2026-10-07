@@ -744,3 +744,151 @@ def _seniors_pool_groups(entries):
                     cost = dict(costs)[after[0]]
             groups.append((days, tm, cost))
     return groups
+
+
+if __name__ == "__main__":
+    import sys
+
+    from checks import check as _check
+
+    failures = []
+
+    def ck(label, actual, expected):
+        return _check(label, actual, expected, failures)
+
+    INFO = "https://www.kingston.vic.gov.au/info"
+
+    # The URL reader is the one that published 73 dead links, because pypdf
+    # gives one line per visual line and a URL printed across two arrives with
+    # a space inside it. Each split shape in that docstring gets a case.
+    ck("a url split before its TLD is rejoined",
+       _seniors_extract_url("www.socialplanet. com.au/activity/123", INFO),
+       "https://www.socialplanet.com.au/activity/123")
+    ck("a url split across three lines is rejoined",
+       _seniors_extract_url("www.chelseaheights communitycentre .com.au", INFO),
+       "https://www.chelseaheightscommunitycentre.com.au")
+    ck("a hyphenated path split is rejoined",
+       _seniors_extract_url("www.example.org.au/whats-on/comedy-at- the-shirley",
+                            INFO),
+       "https://www.example.org.au/whats-on/comedy-at-the-shirley")
+    ck("an ordinary url is taken whole",
+       _seniors_extract_url("Book at https://www.chelt.com.au/yoga", INFO),
+       "https://www.chelt.com.au/yoga")
+    ck("prose after a bare homepage is not swallowed",
+       _seniors_extract_url("www.chelt.com.au/ Join us on Fridays", INFO),
+       "https://www.chelt.com.au/")
+    ck("a bare word after a trailing slash stops the url",
+       _seniors_extract_url("www.agcsinc.org.au/ kogo", INFO),
+       "https://www.agcsinc.org.au/")
+    # The session time printed after the booking link reads as URL continuation
+    # because of the dot in "1.00pm", which is how a 404 got published.
+    ck("a session time after the link does not extend it",
+       _seniors_extract_url(
+           "https://www.chelt.com.au/book?view&id=50242 1.00pm-2.00pm", INFO),
+       "https://www.chelt.com.au/book?view&id=50242")
+    ck("no url at all falls back to the info page",
+       _seniors_extract_url("Just come along, no booking needed.", INFO), INFO)
+    # `if len(url) <= 12` cannot fire: "https://" is prepended immediately
+    # above it, and every string the reader matches carries a host after that.
+    # Left in place rather than removed -- see D50.
+    ck("a short host still yields a url",
+       _seniors_extract_url("www.a.com.au", INFO), "https://www.a.com.au")
+
+    # The title/host split runs bottom-up and stops at an organisation or a
+    # place. Only the title reaches a published row; the host just terminates
+    # the walk, so these pin the three stop rules the card layout depends on.
+    title, host = _seniors_title(
+        ["Melbourne City Mission Community Centre", "Comedy at the Shirley"])
+    ck("a title below an organisation line is the title", title,
+       "Comedy at the Shirley")
+    ck("the organisation line above the title is the host", host,
+       "Melbourne City Mission Community Centre")
+    title, host = _seniors_title(
+        ["Some earlier prose", "cheltenham", "Chair Yoga"])
+    ck("a place line stops the walk", title, "Chair Yoga")
+    ck("the place line joins the host side", "cheltenham" in host, True)
+    title, host = _seniors_title(
+        ["Earlier org Inc.", "Gentle Yoga", "and tea"])
+    ck("a wrapped title keeps every line of itself", title,
+       "Gentle Yoga and tea")
+
+    # Day-list expansion: the guide prints "3, 10, 17 October" and each date is
+    # an occasion. An impossible day must drop out rather than raise.
+    m = SENIORS_DAYLIST_RE.search("Every Tuesday 3, 10, 17, 24 October")
+    days = _seniors_expand(m, 2026)
+    ck("every day in the list is expanded", len(days), 4)
+    ck("the first date is the first day", days[0], datetime(2026, 10, 3))
+    ck("the last date is the last day", days[-1], datetime(2026, 10, 24))
+    ck("an impossible day is dropped, not raised",
+       _seniors_expand(SENIORS_DAYLIST_RE.search("3, 31 September"), 2026),
+       [datetime(2026, 9, 3)])
+    ck("a single day expands to one date",
+       [d.day for d in _seniors_expand(
+           SENIORS_DAYLIST_RE.search("12 November"), 2026)], [12])
+
+    # Day lists are found anywhere in the card, not just the first line.
+    found = [(li, m.group(0)) for li, m in
+             _seniors_day_lists(["Intro line", "Free", "1, 8, 15 November",
+                                 "Bring a friend"])]
+    ck("a day list is found on any line", len(found), 1)
+    ck("the day list reports its own line", found[0][0], 2)
+    ck("no day list yields nothing",
+       list(_seniors_day_lists(["Just a walk in the park"])), [])
+
+    # A column-layout merge can glue prose onto the price line, so only the
+    # leading price tokens survive.
+    ck("a bare cost is read",
+       _seniors_cost_value(["Cost", "Free"], 0), "Free")
+    ck("a price with its unit is read",
+       _seniors_cost_value(["Cost", "$5 per session"], 0), "$5 per session")
+    ck("prose glued after a free cost is dropped",
+       _seniors_cost_value(
+           ["Cost", "Free Whether you are a member of the centre or not"], 0),
+       "Free")
+    ck("prose glued after a price is dropped",
+       _seniors_cost_value(
+           ["Cost", "$12 per session Everyone is welcome to come along today"],
+           0),
+       "$12 per session")
+    # A gold coin is part of the price on these cards, not prose, so the
+    # trimmer is required to keep it.
+    ck("a gold coin qualifier is part of the price",
+       _seniors_cost_value(
+           ["Cost", "$12 per session Gold coin donation welcome at the door"],
+           0),
+       "$12 per session Gold coin donation")
+    ck("a cost section ends at a stop line",
+       _seniors_cost_value(["Cost", "Free", "Bookings are essential"], 0),
+       "Free")
+    ck("a missing cost line reads empty",
+       _seniors_cost_value(["Cost"], 0), "")
+
+    # Times are read by the shared range reader, so a range the shared pattern
+    # understands must not be skipped by the wrapper.
+    ck("a time range is read",
+       [t for _, t in _seniors_times(["Every Wednesday 1.00pm - 2.00pm"])],
+       [(13, 0)])
+    ck("an am range is read",
+       [t for _, t in _seniors_times(["Fridays 9.30am - 10.30am"])],
+       [(9, 30)])
+    ck("two ranges on one line are both read",
+       len(list(_seniors_times(["10am-11am and 2pm-3pm"]))), 2)
+
+    # The footer reader has to recognise the year it was written for, or every
+    # card below the footer keeps its marketing copy. sources.yaml records the
+    # matching annual obligation: a stale year leaves each page's footer in the
+    # body text, so the year is load-bearing, not decoration.
+    fr = _seniors_footer_re(2026)
+    ck("a page-number footer is recognised",
+       bool(fr.match("16 | 2026 Seniors Festival")), True)
+    ck("a trailing page number is recognised",
+       bool(fr.match("2026 Seniors Festival | 16")), True)
+    ck("another year's footer is not this year's",
+       bool(fr.match("16 | 2025 Seniors Festival")), False)
+    ck("a body line is not the footer",
+       bool(fr.match("Bring a friend along to this one")), False)
+
+    if failures:
+        print("\n%d failure(s)" % len(failures))
+        sys.exit(1)
+    print("\nwebfetch_seniors: all checks passed")

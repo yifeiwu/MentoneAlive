@@ -1187,7 +1187,134 @@ nothing, which is what D48's closing line already does.
 Not fixed, deliberately. Making the merge a pure function of the live inputs means
 giving up the append-only merge that D6-D9 are built on, which is the change
 section 8 calls questionable and the one this document has been deferring. Worth
+recording because it is easy to lose an afternoon to.
+
 *Owner:* `dedupe.main`, `dedupe.deduplicate`.
+
+### D50. Humanitix is not a usable listing source, but its host pages are already being walked - **Hold**
+
+Asked whether Humanitix could be added as a source of free events in the covered
+area. Answer, after checking rather than reasoning from the CCC booking links:
+**no as a listing, and it is already exploited where it matters.**
+
+`events.humanitix.com` serves one host per event, and has no browse route of any
+kind -- no search form, no filter UI, and zero occurrences of `?date=`, `?q=`,
+`?suburb=`, `?from` or any other filter parameter. The listing lives on a separate
+app at `humanitix.com/{cc}/events/{geo}/{filter}`, where `{geo}` is an
+`au--suburb--postcode` slug and `/free` is a real filter. Both are worth knowing:
+
+- The `/free` listing is a **fixed 4-item carousel**, not a listing. Measured: 4
+  items for Cheltenham, 4 for Melbourne, 4 for Sydney, 5 for Brisbane. There is no
+  pagination and no total count, so the SSR gives a curated few regardless of
+  suburb.
+- `/host/{slug}` is a better surface -- 12 events, `ProfilePage` + `ItemList` JSON-LD
+  -- but is equally capped and the remainder is loaded by JS.
+- Individual event pages are **fully server-rendered** and excellent: JSON-LD
+  `Event` with `startDate`/`endDate`/`PostalAddress`, plus the address and date in
+  `twitter:data1`/`twitter:data2`. That is why `enrich_humanitix` works.
+
+Two data gaps for anyone who revisits this. **Price is absent from an event whose
+date has passed** -- `urls.ticketsUrl` is `""` and `offerCount` is `0`, so cost
+cannot be inferred from `offerCount`; a live free event does state "Free" in prose.
+And **capacity / "places remaining" does not exist** anywhere on the platform's event
+pages (zero matches for any such field), which is what the calendar would most want.
+
+In-area content is also thin, and mostly already covered. Cheltenham Community
+Centre is fully captured: 185 of CCC's 222 rows carry a Humanitix URL and the
+enricher already yields `price_sort: 0.0` / `price_text: FREE` with a real
+`datetime_iso`. Greater Dandenong *does* publish there
+(`events.humanitix.com/write-it-out-creative-writing-workshops`, a free Springvale
+Library workshop) but incidentally -- its primary booking channel is
+`greaterdandenong-events.bookable.net.au`, with calendly and eventbrite also in
+play. And Humanitix is a general marketplace, so the in-area `/free` entries skew
+commercial: bar comedy, a cafe session series, a Westfield kids' craft activity.
+
+The real finding is narrower and better: **each event page leaks 12 sibling events
+from the same host**, server-rendered, and because that fan-out is drawn from one
+host's catalogue regardless of the entry point, a host-graph crawl converges on that
+host's whole catalogue without JS. That capability already exists and already runs
+-- for CCC only. The untaken opportunity is running it opportunistically on any
+Humanitix URL surfacing in rows we already fetch, rather than only the ones CCC's own
+pages supply. Flagged, not built: it is new behaviour on a source that currently
+only enriches, and that is a decision rather than a refactor.
+
+*Owner:* `webfetch_ccc.enrich_humanitix`, and the source list if it is ever added.
+
+### D50a. Two dead branches pinned rather than removed, in the new fetcher suites
+
+Both found while writing the `ccc` and `seniors` self-tests, both left as they are
+because each is arguably deliberate and neither costs anything:
+
+- `webfetch_ccc._ccc_first_time` captures the hour before `noon`/`midday` into group
+  6 and **never reads it**, so `"11 midday"` and `"12 noon"` both publish `12:00`.
+  That is defensible -- midday is noon is 12:00 whatever number precedes it, and
+  trusting a garbled "11 midday" would be worse -- but the captured group reads as
+  load-bearing. Pinned by a test so the next reader is not misled.
+- `webfetch_seniors._seniors_extract_url` ends with `if len(url) <= 12`, which
+  **cannot fire**: `"https://"` is prepended immediately above it and every string
+  the reader matches carries a host after that. It was presumably meant to reject
+  junk shorter than a host. Harmless, so kept.
+
+*Owner:* `webfetch_ccc._ccc_first_time`, `webfetch_seniors._seniors_extract_url`.
+
+### D51. A trailing "noon" was a second event, and fixing the parse exposed that past rows cannot be repaired - **Hold**
+
+Reported as: Mordialloc Men's Shed, whose 9-12 window was published as two events, one
+at 09:00 and one at 12:00. Two independent defects, one behind the other.
+
+**The parse.** `kingston_groups` states the shed's hours in prose: "open on Tuesday,
+Wednesday, and Thursday mornings from 9:00 am to 12:00 noon." `_time_ranges` reads that
+correctly as `09:00-12:00`, but the range pattern stops at the digits, so the span it
+consumed is `9:00 am to 12:00` and the word `noon` sits *just outside* it. `noon` is
+itself a `_TIME_POINT_RE` match and `_to_hhmm("noon")` is `12:00`, so the lone-time
+fallback admitted it as a second time point. Every weekday then carried two slots --
+`09:00-12:00` and `12:00-12:00` -- and every date published twice.
+
+The suppression added is positional and narrow: a bare `noon`/`midday` **immediately**
+after a consumed range whose end equals that word's own value is the range's end
+restated. A standalone "Tuesdays at noon" still yields 12:00, a lone "Every Thursday
+11.30am" is untouched, and two ranges on one line are still two ranges. Pinned by five
+cases in the `recurrence` suite. This is the same family as D50a's dead capture group
+in `ccc`, but there it was inert.
+
+**Why prose was used at all.** The detail page *does* carry an hours table stating
+`09:00 AM-12:00 PM` for Tuesday, Wednesday and Thursday, and `HOURS_RANGE_RE` matches
+it. `_schedule_from_hours` still returns `None` for every OpenCities hours table,
+because the page emits **unclosed `<li>` elements**: BeautifulSoup nests all ten
+weekday rows inside the first, so `.hours-list > li` matches exactly one item --
+Sunday, `Closed` -- which is then skipped. `.hours-list li` matches 10. This is why the
+fetcher fell back to the description, and why the prose bug was reachable at all.
+
+**The repair, and why it needed a decision.** Fixing the parse changed what the text
+yields, but `refresh_inferred`'s withdrawal test is **date-only** (`does any produced
+row carry this row's date?`). The stale 12:00 rows had a date the text still produces,
+so they survived, and `health_check.py` failed the build on exactly them: *2 inferred
+rows whose stored time contradicts the text: Mordialloc Men's Shed (12:00 vs 09:00)*.
+The refresh branch could not repair them either -- `infer_event` expands forward from
+`today`, so a past date never appears in `made`, and the rows fell into the
+`unresolvable` bucket to be kept.
+
+So the module's rule that past rows are `prune_old`'s business at 90 days, and not this
+pass's, now has an exception: an inferred row whose date is outside the expansion window
+**and** whose stored start time contradicts the single start time its own text states is
+**withdrawn**. A past row that is merely stale is history and still ages out; this one
+contradicts its own text, which is the same class of repair as the date check, not a
+shortening of published history. The `len(stated) == 1` guard is what makes it safe: a
+group that genuinely meets twice on a weekday states two times and is left alone.
+
+Measured blast radius on the live store: 6 withdrawals, all Mordialloc Men's Shed
+12:00 rows, and nothing else. Two CCC rows also differed before/after, but CCC *gained*
+18 rows overall (397 to 415) with every series growing -- those were the forward
+expansion window sliding as `today` moved from 4 to 8 October, not withdrawals. Two
+consecutive `dedupe.py` runs then hold at 2374 with nothing left to withdraw.
+
+Separately noted: this store build merged 189 rows from `data/raw_events.json`, which
+was last written 3 October against a store built 4 October, so the live inputs and the
+committed store had drifted before any of this. Not caused here, but worth knowing that
+the committed store was not the fixed point of its own inputs.
+
+*Owner:* `recurrence.weekday_slots`, `recurrence.refresh_inferred`,
+`webfetch_directory._schedule_from_hours`.
 
 ## 7. Things that are not decisions, but look like they were
 

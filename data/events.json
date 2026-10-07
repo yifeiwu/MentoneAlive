@@ -6075,11 +6075,10 @@
    "address": "8 Chesterville Rd, Cheltenham VIC 3192",
    "price_text": "Free",
    "description": "Chatty Cafe at Cheltenham Community Centre. Wednesdays & Thursdays at 10:30am during school term. A welcoming space for conversation and connection.",
-   "source": "https://www.chelt.com.au/social-activities.html",
+   "source": "https://www.chelt.com.au/",
    "source_id": "chatty_cafe",
    "price_sort": 0.0,
    "sources": [
-    "https://www.chelt.com.au/social-activities.html",
     "https://www.chelt.com.au/"
    ],
    "date_inferred": true,
@@ -6331,8 +6330,7 @@
    "source_id": "chatty_cafe",
    "price_sort": 0.0,
    "sources": [
-    "https://www.kingston.vic.gov.au/community/events/community-events/Chatty-Café",
-    "https://chattycafeaustralia.org.au/venue/chelsea-heights-community-centre/"
+    "https://www.kingston.vic.gov.au/community/events/community-events/Chatty-Café"
    ],
    "date_inferred": true,
    "recurrence": "Every Wednesday",
@@ -17195,8 +17193,7 @@
    "source_id": "ccc",
    "price_sort": null,
    "sources": [
-    "https://www.kingston.vic.gov.au/community/events/community-events/Bingo-Bonanza",
-    "https://www.chelt.com.au/social-activities.html"
+    "https://www.kingston.vic.gov.au/community/events/community-events/Bingo-Bonanza"
    ],
    "date_inferred": true,
    "recurrence": "1st Wednesday of every month",
@@ -48808,81 +48805,7 @@
   {
    "name": "Mordialloc Men's Shed",
    "datetime_text": "Every Tuesday, Wednesday and Thursday",
-   "datetime_iso": "2026-10-06T12:00:00",
-   "location": "Mordialloc Men's Shed",
-   "address": "1 McDonald St, Mordialloc 3195",
-   "price_text": "",
-   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
-   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
-   "source_id": "kingston_groups",
-   "source_types": [
-    "Men's sheds"
-   ],
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday, Wednesday and Thursday",
-   "series_id": "8366bb359e0f",
-   "types": [
-    "Community Group",
-    "Food & Drink",
-    "Games & Cards",
-    "Social & Community",
-    "Sport & Outdoors"
-   ],
-   "suburb": "Mordialloc",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mordialloc Men's Shed",
-   "datetime_text": "Every Tuesday, Wednesday and Thursday",
    "datetime_iso": "2026-10-07T09:00:00",
-   "location": "Mordialloc Men's Shed",
-   "address": "1 McDonald St, Mordialloc 3195",
-   "price_text": "",
-   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
-   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
-   "source_id": "kingston_groups",
-   "source_types": [
-    "Men's sheds"
-   ],
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday, Wednesday and Thursday",
-   "series_id": "8366bb359e0f",
-   "types": [
-    "Community Group",
-    "Food & Drink",
-    "Games & Cards",
-    "Social & Community",
-    "Sport & Outdoors"
-   ],
-   "suburb": "Mordialloc",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mordialloc Men's Shed",
-   "datetime_text": "Every Tuesday, Wednesday and Thursday",
-   "datetime_iso": "2026-10-07T12:00:00",
    "location": "Mordialloc Men's Shed",
    "address": "1 McDonald St, Mordialloc 3195",
    "price_text": "",
@@ -48956,43 +48879,6 @@
   {
    "name": "Mordialloc Men's Shed",
    "datetime_text": "Every Tuesday, Wednesday and Thursday",
-   "datetime_iso": "2026-10-08T12:00:00",
-   "location": "Mordialloc Men's Shed",
-   "address": "1 McDonald St, Mordialloc 3195",
-   "price_text": "",
-   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
-   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
-   "source_id": "kingston_groups",
-   "source_types": [
-    "Men's sheds"
-   ],
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday, Wednesday and Thursday",
-   "series_id": "8366bb359e0f",
-   "types": [
-    "Community Group",
-    "Food & Drink",
-    "Games & Cards",
-    "Social & Community",
-    "Sport & Outdoors"
-   ],
-   "suburb": "Mordialloc",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mordialloc Men's Shed",
-   "datetime_text": "Every Tuesday, Wednesday and Thursday",
    "datetime_iso": "2026-10-13T09:00:00",
    "location": "Mordialloc Men's Shed",
    "address": "1 McDonald St, Mordialloc 3195",
@@ -49030,81 +48916,7 @@
   {
    "name": "Mordialloc Men's Shed",
    "datetime_text": "Every Tuesday, Wednesday and Thursday",
-   "datetime_iso": "2026-10-13T12:00:00",
-   "location": "Mordialloc Men's Shed",
-   "address": "1 McDonald St, Mordialloc 3195",
-   "price_text": "",
-   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
-   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
-   "source_id": "kingston_groups",
-   "source_types": [
-    "Men's sheds"
-   ],
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday, Wednesday and Thursday",
-   "series_id": "8366bb359e0f",
-   "types": [
-    "Community Group",
-    "Food & Drink",
-    "Games & Cards",
-    "Social & Community",
-    "Sport & Outdoors"
-   ],
-   "suburb": "Mordialloc",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mordialloc Men's Shed",
-   "datetime_text": "Every Tuesday, Wednesday and Thursday",
    "datetime_iso": "2026-10-14T09:00:00",
-   "location": "Mordialloc Men's Shed",
-   "address": "1 McDonald St, Mordialloc 3195",
-   "price_text": "",
-   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
-   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
-   "source_id": "kingston_groups",
-   "source_types": [
-    "Men's sheds"
-   ],
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday, Wednesday and Thursday",
-   "series_id": "8366bb359e0f",
-   "types": [
-    "Community Group",
-    "Food & Drink",
-    "Games & Cards",
-    "Social & Community",
-    "Sport & Outdoors"
-   ],
-   "suburb": "Mordialloc",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
-   "name": "Mordialloc Men's Shed",
-   "datetime_text": "Every Tuesday, Wednesday and Thursday",
-   "datetime_iso": "2026-10-14T12:00:00",
    "location": "Mordialloc Men's Shed",
    "address": "1 McDonald St, Mordialloc 3195",
    "price_text": "",
@@ -56198,43 +56010,6 @@
    "hidden_by_default": false
   },
   {
-   "name": "Mordialloc Men's Shed",
-   "datetime_text": "Every Tuesday, Wednesday and Thursday",
-   "datetime_iso": "2026-10-15T12:00:00",
-   "location": "Mordialloc Men's Shed",
-   "address": "1 McDonald St, Mordialloc 3195",
-   "price_text": "",
-   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
-   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
-   "source_id": "kingston_groups",
-   "source_types": [
-    "Men's sheds"
-   ],
-   "price_sort": null,
-   "sources": [
-    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
-   ],
-   "date_inferred": true,
-   "recurrence": "Every Tuesday, Wednesday and Thursday",
-   "series_id": "8366bb359e0f",
-   "types": [
-    "Community Group",
-    "Food & Drink",
-    "Games & Cards",
-    "Social & Community",
-    "Sport & Outdoors"
-   ],
-   "suburb": "Mordialloc",
-   "is_commercial": false,
-   "commercial_reason": "",
-   "status": "",
-   "status_detail": "",
-   "status_label": "",
-   "is_service": false,
-   "service_reason": "",
-   "hidden_by_default": false
-  },
-  {
    "name": "Parkdale Tennis Club",
    "datetime_text": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
    "datetime_iso": "2026-10-13T15:30:00",
@@ -56308,11 +56083,10 @@
    "address": "8 Chesterville Road, Cheltenham VIC 3192",
    "price_text": "$12 per session",
    "description": "Term 4 (10 weeks). Wednesdays, 12:00pm – 12:45pm. Instructor: Naki",
-   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source": "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival",
    "source_id": "ccc",
    "price_sort": 12.0,
    "sources": [
-    "https://www.chelt.com.au/exercise-dance-yoga.html",
     "https://www.kingston.vic.gov.au/community/events/upcoming-events/seniors-festival"
    ],
    "date_inferred": true,
@@ -68191,13 +67965,567 @@
    "hidden_by_default": false
   },
   {
-   "name": "STEADYmoves",
-   "datetime_text": "Every Tuesday and Friday",
-   "datetime_iso": "2026-10-06T11:30:00",
+   "name": "Sustainability Sessions - Mend It",
+   "datetime_text": "Every Sunday",
+   "datetime_iso": "2026-12-27T13:00:00",
+   "location": "Keysborough Community Hub",
+   "address": "Keysborough Community Hub, 10 Villiers Road, Keysborough",
+   "price_text": "",
+   "description": "11 Oct Sustainability Sessions - Mend It Sunday 11 October, 1:00pm Seminars and Workshops",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/sustainability-sessions-mend-it",
+   "source_id": "greater_dandenong",
+   "suburb": "Keysborough",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/sustainability-sessions-mend-it"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Sunday",
+   "series_id": "5816f15e0d46",
+   "types": [
+    "Info Session"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Springvale Ladies Event",
+   "datetime_text": "Every Sunday",
+   "datetime_iso": "2026-12-27T18:30:00",
+   "location": "Highways Springvale",
+   "address": "Highways Springvale, Corner Princes Hwy and Corrigan Road, Springvale",
+   "price_text": "",
+   "description": "11 Oct Springvale Ladies Event Sunday 11 October, 6:30pm Community Events",
+   "source": "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/springvale-ladies-event",
+   "source_id": "greater_dandenong",
+   "suburb": "Springvale",
+   "price_sort": null,
+   "sources": [
+    "https://www.greaterdandenong.vic.gov.au/greater-dandenong-council/events/springvale-ladies-event"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Sunday",
+   "series_id": "58da86b9224c",
+   "types": [
+    "Other"
+   ],
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Cheltenham Community Centre",
+   "datetime_text": "Every Wednesday and Thursday",
+   "datetime_iso": "2026-11-18T10:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Rd, Cheltenham VIC 3192",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Cheltenham Community Centre. Wednesdays & Thursdays at 10:30am. A welcoming space for conversation and connection.",
+   "source": "https://www.chelt.com.au/social-activities.html",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://www.chelt.com.au/social-activities.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday and Thursday",
+   "series_id": "6a8d300e3d11",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Chelsea Heights Community Centre",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-30T10:00:00",
+   "location": "Chelsea Heights Community Centre",
+   "address": "160 Thames Promenade, Chelsea Heights VIC 3196",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Chelsea Heights Community Centre. Wednesday 10am-12pm. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/chelsea-heights-community-centre/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/chelsea-heights-community-centre/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "f2810c53dbf0",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Chelsea Heights",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Matt's Place Chelsea",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T10:45:00",
+   "location": "Matt's Place Chelsea",
+   "address": "12-14 Thames Promenade, Chelsea VIC 3196",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Matt's Place Chelsea. Tuesday: 10.45am - 12.45pm. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/matts-place-chelsea/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/matts-place-chelsea/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "23794adadba7",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Chelsea",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Dingley Village Neighbourhood Centre",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-30T10:00:00",
+   "location": "Dingley Village Neighbourhood Centre",
+   "address": "31B Marcus Rd, Dingley Village VIC 3172",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Dingley Village Neighbourhood Centre. Wednesday 10am – 12noon. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/dingley-village-neighbourhood-centre/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/dingley-village-neighbourhood-centre/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "44850b2eb33f",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Dingley Village",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Eclair Boulangerie",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-12-28T10:30:00",
+   "location": "Eclair Boulangerie",
+   "address": "275 Hampton St, Hampton VIC 3188",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Eclair Boulangerie. Monday 10:30am to 11:30am. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/eclair-boulangerie/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/eclair-boulangerie/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "9188e364ec6f",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Hampton",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Bay Road Nursery Cafe",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T11:00:00",
+   "location": "Bay Road Nursery Cafe",
+   "address": "112-114 Bay Rd, Sandringham VIC 3191",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Bay Road Nursery Cafe. Tuesday 11am-1pm. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/bay-road-nursery-cafe/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/bay-road-nursery-cafe/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "b9ab80e65118",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Sandringham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Highett Neighbourhood Community House",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T11:15:00",
+   "location": "Highett Neighbourhood Community House",
+   "address": "2 Livingston St, Highett VIC 3190",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Highett Neighbourhood Community House. Tuesday 11:15am - 12:15pm. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/highett-neighbourhood-community-house/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/highett-neighbourhood-community-house/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "9903baed77ad",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Highett",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Brighton Library",
+   "datetime_text": "Every second Monday",
+   "datetime_iso": "2027-03-22T10:30:00",
+   "location": "Brighton Library",
+   "address": "14 Wilson St, Brighton VIC 3186",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Brighton Library. Monday 10.30am (every second week). A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/brighton-library/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/brighton-library/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every second Monday",
+   "series_id": "334ecc8b9e07",
+   "types": [
+    "Books & Reading",
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Brighton",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Sandringham Library",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T11:30:00",
+   "location": "Sandringham Library",
+   "address": "2 Waltham St, Sandringham VIC 3191",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Sandringham Library. Every Tuesday 11.30am. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/chatty-cafe-at-sandringham-library/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/chatty-cafe-at-sandringham-library/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "726383b46477",
+   "types": [
+    "Books & Reading",
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Sandringham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Saska Cafe",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-12-28T09:00:00",
+   "location": "Saska Cafe",
+   "address": "359B Balcombe Rd, Beaumaris VIC 3193",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Saska Cafe. Monday mornings from 9:00am to 11:00am. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/saska-cafe/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/saska-cafe/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "ee2692a3d22a",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Beaumaris",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - Sundowner Community Centre",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-12-28T11:00:00",
+   "location": "Sundowner Community Centre",
+   "address": "24 Sundowner Ave, Clarinda VIC 3169",
+   "price_text": "Free",
+   "description": "Chatty Cafe at Sundowner Community Centre. Monday 11am - 1pm. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/sundowner-community-centre-2/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/sundowner-community-centre-2/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "29c3c6617850",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Clarinda",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Chatty Cafe - The Timbuktu Cafe",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T11:00:00",
+   "location": "The Timbuktu Cafe",
+   "address": "36 Wilson St, Brighton VIC 3186",
+   "price_text": "Free",
+   "description": "Chatty Cafe at The Timbuktu Cafe. Tuesday 11am-12:30pm. A welcoming space for conversation and connection.",
+   "source": "https://chattycafeaustralia.org.au/venue/the-timbuktu-cafe/",
+   "source_id": "chatty_cafe",
+   "price_sort": 0.0,
+   "sources": [
+    "https://chattycafeaustralia.org.au/venue/the-timbuktu-cafe/"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "e7deb52399ec",
+   "types": [
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Brighton",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mahjong",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-30T14:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Free",
+   "description": "Enjoy a friendly game of Mahjong in a welcoming and social environment. Whether you're an experienced player or looking to learn, Mahjong is a great way to keep your mind active, meet new people and enjoy a fun afternoon. Backgammon is also available for anyone who would like to play.. Wednesdays. 2:00pm – 3:30pm. Instructor: Self-guided Bookings: Essential - call us on 9583 0095 to book.",
+   "source": "https://www.chelt.com.au/free-activities.html",
+   "source_id": "ccc",
+   "price_sort": 0.0,
+   "sources": [
+    "https://www.chelt.com.au/free-activities.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "9c1b25253d79",
+   "types": [
+    "Games & Cards"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Self-Guided Art Group",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T13:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Free",
+   "description": "Bring your own art project and enjoy creating alongside others in a relaxed and welcoming space. Whether you enjoy painting, drawing, colouring, sketching or another creative hobby, this self-guided group is a wonderful opportunity to work on your own project while connecting with fellow art enthusi. Tuesdays. 1:00pm – 3:00pm. Instructor: Self-guided Bookings: Essential - call us on 9583 0095 to b",
+   "source": "https://www.chelt.com.au/free-activities.html",
+   "source_id": "ccc",
+   "price_sort": 0.0,
+   "sources": [
+    "https://www.chelt.com.au/free-activities.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "cbab5860f4c3",
+   "types": [
+    "Art & Craft"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Newcombe",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-12-28T11:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "$8 per session TBC",
+   "description": "Term 4 - To be confirmed. Mondays, 11am - 12pm. Instructor: Gaye",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": 8.0,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "25c335754ed5",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Love to Live",
+   "datetime_text": "Every Wednesday (10 weeks)",
+   "datetime_iso": "2026-12-16T12:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "$12 per session",
+   "description": "Term 4 (10 weeks). Wednesdays, 12:00pm – 12:45pm. Instructor: Naki",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": 12.0,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday (10 weeks)",
+   "series_id": "62e88ad897e5",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYstrength",
+   "datetime_text": "Every Tuesday and Thursday",
+   "datetime_iso": "2026-11-17T10:00:00",
    "location": "Cheltenham Community Centre",
    "address": "8 Chesterville Road, Cheltenham VIC 3192",
    "price_text": "Physiotherapy fees apply",
-   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
+   "description": "Tuesdays, 10:00am - 11:15am | Thursdays, 11:00am - 12:15pm. Instructor: Annette",
    "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
    "source_id": "ccc",
    "price_sort": null,
@@ -68205,12 +68533,1508 @@
     "https://www.chelt.com.au/exercise-dance-yoga.html"
    ],
    "date_inferred": true,
-   "recurrence": "Every Tuesday and Friday",
-   "series_id": "b9eb59ff6541",
+   "recurrence": "Every Tuesday and Thursday",
+   "series_id": "63391f8acbb7",
    "types": [
     "Exercise & Fitness"
    ],
    "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYtone",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T11:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "$18 per session if prepaid $25 Casual",
+   "description": "Tuesdays, 11:30am - 12:15pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": 18.0,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "067668ee2750",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "STEADYrehab",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T12:15:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Physiotherapy fees apply",
+   "description": "Tuesdays, 12:15pm - 1:15pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "6e52834390dc",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Fit and Feisty",
+   "datetime_text": "Every Monday and Friday",
+   "datetime_iso": "2026-11-02T10:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "$5",
+   "description": "Mondays 10:30am - 11:30am | Fridays 1pm - 2pm | Fridays 2pm - 3pm",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": 5.0,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Friday",
+   "series_id": "29c60b9c7a20",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Grief Group",
+   "datetime_text": "First Tuesday of every month",
+   "datetime_iso": "2027-10-05T13:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Next session: 6 Oct First Tuesday of every month: 1pm - 2pm ===================================================== FIND OUT MORE BUTTON ===================================================== Find Out More ===================================================== GRIEF GROUP POPUP =========================. First Tuesday of every month. 1pm - 2pm",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "First Tuesday of every month",
+   "series_id": "68b209240a58",
+   "types": [
+    "Social & Community"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Bingo Bonanza",
+   "datetime_text": "1st Wednesday of every month",
+   "datetime_iso": "2027-10-06T13:15:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Get ready for an afternoon of fun, laughter, and fantastic company at our brand-new Bingo Bonanza! Join us on the 1st Wednesday of every month at 1:15pm in the CCC foyer for an exciting game where every number brings a thrill. For just a gold coin donation, you’ll enjoy a lively atmosphere, plenty o. Wednesday",
+   "source": "https://www.chelt.com.au/social-activities.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/social-activities.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "1st Wednesday of every month",
+   "series_id": "7ff46eae0e50",
+   "types": [
+    "Games & Cards"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
+   "datetime_text": "Every Monday and Thursday",
+   "datetime_iso": "2026-10-26T12:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Thursday",
+   "series_id": "1fbb3459f96e",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert I in EAL 22638VIC – Certificate I in EAL (Access)",
+   "datetime_text": "Every Monday and Thursday",
+   "datetime_iso": "2026-11-16T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays and Thursdays 9am - 12pm A course for students starting to learn English or who have had minimal exposure to English . Students will learn reading, writing, speaking and listening skills for personal and social needs. More information. Mondays. 9am - 12pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Thursday",
+   "series_id": "cdba6306fc79",
+   "types": [
+    "Books & Reading"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-11-18T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "9e3b44ca5a9c",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert II in EAL 22639VIC – Certificate II in EAL (Access)",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-11-18T12:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Wednesdays 9am - 12pm and 12:30pm - 3:30pm This course will help students focus on the development of their English language, speaking, listening and reading skills to satisfy their own simple everyday transactional and social needs. More information. Wednesdays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "9e3b44ca5a9c",
+   "types": [
+    "Books & Reading",
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-16T12:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "d653b0c3aa9f",
+   "types": [
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Takeaway Meals",
+   "datetime_text": "Every Tuesday, Wednesday, Thursday and Friday",
+   "datetime_iso": "2026-10-27T10:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Take home delicious, nutritious meals for one. Available Tuesday to Friday, 10am–2pm.. Tuesday to Friday. 10am–2pm",
+   "source": "https://www.chelt.com.au/soul-cafe.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/soul-cafe.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday, Thursday and Friday",
+   "series_id": "41dbd34dd28e",
+   "types": [
+    "Food & Drink"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": true,
+   "service_reason": "service:takeaway meals",
+   "hidden_by_default": true
+  },
+  {
+   "name": "Takeaway Meals",
+   "datetime_text": "Every Tuesday, Wednesday, Thursday and Friday",
+   "datetime_iso": "2026-10-28T10:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Take home delicious, nutritious meals for one. Available Tuesday to Friday, 10am–2pm.. Tuesday to Friday. 10am–2pm",
+   "source": "https://www.chelt.com.au/soul-cafe.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/soul-cafe.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday, Thursday and Friday",
+   "series_id": "41dbd34dd28e",
+   "types": [
+    "Food & Drink"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": true,
+   "service_reason": "service:takeaway meals",
+   "hidden_by_default": true
+  },
+  {
+   "name": "Aspendale Presbyterian Church",
+   "datetime_text": "Every Sunday",
+   "datetime_iso": "2026-11-15T10:00:00",
+   "location": "Aspendale Presbyterian Church",
+   "address": "63-64 Station Street, Aspendale 3195",
+   "price_text": "",
+   "description": "Aspendale Presbyterian Church is proud to be a local church. We love Jesus, love our community, love the Bible and love visitors. Our Sunday services are at 10am. We are a community of Christians who meet in Aspendale each week. We meet to hear God's truth from the Bible, encourage and support each other, and to practically live out the difference Jesus makes. As a Presbyterian church the church is lead by local elders. The Presbyterian Church originated in Scotland but welcomes all people today. Our Activities Each week we have a Sunday service at 10am with Kids Sunday School where all are welcome.  We also run bible studies, Kids clubs, playgroups, youth group, community events, prayer meetings and community meals.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Aspendale-Presbyterian-Church",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Faith"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Aspendale-Presbyterian-Church"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Sunday",
+   "series_id": "907ee082a718",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Aspendale",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Austin 7 Club Inc Reg No A0003290N",
+   "datetime_text": "1st Wednesday of every month",
+   "datetime_iso": "2027-10-06T12:00:00",
+   "location": "Austin 7 Club Inc",
+   "address": "Unit 8, 19-23 Kylie Place, Cheltenham 3192",
+   "price_text": "",
+   "description": "We are a one make Vintage Car club and provide sporting and social events, displays and runs for our members. We support the restoration and have activities for owners and supporters of all models of Austin 7 cars that were built from 1923 to 1938 by obtaining parts and technical help to keep the marque alive. Based in Cheltenham. We have 400+ members of all ages. It has always been a family club. Ladies and children are very welcome. The majority of members are in Victoria and many others from interstate with a few international members. We support all models of Austin 7's and encourage the younger members in learning the traditional skills in maintaining these older motor vehicles and their learning their history. The club runs rallies around Victoria and also join in with interstate clubs for other runs. The club has Full, Family and also Associate membership's if you don't own an Austin 7. All welcome. Our Monthly General Meeting is on the 1st Wednesday of the month except January. Meetings at 8pm The rooms open from 7:30pm for nibble & natter. The Saturday following the MGM at Noon-2:30 we open up Spare Parts & nibble & natter until 2:30 pm. And on the 3rd Wednesday 7:30-9pm for Spare parts, social chat with tea and coffee. See website www.austin7club.org.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Austin-7-Club-Inc-Reg-No-A0003290N",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Austin-7-Club-Inc-Reg-No-A0003290N"
+   ],
+   "date_inferred": true,
+   "recurrence": "1st Wednesday of every month",
+   "series_id": "f80fc3bac8f2",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Food & Drink",
+    "Info Session",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Bayside Bicycle Touring Club Inc",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-30T20:00:00",
+   "location": "Cheltenham Hall",
+   "address": "1218 Nepean Hwy Service Rd, Cheltenham 3192",
+   "price_text": "",
+   "description": "We are a recreational cycling club based in Mordialloc, but membership is open to people from across Melbourne. Our rides are organised and conducted with most rides ideally suited to the novice and average cyclist with the emphasis of supporting and encouraging new members. We are not a competitive club and we welcome all riders. Our rides always have one thing in common: people enjoying cycling. Come and join us for healthy outdoors exercise with the companionship and security of a group. Meet new and interesting people with a common interest in cycling. Our rides program is compiled on a rolling three-month basis so there are always three months of planned rides to look forward to. The types of rides that members participate in include: Other activities that the BBTC is involved with are: The club rides program is updated for three months ahead and is available to members via snail mail, our Google Docs location, email or meeting nights. Members receive: Meetings are at 8 pm on the last Wednesday of each month except December. 8 pm at Cheltenham Hall.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Bayside-Bicycle-Touring-Club-Inc",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Bayside-Bicycle-Touring-Club-Inc"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "8b8c4f13e112",
+   "types": [
+    "Community Group",
+    "Exercise & Fitness",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Heatherton Dingley Uniting Church",
+   "datetime_text": "Every Wednesday, Thursday, Saturday and Sunday",
+   "datetime_iso": "2026-10-21T10:00:00",
+   "location": "184 Old Dandenong Road",
+   "address": "184 Old Dandenong Road, Heatherton 3202",
+   "price_text": "",
+   "description": "We seek to connect people to God and each other. Come join us on Sundays at 10am for our traditional church service, which is also live streamed on YouTube. Our Christmas Carols evening will be on Sunday 22 Dec 2024 at 7.30pm and our Christmas Day service will be on Wednesday 25 Dec at 10am. Unleash the Music group is on the 2nd and 4th Thursday nights of each month at 7.30pm. It's a fun musical group for all types of people to play or sing popular music from the past. Bark and Chat Morning Tea for dog owners, dog lovers and their dogs is on the 3rd Saturday at 10am in Jan, Mar, May, July, Sept, with an annual Dog Church service on the 3rd Sunday of Nov at 10am. More information about our church and activities can be found on our website at: https://heathertondingley.ucavictas.org.au/",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Heatherton-Dingley-Uniting-Church",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Faith"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Heatherton-Dingley-Uniting-Church"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday, Thursday, Saturday and Sunday",
+   "series_id": "8116b1a0b8a3",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Music & Performance",
+    "Social & Community"
+   ],
+   "suburb": "Heatherton",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Heatherton Dingley Uniting Church",
+   "datetime_text": "Every Wednesday, Thursday, Saturday and Sunday",
+   "datetime_iso": "2026-10-22T19:30:00",
+   "location": "184 Old Dandenong Road",
+   "address": "184 Old Dandenong Road, Heatherton 3202",
+   "price_text": "",
+   "description": "We seek to connect people to God and each other. Come join us on Sundays at 10am for our traditional church service, which is also live streamed on YouTube. Our Christmas Carols evening will be on Sunday 22 Dec 2024 at 7.30pm and our Christmas Day service will be on Wednesday 25 Dec at 10am. Unleash the Music group is on the 2nd and 4th Thursday nights of each month at 7.30pm. It's a fun musical group for all types of people to play or sing popular music from the past. Bark and Chat Morning Tea for dog owners, dog lovers and their dogs is on the 3rd Saturday at 10am in Jan, Mar, May, July, Sept, with an annual Dog Church service on the 3rd Sunday of Nov at 10am. More information about our church and activities can be found on our website at: https://heathertondingley.ucavictas.org.au/",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Heatherton-Dingley-Uniting-Church",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Faith"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Heatherton-Dingley-Uniting-Church"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday, Thursday, Saturday and Sunday",
+   "series_id": "8116b1a0b8a3",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Music & Performance",
+    "Social & Community"
+   ],
+   "suburb": "Heatherton",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Heatherton Dingley Uniting Church",
+   "datetime_text": "Every Wednesday, Thursday, Saturday and Sunday",
+   "datetime_iso": "2026-10-24T10:00:00",
+   "location": "184 Old Dandenong Road",
+   "address": "184 Old Dandenong Road, Heatherton 3202",
+   "price_text": "",
+   "description": "We seek to connect people to God and each other. Come join us on Sundays at 10am for our traditional church service, which is also live streamed on YouTube. Our Christmas Carols evening will be on Sunday 22 Dec 2024 at 7.30pm and our Christmas Day service will be on Wednesday 25 Dec at 10am. Unleash the Music group is on the 2nd and 4th Thursday nights of each month at 7.30pm. It's a fun musical group for all types of people to play or sing popular music from the past. Bark and Chat Morning Tea for dog owners, dog lovers and their dogs is on the 3rd Saturday at 10am in Jan, Mar, May, July, Sept, with an annual Dog Church service on the 3rd Sunday of Nov at 10am. More information about our church and activities can be found on our website at: https://heathertondingley.ucavictas.org.au/",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Heatherton-Dingley-Uniting-Church",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Faith"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Heatherton-Dingley-Uniting-Church"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday, Thursday, Saturday and Sunday",
+   "series_id": "8116b1a0b8a3",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Music & Performance",
+    "Social & Community"
+   ],
+   "suburb": "Heatherton",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Kolonga YWCA Golf Club",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-30T08:00:00",
+   "location": "Edithvale Public Golf Course",
+   "address": "112 Fraser Ave, Edithvale 3196",
+   "price_text": "",
+   "description": "Kolonga YWCA Golf Club is for lady golfers of all ages and levels of golf. We welcome players to join us in games of golf and social activities. We play at Edithvale Public Golf Course on Wednesday mornings at 8am.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Kolonga-YWCA-Golf-Club",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Kolonga-YWCA-Golf-Club"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "8beb84a36b08",
+   "types": [
+    "Community Group",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Edithvale",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Kondia Limnos Senior Citizens Club Inc.",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-30T13:00:00",
+   "location": "Moorleigh Community Village",
+   "address": "90-92 Bignell Rd, Bentleigh East 3165",
+   "price_text": "",
+   "description": "A fabulous Greek club with lunch every Wednesday at Moorleigh Village at 1:00 pm for $5. We also have various events which we will advertise here. Come and join us for a lovely time. 90-92 Bignell Rd, Bentleigh East VIC 3165. We also have picnics and outings which are announced during our lunch days.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Kondia-Limnos-Senior-Citizens-Club-Inc.",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Multicultural",
+    "Seniors"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Kondia-Limnos-Senior-Citizens-Club-Inc."
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "bc39bc057522",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Social & Community"
+   ],
+   "suburb": "Bentleigh East",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc & District Historical Society",
+   "datetime_text": "Every Sunday",
+   "datetime_iso": "2026-12-27T11:00:00",
+   "location": "Old Bakery Museum",
+   "address": "9 Old Bakery Lane, Mentone, Mentone 3194",
+   "price_text": "",
+   "description": "For 60 years our Society has collected, preserved and displayed thousands of important items of local history, ie: relevant to Mordialloc, Parkdale and Mentone. We operate Kingston's only historical museum which is located behind the Mentone shops and is open to the public on Sundays from 11am - 3pm.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-District-Historical-Society",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Arts and culture"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-District-Historical-Society"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Sunday",
+   "series_id": "214419628e05",
+   "types": [
+    "Art & Craft",
+    "Community Group",
+    "Info Session",
+    "Market & Exhibition",
+    "Music & Performance"
+   ],
+   "suburb": "Mentone",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc Men's Shed",
+   "datetime_text": "Every Tuesday, Wednesday and Thursday",
+   "datetime_iso": "2026-10-20T09:00:00",
+   "location": "Mordialloc Men's Shed",
+   "address": "1 McDonald St, Mordialloc 3195",
+   "price_text": "",
+   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Men's sheds"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday and Thursday",
+   "series_id": "8366bb359e0f",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc Men's Shed",
+   "datetime_text": "Every Tuesday, Wednesday and Thursday",
+   "datetime_iso": "2026-10-21T09:00:00",
+   "location": "Mordialloc Men's Shed",
+   "address": "1 McDonald St, Mordialloc 3195",
+   "price_text": "",
+   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Men's sheds"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday and Thursday",
+   "series_id": "8366bb359e0f",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc Men's Shed",
+   "datetime_text": "Every Tuesday, Wednesday and Thursday",
+   "datetime_iso": "2026-10-22T09:00:00",
+   "location": "Mordialloc Men's Shed",
+   "address": "1 McDonald St, Mordialloc 3195",
+   "price_text": "",
+   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Men's sheds"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday and Thursday",
+   "series_id": "8366bb359e0f",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc Men's Shed",
+   "datetime_text": "Every Tuesday, Wednesday and Thursday",
+   "datetime_iso": "2026-10-27T09:00:00",
+   "location": "Mordialloc Men's Shed",
+   "address": "1 McDonald St, Mordialloc 3195",
+   "price_text": "",
+   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Men's sheds"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday and Thursday",
+   "series_id": "8366bb359e0f",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc Men's Shed",
+   "datetime_text": "Every Tuesday, Wednesday and Thursday",
+   "datetime_iso": "2026-10-28T09:00:00",
+   "location": "Mordialloc Men's Shed",
+   "address": "1 McDonald St, Mordialloc 3195",
+   "price_text": "",
+   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Men's sheds"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday and Thursday",
+   "series_id": "8366bb359e0f",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc Men's Shed",
+   "datetime_text": "Every Tuesday, Wednesday and Thursday",
+   "datetime_iso": "2026-10-29T09:00:00",
+   "location": "Mordialloc Men's Shed",
+   "address": "1 McDonald St, Mordialloc 3195",
+   "price_text": "",
+   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Men's sheds"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday and Thursday",
+   "series_id": "8366bb359e0f",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc Men's Shed",
+   "datetime_text": "Every Tuesday, Wednesday and Thursday",
+   "datetime_iso": "2026-11-03T09:00:00",
+   "location": "Mordialloc Men's Shed",
+   "address": "1 McDonald St, Mordialloc 3195",
+   "price_text": "",
+   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Men's sheds"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday and Thursday",
+   "series_id": "8366bb359e0f",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Mordialloc Men's Shed",
+   "datetime_text": "Every Tuesday, Wednesday and Thursday",
+   "datetime_iso": "2026-11-04T09:00:00",
+   "location": "Mordialloc Men's Shed",
+   "address": "1 McDonald St, Mordialloc 3195",
+   "price_text": "",
+   "description": "Mordialloc Men's Shed is a friendly and welcoming gathering place open to all men regardless of interests, age or background.  New members always welcome! We are a small, social shed.  Come along and make new friends, engage in conversation, enjoy good coffee and a biscuit, play pool or cards, venture into the workshop to work on your own or community projects, partake in occasional excursions. We are located at 1 McDonald Street, Mordialloc , right next the railway line on the Nepean Hwy side, just 200 metres from Mordialloc Station. We are open on Tuesday, Wednesday, and Thursday mornings from 9:00 am to 12:00 noon. You are most welcome to come and visit at any time to see if we are what you are looking for or contact us on 0421 151 284.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Men's sheds"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Mordialloc-Men39s-Shed"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday, Wednesday and Thursday",
+   "series_id": "8366bb359e0f",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mordialloc",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Parkdale Tennis Club",
+   "datetime_text": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "datetime_iso": "2026-10-16T15:30:00",
+   "location": "Parkdale Tennis Club",
+   "address": "Cnr Imes and Chandler Streets, Parkdale 3195",
+   "price_text": "",
+   "description": "Parkdale Tennis Club has courts available to hire for Parkdale Tennis Club members and non members. Social tennis: Wednesday night, Thursday & Friday morning and Sunday afternoon for members and non members. Inhouse competition: Tuesday and Thursday nights for members and non members. Interclub competition: Saturday & Sunday morning (juniors) and Saturday afternoon (adults) members only. Coaching: Monday to Friday from 3.30pm for children and adults. Other times by appointment.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "series_id": "d2d8c3cb46f2",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Parkdale",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Parkdale Tennis Club",
+   "datetime_text": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "datetime_iso": "2026-10-17T15:30:00",
+   "location": "Parkdale Tennis Club",
+   "address": "Cnr Imes and Chandler Streets, Parkdale 3195",
+   "price_text": "",
+   "description": "Parkdale Tennis Club has courts available to hire for Parkdale Tennis Club members and non members. Social tennis: Wednesday night, Thursday & Friday morning and Sunday afternoon for members and non members. Inhouse competition: Tuesday and Thursday nights for members and non members. Interclub competition: Saturday & Sunday morning (juniors) and Saturday afternoon (adults) members only. Coaching: Monday to Friday from 3.30pm for children and adults. Other times by appointment.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "series_id": "d2d8c3cb46f2",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Parkdale",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Parkdale Tennis Club",
+   "datetime_text": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "datetime_iso": "2026-10-18T15:30:00",
+   "location": "Parkdale Tennis Club",
+   "address": "Cnr Imes and Chandler Streets, Parkdale 3195",
+   "price_text": "",
+   "description": "Parkdale Tennis Club has courts available to hire for Parkdale Tennis Club members and non members. Social tennis: Wednesday night, Thursday & Friday morning and Sunday afternoon for members and non members. Inhouse competition: Tuesday and Thursday nights for members and non members. Interclub competition: Saturday & Sunday morning (juniors) and Saturday afternoon (adults) members only. Coaching: Monday to Friday from 3.30pm for children and adults. Other times by appointment.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "series_id": "d2d8c3cb46f2",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Parkdale",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Parkdale Tennis Club",
+   "datetime_text": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "datetime_iso": "2026-10-19T15:30:00",
+   "location": "Parkdale Tennis Club",
+   "address": "Cnr Imes and Chandler Streets, Parkdale 3195",
+   "price_text": "",
+   "description": "Parkdale Tennis Club has courts available to hire for Parkdale Tennis Club members and non members. Social tennis: Wednesday night, Thursday & Friday morning and Sunday afternoon for members and non members. Inhouse competition: Tuesday and Thursday nights for members and non members. Interclub competition: Saturday & Sunday morning (juniors) and Saturday afternoon (adults) members only. Coaching: Monday to Friday from 3.30pm for children and adults. Other times by appointment.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Parkdale-Tennis-Club"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday",
+   "series_id": "d2d8c3cb46f2",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Parkdale",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Probus Club of Dingley Central",
+   "datetime_text": "First Monday of every month",
+   "datetime_iso": "2027-10-04T10:00:00",
+   "location": "Salvation Army Kingston Gardens Community Church",
+   "address": "12‑16 Garden Boulevard, Dingley Village 3195",
+   "price_text": "",
+   "description": "If you are retired, whether you are male or female, you are invited to come along as a visitor to the Probus Club of Dingley Central on the first Monday of the month at 10 a.m. to see why this Probus Club is so popular. You will be entertained by guest speakers and listen to shared stories. You can also join a coffee/chat group, visit local cafés or go for lunch with like-minded people. You can join the craft group, connect with passionate card players or display your photographic skills. Trips and outings are also very popular. Probus is non-political, non-sectarian and non-profit. The major difference between Probus and many other community clubs is that Probus focuses on friendship, not fundraising. We aim to enrich members’ lives through social connection, engaging activities and shared experiences.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Probus-Club-of-Dingley-Central",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Probus"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Probus-Club-of-Dingley-Central"
+   ],
+   "date_inferred": true,
+   "recurrence": "First Monday of every month",
+   "series_id": "e75f1d41f86f",
+   "types": [
+    "Art & Craft",
+    "Community Group",
+    "Food & Drink",
+    "Games & Cards",
+    "Social & Community"
+   ],
+   "suburb": "Dingley Village",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Rotary Club of Mordialloc Mentone",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-12-29T18:30:00",
+   "location": "Mentone RSL",
+   "address": "Palermo Street, Mentone 3194",
+   "price_text": "",
+   "description": "The Rotary Club of Mordialloc Mentone is active in the local community of Mordialloc, Parkdale & Mentone,  fundraising to support charitable organisations, and partnering with organisations such as the Mordialloc Neighbourhood House, Men's Shed, Salvation Army at Dingley, Fight Parkinson's support group and providing sponsorship for school students to attend Rotary programs. We run a market at the old Mentone Heritage Railway station once a month and put on an annual Gnome & Fairy Festival in March. Heart History Health Walks and a Chatty Cafe at Just Italy in Mentone are some of the many activities supported by the Club. These local projects stand alongside a number of international programs, disaster aid, as well as bushfire and flood relief. Interested in joining? You are welcome to come along to a meeting, most Tuesdays at the Mentone RSL, 6.30pm.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Rotary-Club-of-Mordialloc-Mentone",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Service clubs"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Rotary-Club-of-Mordialloc-Mentone"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "846b5a089930",
+   "types": [
+    "Community Group",
+    "Food & Drink",
+    "Info Session",
+    "Market & Exhibition",
+    "Social & Community",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Mentone",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Rotary Club of Oakleigh Clayton Huntingdale",
+   "datetime_text": "Every Monday and Sunday",
+   "datetime_iso": "2026-11-16T18:30:00",
+   "location": "Meets Monday evening at 6:30pm",
+   "address": "319 Clayton Road, Clayton 3168",
+   "price_text": "",
+   "description": "The Rotary Club of Oakleigh Clayton Huntingdale Inc formed in 2019 when the Rotary clubs of Oakleigh, Clayton and Huntingdale merged to create a new and stronger Club within the cities of Monash and Kingston. With over 160 combined years of service and experience, the Club, Rotary OCH, is definitely well placed to continue the good work of Rotary and to make your community a better place to live. Rotary OCH brings together a team of men and women who meet weekly on Monday evenings from 6.30pm at 319 Clayton Road, Clayton. As a part of Rotary OCH, members and guests enjoy friendship, community service, networking, social activity and personal development through participation in local and international projects. And always doing it with fun. The main fundraiser of Rotary OCH is the Oakleigh Rotary Sunday Market which started more than 30 years ago, and has evolved into a thriving and well-loved local event that brings the community together every Sunday morning. Through its fund-raising efforts Rotary OCH supports local and international communities such as",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Rotary-Club-of-Oakleigh-Clayton-Huntingdale",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Service clubs"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Rotary-Club-of-Oakleigh-Clayton-Huntingdale"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday and Sunday",
+   "series_id": "b03550fffcc6",
+   "types": [
+    "Community Group",
+    "Exercise & Fitness",
+    "Market & Exhibition",
+    "Social & Community"
+   ],
+   "suburb": "Clayton",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Senior Citizens of the Freccia Azzurra Club Inc.",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-11-17T09:30:00",
+   "location": "784-796 Springvale Road",
+   "address": "784-796 Springvale Road, Braeside 3195",
+   "price_text": "",
+   "description": "We're a senior citizens group that meet every Tuesday from 9:30am to 4:30pm to socialise with friends and have a good time at the cost of $20 for a 3 course meal for both members and non-members. There is also the option to stay for dinner on a Tuesday and order from our à la carte menu. We partake in several activities such as Bocce, Bingo, Italian Card Games and Table Tennis, as well as occasionally taking day trips. On the last Tuesday of the month from 12:00pm to 4:30pm we have a formal lunch and dance with an Italian band and a 3 course meal at $35 for members of our group, and $40 for non-members. Stay tuned to our Facebook page for all other events that we organise.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Senior-Citizens-of-the-Freccia-Azzurra-Club-Inc.",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Multicultural",
+    "Seniors"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Senior-Citizens-of-the-Freccia-Azzurra-Club-Inc."
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "c10032ac46c8",
+   "types": [
+    "Community Group",
+    "Dance",
+    "Food & Drink",
+    "Games & Cards",
+    "Music & Performance",
+    "Social & Community",
+    "Sport & Outdoors",
+    "Technology"
+   ],
+   "suburb": "Braeside",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Senior Citizens of the Freccia Azzurra Club Inc.",
+   "datetime_text": "Every Tuesday",
+   "datetime_iso": "2026-11-17T12:00:00",
+   "location": "784-796 Springvale Road",
+   "address": "784-796 Springvale Road, Braeside 3195",
+   "price_text": "",
+   "description": "We're a senior citizens group that meet every Tuesday from 9:30am to 4:30pm to socialise with friends and have a good time at the cost of $20 for a 3 course meal for both members and non-members. There is also the option to stay for dinner on a Tuesday and order from our à la carte menu. We partake in several activities such as Bocce, Bingo, Italian Card Games and Table Tennis, as well as occasionally taking day trips. On the last Tuesday of the month from 12:00pm to 4:30pm we have a formal lunch and dance with an Italian band and a 3 course meal at $35 for members of our group, and $40 for non-members. Stay tuned to our Facebook page for all other events that we organise.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Senior-Citizens-of-the-Freccia-Azzurra-Club-Inc.",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Multicultural",
+    "Seniors"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Senior-Citizens-of-the-Freccia-Azzurra-Club-Inc."
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday",
+   "series_id": "c10032ac46c8",
+   "types": [
+    "Community Group",
+    "Dance",
+    "Food & Drink",
+    "Games & Cards",
+    "Music & Performance",
+    "Social & Community",
+    "Sport & Outdoors",
+    "Technology"
+   ],
+   "suburb": "Braeside",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Speaking Made Easy Bayside",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-30T20:15:00",
+   "location": "Sundowner Community Centre",
+   "address": "Jacobs Drive Reserve, Clarinda 3169",
+   "price_text": "",
+   "description": "Bayside Women’s Public Speaking Group Meetings held 1 st and 3 rd Wednesday each month, 8.15pm at Sundowner Community Centre, Clarinda. Welcoming group of women who learn and practise public speaking in a relaxed, non-competitive, supportive environment. Have you always wanted to feel comfortable and confident speaking in a group situation? Come along and see for yourself.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Speaking-Made-Easy-Bayside",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Other"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/Speaking-Made-Easy-Bayside"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "038906754d40",
+   "types": [
+    "Community Group",
+    "Health & Wellbeing"
+   ],
+   "suburb": "Clarinda",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "St Matthew's Anglican Church, Cheltenham",
+   "datetime_text": "Every Wednesday and Sunday",
+   "datetime_iso": "2026-11-15T09:30:00",
+   "location": "St Matthew's Anglican Church",
+   "address": "Cnr Nepean Highway and Park Road, Cheltenham 3192",
+   "price_text": "",
+   "description": "St Matthew's Anglican church has been a centre of worship in Cheltenham for over 150 years. We experience God’s hospitality through meeting together, praying for each other and for God’s world, and sharing in rituals that help to strengthen our spiritual lives.  Our worship style is traditional Anglican (Anglo-Catholic) with music and children's ministry a regular feature. God's love does not discriminate, and our church is a welcoming and inclusive place for all people. We offer regular services on Sunday at 9.30am and Wednesday at 9.45am, as well as celebrations to mark special days in the Christian calendar. Members of the community also have the opportunity to mark life events such as baptisms, weddings and funerals.  Our beautiful mid-century church is in the heart of Cheltenham, on the corner of Park Road and Nepean Highway. We operate Cheltenham Opportunity Shop in the building next to our church at 161 Park Road Cheltenham, and other spaces within our church buildings are available for use by community organisations, including Matt's Place community meals program, which operates from our Church hall on Thursdays.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/St-Matthew39s-Anglican-Church-Cheltenham",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Faith"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/St-Matthew39s-Anglican-Church-Cheltenham"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday and Sunday",
+   "series_id": "67b5fc477ab5",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Exercise & Fitness",
+    "Food & Drink",
+    "Music & Performance",
+    "Social & Community"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "St Matthew's Anglican Church, Cheltenham",
+   "datetime_text": "Every Wednesday and Sunday",
+   "datetime_iso": "2026-11-18T09:45:00",
+   "location": "St Matthew's Anglican Church",
+   "address": "Cnr Nepean Highway and Park Road, Cheltenham 3192",
+   "price_text": "",
+   "description": "St Matthew's Anglican church has been a centre of worship in Cheltenham for over 150 years. We experience God’s hospitality through meeting together, praying for each other and for God’s world, and sharing in rituals that help to strengthen our spiritual lives.  Our worship style is traditional Anglican (Anglo-Catholic) with music and children's ministry a regular feature. God's love does not discriminate, and our church is a welcoming and inclusive place for all people. We offer regular services on Sunday at 9.30am and Wednesday at 9.45am, as well as celebrations to mark special days in the Christian calendar. Members of the community also have the opportunity to mark life events such as baptisms, weddings and funerals.  Our beautiful mid-century church is in the heart of Cheltenham, on the corner of Park Road and Nepean Highway. We operate Cheltenham Opportunity Shop in the building next to our church at 161 Park Road Cheltenham, and other spaces within our church buildings are available for use by community organisations, including Matt's Place community meals program, which operates from our Church hall on Thursdays.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/St-Matthew39s-Anglican-Church-Cheltenham",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Faith"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/St-Matthew39s-Anglican-Church-Cheltenham"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday and Sunday",
+   "series_id": "67b5fc477ab5",
+   "types": [
+    "Children & Families",
+    "Community Group",
+    "Exercise & Fitness",
+    "Food & Drink",
+    "Music & Performance",
+    "Social & Community"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "When No One's Watching (WNOW) - Mentone Sunrise Club",
+   "datetime_text": "Every Wednesday",
+   "datetime_iso": "2026-12-30T06:00:00",
+   "location": "Next to Mentone LSC",
+   "address": "Beach Road, Mentone 3194",
+   "price_text": "",
+   "description": "WNOW creates environments where men feel safe to connect authentically, share openly and learn from their peers to enable them to be happier when they are by themselves and with their loved ones. We want to shake the perceived cultural expectations that are upon the modern man. We are saying it is ok to celebrate emotional vulnerability and be a good man. Its ok to grow and change out of your culturally accepted norm to be a better person for yourself and for the world around us. How do we do this? Sunrise Clubs, where we meet to do a simple workout / mindful movement, share stories, have a dip in the ocean, and most importantly have a coffee and connect with one another. We create a safe, non-judgmental environment where everyone is welcome regardless. Every Wednesday. 6AM. Rain Hail or Shine. Next to Mentone LSC. WNOW is a ACNC registered charity with DGR status ( https://www.acnc.gov.au/charity/charities/dcfb107e-8724-ef11-840b-00224893bffb/profile )",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/When-No-Ones-Watching-WNOW-Mentone-Sunrise-Club",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Other"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/When-No-Ones-Watching-WNOW-Mentone-Sunrise-Club"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Wednesday",
+   "series_id": "072ecaa417a6",
+   "types": [
+    "Community Group",
+    "Exercise & Fitness",
+    "Food & Drink",
+    "Health & Wellbeing"
+   ],
+   "suburb": "Mentone",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "YWCA Spring Park Golf Club Inc",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-12-28T07:45:00",
+   "location": "Spring Park Golf Course",
+   "address": "Crn Lower Dandenong Rd & Centre Dandenong Rd, Dingley Village 3172",
+   "price_text": "",
+   "description": "We welcome all ladies who have completed lessons & have the basic skills & knowledge of golf. We play nine holes Monday mornings at 7.45am - 10.30am at Spring Park Golf Course, (03) 9551 5163.",
+   "source": "https://www.kingston.vic.gov.au/community/get-involved/community-groups/YWCA-Spring-Park-Golf-Club-Inc",
+   "source_id": "kingston_groups",
+   "source_types": [
+    "Sports and recreation"
+   ],
+   "price_sort": null,
+   "sources": [
+    "https://www.kingston.vic.gov.au/community/get-involved/community-groups/YWCA-Spring-Park-Golf-Club-Inc"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "deb78bf31884",
+   "types": [
+    "Community Group",
+    "Sport & Outdoors"
+   ],
+   "suburb": "Dingley Village",
    "is_commercial": false,
    "commercial_reason": "",
    "status": "",
@@ -68371,6 +70195,36 @@
    "hidden_by_default": false
   },
   {
+   "name": "STEADYmoves",
+   "datetime_text": "Every Tuesday and Friday",
+   "datetime_iso": "2026-11-17T11:30:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "Physiotherapy fees apply",
+   "description": "Tuesdays, 11:30am - 1pm | Fridays, 11am - 12:30pm. Instructor: Annette",
+   "source": "https://www.chelt.com.au/exercise-dance-yoga.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/exercise-dance-yoga.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Tuesday and Friday",
+   "series_id": "b9eb59ff6541",
+   "types": [
+    "Exercise & Fitness"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
    "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
    "datetime_text": "Every Monday and Thursday",
    "datetime_iso": "2026-10-12T09:00:00",
@@ -68495,13 +70349,13 @@
    "hidden_by_default": false
   },
   {
-   "name": "Cert I in EAL 22638VIC – Certificate I in EAL (Access)",
+   "name": "Course in EAL 22637VIC - Course in English as an Additional Language",
    "datetime_text": "Every Monday and Thursday",
-   "datetime_iso": "2026-10-05T09:00:00",
+   "datetime_iso": "2026-10-26T09:00:00",
    "location": "Cheltenham Community Centre",
    "address": "8 Chesterville Road, Cheltenham VIC 3192",
    "price_text": "",
-   "description": "Mondays and Thursdays 9am - 12pm A course for students starting to learn English or who have had minimal exposure to English . Students will learn reading, writing, speaking and listening skills for personal and social needs. More information. Mondays. 9am - 12pm",
+   "description": "Mondays and Thursdays 9am - 12pm Mondays and Thursdays 12.30pm - 3.30pm For students beginning their English language learning journey. Includes alphabet, pronunciation and numbers as well as speaking and reading simple sentences . More information. Mondays. 9am - 12pm",
    "source": "https://www.chelt.com.au/learn-english.html",
    "source_id": "ccc",
    "price_sort": null,
@@ -68510,9 +70364,10 @@
    ],
    "date_inferred": true,
    "recurrence": "Every Monday and Thursday",
-   "series_id": "cdba6306fc79",
+   "series_id": "1fbb3459f96e",
    "types": [
-    "Books & Reading"
+    "Books & Reading",
+    "Info Session"
    ],
    "suburb": "Cheltenham",
    "is_commercial": false,
@@ -68678,6 +70533,36 @@
    "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
    "datetime_text": "Every Monday",
    "datetime_iso": "2026-11-09T09:00:00",
+   "location": "Cheltenham Community Centre",
+   "address": "8 Chesterville Road, Cheltenham VIC 3192",
+   "price_text": "",
+   "description": "Mondays 9am - 12pm and 12:30pm - 3:30pm This course will improve English language skills to assist with students’ social needs, requirements of everyday situations and preparation for employment in Australia. More information. Mondays. 9am - 12pm. 12:30pm - 3:30pm",
+   "source": "https://www.chelt.com.au/learn-english.html",
+   "source_id": "ccc",
+   "price_sort": null,
+   "sources": [
+    "https://www.chelt.com.au/learn-english.html"
+   ],
+   "date_inferred": true,
+   "recurrence": "Every Monday",
+   "series_id": "d653b0c3aa9f",
+   "types": [
+    "Info Session"
+   ],
+   "suburb": "Cheltenham",
+   "is_commercial": false,
+   "commercial_reason": "",
+   "status": "",
+   "status_detail": "",
+   "status_label": "",
+   "is_service": false,
+   "service_reason": "",
+   "hidden_by_default": false
+  },
+  {
+   "name": "Cert III in EAL 22640VIC – Certificate III in EAL (Access)",
+   "datetime_text": "Every Monday",
+   "datetime_iso": "2026-11-16T09:00:00",
    "location": "Cheltenham Community Centre",
    "address": "8 Chesterville Road, Cheltenham VIC 3192",
    "price_text": "",
