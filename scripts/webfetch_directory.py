@@ -81,6 +81,8 @@ LOCATION_HEADING = "h2.sub-title"
 LOCATION_CLASS = "sub-title"
 HOURS_BLOCK = ".side-box-section.hours-details"
 HOURS_DAY = "span.hours-day"
+HOURS_DAY_CLASS = "hours-day"
+HOURS_TIMES_CLASS = "hours-time-list"
 # "07:00 AM-10:00 AM" -- the dash is U+2013 on the page and can arrive as a
 # replacement character through some encodings, so both are accepted.
 HOURS_RANGE_RE = re.compile(
@@ -260,17 +262,37 @@ def _schedule_from_hours(hours_html):
     Individual sessions already over MAX_MEETING_HOURS are dropped before the
     aggregate is taken, so one long outlier (a festival session, a late hire)
     does not make an otherwise ordinary day fail.
+
+    The walk is by document position, not by list item, and that is the whole
+    fix. The page never closes its `<li>` elements, so BeautifulSoup nests every
+    weekday inside the first one and `.hours-list > li` matches exactly one item
+    -- the first weekday, which is usually Sunday and usually `Closed`. The
+    reader therefore saw either nothing or a single wrong day, and two of the
+    rules above could never fire: `MAX_MEETING_HOURS` had nothing to aggregate
+    and `MAX_MEETING_DAYS` could not be exceeded by a one-element list. They were
+    written for the case they are now in, and this restores it.
+
+    Assigning each time list to the most recent `.hours-day` before it is the
+    only reading here that is per-day. Scoping a day item's own subtree does not
+    work, because the next weekday is a *descendant* of the previous one: Monday
+    would collect Tuesday's sessions.
     """
     soup = BeautifulSoup(hours_html, "html.parser")
     by_day = {}
-    for item in soup.select(".hours-list > li"):
-        day_el = item.select_one(HOURS_DAY)
-        if not day_el:
+    day, closed = None, False
+    for node in soup.descendants:
+        classes = getattr(node, "get", lambda *_a, **_k: None)(
+            "class") or []
+        if HOURS_DAY_CLASS in classes:
+            day = _DAY_INDEX.get(node.get_text(" ", strip=True).lower()[:9])
+            closed = False
             continue
-        day = _DAY_INDEX.get(day_el.get_text(" ", strip=True).lower()[:9])
-        if day is None or item.select_one(".hours-status.closed"):
+        if "hours-status" in classes and "closed" in classes:
+            closed = True
             continue
-        for entry in item.select("ul.hours-time-list li"):
+        if HOURS_TIMES_CLASS not in classes or day is None or closed:
+            continue
+        for entry in node.select("li"):
             m = HOURS_RANGE_RE.search(entry.get_text(" ", strip=True))
             if not m:
                 continue
@@ -302,7 +324,11 @@ def _schedule_from_hours(hours_html):
         days.append(f"every {DAYS[day].capitalize()} {start} - {end}"
                     if start != end else
                     f"every {DAYS[day].capitalize()} {start}")
-    if not days or len(days) > MAX_MEETING_DAYS:
+    if not days:
+        return None
+    if len(days) > MAX_MEETING_DAYS:
+        report(f"  hours table spans {len(days)} days -- a venue's opening "
+               f"hours, not a group's meeting", level="debug")
         return None
     return ", ".join(days)
 
@@ -619,6 +645,46 @@ def _self_test():
               "</span><span class='hours-status closed'>Closed</span>"
               "<ul class='hours-time-list'><li>10:00 AM&#8211;11:30 AM</li>"
               "</ul></li></div>"), None)
+
+    # The page does not close its <li> elements, and every fixture above does,
+    # which is how a reader that walked `.hours-list > li` could pass its whole
+    # suite and still see one day in production: BeautifulSoup nests each
+    # weekday inside the first, so a direct-child selector matches exactly one
+    # item. These three use the real shape.
+    unclosed = ("<div class='hours-list'>"
+                "<li class='current-day-item-no'>"
+                "<span class='hours-day'> Sunday </span>"
+                "<span class='hours-status closed'>Closed</span>"
+                "<li class='current-day-item-no'>"
+                "<span class='hours-day'> Tuesday </span>"
+                "<ul class='hours-time-list'><li>09:00 AM&#8211;12:00 PM</li>"
+                "</ul>"
+                "<li class='current-day-item-no'>"
+                "<span class='hours-day'> Wednesday </span>"
+                "<ul class='hours-time-list'><li>09:00 AM&#8211;12:00 PM</li>"
+                "</ul></div>")
+    check("unclosed list items still yield every open day",
+          _schedule_from_hours(unclosed),
+          "every Tuesday 09:00 - 12:00, every Wednesday 09:00 - 12:00")
+    # The first row is closed, which is the case that used to return nothing.
+    check("a closed first day does not hide the days after it",
+          _schedule_from_hours(unclosed) is None, False)
+    # MAX_MEETING_DAYS was dead for the same reason and is what keeps a venue's
+    # opening hours out: Moorabbin Air Museum states Mon-Fri 10:00-16:00.
+    check("a five-day window is refused as opening hours",
+          _schedule_from_hours(
+              "<div class='hours-list'>" + "".join(
+                  f"<li><span class='hours-day'>{d}</span>"
+                  f"<ul class='hours-time-list'><li>10:00 AM&#8211;04:00 PM"
+                  f"</li></ul>"
+                  for d in ("Monday", "Tuesday", "Wednesday", "Thursday",
+                            "Friday"))
+              + "</div>"), None)
+    # A genuinely three-day group at the same time each day is kept: the day
+    # count, not the uniformity, is what distinguishes it from a venue.
+    check("a three-day group with one window a day is kept",
+          _schedule_from_hours(unclosed),
+          "every Tuesday 09:00 - 12:00, every Wednesday 09:00 - 12:00")
     check("an all-closed table yields no schedule",
           _schedule_from_hours(
               "<div class='hours-list'><li><span class='hours-day'>Sunday"

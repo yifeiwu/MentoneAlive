@@ -21,12 +21,43 @@ DEFAULT_CRAWL_DELAY = 0.3
 # Bayside (Drupal, ?page=N)
 # ---------------------------------------------------------------------------
 
+def _last_page(soup, base=""):
+    """The last page index this listing states, or None if it states none.
+
+    The pager publishes a "Last page" link pointing at the true final index
+    (`?page=9` for the ten pages this listing has), which is why walking to
+    `max_pages` walked one past the end and then called the empty page a broken
+    crawl. Taken as the highest `page=` value among the pager's own anchors
+    rather than by matching the words "Last page", so a relabelled or
+    translated pager still bounds the walk.
+
+    A listing with no pager links at all returns None and the caller falls back
+    to `max_pages`.
+    """
+    best = None
+    for a in soup.select(".pagination a[href], ul.pagination a[href], "
+                         "[class*='pagin'] a[href]"):
+        m = re.search(r"[?&]page=(\d+)", a.get("href") or "")
+        if not m:
+            continue
+        n = int(m.group(1))
+        best = n if best is None else max(best, n)
+    return best
+
+
 def fetch_bayside(cfg, session=None, detail_cap=None):
     rows, seen_links = [], set()
     max_pages = cfg.get("max_pages", 12)
+    # How many pages to request. Corrected on page 0 from the listing's own
+    # pager, so the walk stops at the end the site states rather than at
+    # `max_pages`, which is a ceiling rather than a count.
+    limit = max_pages
     pacer = Pacer(cfg.get("crawl_delay"), floor=MIN_CRAWL_DELAY,
                   default=DEFAULT_CRAWL_DELAY)
     for page in range(max_pages):
+        if page >= limit:
+            report(f"bayside: listing states {limit} page(s); stopping")
+            break
         url = cfg["url"] if page == 0 else f"{cfg['url']}?page={page}"
         if not pacer.take():
             raise PartialFetch(
@@ -39,10 +70,16 @@ def fetch_bayside(cfg, session=None, detail_cap=None):
             # snapshot with a fraction of the real data.
             raise PartialFetch(f"page {page} failed to load", rows)
         soup = BeautifulSoup(html, "html.parser")
+        if page == 0:
+            stated = _last_page(soup)
+            if stated is not None:
+                limit = min(max_pages, stated + 1)
         cards = soup.select("li.listing-item")
         if not cards:
             # Only page 0 may legitimately be empty (site genuinely has no
-            # events). A later page running dry means the markup changed.
+            # events), and a page *inside* the range the pager stated running
+            # dry means the markup changed. Past that range we have already
+            # stopped, which is what used to be impossible.
             if page == 0:
                 break
             raise PartialFetch(f"page {page} returned no listing items", rows)
@@ -343,6 +380,32 @@ if __name__ == "__main__":
     _apply_bayside_detail(blank, "<html><body><h1>Y</h1></body></html>")
     ck("a page with no location block keeps the listing address",
        blank["address"], "1 Real St, Beaumaris")
+
+    # The pager bound. The listing publishes ten pages and a "Last page" link to
+    # ?page=9, so walking to max_pages=12 requested page 10, found it empty, and
+    # called a broken crawl what is simply the end of the listing.
+    pager = BeautifulSoup(
+        '<ul class="pagination">'
+        '<li><a href="?page=0">Current page1</a></li>'
+        '<li><a href="?page=1">Page2</a></li>'
+        '<li><a href="?page=8">Page9</a></li>'
+        '<li><a href="?page=9">Last page</a></li></ul>', "html.parser")
+    ck("the last page is read from the pager", _last_page(pager), 9)
+    ck("the highest page wins, not the first in the markup",
+       _last_page(BeautifulSoup(
+           '<ul class="pagination"><li><a href="?page=3">Page4</a></li>'
+           '<li><a href="?page=7">Last page</a></li></ul>', "html.parser")), 7)
+    ck("a listing with no pager states no bound",
+       _last_page(BeautifulSoup("<div>nothing here</div>", "html.parser")),
+       None)
+    ck("a pager with no page param states no bound",
+       _last_page(BeautifulSoup(
+           '<ul class="pagination"><li><a href="/x">Next</a></li></ul>',
+           "html.parser")), None)
+    ck("an absolute pager href is still read",
+       _last_page(BeautifulSoup(
+           '<ul class="pagination"><a href="https://bayside.vic.gov.au'
+           '/explore-bayside/events?page=4">Last</a></ul>', "html.parser")), 4)
 
     if failures:
         print("\n%d failure(s)" % len(failures))

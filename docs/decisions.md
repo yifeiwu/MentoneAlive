@@ -1352,6 +1352,58 @@ tested against a host that actually 404s.
 
 *Owner:* `webfetch_http.PlainSession`.
 
+### D53. The hours table's guards were written and never ran - **Hold**
+
+`_schedule_from_hours` walked `.hours-list > li`. The page does not close its `<li>`
+elements, so BeautifulSoup nests every weekday inside the first and that selector
+matches **exactly one** item -- the first weekday, usually Sunday and usually `Closed`.
+The reader could therefore see nothing, or one wrong day, and never more.
+
+Two existing guards were dead as a result, and both are in this file already:
+`MAX_MEETING_HOURS = 6` had nothing to aggregate, and `MAX_MEETING_DAYS = 4` ("a
+'meeting' on this many days is a venue, not a group") could not be exceeded by a
+one-element list. They were written for the case they are now in.
+
+**What it cost.** Only 6 of 29 groups reach the hours table at all, because
+`_usable_schedule` tries the description first and 23 groups yield a schedule from prose.
+All six are venues: Chelsea Sports Club, Le Page Tennis Club, Moorabbin Air Museum,
+Moorabbin Rugby Union Football Club, St Bedes / Mentone Tigers AFC and Melbourne PC User
+Group. Each was publishing 12 rows reading "Every Sunday" at one time -- a museum's and a
+rugby club's *opening hours*, presented as a weekly meeting. So the symptom was small and
+the cause was general.
+
+**Fixed** by walking document position instead of list items: each `ul.hours-time-list`
+is assigned to the most recent `.hours-day` before it, and a `.hours-status.closed`
+suppresses the day that follows. Scoping a day item's own subtree does not work, because
+the next weekday is a *descendant* of the previous one -- Monday would collect Tuesday's
+sessions.
+
+**Not a selector-only change, and the measurement is why.** Read against the 29 live
+pages, a selector fix alone would have published Moorabbin Air Museum Mon-Fri 10:00-16:00,
+three sports clubs Mon-Fri, and Chelsea Sports Club six days a week -- ~360 rows of opening
+hours. With the existing `MAX_MEETING_DAYS` restored, all five are correctly refused and
+Melbourne PC User Group is the only one of the six that still reads ("every Saturday
+11:00 - 16:00, every Sunday 13:00 - 16:00", two days, differing windows).
+
+Expected data effect, **not yet applied**: a re-crawl drops the five venue groups
+(~60 rows) and corrects Melbourne PC User Group. The Men's Shed is unaffected -- prose wins
+there, and its schedule is right as of D51 either way.
+
+**Why the suite missed it.** Every fixture in `webfetch_directory.py` closes its `<li>`
+tags, so the reader passed 25 cases and still saw one day per page in production. The four
+cases added here use the real markup, including a closed first day (the case that returned
+nothing) and a five-day window (the case `MAX_MEETING_DAYS` exists for). A fixture set that
+does not match the page cannot catch a selector bug, which is worth remembering for the
+other readers.
+
+One implementation note, since it cost a run: `HOURS_CLOSED_CLASS` was first written as
+the string `"hours-status closed"` and tested with `in` against BeautifulSoup's **list**
+of classes, which is never true. The existing "a day marked closed is not read as a
+session" case caught it immediately -- the clearest argument in this file for testing the
+traversal and not just the outcome.
+
+*Owner:* `webfetch_directory._schedule_from_hours`.
+
 ## 7. Things that are not decisions, but look like they were
 
 Noted here because each has cost real effort and will cost more if it is
