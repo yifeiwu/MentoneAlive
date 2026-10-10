@@ -1404,6 +1404,36 @@ traversal and not just the outcome.
 
 *Owner:* `webfetch_directory._schedule_from_hours`.
 
+### D54. Bayside's pager states its own page count, and max_pages walked past it - **Hold**
+
+Found by the crawl that D53's fix made possible, not by it: `check_all.py` failed
+fail-fast at `bayside_live` with *"page 10 returned no listing items"*, and the run
+stopped before dedupe. Reproducible on its own.
+
+The listing publishes **ten** pages, twelve events each, and its pager carries a
+"Last page" link to `?page=9`. `sources.yaml` sets `max_pages: 12` -- a ceiling, not a
+count -- so the loop asked for pages 10 and 11, found them empty, and raised. The guard
+was written as *"Only page 0 may legitimately be empty ... a later page running dry means
+the markup changed"*, which is true of a listing that does not state its size and false
+of one that does.
+
+Fixed by reading the bound rather than guessing it: `_last_page` takes the highest
+`page=` value among the pager's own anchors, and the walk stops there, keeping
+`max_pages` as the ceiling. Deliberately *not* by matching the words "Last page", so a
+relabelled or translated pager still bounds the walk.
+
+The distinction the old guard was protecting is kept: a page that fails to *load* still
+raises, and a page that loads empty *inside* the stated range still raises. Only walking
+past a stated end is now a clean stop. That is why the crawl reports
+`listing states 10 page(s); stopping` rather than failing.
+
+Worth noting what the guard cost: while bayside raised, it kept the previous snapshot and
+discarded its own 120 rows, so the source silently stopped refreshing. It is not obvious
+from "partial fetch: page 10 returned no listing items" that the page 10 is simply the
+end.
+
+*Owner:* `webfetch_bayside._last_page`, `webfetch_bayside.fetch_bayside`.
+
 ## 7. Things that are not decisions, but look like they were
 
 Noted here because each has cost real effort and will cost more if it is
